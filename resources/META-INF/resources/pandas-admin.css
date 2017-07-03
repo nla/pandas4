@@ -1,0 +1,49 @@
+body {
+    margin: 0;
+}
+header {
+    background: #010066;
+    color: #ffffff;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+header h1 {
+    margin-top: 0px;
+    margin-left: 16px;
+    margin-bottom: 0px;
+    font-weight: 100;
+    text-shadow: 3px 3px #00003a;
+}
+header .pandas-logo {
+    color: #ffcc00;
+    font-family: serif;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.sidebar {
+    flex: 0 0 12em;
+    margin-top: 16px;
+    margin-left: 16px;
+}
+
+.content {
+    flex: 1;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.form {
+    max-width: 800px;
+}
+
+.nav-header {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #555;
+    padding: 0px 0px;
+}
