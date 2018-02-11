@@ -7,6 +7,7 @@
     <version>0.2.0</version>
 
     <build>
+        <finalName>pandas-admin</finalName>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <testSourceDirectory>${basedir}/test</testSourceDirectory>
         <resources>
@@ -32,7 +33,7 @@
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <version>11.2.0.4</version>
+            <version>11.2.0.4.0-atlassian-hosted</version>
         </dependency>
 
         <dependency>
@@ -103,4 +104,10 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>atlassian-third-party</id>
+            <url>https://maven.atlassian.com/3rdparty/</url>
+        </repository>
+    </repositories>
 </project>
