@@ -2,25 +2,29 @@ package pandas.admin.marcexport;
 
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 
 public class MarcMappingsTest {
     @Test
     public void nlaCatalogue() throws Exception {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
         Title title = new Title();
         title.setId(65591);
         title.setName("cricket.com.au");
         title.setTitleUrl("http://www.cricket.com.au/");
-        title.setRegisteredDate(new Date(1461716391087L));
+
+        title.setRegisteredDate(dateFormat.parse("2016-04-27T09:19:51"));
         title.setPublisherName("Cricket Australia");
         title.setPublisherUrl("http://www.cricket.com.au/");
         title.setPublisherTypeId(1);
         title.setFormatId(1);
-        title.setEarliestInstanceDate(new Date(1461716391087L));
+        title.setEarliestInstanceDate(dateFormat.parse("2016-04-27T09:19:51"));
 
-        Date today = new Date(1488930627000L);
+        Date today = dateFormat.parse("2017-03-08T08:50:27");
 
         assertEquals("LEADER 00000nas a2200000 i 4500\n" +
                         "006 m     o  d f      \n" +
