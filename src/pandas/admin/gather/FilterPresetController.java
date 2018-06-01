@@ -17,12 +17,12 @@ public class FilterPresetController {
     }
 
     public void routes() {
-        Spark.get("/admin/gather/filterpresets", this::list);
-        Spark.get("/admin/gather/filterpresets/new", this::newForm);
-        Spark.post("/admin/gather/filterpresets/create", this::create);
-        Spark.get("/admin/gather/filterpresets/:id", this::edit);
-        Spark.post("/admin/gather/filterpresets/:id/update", this::update);
-        Spark.post("/admin/gather/filterpresets/:id/delete", this::delete);
+        Spark.get("/gather/filterpresets", this::list);
+        Spark.get("/gather/filterpresets/new", this::newForm);
+        Spark.post("/gather/filterpresets/create", this::create);
+        Spark.get("/gather/filterpresets/:id", this::edit);
+        Spark.post("/gather/filterpresets/:id/update", this::update);
+        Spark.post("/gather/filterpresets/:id/delete", this::delete);
     }
 
     String newForm(Request req, Response response) throws IOException, TemplateException {
@@ -35,14 +35,14 @@ public class FilterPresetController {
         if (dao.updateFilterPreset(preset) == 0) {
             return notFound(res);
         }
-        res.redirect("/admin/gather/filterpresets", 302);
+        res.redirect(req.contextPath() + "/gather/filterpresets", 302);
         return null;
     }
 
     String create(Request req, Response res) {
         FilterPreset preset = parseForm(req);
         dao.insertFilterPreset(preset);
-        res.redirect("/admin/gather/filterpresets", 302);
+        res.redirect(req.contextPath() + "/gather/filterpresets", 302);
         return null;
     }
 
@@ -51,7 +51,7 @@ public class FilterPresetController {
         if (dao.deleteFilterPreset(id) == 0) {
             return notFound(res);
         }
-        res.redirect("/admin/gather/filterpresets", 302);
+        res.redirect(req.contextPath() + "/gather/filterpresets", 302);
         return null;
     }
 

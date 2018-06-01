@@ -24,10 +24,10 @@ public class MarcExport {
     }
 
     public void routes() {
-        Spark.get("/admin/marcexport", this::get);
-        Spark.post("/admin/marcexport", this::post);
-        Spark.get("/admin/marcexport/MarcExport.js", Web.serveResource("/pandas/admin/marcexport/MarcExport.js"));
-        Spark.get("/admin/marcexport/titles.json", this::getTitlesJson);
+        Spark.get("/marcexport", this::get);
+        Spark.post("/marcexport", this::post);
+        Spark.get("/marcexport/MarcExport.js", Web.serveResource("/pandas/admin/marcexport/MarcExport.js"));
+        Spark.get("/marcexport/titles.json", this::getTitlesJson);
     }
 
     public String get(Request req, Response res) throws IOException, TemplateException {

@@ -36,7 +36,7 @@ $(function () {
         })
         .DataTable({
             "ajax": {
-                "url": "admin/marcexport/titles.json",
+                "url": "marcexport/titles.json",
                 "data": function (d) {
                     return $.extend({}, d, {
                         "startDate": $(".start-date").val(),

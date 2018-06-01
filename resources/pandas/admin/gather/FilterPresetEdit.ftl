@@ -15,14 +15,14 @@
     <div>
         [#if preset.id??]
             <div class="pull-right">
-                <button type="submit" formaction="admin/gather/filterpresets/${preset.id?c}/update" class="btn btn-primary">Save</button>
-                <a href="admin/gather/filterpresets" class="btn btn-default">Cancel</a>
+                <button type="submit" formaction="gather/filterpresets/${preset.id?c}/update" class="btn btn-primary">Save</button>
+                <a href="gather/filterpresets" class="btn btn-default">Cancel</a>
             </div>
-            <button type="submit" formaction="admin/gather/filterpresets/${preset.id?c}/delete" class="btn btn-danger">Delete</button>
+            <button type="submit" formaction="gather/filterpresets/${preset.id?c}/delete" class="btn btn-danger">Delete</button>
         [#else]
             <div class="pull-right">
-                <button type="submit" formaction="admin/gather/filterpresets/create" class="btn btn-primary">Save</button>
-                <a href="admin/gather/filterpresets" class="btn btn-default">Cancel</a>
+                <button type="submit" formaction="gather/filterpresets/create" class="btn btn-primary">Save</button>
+                <a href="gather/filterpresets" class="btn btn-default">Cancel</a>
             </div>
         [/#if]
     </div>

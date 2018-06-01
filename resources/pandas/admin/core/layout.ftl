@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <base href="${request.contextPath()!"/"}">
+    <base href="${request.contextPath()+"/"!"/"}">
     <title>${title} - PANDAS Admin</title>
     <link rel="stylesheet" href="webjars/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="pandas-admin.css">
@@ -23,9 +23,9 @@
     <nav class="sidebar">
         <ul class="nav nav-pills nav-stacked">
             <li class="nav-header">Tools</li>
-            [@navli href="admin/marcexport"]MARC Export[/@navli]
+            [@navli href="marcexport"]MARC Export[/@navli]
             <li class="nav-header">Gather</li>
-            [@navli href="admin/gather/filterpresets"]Filter Presets[/@navli]
+            [@navli href="gather/filterpresets"]Filter Presets[/@navli]
         </ul>
     </nav>
     <main class="content">

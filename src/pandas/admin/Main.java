@@ -7,6 +7,7 @@ import pandas.admin.gather.FilterPresetController;
 import pandas.admin.marcexport.MarcExport;
 import pandas.admin.marcexport.PandasDAO;
 import spark.Spark;
+import java.io.InputStream;
 
 public class Main {
 
@@ -23,14 +24,44 @@ public class Main {
         DBI dbi = new DBI(new HikariDataSource(hikariConfig));
         PandasDAO dao = dbi.onDemand(PandasDAO.class);
 
+
+        SparkWorkaround.contextPath(env("CONTEXT_PATH", "/admin"));
         Spark.ipAddress(env("BIND_ADDRESS", "127.0.0.1"));
         Spark.port(Integer.parseInt(env("PORT", "3001")));
 
-        //On.staticFilesLookIn("static", "META-INF/resources");
-        Spark.staticFileLocation("META-INF/resources");
+        Spark.staticFileLocation("pandas/admin/static");
+
+        Spark.get("/webjars/*", (req, res) -> {
+            String path = req.splat()[0];
+            if (path.contains("/../")) {
+                res.status(400);
+                return null;
+            }
+            InputStream stream = Main.class.getResourceAsStream("/META-INF/resources/webjars/" + path);
+            if (stream == null) {
+                res.status(404);
+                return "Not found";
+            }
+            if (path.endsWith(".css")) {
+                res.type("text/css");
+            } else if (path.endsWith(".js")) {
+                res.type("application/javascript");
+            } else if (path.endsWith(".woff2")) {
+                res.type("application/font-woff2");
+            } else if (path.endsWith(".woff2")) {
+                res.type("application/font-woff");
+            } else if (path.endsWith(".ttf")) {
+                res.type("font/ttf");
+            } else {
+                res.status(500);
+                return "Unhandled type";
+            }
+            res.header("Cache-Control", "max-age=31556926");
+            return stream;
+        });
 
         Spark.get("/", (req, res) -> {
-           res.redirect("/admin/marcexport");
+           res.redirect(req.contextPath() + "/marcexport");
            return null;
         });
 
