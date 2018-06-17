@@ -1,7 +1,5 @@
 package pandas.admin;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -10,31 +8,43 @@ import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.form.EagerFormParsingHandler;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import org.skife.jdbi.v2.DBI;
+import pandas.PandasDbConfig;
 import pandas.admin.gather.FilterPresetController;
 import pandas.admin.marcexport.MarcExport;
 import pandas.admin.marcexport.PandasDAO;
+
+import javax.sql.DataSource;
 
 import static io.undertow.Handlers.path;
 import static io.undertow.Handlers.resource;
 
 public class PandasAdmin {
+    private final DataSource dataSource;
+
+    public PandasAdmin(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public static void main(String args[]) {
-        // Workaround for Oracle JDBC library returning their own TIMESTAMP class instead of a Java Date
-        System.setProperty("oracle.jdbc.J2EE13Compliant", "true");
 
-        HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setPoolName("PandasDb");
-        hikariConfig.setJdbcUrl(env("PANDAS_DB_URL"));
-        hikariConfig.setUsername(env("PANDAS_DB_USER"));
-        hikariConfig.setPassword(env("PANDAS_DB_PASSWORD"));
-        hikariConfig.setMaximumPoolSize(1);
-        DBI dbi = new DBI(new HikariDataSource(hikariConfig));
-        PandasDAO dao = dbi.onDemand(PandasDAO.class);
+        DataSource dataSource = new PandasDbConfig(System.getenv()).open();
 
         int webPort = Integer.parseInt(env("PORT", "8080"));
         String webAddress = env("BIND_ADDRESS", "127.0.0.1");
         String contextPath = env("CONTEXT_PATH", "/admin");
+
+        HttpHandler webapp = new PandasAdmin(dataSource).webapp();
+
+        Undertow.builder().addHttpListener(webPort, webAddress)
+                .setHandler(path()
+                        .addExactPath("/", Handlers.redirect(contextPath + "/"))
+                        .addPrefixPath(contextPath, webapp))
+                .build().start();
+    }
+
+    public HttpHandler webapp() {
+        DBI dbi = new DBI(dataSource);
+        PandasDAO dao = dbi.onDemand(PandasDAO.class);
 
         ClassLoader classLoader = PandasAdmin.class.getClassLoader();
         RoutingHandler routes = Handlers.routing()
@@ -47,27 +57,11 @@ public class PandasAdmin {
 
         HttpHandler webapp = new BlockingHandler(routes);
         webapp = new EagerFormParsingHandler(webapp);
-
-        Undertow.builder().addHttpListener(webPort, webAddress)
-                .setHandler(path()
-                        .addExactPath("/", Handlers.redirect(contextPath + "/"))
-                        .addPrefixPath(contextPath, webapp))
-                .build().start();
+        return webapp;
     }
 
     private static String env(String env, String defaultValue) {
         String value = System.getenv(env);
         return value == null ? defaultValue : value;
     }
-
-    private static String env(String env) {
-        String value = System.getenv(env);
-        if (value == null) {
-            System.err.println("Env var " + env + " must be set");
-            System.exit(1);
-        }
-        return value;
-    }
-
-
 }

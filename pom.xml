@@ -1,10 +1,13 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>pandas-admin</name>
-    <groupId>pandas-admin</groupId>
+
+    <parent>
+        <groupId>au.gov.nla.pandas</groupId>
+        <artifactId>pandas</artifactId>
+        <version>3.4.2</version>
+    </parent>
     <artifactId>pandas-admin</artifactId>
-    <version>0.2.0</version>
 
     <build>
         <finalName>pandas-admin</finalName>
@@ -24,6 +27,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>au.gov.nla.pandas</groupId>
+            <artifactId>pandas-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>info.freelibrary</groupId>
             <artifactId>freelib-marc4j</artifactId>
@@ -47,12 +56,6 @@
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>2.4.5</version>
         </dependency>
 
         <dependency>
@@ -101,12 +104,6 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.26-incubating</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.196</version>
         </dependency>
     </dependencies>
 
