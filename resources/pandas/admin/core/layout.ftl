@@ -1,5 +1,5 @@
 [#macro navli href]
-<li [#if request.pathInfo()[1..]?starts_with(href)]class="active"[/#if]>
+<li [#if http.relativePath[1..]?starts_with(href)]class="active"[/#if]>
     <a href="${href}">[#nested /]</a>
 </li>
 [/#macro]
@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <base href="${request.contextPath()+"/"!"/"}">
+    <base href="${http.resolvedPath+"/"!"/"}">
     <title>${title} - PANDAS Admin</title>
     <link rel="stylesheet" href="webjars/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="pandas-admin.css">
