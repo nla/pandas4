@@ -32,7 +32,7 @@ public class MarcExport {
     public void routes(RoutingHandler routing) {
         routing.get("/marcexport", this::get);
         routing.post("/marcexport", this::post);
-        routing.get("/marcexport/MarcExport.js", Handlers.resource(new ClassPathResourceManager(getClass().getClassLoader(), "pandas/admin/marcexport/MarcExport.js")));
+        routing.get("/marcexport/MarcExport.js", Handlers.resource(new ClassPathResourceManager(getClass().getClassLoader(), "pandas/admin/")));
         routing.get("/marcexport/titles.json", this::getTitlesJson);
     }
 
