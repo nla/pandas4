@@ -43,7 +43,11 @@ public class MarcExport {
     void post(HttpServerExchange http) {
         FormData formData = http.getAttachment(FORM_DATA);
         String[] ids = formData.getFirst("ids").getValue().split("\\s+");
-        try (OutputFormat format = lookupFormat(http, firstOrDefault(http.getQueryParameters(), "format", "text"))) {
+        String formatName = "text";
+        if (formData.getFirst("format") != null) {
+            formatName = formData.getFirst("format").getValue();
+        }
+        try (OutputFormat format = lookupFormat(http, formatName)) {
             for (String id : ids) {
                 id = id.trim().replace("nla.arc-", "");
                 if (!id.isEmpty()) {
