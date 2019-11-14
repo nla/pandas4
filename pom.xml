@@ -74,9 +74,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>11.2.0.4.0-atlassian-hosted</version>
+            <groupId>com.oracle.ojdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>19.3.0.0</version>
         </dependency>
 
         <dependency>
@@ -140,11 +140,4 @@
             <version>2.3.26-incubating</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>atlassian-third-party</id>
-            <url>https://maven.atlassian.com/3rdparty/</url>
-        </repository>
-    </repositories>
 </project>
