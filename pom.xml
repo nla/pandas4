@@ -5,7 +5,7 @@
     <parent>
         <groupId>au.gov.nla.pandas</groupId>
         <artifactId>pandas</artifactId>
-        <version>3.7.10</version>
+        <version>3.8.0</version>
     </parent>
     <artifactId>pandas-admin</artifactId>
 
