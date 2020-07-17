@@ -1,5 +1,5 @@
-[#-- @ftlvariable name="preset" type="pandas.admin.gather.FilterPreset" --]
-[#include "../core/layout.ftl"]
+[#-- @ftlvariable name="preset" type="pandas.admin.gather.GatherFilterPreset" --]
+[#include "layout.ftlh"]
 [@page (preset.id??)?string("Edit Filter Preset", "New Filter Preset")]
 
 <form method="post" class="form">

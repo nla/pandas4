@@ -1,4 +1,4 @@
-[#include "../core/layout.ftl"]
+[#include "layout.ftlh"]
 
 [@page "Export MARC Records"]
 

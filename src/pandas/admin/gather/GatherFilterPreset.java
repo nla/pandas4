@@ -1,8 +1,19 @@
 package pandas.admin.gather;
 
-public class FilterPreset {
+import javax.persistence.*;
+
+@Entity(name = "GATHER_FILTER_PRESET")
+public class GatherFilterPreset {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GATHER_FILTER_PRESET_SEQ")
+    @SequenceGenerator(name = "GATHER_FILTER_PRESET_SEQ", sequenceName = "GATHER_FILTER_PRESET_SEQ", allocationSize = 1)
+    @Column(name = "GATHER_FILTER_PRESET_ID")
     private Long id;
+
+    @Column(name = "FILTER_NAME")
     private String name;
+
+    @Column(name = "FILTER_PRESET")
     private String filters;
 
     public Long getId() {

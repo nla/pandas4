@@ -12,7 +12,7 @@ public class MarcMappingsTest {
     @Test
     public void nlaCatalogue() throws Exception {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
-        Title title = new Title();
+        DummyTitle title = new DummyTitle();
         title.setId(65591);
         title.setName("cricket.com.au");
         title.setTitleUrl("http://www.cricket.com.au/");
