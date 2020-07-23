@@ -23,12 +23,22 @@
     <nav class="sidebar">
         <ul class="nav nav-pills nav-stacked">
             <li class="nav-header">Tools</li>
+            [@navli href="categories"]Collections[/@navli]
             [@navli href="marcexport"]MARC Export[/@navli]
             <li class="nav-header">Gather</li>
             [@navli href="gather/filterpresets"]Filter Presets[/@navli]
         </ul>
     </nav>
     <main class="content">
+        [#if breadcrumbs??]
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    [#list breadcrumbs as breadcrumb]
+                        <li class="breadcrumb-item [#if breadcrumb?is_last]active[/#if]"><a href="${breadcrumb.href}">${breadcrumb.name}</a></li>
+                    [/#list]
+                </ol>
+            </nav>
+        [/#if]
         <h2>${title}</h2>
         [#nested/]
     </main>
