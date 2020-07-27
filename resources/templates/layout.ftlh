@@ -4,45 +4,37 @@
 </li>
 [/#macro]
 
-[#macro page title]
+[#macro page title header=true]
 <!doctype html>
 <html>
 <head>
     <meta charset="UTF-8">
     <base href="[#if requestContext.contextPath == ""]/[#else]${requestContext.contextPath}/[/#if]">
     <title>${title} - PANDAS Admin</title>
-    <link rel="stylesheet" href="webjars/bootstrap/3.3.4/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="pandas-admin.css">
 </head>
 <body>
+
 <header>
-    <h1><span class="pandas-logo">PANDAS</span> Admin</h1>
+    <a href="/">PANDAS Admin</a>
 </header>
 
-<div class="wrapper">
-    <nav class="sidebar">
-        <ul class="nav nav-pills nav-stacked">
-            <li class="nav-header">Tools</li>
-            [@navli href="categories"]Collections[/@navli]
+<main>
+    <nav>
+        <ul>
+            <li>Tools</li>
+            [@navli href="collections"]Collections[/@navli]
             [@navli href="marcexport"]MARC Export[/@navli]
-            <li class="nav-header">Gather</li>
+            <li>Gather</li>
             [@navli href="gather/filterpresets"]Filter Presets[/@navli]
         </ul>
     </nav>
-    <main class="content">
-        [#if breadcrumbs??]
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    [#list breadcrumbs as breadcrumb]
-                        <li class="breadcrumb-item [#if breadcrumb?is_last]active[/#if]"><a href="${breadcrumb.href}">${breadcrumb.name}</a></li>
-                    [/#list]
-                </ol>
-            </nav>
-        [/#if]
-        <h2>${title}</h2>
+    <article>
+        [#if header]<h1>${title}</h1>[/#if]
         [#nested/]
-    </main>
-</div>
+    </article>
+</main>
 
 </body>
 </html>

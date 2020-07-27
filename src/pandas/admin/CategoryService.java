@@ -1,7 +1,10 @@
 package pandas.admin;
 
+import org.hibernate.search.jpa.Search;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,8 +14,9 @@ public class CategoryService {
     private final SubjectRepository subjectRepository;
     private final CollectionRepository collectionRepository;
     private final Category topLevelCategory;
+    private final EntityManager entityManager;
 
-    public CategoryService(SubjectRepository subjectRepository, CollectionRepository collectionRepository) {
+    public CategoryService(SubjectRepository subjectRepository, CollectionRepository collectionRepository, EntityManager entityManager) {
         this.subjectRepository = subjectRepository;
         this.collectionRepository = collectionRepository;
         topLevelCategory = new Category() {
@@ -60,6 +64,11 @@ public class CategoryService {
             }
 
             @Override
+            public void setParentCategory(Category parent) {
+                throw new UnsupportedOperationException("Top-level category can't have parent");
+            }
+
+            @Override
             public List<Site> getSites() {
                 return List.of();
             }
@@ -68,7 +77,13 @@ public class CategoryService {
             public String getType() {
                 return Subject.class.getSimpleName();
             }
+
+            @Override
+            public String getFullName() {
+                return getName();
+            }
         };
+        this.entityManager = entityManager;
     }
 
     public Category getCategory(long id) {
@@ -89,7 +104,7 @@ public class CategoryService {
             breadcrumbs.add(new Breadcrumb() {
                 @Override
                 public String getHref() {
-                    return "/categories/" + c.getCategoryId();
+                    return "/collections/" + c.getCategoryId();
                 }
 
                 @Override
@@ -104,7 +119,7 @@ public class CategoryService {
 
                 @Override
                 public String getHref() {
-                    return "/categories/" + topLevelCategory.getCategoryId();
+                    return "/collections/" + topLevelCategory.getCategoryId();
                 }
 
                 @Override
@@ -124,6 +139,29 @@ public class CategoryService {
             collectionRepository.save((Collection)category);
         } else {
             throw new UnsupportedOperationException(category.getClass().getName());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Transactional
+    public List<Category> search(String q) {
+        var fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
+        var qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Subject.class).get();
+        var query = qb.simpleQueryString().onField("name").boostedTo(1.5f).andField("fullName")
+                .withAndAsDefaultOperator().matching(q).createQuery();
+        var jpaQuery = fullTextEntityManager.createFullTextQuery(query, Subject.class, Collection.class);
+        return jpaQuery.getResultList();
+    }
+
+    public void reindex() throws InterruptedException {
+        Search.getFullTextEntityManager(entityManager).createIndexer(Subject.class, Collection.class).startAndWait();
+    }
+
+    public void delete(long id) {
+        if (Subject.isInRange(id)) {
+            subjectRepository.deleteById(id - Subject.CATEGORY_ID_RANGE_START);
+        } else {
+            collectionRepository.deleteById(id);
         }
     }
 }

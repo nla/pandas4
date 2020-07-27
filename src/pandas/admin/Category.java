@@ -21,7 +21,11 @@ public interface Category {
 
     Category getParentCategory();
 
+    void setParentCategory(Category parent);
+
     List<Site> getSites();
 
     String getType();
+
+    String getFullName();
 }

@@ -1,13 +1,17 @@
 package pandas.admin;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Index;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity(name = "COL")
 @DynamicUpdate
+@Indexed
 public class Collection implements Category {
     @Id
     @Column(name = "COL_ID")
@@ -18,15 +22,17 @@ public class Collection implements Category {
     private String displayComment;
     private Integer displayOrder;
     private boolean isDisplayed;
-    private String name;
     private String thumbnailUrl;
+
+    @Field
+    private String name;
 
     @ManyToOne
     @JoinColumn(name = "COL_PARENT_ID")
     private Collection parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Collection> children;
+    private List<Collection> children = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "TITLE_COL",
@@ -37,7 +43,7 @@ public class Collection implements Category {
 
     @ManyToMany(mappedBy = "collections")
     @OrderBy("name")
-    private List<Subject> subjects;
+    private List<Subject> subjects = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -114,6 +120,28 @@ public class Collection implements Category {
         List<Subject> subjects = getSubjects();
         if (!subjects.isEmpty()) return subjects.get(0);
         return null;
+    }
+
+    @Override
+    public void setParentCategory(Category parent) {
+        if (parent instanceof Collection) {
+            setParent((Collection) parent);
+        } else if (parent instanceof Subject) {
+            getSubjects().add((Subject) parent);
+        } else {
+            throw new IllegalArgumentException(parent.getClass().getName());
+        }
+    }
+
+    @Field
+    @Override
+    public String getFullName() {
+        var list = new ArrayList<String>();
+        for (Category c = this; c != null; c = c.getParentCategory()) {
+            list.add(c.getName());
+        }
+        Collections.reverse(list);
+        return String.join(" / ", list);
     }
 
     @Override

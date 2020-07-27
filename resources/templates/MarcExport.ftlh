@@ -2,12 +2,12 @@
 
 [@page "Export MARC Records"]
 
-<link rel="stylesheet" href="webjars/datatables/1.10.11/css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="webjars/datatables/1.10.21/css/dataTables.bootstrap4.min.css">
 <script src="webjars/jquery/1.11.1/jquery.min.js" defer></script>
-<script src="webjars/bootstrap/3.3.4/js/tab.js" defer></script>
+<script src="webjars/bootstrap/4.5.0/js/bootstrap.min.js" defer></script>
 <script src="webjars/webshim/1.15.8/dev/polyfiller.js" defer></script>
-<script src="webjars/datatables/1.10.11/js/jquery.dataTables.min.js" defer></script>
-<script src="webjars/datatables/1.10.11/js/dataTables.bootstrap.min.js" defer></script>
+<script src="webjars/datatables/1.10.21/js/jquery.dataTables.min.js" defer></script>
+<script src="webjars/datatables/1.10.21/js/dataTables.bootstrap4.min.js" defer></script>
 <script src="marcexport/MarcExport.js" defer></script>
 
 <style>
@@ -28,15 +28,17 @@
     }
 </style>
 
-<nav>
-    <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab-date-range" data-toggle="tab">Date Range</a></li>
-        <li><a href="#tab-individual-titles" data-toggle="tab">Individual Titles</a></li>
-    </ul>
-</nav>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#tab-date-range" role="tab" aria-controls="home" aria-selected="true">Date Range</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#tab-individual-titles" role="tab" aria-controls="profile" aria-selected="false">Individual Titles</a>
+    </li>
+</ul>
 
 <div class="tab-content">
-    <div class="tab-pane active" id="tab-date-range">
+    <div class="tab-pane show active" id="tab-date-range">
         <div class="table-filters">
             <div>
                 First archived between <input type="date" name="startDate"
@@ -77,7 +79,7 @@
             <form method="post" id="dateRangeForm">
                 <input type="hidden" name="ids">
                 <button name="format" value="text" class="btn btn-primary">Preview</button>
-                <button name="format" value="marc" class="btn btn-default">Export</button>
+                <button name="format" value="marc" class="btn btn-secondary">Export</button>
             </form>
         </div>
     </div>
@@ -90,7 +92,7 @@
 
             <div>
                 <button name="format" value="text" class="btn btn-primary">Preview</button>
-                <button name="format" value="marc" class="btn btn-default">Export</button>
+                <button name="format" value="marc" class="btn btn-secondary">Export</button>
             </div>
         </form>
     </div>

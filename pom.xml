@@ -7,7 +7,18 @@
         <artifactId>pandas</artifactId>
         <version>3.8.0</version>
     </parent>
+
     <artifactId>pandas-admin</artifactId>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.release>11</maven.compiler.release>
+        <spring.version>2.3.1.RELEASE</spring.version>
+        <spring.security.version>5.3.3.RELEASE</spring.security.version>
+    </properties>
 
     <build>
         <finalName>pandas-admin</finalName>
@@ -51,18 +62,34 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.gitlab.haynes</groupId>
+                <artifactId>libsass-maven-plugin</artifactId>
+                <version>0.2.24</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <inputPath>${basedir}/sass/</inputPath>
+                    <outputPath>${basedir}/target/classes/static/</outputPath>
+                    <sourceMapOutputPath>${basedir}/target/classes/static/</sourceMapOutputPath>
+                    <enableClasspathAwareImporter>true</enableClasspathAwareImporter>
+                </configuration>
+                <dependencies>
+<!--                    <dependency>-->
+<!--                        <groupId>org.webjars</groupId>-->
+<!--                        <artifactId>bootstrap</artifactId>-->
+<!--                        <version>4.5.0</version>-->
+<!--                    </dependency>-->
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.release>11</maven.compiler.release>
-        <spring.version>2.3.1.RELEASE</spring.version>
-        <spring.security.version>5.3.3.RELEASE</spring.security.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -125,6 +152,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-search-orm</artifactId>
+            <version>5.11.5.Final</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.oracle.ojdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>19.3.0.0</version>
@@ -145,18 +178,6 @@
 
         <dependency>
             <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>3.3.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>bootswatch-paper</artifactId>
-            <version>3.3.4+1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.webjars</groupId>
             <artifactId>webshim</artifactId>
             <version>1.15.8</version>
         </dependency>
@@ -164,13 +185,13 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>datatables</artifactId>
-            <version>1.10.11</version>
+            <version>1.10.21</version>
         </dependency>
+
         <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi</artifactId>
-            <version>3.9.1</version>
-            <scope>compile</scope>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>4.5.0</version>
         </dependency>
     </dependencies>
 </project>

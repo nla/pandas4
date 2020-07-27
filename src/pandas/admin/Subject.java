@@ -1,15 +1,20 @@
 package pandas.admin;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.persistence.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 @Entity
 @DynamicUpdate
+@Indexed
 public class Subject implements Category {
     public static final long CATEGORY_ID_RANGE_START = 15000;
     public static final long CATEGORY_ID_RANGE_END = 15999;
@@ -21,6 +26,7 @@ public class Subject implements Category {
     private Long id;
 
     @Column(name = "SUBJECT_NAME")
+    @Field
     private String name;
 
     private String thumbnailUrl;
@@ -110,6 +116,17 @@ public class Subject implements Category {
     }
 
     @Override
+    public void setParentCategory(Category parent) {
+        if (parent instanceof Subject) {
+            setParent((Subject) parent);
+        } else if (parent.getCategoryId() == 0) {
+            setParent(null);
+        } else {
+            throw new IllegalArgumentException(parent.getClass().getName());
+        }
+    }
+
+    @Override
     public List<Site> getSites() {
         return List.of();
     }
@@ -117,6 +134,17 @@ public class Subject implements Category {
     @Override
     public String getType() {
         return getClass().getSimpleName();
+    }
+
+    @Field
+    @Override
+    public String getFullName() {
+        var list = new ArrayList<String>();
+        for (Subject s = this; s != null; s = s.getParent()) {
+            list.add(s.getName());
+        }
+        Collections.reverse(list);
+        return String.join(" / ", list);
     }
 
     public List<Subject> getChildren() {

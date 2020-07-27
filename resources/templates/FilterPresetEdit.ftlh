@@ -12,20 +12,16 @@
         <textarea class="form-control" id="filters" name="filters" rows="15">${preset.filters!""?replace(" ", "\n")}</textarea>
     </div>
 
-    <div>
+    <nav>
         [#if preset.id??]
-            <div class="pull-right">
-                <button type="submit" formaction="gather/filterpresets/${preset.id?c}/update" class="btn btn-primary">Save</button>
-                <a href="gather/filterpresets" class="btn btn-default">Cancel</a>
-            </div>
-            <button type="submit" formaction="gather/filterpresets/${preset.id?c}/delete" class="btn btn-danger">Delete</button>
+            <button type="submit" formaction="gather/filterpresets/${preset.id?c}/update" class="btn btn-primary">Save</button>
+            <a href="gather/filterpresets" class="btn btn-secondary">Cancel</a>
+            <button type="submit" formaction="gather/filterpresets/${preset.id?c}/delete" class="btn btn-danger float-right">Delete</button>
         [#else]
-            <div class="pull-right">
-                <button type="submit" formaction="gather/filterpresets/create" class="btn btn-primary">Save</button>
-                <a href="gather/filterpresets" class="btn btn-default">Cancel</a>
-            </div>
+            <button type="submit" formaction="gather/filterpresets/create" class="btn btn-primary">Save</button>
+            <a href="gather/filterpresets" class="btn btn-secondary">Cancel</a>
         [/#if]
-    </div>
+    </nav>
 </form>
 
 

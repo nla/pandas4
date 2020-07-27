@@ -11,12 +11,10 @@
         </div>
 
         <div>
-            <div class="pull-right">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a href="/categories/${(category.categoryId!parentId!0)?c}" class="btn btn-default">Cancel</a>
-            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="/collections/${(category.categoryId!parentId!0)?c}" class="btn btn-secondary">Cancel</a>
             [#if category.categoryId??]
-                <button type="submit" formaction="subjects/${category.categoryId?c}/delete" class="btn btn-danger">Delete</button>
+                <button type="submit" formaction="collections/${category.categoryId?c}/delete" class="btn btn-danger float-right">Delete</button>
             [/#if]
         </div>
     </form>
