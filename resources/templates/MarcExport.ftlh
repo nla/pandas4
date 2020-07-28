@@ -8,7 +8,7 @@
 <script src="webjars/webshim/1.15.8/dev/polyfiller.js" defer></script>
 <script src="webjars/datatables/1.10.21/js/jquery.dataTables.min.js" defer></script>
 <script src="webjars/datatables/1.10.21/js/dataTables.bootstrap4.min.js" defer></script>
-<script src="marcexport/MarcExport.js" defer></script>
+<script src="${requestContext.getContextUrl('/marcexport/MarcExport.js')}" defer></script>
 
 <style>
     form textarea {
