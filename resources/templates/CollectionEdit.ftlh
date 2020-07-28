@@ -12,7 +12,7 @@
 
         <div>
             <button type="submit" class="btn btn-primary">Save</button>
-            <a href="/collections/${(category.categoryId!parentId!0)?c}" class="btn btn-secondary">Cancel</a>
+            <a href="collections/${(category.categoryId!parentId!0)?c}" class="btn btn-secondary">Cancel</a>
             [#if category.categoryId??]
                 <button type="submit" formaction="collections/${category.categoryId?c}/delete" class="btn btn-danger float-right">Delete</button>
             [/#if]

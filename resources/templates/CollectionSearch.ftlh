@@ -6,7 +6,7 @@
     <p></p>
     <ul>
         [#list results as result]
-            <li><a href="/collections/${result.categoryId?c}">${result.fullName}</a></li>
+            <li><a href="collections/${result.categoryId?c}">${result.fullName}</a></li>
         [/#list]
     </ul>
 [/@page]

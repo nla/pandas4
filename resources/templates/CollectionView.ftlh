@@ -12,7 +12,7 @@
         </ol>
         <nav>
             [#if category.categoryId != 0]
-                <a href="/collections/${category.categoryId?c}/edit" class="btn btn-primary">Edit</a>
+                <a href="collections/${category.categoryId?c}/edit" class="btn btn-primary">Edit</a>
             [/#if]
         </nav>
     </header>
@@ -36,17 +36,17 @@
             <h4>Subcollections</h4>
             <nav>
                 [#if category.type == "Subject"]
-                    <a href="/collections/new?type=Subject&parentId=${category.categoryId?c}" class="btn btn-outline-secondary">New Subject</a>
+                    <a href="collections/new?type=Subject&parentId=${category.categoryId?c}" class="btn btn-outline-secondary">New Subject</a>
                 [/#if]
                 [#if category.categoryId != 0]
-                    <a href="/collections/new?type=Collection&parentId=${category.categoryId?c}" class="btn btn-outline-secondary">New Collection</a>
+                    <a href="collections/new?type=Collection&parentId=${category.categoryId?c}" class="btn btn-outline-secondary">New Collection</a>
                 [/#if]
             </nav>
         </header>
 
         <ul class="subcategories">
             [#list category.subcategories as child]
-                <li class="subcategory-${child.type?lower_case} [#if (child.parentCategory!category) != category]subcategory-altlink[/#if]"><a href="/collections/${child.categoryId?c}">${child.name}</a></li>
+                <li class="subcategory-${child.type?lower_case} [#if (child.parentCategory!category) != category]subcategory-altlink[/#if]"><a href="collections/${child.categoryId?c}">${child.name}</a></li>
             [/#list]
         </ul>
     </section>
