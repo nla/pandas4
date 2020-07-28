@@ -61,14 +61,34 @@
                 </nav>
             </header>
 
-            <table>
-                [#list category.titles as title]
+            <table class="table">
+                <thead>
                     <tr>
-                        <td><input type=checkbox></td>
-                        <td><a href="titles/${title.id?c}" [#if !title.visible]style="color:#999"[/#if]>${title.name}</a></td>
+                        <th><input type=checkbox id=select-all></th>
+                        <th>PI</th>
+                        <th>Name</th>
+                        <th>Registered</th>
                     </tr>
-                [/#list]
+                </thead>
+                <tbody>
+                    [#list category.titles as title]
+                        <tr>
+                            <td><input type=checkbox class=row-checkbox></td>
+                            <td>${title.pi?c!""}</td>
+                            <td><a href="titles/${title.id?c}" [#if !title.visible]style="color:#999"[/#if]>${title.name}</a></td>
+                            <td>${title.regDate.toLocalDate()}</td>
+                        </tr>
+                    [/#list]
+                </tbody>
             </table>
+            <script>
+                document.getElementById("select-all").onchange = function (e) {
+                    var self = this;
+                    document.querySelectorAll(".row-checkbox").forEach(function (checkbox) {
+                        checkbox.checked = self.checked;
+                    });
+                };
+            </script>
         </section>
     [/#if]
 [/@page]

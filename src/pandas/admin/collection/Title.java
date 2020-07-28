@@ -1,6 +1,7 @@
 package pandas.admin.collection;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class Title {
@@ -11,6 +12,7 @@ public class Title {
     private Long pi;
     private String name;
     private String titleUrl;
+    private LocalDateTime regDate;
 
     @OneToOne
     @JoinColumn(name = "TEP_ID")
@@ -54,5 +56,13 @@ public class Title {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public LocalDateTime getRegDate() {
+        return regDate;
+    }
+
+    public void setRegDate(LocalDateTime regDate) {
+        this.regDate = regDate;
     }
 }
