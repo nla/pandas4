@@ -56,8 +56,8 @@
             <header>
                 <h4>Sites</h4>
                 <nav>
-                    <a class="btn btn-outline-secondary" href="#">Add Title</a>
-                    <a class="btn btn-outline-secondary" href="#">Add URL</a>
+[#--                    <a class="btn btn-outline-secondary" href="#">Add Title</a>--]
+[#--                    <a class="btn btn-outline-secondary" href="#">Add URL</a>--]
                 </nav>
             </header>
 
