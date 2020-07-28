@@ -18,10 +18,10 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 @Controller
 public class MarcExportController {
-    private final TitleRepository titleRepository;
+    private final ExportTitleRepository exportTitleRepository;
 
-    public MarcExportController(TitleRepository titleRepository) {
-        this.titleRepository = titleRepository;
+    public MarcExportController(ExportTitleRepository exportTitleRepository) {
+        this.exportTitleRepository = exportTitleRepository;
     }
 
     @GetMapping("/marcexport")
@@ -38,7 +38,7 @@ public class MarcExportController {
                 id = id.trim().replace("nla.arc-", "");
                 if (!id.isEmpty()) {
                     long pi = Long.parseLong(id);
-                    Title title = titleRepository.findTitle(pi);
+                    Title title = exportTitleRepository.findTitle(pi);
                     if (title == null) {
                         format.notFound(pi);
                     } else {
@@ -65,7 +65,7 @@ public class MarcExportController {
         if (endDate == null) endDate = LocalDate.now();
         Instant startTime = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
         Instant endTime = endDate.atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant();
-        List<TitleSummary> titleSummaries = titleRepository.listSummaries(Date.from(startTime), Date.from(endTime), includeMono, includeIntegrating, includeSerial, includeCataloguingNotRequired, includeCollectionMembers);
+        List<TitleSummary> titleSummaries = exportTitleRepository.listSummaries(Date.from(startTime), Date.from(endTime), includeMono, includeIntegrating, includeSerial, includeCataloguingNotRequired, includeCollectionMembers);
 
         // We filter out the other agencies here because if we add an agency constraint to the SQL
         // Oracle's query planner is switches to scanning TITLE rather than scanning STATUS_HISTORY which is

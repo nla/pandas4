@@ -54,7 +54,7 @@
     [#if category.type == "Collection"]
         <section>
             <header>
-                <h4>Sites</h4>
+                <h4>Titles</h4>
                 <nav>
 [#--                    <a class="btn btn-outline-secondary" href="#">Add Title</a>--]
 [#--                    <a class="btn btn-outline-secondary" href="#">Add URL</a>--]
@@ -62,10 +62,10 @@
             </header>
 
             <table>
-                [#list category.sites as site]
+                [#list category.titles as title]
                     <tr>
                         <td><input type=checkbox></td>
-                        <td [#if !site.visible]style="color:#999"[/#if]>${site.name}</td>
+                        <td><a href="titles/${title.id?c}" [#if !title.visible]style="color:#999"[/#if]>${title.name}</a></td>
                     </tr>
                 [/#list]
             </table>

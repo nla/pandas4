@@ -1,5 +1,6 @@
 package pandas.admin.collection;
 
+import org.apache.maven.model.Site;
 import org.hibernate.search.jpa.Search;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +70,7 @@ public class CategoryService {
             }
 
             @Override
-            public List<Site> getSites() {
+            public List<Title> getTitles() {
                 return List.of();
             }
 

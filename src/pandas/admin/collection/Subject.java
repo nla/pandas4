@@ -1,5 +1,6 @@
 package pandas.admin.collection;
 
+import org.apache.maven.model.Site;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
@@ -126,7 +127,7 @@ public class Subject implements Category {
     }
 
     @Override
-    public List<Site> getSites() {
+    public List<Title> getTitles() {
         return List.of();
     }
 

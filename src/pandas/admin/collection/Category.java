@@ -23,7 +23,7 @@ public interface Category {
 
     void setParentCategory(Category parent);
 
-    List<Site> getSites();
+    List<Title> getTitles();
 
     String getType();
 

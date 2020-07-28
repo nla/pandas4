@@ -1,5 +1,6 @@
 package pandas.admin.collection;
 
+import org.apache.maven.model.Site;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.annotations.*;
 
@@ -141,11 +142,6 @@ public class Collection implements Category {
         }
         Collections.reverse(list);
         return String.join(" / ", list);
-    }
-
-    @Override
-    public List<Site> getSites() {
-        return new ArrayList<>(getTitles());
     }
 
     public Collection getParent() {

@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface TitleRepository extends JpaRepository<TitleRepository.Dummy, Long> {
+public interface ExportTitleRepository extends JpaRepository<ExportTitleRepository.Dummy, Long> {
     @Entity
     class Dummy {
         @Id
