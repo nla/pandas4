@@ -104,7 +104,7 @@ public class CategoryService {
             breadcrumbs.add(new Breadcrumb() {
                 @Override
                 public String getHref() {
-                    return "/collections/" + c.getCategoryId();
+                    return "collections/" + c.getCategoryId();
                 }
 
                 @Override
@@ -116,10 +116,9 @@ public class CategoryService {
         }
         if (category.getCategoryId() != 0) {
             breadcrumbs.add(new Breadcrumb() {
-
                 @Override
                 public String getHref() {
-                    return "/collections/" + topLevelCategory.getCategoryId();
+                    return "collections/" + topLevelCategory.getCategoryId();
                 }
 
                 @Override
