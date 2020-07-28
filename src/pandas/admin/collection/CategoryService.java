@@ -1,4 +1,4 @@
-package pandas.admin;
+package pandas.admin.collection;
 
 import org.hibernate.search.jpa.Search;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package pandas.admin;
+package pandas.admin.collection;
 
 import java.util.*;
 

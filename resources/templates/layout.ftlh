@@ -18,6 +18,7 @@
 
 <header>
     <a href="/">PANDAS Admin</a>
+    <form action="/collections/search"><input name="q" placeholder="Search collections"></form>
 </header>
 
 <main>

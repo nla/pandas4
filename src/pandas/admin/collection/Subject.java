@@ -1,4 +1,4 @@
-package pandas.admin;
+package pandas.admin.collection;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.annotations.Field;
@@ -6,7 +6,6 @@ import org.hibernate.search.annotations.Indexed;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.persistence.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

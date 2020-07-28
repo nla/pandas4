@@ -1,4 +1,4 @@
-package pandas.admin;
+package pandas.admin.collection;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

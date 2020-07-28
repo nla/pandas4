@@ -1,8 +1,7 @@
-package pandas.admin;
+package pandas.admin.collection;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.annotations.*;
-import org.hibernate.search.annotations.Index;
 
 import javax.persistence.*;
 import java.util.ArrayList;

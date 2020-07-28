@@ -1,4 +1,4 @@
-package pandas.admin;
+package pandas.admin.collection;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
