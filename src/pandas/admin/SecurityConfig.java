@@ -33,14 +33,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService());
             http.logout().logoutSuccessUrl("/");
             http.authorizeRequests()
-                    .anyRequest().hasRole("panadmin");
+                    .antMatchers("/collections", "/collections/**").hasRole("panadmin")
+                    .antMatchers("/gather/**").hasRole("panadmin")
+                    .anyRequest().hasRole("stduser");
         }
     }
 
     private Set<GrantedAuthority> mapClaimsToAuthorities(Map<String, Object> claims) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         JSONArray array = (JSONArray) (((JSONObject) claims.get("realm_access")).get("roles"));
-        for (var entry: array) {
+        for (var entry : array) {
             if (entry instanceof String) {
                 var role = (String) entry;
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
