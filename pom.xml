@@ -186,5 +186,17 @@
             <artifactId>bootstrap</artifactId>
             <version>4.5.0</version>
         </dependency>
+
+        <!-- seems to be needed by spring on servers -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.3</version>
+        </dependency>
     </dependencies>
 </project>
