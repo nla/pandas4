@@ -1,21 +1,20 @@
 package pandas.admin.collection;
 
-import org.apache.maven.model.Site;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Formula;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 @Entity
 @DynamicUpdate
 @Indexed
-public class Subject implements Category {
+public class Subject extends AbstractCategory {
     public static final long CATEGORY_ID_RANGE_START = 15000;
     public static final long CATEGORY_ID_RANGE_END = 15999;
 
@@ -47,8 +46,19 @@ public class Subject implements Category {
     @OrderBy("name")
     List<Collection> collections;
 
+    @Formula("(select count(*) from SUBJECT_TITLES st where st.SUBJECT_ID = SUBJECT_ID)")
+    private long titleCount;
+
+    @Formula("(select count(*) from COL_SUBS cs where cs.SUBJECT_ID = SUBJECT_ID)")
+    private long collectionCount;
+
     static boolean isInRange(@PathVariable("id") long id) {
         return id >= CATEGORY_ID_RANGE_START && id <= CATEGORY_ID_RANGE_END;
+    }
+
+    public static Long toSubjectId(long categoryId) {
+        if (!isInRange(categoryId)) throw new IllegalArgumentException("Out of subject range:" + categoryId);
+        return categoryId - CATEGORY_ID_RANGE_START;
     }
 
     public Long getId() {
@@ -111,6 +121,12 @@ public class Subject implements Category {
     }
 
     @Override
+    public List<Category> getParents() {
+        Subject parent = getParent();
+        return parent == null ? List.of() : List.of(parent);
+    }
+
+    @Override
     public Category getParentCategory() {
         return getParent();
     }
@@ -136,17 +152,6 @@ public class Subject implements Category {
         return getClass().getSimpleName();
     }
 
-    @Field
-    @Override
-    public String getFullName() {
-        var list = new ArrayList<String>();
-        for (Subject s = this; s != null; s = s.getParent()) {
-            list.add(s.getName());
-        }
-        Collections.reverse(list);
-        return String.join(" / ", list);
-    }
-
     public List<Subject> getChildren() {
         return children;
     }
@@ -155,4 +160,11 @@ public class Subject implements Category {
         return collections;
     }
 
+    public long getTitleCount() {
+        return titleCount;
+    }
+
+    public long getCollectionCount() {
+        return collectionCount;
+    }
 }

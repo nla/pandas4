@@ -4,6 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.catalog.Catalog;
+import java.util.List;
+
 @Controller
 public class CollectionController {
     private final CategoryService categoryService;
@@ -72,8 +75,20 @@ public class CollectionController {
         return "redirect:/collections/" + category.getCategoryId();
     }
 
+    @GetMapping("/collections/{id}/add-parents")
+    public String addParentSearch(@PathVariable long id,
+                                  @RequestParam(name = "q", required = false) String q,
+                                  Model model) {
+        model.addAttribute("category", categoryService.getCategory(id));
+        model.addAttribute("results", q == null ? List.of() : categoryService.search(q));
+        model.addAttribute("q", q);
+        return "CollectionSelect";
+    }
+
     @GetMapping("/collections/search")
-    public String newForm(@RequestParam("q") String q, Model model) {
+    public String newForm(@RequestParam(value = "q", required = false) String q,
+                          @RequestParam(value = "subjectId", required = false) Long subjectId,
+                          Model model) {
         model.addAttribute("results", categoryService.search(q));
         model.addAttribute("q", q);
         return "CollectionSearch";

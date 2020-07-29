@@ -19,6 +19,8 @@ public interface Category {
 
     List<Category> getSubcategories();
 
+    List<Category> getParents();
+
     Category getParentCategory();
 
     void setParentCategory(Category parent);
@@ -28,4 +30,10 @@ public interface Category {
     String getType();
 
     String getFullName();
+
+    List<Category> getBreadcrumbs();
+
+    String getDescriptionSanitized();
+
+    boolean isDisplayed();
 }

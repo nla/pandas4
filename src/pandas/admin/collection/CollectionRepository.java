@@ -3,6 +3,8 @@ package pandas.admin.collection;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
 //    @PersistenceContext
@@ -17,4 +19,6 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
 //        var jpaQuery = fullTextEntityManager.createFullTextQuery(query, Collection.class);
 //        return jpaQuery.getResultList();
 //    }
+
+    public List<Collection> findByParentIsNullAndSubjectsIsEmpty();
 }

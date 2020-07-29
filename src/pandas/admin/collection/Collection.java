@@ -1,18 +1,17 @@
 package pandas.admin.collection;
 
-import org.apache.maven.model.Site;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Entity(name = "COL")
 @DynamicUpdate
 @Indexed
-public class Collection implements Category {
+public class Collection extends AbstractCategory {
     @Id
     @Column(name = "COL_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
@@ -114,6 +113,15 @@ public class Collection implements Category {
     }
 
     @Override
+    public List<Category> getParents() {
+        List<Category> parents = new ArrayList<>();
+        Collection parent = getParent();
+        if (parent != null) parents.add(parent);
+        parents.addAll(getSubjects());
+        return parents;
+    }
+
+    @Override
     public Category getParentCategory() {
         Collection parent = getParent();
         if (parent != null) return parent;
@@ -131,17 +139,6 @@ public class Collection implements Category {
         } else {
             throw new IllegalArgumentException(parent.getClass().getName());
         }
-    }
-
-    @Field
-    @Override
-    public String getFullName() {
-        var list = new ArrayList<String>();
-        for (Category c = this; c != null; c = c.getParentCategory()) {
-            list.add(c.getName());
-        }
-        Collections.reverse(list);
-        return String.join(" / ", list);
     }
 
     public Collection getParent() {

@@ -1,0 +1,13 @@
+.subcategories {
+  list-style-type: none;
+  padding-left: 0;
+  column-count: 4;
+  column-gap: 1rem;
+}
+.subcategories > li {
+  break-inside: avoid-column;
+  overflow: hidden;
+}
+.category-subject { font-weight: bold; }
+.category-altlink { font-style: italic; }
+.category-hidden a { color: #999; }

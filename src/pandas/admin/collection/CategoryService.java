@@ -1,14 +1,13 @@
 package pandas.admin.collection;
 
-import org.apache.maven.model.Site;
 import org.hibernate.search.jpa.Search;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -20,7 +19,7 @@ public class CategoryService {
     public CategoryService(SubjectRepository subjectRepository, CollectionRepository collectionRepository, EntityManager entityManager) {
         this.subjectRepository = subjectRepository;
         this.collectionRepository = collectionRepository;
-        topLevelCategory = new Category() {
+        topLevelCategory = new AbstractCategory() {
             @Override
             public Long getCategoryId() {
                 return 0L;
@@ -56,7 +55,14 @@ public class CategoryService {
 
             @Override
             public List<Category> getSubcategories() {
-                return new ArrayList<>(subjectRepository.findByParentIsNullOrderByName());
+                ArrayList<Category> categories = new ArrayList<>(subjectRepository.findByParentIsNullOrderByName());
+                categories.addAll(collectionRepository.findByParentIsNullAndSubjectsIsEmpty());
+                return categories;
+            }
+
+            @Override
+            public List<Category> getParents() {
+                return List.of();
             }
 
             @Override
@@ -83,6 +89,11 @@ public class CategoryService {
             public String getFullName() {
                 return getName();
             }
+
+            @Override
+            public List<Category> getBreadcrumbs() {
+                return new ArrayList<>();
+            }
         };
         this.entityManager = entityManager;
     }
@@ -97,38 +108,9 @@ public class CategoryService {
         }
     }
 
-    public List<Breadcrumb> breadcrumbs(Category category) {
-        List<Breadcrumb> breadcrumbs = new ArrayList<>();
-        Category next = category;
-        while (next != null) {
-            Category c = next;
-            breadcrumbs.add(new Breadcrumb() {
-                @Override
-                public String getHref() {
-                    return "collections/" + c.getCategoryId();
-                }
-
-                @Override
-                public String getName() {
-                    return c.getName();
-                }
-            });
-            next = next.getParentCategory();
-        }
-        if (category.getCategoryId() != 0) {
-            breadcrumbs.add(new Breadcrumb() {
-                @Override
-                public String getHref() {
-                    return "collections/" + topLevelCategory.getCategoryId();
-                }
-
-                @Override
-                public String getName() {
-                    return topLevelCategory.getName();
-                }
-            });
-        }
-        Collections.reverse(breadcrumbs);
+    public List<Category> breadcrumbs(Category category) {
+        List<Category> breadcrumbs = category.getBreadcrumbs();
+        breadcrumbs.add(0, topLevelCategory);
         return breadcrumbs;
     }
 
@@ -150,6 +132,7 @@ public class CategoryService {
         var query = qb.simpleQueryString().onField("name").boostedTo(1.5f).andField("fullName")
                 .withAndAsDefaultOperator().matching(q).createQuery();
         var jpaQuery = fullTextEntityManager.createFullTextQuery(query, Subject.class, Collection.class);
+        jpaQuery.setMaxResults(100);
         return jpaQuery.getResultList();
     }
 
@@ -163,5 +146,21 @@ public class CategoryService {
         } else {
             collectionRepository.deleteById(id);
         }
+    }
+
+    public List<Category> getAll(List<Long> ids) {
+        List<Long> subjectIds = new ArrayList<>();
+        List<Long> collectionIds = new ArrayList<>();
+        for (Long id : ids) {
+            if (Subject.isInRange(id)) {
+                subjectIds.add(Subject.toSubjectId(id));
+            } else {
+                collectionIds.add(id);
+            }
+        }
+        List<Category> categories = new ArrayList<>();
+        subjectRepository.findAllById(subjectIds).forEach(categories::add);
+        collectionRepository.findAllById(collectionIds).forEach(categories::add);
+        return categories;
     }
 }

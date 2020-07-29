@@ -1,16 +1,25 @@
 package pandas.admin.collection;
 
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Indexed
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
     private Long id;
 
+    @Field
     private Long pi;
+
+    @Field
     private String name;
+
+    @Field
     private String titleUrl;
     private LocalDateTime regDate;
 

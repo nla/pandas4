@@ -1,4 +1,4 @@
-[#include "layout.ftlh"]
+[#include "_layout.ftlh"]
 [@page "Search Collections"]
     <form method=get class=form>
         <input class=form-control name="q" value="${q!''}">

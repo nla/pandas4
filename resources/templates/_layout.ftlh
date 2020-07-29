@@ -26,6 +26,7 @@
         <ul>
             <li>Tools</li>
             [@navli href="collections"]Collections[/@navli]
+            [@navli href="subjects"]Subjects[/@navli]
             [@navli href="marcexport"]MARC Export[/@navli]
             <li>Gather</li>
             [@navli href="gather/filterpresets"]Filter Presets[/@navli]
