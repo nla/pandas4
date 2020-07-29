@@ -21,7 +21,7 @@
         <h5>Subcategories</h5>
         <ul class="subcategories">
             [#list subject.children as child]
-                <li><a href="subjects/${child.id?c}">${child.name}</a>
+                [@subjectItem child /]
             [/#list]
         </ul>
     </section>
@@ -31,6 +31,7 @@
         <ul class="subcategories">
             [#list subject.collections as collection]
                 <li>[@collectionLink collection /]
+                    [#if collection.titleCount > 0]<span class="badge badge-light">${collection.titleCount}</span>[/#if]
             [/#list]
         </ul>
     </section>

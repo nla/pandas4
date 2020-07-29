@@ -1,6 +1,7 @@
 package pandas.admin.collection;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Formula;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 
@@ -43,6 +44,9 @@ public class Collection extends AbstractCategory {
     @ManyToMany(mappedBy = "collections")
     @OrderBy("name")
     private List<Subject> subjects = new ArrayList<>();
+
+    @Formula("(select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID)")
+    private long titleCount;
 
     public Long getId() {
         return id;
@@ -170,5 +174,9 @@ public class Collection extends AbstractCategory {
     @Override
     public String getType() {
         return getClass().getSimpleName();
+    }
+
+    public long getTitleCount() {
+        return titleCount;
     }
 }
