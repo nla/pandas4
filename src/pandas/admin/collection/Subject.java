@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -38,6 +39,13 @@ public class Subject extends AbstractCategory {
     @OneToMany(mappedBy = "parent")
     @OrderBy("name")
     private List<Subject> children;
+
+    @ManyToMany
+    @JoinTable(name = "SUBJECT_TITLES",
+            joinColumns = @JoinColumn(name = "SUBJECT_ID"),
+            inverseJoinColumns = @JoinColumn(name = "TITLE_ID"))
+    @OrderBy("name")
+    private List<Title> titles;
 
     @ManyToMany
     @JoinTable(name = "COL_SUBS",
@@ -143,11 +151,6 @@ public class Subject extends AbstractCategory {
     }
 
     @Override
-    public List<Title> getTitles() {
-        return List.of();
-    }
-
-    @Override
     public String getType() {
         return getClass().getSimpleName();
     }
@@ -166,5 +169,19 @@ public class Subject extends AbstractCategory {
 
     public long getCollectionCount() {
         return collectionCount;
+    }
+
+    public List<Subject> getSubjectBreadcrumbs() {
+        List<Subject> breadcrumbs = new ArrayList<>();
+        for (Subject s = this; s != null; s = s.getParent()) {
+            breadcrumbs.add(s);
+        }
+        Collections.reverse(breadcrumbs);
+        return breadcrumbs;
+    }
+
+    @Override
+    public List<Title> getTitles() {
+        return titles;
     }
 }

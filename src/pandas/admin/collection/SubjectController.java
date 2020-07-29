@@ -3,6 +3,7 @@ package pandas.admin.collection;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class SubjectController {
@@ -16,5 +17,11 @@ public class SubjectController {
     public String list(Model model) {
         model.addAttribute("subjects", subjectRepository.topTwoLevels());
         return "SubjectList";
+    }
+
+    @GetMapping("/subjects/{id}")
+    public String list(@PathVariable("id") long id, Model model) {
+        model.addAttribute("subject", subjectRepository.findById(id).orElseThrow());
+        return "SubjectView";
     }
 }

@@ -125,8 +125,6 @@ public class Collection extends AbstractCategory {
     public Category getParentCategory() {
         Collection parent = getParent();
         if (parent != null) return parent;
-        List<Subject> subjects = getSubjects();
-        if (!subjects.isEmpty()) return subjects.get(0);
         return null;
     }
 
