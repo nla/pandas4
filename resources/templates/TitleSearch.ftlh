@@ -14,61 +14,69 @@
             </label>
         </details>
     </form>
-    <div style="color: #999; margin-top: 0.5rem">
-    Found <strong>${results.getTotalElements()}</strong> matching titles
-    </div>
 
-    [#list results.toList() as title]
-        <div style="margin: 1rem 0">
-            <div>
-                <strong><a href="titles/${title.id?c}">${title.name}</a></strong>
-                [#if title.titleUrl??]
-                    <a style="color: darkgreen; font-size: 60%" href="${title.titleUrl}">${title.titleUrl?replace("^https?://(www\\.)?", "", "r")?replace("^([^/]+)/$", "$1", "r")?truncate(80, "…")}</a>
-                [/#if]
-                [#if title.pi??]
-                    <span style="font-size: 60%"><a href="https://webarchive.nla.gov.au/tep/${title.pi?c}">TEP</a></span>
-                [/#if]
-                [#if title.titleUrl??]
-                    <span style="font-size: 60%"><a href="https://webarchive.nla.gov.au/awa/*/${title.titleUrl}">CAL</a></span>
-                [/#if]
-            </div>
-            <div style="font-size: 80%">
-                [#list title.subjects as subject]
-                    <a href="subjects/${subject.id}" style="color:teal">${subject.name}</a> [#if !subject?is_last]·[/#if]
-                [/#list]
-                [#if title.publisher??]
-                    &mdash; ${(title.publisher.organisation.name)!""}
-                [/#if]
-
-            </div>
-            <div style="color: #888; font-size: 80%">
-                <strong>${title.regDate.toLocalDate()}</strong> ·
-                <span style="font-variant: small-caps">${title.status.name}</span> ·
-                ${(title.owner.userid)!""}
-                (${title.agency.organisation.alias!""})
-            </div>
+    <section class="search-results">
+        <div style="color: #999; margin-top: 0.5rem">
+        Found <strong>${results.getTotalElements()}</strong> matching titles
         </div>
-    [/#list]
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            [#if results.hasPrevious()]
-                <li class="page-item">
-                    <a class="page-link"
-                       href="${uriBuilder.cloneBuilder().queryParam("page", results.previousPageable().getPageNumber()).toUriString()}"
-                       tabindex="-1">Previous</a>
-                </li>
-            [#else]
-                <li class="page-item disabled"><a class="page-link">Previous</a></li>
-            [/#if]
-            [#if results.hasNext()]
-                <li class="page-item">
-                    <a class="page-link"
-                       href="${uriBuilder.cloneBuilder().queryParam("page", results.nextPageable().getPageNumber()).toUriString()}"
-                       tabindex="-1">Next</a>
-                </li>
-            [#else]
-                <li class="page-item disabled"><a class="page-link">Next</a></li>
-            [/#if]
-        </ul>
-    </nav>
+
+        <ol start="${results.pageable.offset + 1}">
+        [#list results.toList() as title]
+            <li>
+                <header>
+                    <strong><a href="titles/${title.id?c}">${title.name}</a></strong>
+                    <nav>
+                    [#if title.titleUrl??]
+                        <a class="live-url" href="${title.titleUrl}">${title.titleUrl?replace("^https?://(www\\.)?", "", "r")?replace("^([^/]+)/$", "$1", "r")?truncate(80, "…")}</a>
+                    [/#if]
+                    [#if title.pi??]
+                        <a href="https://webarchive.nla.gov.au/tep/${title.pi?c}">TEP</a>
+                    [/#if]
+                    [#if title.titleUrl??]
+                        <a href="https://webarchive.nla.gov.au/awa/*/${title.titleUrl}">CAL</a>
+                    [/#if]
+                    </nav>
+                </header>
+                <div>
+                    <ul class="subjects">
+                    [#list title.subjects as subject]
+                        <li><a href="subjects/${subject.id}">${subject.name}</a>
+                    [/#list]
+                    </ul>
+                    [#if title.publisher??]
+                        &mdash; ${(title.publisher.organisation.name)!""}
+                    [/#if]
+                </div>
+                <footer>
+                    <span class="regdate">${title.regDate.toLocalDate()}</span> ·
+                    <span class="status">${title.status.name}</span> ·
+                    <span class="owner">${(title.owner.userid)!""}</span>
+                    <span class="agency">(${title.agency.organisation.alias!""})</span>
+                </footer>
+            </li>
+        [/#list]
+        </ol>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                [#if results.hasPrevious()]
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="${uriBuilder.cloneBuilder().queryParam("page", results.previousPageable().getPageNumber()).toUriString()}"
+                           tabindex="-1">Previous</a>
+                    </li>
+                [#else]
+                    <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                [/#if]
+                [#if results.hasNext()]
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="${uriBuilder.cloneBuilder().queryParam("page", results.nextPageable().getPageNumber()).toUriString()}"
+                           tabindex="-1">Next</a>
+                    </li>
+                [#else]
+                    <li class="page-item disabled"><a class="page-link">Next</a></li>
+                [/#if]
+            </ul>
+        </nav>
+    </section>
 [/@page]

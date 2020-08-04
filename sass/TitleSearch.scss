@@ -1,0 +1,47 @@
+.search-results {
+  > ol {
+    list-style: none;
+    padding: 0;
+
+    > li {
+      margin: 1rem 0;
+
+      > header {
+        > nav {
+          display: inline;
+          font-size: 60%;
+          .live-url {
+            color: darkgreen;
+          }
+        }
+      }
+
+      > div {
+        font-size: 80%;
+
+        > ul.subjects {
+          display: inline;
+          list-style: none;
+          padding: 0;
+          > li {
+            display: inline;
+            > a {
+              color: teal;
+            }
+          }
+          > li + li:before {
+            content: " · ";
+          }
+        }
+      }
+
+      > footer {
+        font-size: 80%;
+        color: #888;
+
+        .regdate { font-weight: bold; }
+        .status { font-variant: small-caps; }
+      }
+    }
+  }
+}

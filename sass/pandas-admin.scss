@@ -22,6 +22,7 @@ $theme-colors: (
 @import "bootstrap/scss/breadcrumb";
 
 @import "collection.scss";
+@import "TitleSearch";
 
 //body {
 //    @extend .container-fluid;
@@ -73,7 +74,7 @@ body > main {
         @extend .px-md-4;
         @extend .pt-3;
 
-        header {
+        > header {
             @extend .d-flex;
             @extend .justify-content-between;
 
