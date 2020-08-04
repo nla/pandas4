@@ -18,13 +18,14 @@
 
 <header>
     <a href="/">PANDAS Admin</a>
-    <form action="collections/search"><input name="q" placeholder="Search collections"></form>
+    <form action="titles"><input name="q" placeholder="Search titles..."></form>
 </header>
 
 <main>
     <nav>
         <ul>
             <li>Tools</li>
+            [@navli href="titles"]Titles[/@navli]
             [@navli href="collections"]Collections[/@navli]
             [@navli href="subjects"]Subjects[/@navli]
             [@navli href="marcexport"]MARC Export[/@navli]
