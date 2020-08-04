@@ -1,9 +1,9 @@
 package pandas.admin.collection;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.datatables.repository.DataTablesRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TitleRepository extends CrudRepository<Title,Long> {
+public interface TitleRepository extends DataTablesRepository<Title,Long> {
     Title findByPi(long pi);
 }

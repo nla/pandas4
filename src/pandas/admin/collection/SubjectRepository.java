@@ -10,6 +10,9 @@ import java.util.List;
 
 @Repository
 public interface SubjectRepository extends CrudRepository<Subject, Long> {
+
+    List<Subject> findAllByOrderByName();
+
     List<Subject> findByParentIsNullOrderByName();
 
     @Query("select distinct s from Subject s " +

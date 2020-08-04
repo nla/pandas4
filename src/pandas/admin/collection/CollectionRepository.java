@@ -1,12 +1,13 @@
 package pandas.admin.collection;
 
+import org.springframework.data.jpa.datatables.repository.DataTablesRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface CollectionRepository extends CrudRepository<Collection, Long> {
+public interface CollectionRepository extends DataTablesRepository<Collection, Long> {
 //    @PersistenceContext
 //    private EntityManager entityManger;
 //

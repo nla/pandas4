@@ -2,6 +2,7 @@ package pandas.admin.collection;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,6 +46,7 @@ public class Subject extends AbstractCategory {
             joinColumns = @JoinColumn(name = "SUBJECT_ID"),
             inverseJoinColumns = @JoinColumn(name = "TITLE_ID"))
     @OrderBy("name")
+    @ContainedIn
     private List<Title> titles;
 
     @ManyToMany

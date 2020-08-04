@@ -1,9 +1,12 @@
 package pandas.admin.collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ public class Collection extends AbstractCategory {
     @Column(name = "COL_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
     @SequenceGenerator(name = "COL_SEQ", sequenceName = "COL_SEQ", allocationSize = 1)
+    @JsonView(DataTablesOutput.View.class)
     private Long id;
 
     private String displayComment;
@@ -25,6 +29,7 @@ public class Collection extends AbstractCategory {
     private String thumbnailUrl;
 
     @Field
+    @JsonView(DataTablesOutput.View.class)
     private String name;
 
     @ManyToOne
@@ -176,6 +181,7 @@ public class Collection extends AbstractCategory {
         return getClass().getSimpleName();
     }
 
+    @JsonView(DataTablesOutput.View.class)
     public long getTitleCount() {
         return titleCount;
     }

@@ -1,23 +1,35 @@
 package pandas.admin.collection;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
+import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.catalog.Catalog;
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
 public class CollectionController {
     private final CategoryService categoryService;
+    private final CollectionRepository collectionRepository;
 
-    public CollectionController(CategoryService categoryService) {
+    public CollectionController(CategoryService categoryService, CollectionRepository collectionRepository) {
         this.categoryService = categoryService;
+        this.collectionRepository = collectionRepository;
     }
 
     @GetMapping("/collections")
     public String list() {
-        return "redirect:/collections/0";
+        return "CollectionTable";
+    }
+
+    @JsonView(DataTablesOutput.View.class)
+    @PostMapping("/collections/datatable")
+    @ResponseBody
+    public DataTablesOutput<Collection> table(@Valid @RequestBody DataTablesInput input) {
+        return collectionRepository.findAll(input);
     }
 
     @GetMapping("/collections/{id}")

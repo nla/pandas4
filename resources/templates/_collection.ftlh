@@ -9,7 +9,7 @@
 [#macro subjectItem subject]
     <li>
         <a href="subjects/${subject.id?c}">${subject.name}</a>
-        <span class="badge badge-light">${subject.titleCount}</span>
-        [#if subject.collectionCount > 0]<a class="badge badge-info" href="collections/search?subjectId=${subject.id?c}">${subject.collectionCount}</a>[/#if]
+        <a class="badge badge-light" href="titles?subject=${subject.id?c}">${subject.titleCount}</a>
+        [#if subject.collectionCount > 0]<a class="badge badge-info" href="collections?subject=${subject.id?c}">${subject.collectionCount}</a>[/#if]
     </li>
 [/#macro]
