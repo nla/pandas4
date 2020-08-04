@@ -23,7 +23,7 @@
             <div>
                 <strong><a href="titles/${title.id?c}">${title.name}</a></strong>
                 [#if title.titleUrl??]
-                    <a style="color: darkgreen; font-size: 60%" href="${title.titleUrl}">${title.titleUrl?replace("^https?://(www\\.)?", "", "r")?replace("^([^/]+)/$", "$1", "r")?truncate(80, "…")}</a>
+                    <a style="color: darkgreen; font-size: 60%" href="${title.titleUrl}">${title.titleUrl?replace("^https?://(www\\.)?", "", "r")?replace("^([^/]+)/$", "$1", "r")?truncate(80, "…")}</a><span style="font-size: 60%; font-variant: small-caps"> <a href="https://webarchive.nla.gov.au/awa/*/${title.titleUrl}">trove</a></span>
                 [/#if]
             </div>
             <div style="font-size: 80%">
