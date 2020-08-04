@@ -23,7 +23,13 @@
             <div>
                 <strong><a href="titles/${title.id?c}">${title.name}</a></strong>
                 [#if title.titleUrl??]
-                    <a style="color: darkgreen; font-size: 60%" href="${title.titleUrl}">${title.titleUrl?replace("^https?://(www\\.)?", "", "r")?replace("^([^/]+)/$", "$1", "r")?truncate(80, "…")}</a><span style="font-size: 60%; font-variant: small-caps"> <a href="https://webarchive.nla.gov.au/awa/*/${title.titleUrl}">trove</a></span>
+                    <a style="color: darkgreen; font-size: 60%" href="${title.titleUrl}">${title.titleUrl?replace("^https?://(www\\.)?", "", "r")?replace("^([^/]+)/$", "$1", "r")?truncate(80, "…")}</a>
+                [/#if]
+                [#if title.pi??]
+                    <span style="font-size: 60%"><a href="https://webarchive.nla.gov.au/tep/${title.pi?c}">TEP</a></span>
+                [/#if]
+                [#if title.titleUrl??]
+                    <span style="font-size: 60%"><a href="https://webarchive.nla.gov.au/awa/*/${title.titleUrl}">CAL</a></span>
                 [/#if]
             </div>
             <div style="font-size: 80%">
