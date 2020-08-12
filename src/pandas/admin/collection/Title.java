@@ -7,8 +7,12 @@ import pandas.admin.agency.Agency;
 import pandas.admin.core.Individual;
 
 import javax.persistence.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Entity
 @Indexed
@@ -146,5 +150,11 @@ public class Title {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getThumbnailUrl() {
+        return "https://pandas.nla.gov.au/api/image?url=" +
+                URLEncoder.encode("https://web.archive.org.au/awa-nobanner/29990730022559/" + getTitleUrl(), UTF_8) +
+                "&clip=240,50,800,500,0.4";
     }
 }

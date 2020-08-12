@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import pandas.admin.core.NotFoundException;
 
 @Controller
 public class SubjectController {
@@ -21,7 +22,7 @@ public class SubjectController {
 
     @GetMapping("/subjects/{id}")
     public String list(@PathVariable("id") long id, Model model) {
-        model.addAttribute("subject", subjectRepository.findById(id).orElseThrow());
+        model.addAttribute("subject", subjectRepository.findById(id).orElseThrow(NotFoundException::new));
         return "SubjectView";
     }
 }

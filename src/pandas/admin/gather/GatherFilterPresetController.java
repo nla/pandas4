@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import pandas.admin.core.NotFoundException;
 
 @Controller
 public class GatherFilterPresetController {
@@ -28,7 +29,7 @@ public class GatherFilterPresetController {
 
     @GetMapping("/gather/filterpresets/{id}")
     String edit(Model model, @PathVariable("id") long id) {
-        model.addAttribute("preset", repository.findById(id).orElseThrow());
+        model.addAttribute("preset", repository.findById(id).orElseThrow(NotFoundException::new));
         return "FilterPresetEdit";
     }
 

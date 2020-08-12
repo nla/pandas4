@@ -3,6 +3,7 @@ package pandas.admin.collection;
 import org.hibernate.search.jpa.Search;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pandas.admin.core.NotFoundException;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -101,9 +102,9 @@ public class CategoryService {
         if (id == 0) {
             return topLevelCategory;
         } else if (Subject.isInRange(id)) {
-            return subjectRepository.findById(id - Subject.CATEGORY_ID_RANGE_START).orElseThrow();
+            return subjectRepository.findById(id - Subject.CATEGORY_ID_RANGE_START).orElseThrow(NotFoundException::new);
         } else {
-            return collectionRepository.findById(id).orElseThrow();
+            return collectionRepository.findById(id).orElseThrow(NotFoundException::new);
         }
     }
 

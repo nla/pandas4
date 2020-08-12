@@ -23,6 +23,7 @@
         <ol start="${results.pageable.offset + 1}">
         [#list results.toList() as title]
             <li>
+                <img src="${title.thumbnailUrl}">
                 <header>
                     <strong><a href="titles/${title.id?c}">${title.name}</a></strong>
                     <nav>
