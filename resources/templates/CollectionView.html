@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|${collection.name} (Collection) - PANDAS|">Television shows (Collection) - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<header th:replace="_layout.html :: header"></header>
+<main>
+    <nav th:replace="_layout.html :: sidebar"></nav>
+    <article>
+        <ol class="breadcrumb">
+            <li class=breadcrumb-item style="font-weight: bold"><a th:href="@{/collections}"
+                                                                   href="CollectionSearch.html">Collections</a></li>
+            <li th:each="breadcrumb: ${collection.collectionBreadcrumbs}" class="breadcrumb-item">
+                <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}" href="CollectionView.html">Australian
+                    Broadcasting Corporation (ABC)</a>
+            </li>
+            <li class="active breadcrumb-item" th:text="${collection.name}">Television shows</li>
+        </ol>
+
+        <header>
+            <h1 th:text="${collection.name}">Television shows</h1>
+            <nav><a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html"
+                    class="btn btn-primary">Edit</a></nav>
+        </header>
+
+        <section class="card card-body">
+            <table th:unless="${collection.subjects.isEmpty()}" class="table table-responsive table-borderless table-sm">
+                <tr>
+                    <th>Subjects:</th>
+                    <td>
+                        <ul class="subject-list" th:remove="all-but-first">
+                            <li th:each="subject: ${collection.subjects}">
+                                <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
+                                   href="SubjectView.html">Arts</a>
+                            </li>
+                            <li><a href="#">Media</a></li>
+                            <li><a href="#">Politics</a></li>
+                            <li><a href="#">Sport</a></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+            <div th:utext="${collection.descriptionSanitized}">This is a description.</div>
+        </section>
+        <p>
+
+        <section>
+            <h5>Subcollections</h5>
+            <ul class="subcategories">
+                <li th:each="child: ${collection.children}">
+                    <a th:href="@{/collections/{id}(id=${child.id})}" th:text="${child.name}"
+                       href="CollectionView.html">Documentaries</a>
+                    <a class="badge badge-light" th:href="@{/titles(collection=${child.id})}"
+                       th:text="${child.titleCount}"
+                       href="TitleSearch.html">16</a>
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h5>Titles</h5>
+            <ul class="subcategories">
+                <li th:each="title: ${collection.titles}">
+                    <a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="TitleView.html">Australian story</a>
+                </li>
+            </ul>
+        </section>
+    </article>
+</main>

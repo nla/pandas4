@@ -10,7 +10,7 @@
 <main>
     <nav th:replace="_layout.html :: sidebar"></nav>
     <article>
-        <h1>Titles [TL]</h1>
+        <h1>Titles</h1>
         <form>
             <input name="q" th:value="${q}" placeholder="Keywords">
             <input type=submit value=Search>
@@ -50,7 +50,7 @@
                         </nav>
                     </header>
                     <div>
-                        <ul class="subjects">
+                        <ul class="subject-list">
                             <li th:each="subject: ${title.subjects}">
                                 <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}" href="SubjectView.html">Sport</a>
                             </li>

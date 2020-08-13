@@ -6,6 +6,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import pandas.admin.core.NotFoundException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -34,9 +35,7 @@ public class CollectionController {
 
     @GetMapping("/collections/{id}")
     public String get(@PathVariable("id") long id, Model model) {
-        Category category = categoryService.getCategory(id);
-        model.addAttribute("category", category);
-        model.addAttribute("breadcrumbs", categoryService.breadcrumbs(category));
+        model.addAttribute("collection", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
         return "CollectionView";
     }
 

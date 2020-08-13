@@ -8,6 +8,22 @@
   break-inside: avoid-column;
   overflow: hidden;
 }
+
 .category-subject { font-weight: bold; }
 .category-altlink { font-style: italic; }
 .category-hidden a { color: #999; }
+
+ul.subject-list {
+  display: inline;
+  list-style: none;
+  padding: 0;
+  > li {
+    display: inline;
+    > a {
+      color: teal;
+    }
+  }
+  > li + li:before {
+    content: " · ";
+  }
+}

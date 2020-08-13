@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Subjects - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<header th:replace="_layout.html :: header"></header>
+<main>
+    <nav th:replace="_layout.html :: sidebar"></nav>
+    <article>
+        <header>
+            <h1>Subjects</h1>
+            <nav><a th:href="@{/subjects/new}" href="SubjectEdit.html" class="btn btn-primary">New Subject</a></nav>
+        </header>
+        <ul class="subcategories" style="column-count: 3">
+            <li th:each="subject: ${subjects}">
+                <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
+                   href="SubjectView.html">Arts</a>
+                <a class="badge badge-light" th:href="@{/titles(subject=${subject.id})}" th:text="${subject.titleCount}"
+                   href="TitleSearch.html">123</a>
+                <a class="badge badge-info" th:if="${subject.collectionCount > 0}"
+                   th:href="@{/collections(subject=${subject.id})}" th:text="${subject.collectionCount}"
+                   href="CollectionSearch.html">16</a>
+
+                <ul style="list-style-type: none">
+                    <li th:each="child: ${subject.children}">
+                        <a th:href="@{/subjects/{id}(id=${child.id})}" th:text="${child.name}"
+                           href="SubjectView.html">Dance</a>
+                        <a class="badge badge-light" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"
+                           href="TitleSearch.html">42</a>
+                        <a class="badge badge-info" th:if="${child.collectionCount > 0}"
+                           th:href="@{/collections(subject=${child.id})}" th:text="${child.collectionCount}"
+                           href="CollectionSearch.html">2</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </article>
+</main>

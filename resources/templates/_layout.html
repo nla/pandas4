@@ -9,24 +9,22 @@
 
 <header th:fragment="header">
     <a href="/">PANDAS Admin</a>
-    <form action="titles"><input name="q" placeholder="Search titles..."></form>
+    <form th:action="@{/titles}"><input name="q" placeholder="Search titles..."></form>
 </header>
 
 <main>
     <nav th:fragment="sidebar">
         <ul>
             <li>Tools</li>
-            <li><a href="titles">Titles</a>
-            <li><a href="collections">Collections</a>
-            <li><a href="subjects">Subjects</a>
-            <li><a href="marcexport">MARC Export</a>
+            <li><a th:href="@{/titles}">Titles</a>
+            <li><a th:href="@{/collections}">Collections</a>
+            <li><a th:href="@{/subjects}">Subjects</a>
+            <li><a th:href="@{/marcexport}">MARC Export</a>
             <li>Gather
-            <li><a href="gather/filterpresets">Filter Presets</a>
+            <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
         </ul>
     </nav>
     <article>
-        [#if header]<h1>${title}</h1>[/#if]
-        [#nested/]
     </article>
 </main>
 

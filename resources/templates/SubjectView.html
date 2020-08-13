@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|${subject.name} (Subject) - PANDAS|">Dance (Subject) - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<header th:replace="_layout.html :: header"></header>
+<main>
+    <nav th:replace="_layout.html :: sidebar"></nav>
+    <article>
+        <ol class="breadcrumb">
+            <li class=breadcrumb-item style="font-weight: bold"><a th:href="@{/subjects}" href="SubjectList.html">Subjects</a></li>
+            <th:block th:each="breadcrumb, i: ${subject.subjectBreadcrumbs}">
+                <li th:unless="${i.last}" class="breadcrumb-item"><a th:href="@{/subjects/{id}(id=${breadcrumb.id})}"
+                                                                     th:text="${breadcrumb.name}">Arts</a></li>
+                <li th:if="${i.last}" class="active breadcrumb-item" th:text="${breadcrumb.name}">Dance</li>
+            </th:block>
+        </ol>
+
+        <header>
+            <h1 th:text="${subject.name}">Dance</h1>
+            <nav><a th:href="@{/subjects/{id}/edit(id=${subject.id})}" href="CollectionEdit.html"
+                    class="btn btn-primary">Edit</a></nav>
+        </header>
+
+        <section>
+            <h5>Subcategories</h5>
+            <ul class="subcategories">
+                <li th:each="child: ${subject.children}">
+                    <a th:href="@{/subjects/{id}(id=${child.id})}" th:text="${child.name}"
+                       href="SubjectView.html">Ballet</a>
+                    <a class="badge badge-light" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"
+                       href="TitleSearch.html">42</a>
+                    <a class="badge badge-info" th:if="${child.collectionCount > 0}"
+                       th:href="@{/collections(subject=${child.id})}" th:text="${child.collectionCount}"
+                       href="CollectionSearch.html">2</a>
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h5>Collections</h5>
+            <ul class="subcategories">
+                <li th:each="collection: ${subject.collections}">
+                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
+                       href="CollectionView.html">2016 Adelaide Fringe Festival</a>
+                    <a class="badge badge-light" th:href="@{/titles(collection=${collection.id})}"
+                       th:text="${collection.titleCount}"
+                       href="TitleSearch.html">16</a>
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h5>Titles</h5>
+            <ul class="subcategories">
+                <li th:each="title: ${subject.titles}">
+                    <a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="#">My dance blog</a>
+                </li>
+            </ul>
+        </section>
+    </article>
+</main>

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity(name = "COL")
@@ -37,6 +38,7 @@ public class Collection extends AbstractCategory {
     private Collection parent;
 
     @OneToMany(mappedBy = "parent")
+    @OrderBy("name")
     private List<Collection> children = new ArrayList<>();
 
     @ManyToMany
@@ -146,6 +148,15 @@ public class Collection extends AbstractCategory {
         } else {
             throw new IllegalArgumentException(parent.getClass().getName());
         }
+    }
+
+    public List<Collection> getCollectionBreadcrumbs() {
+        List<Collection> breadcrumbs = new ArrayList<>();
+        for (Collection c = this.getParent(); c != null; c = c.getParent()) {
+            breadcrumbs.add(c);
+        }
+        Collections.reverse(breadcrumbs);
+        return breadcrumbs;
     }
 
     public Collection getParent() {
