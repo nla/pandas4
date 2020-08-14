@@ -1,19 +1,17 @@
 package pandas.admin.collection;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Indexed;
-import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Entity(name = "COL")
+@Entity
+@Table(name = "COL")
 @DynamicUpdate
 @Indexed
 public class Collection extends AbstractCategory {
@@ -21,7 +19,7 @@ public class Collection extends AbstractCategory {
     @Column(name = "COL_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
     @SequenceGenerator(name = "COL_SEQ", sequenceName = "COL_SEQ", allocationSize = 1)
-    @JsonView(DataTablesOutput.View.class)
+    @GenericField
     private Long id;
 
     private String displayComment;
@@ -29,8 +27,7 @@ public class Collection extends AbstractCategory {
     private boolean isDisplayed;
     private String thumbnailUrl;
 
-    @Field
-    @JsonView(DataTablesOutput.View.class)
+    @FullTextField(analyzer = "english")
     private String name;
 
     @ManyToOne
@@ -50,7 +47,12 @@ public class Collection extends AbstractCategory {
 
     @ManyToMany(mappedBy = "collections")
     @OrderBy("name")
+    @IndexedEmbedded(includePaths = {"id", "name"})
     private List<Subject> subjects = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "THUMBNAIL_ID")
+    private Thumbnail thumbnail;
 
     @Formula("(select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID)")
     private long titleCount;
@@ -98,6 +100,22 @@ public class Collection extends AbstractCategory {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @FullTextField(analyzer = "english")
+    @KeywordField(name="name_sort", sortable = Sortable.YES)
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath(@PropertyValue(propertyName = "name")),
+            @ObjectPath(@PropertyValue(propertyName = "parent"))})
+    @Override
+    public String getFullName() {
+        StringBuilder sb = new StringBuilder();
+        for (Collection c: getCollectionBreadcrumbs()) {
+            sb.append(c.getName());
+            sb.append(" / ");
+        }
+        sb.append(getName());
+        return sb.toString();
     }
 
     public String getThumbnailUrl() {
@@ -192,8 +210,15 @@ public class Collection extends AbstractCategory {
         return getClass().getSimpleName();
     }
 
-    @JsonView(DataTablesOutput.View.class)
     public long getTitleCount() {
         return titleCount;
+    }
+
+    public Thumbnail getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(Thumbnail thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

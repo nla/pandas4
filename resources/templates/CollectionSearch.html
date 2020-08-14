@@ -10,7 +10,7 @@
 <main>
     <nav th:replace="_layout.html :: sidebar"></nav>
     <article>
-        <h1>Titles</h1>
+        <h1>Collections</h1>
         <form>
             <input name="q" th:value="${q}" placeholder="Keywords">
             <input type=submit value=Search>
@@ -30,41 +30,23 @@
         <section class="search-results">
             <header>
                 Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
-                matching titles
+                matching collections
             </header>
 
             <ol start="${results.pageable.offset + 1}">
-                <li th:each="title: ${results}">
+                <li th:each="collection: ${results}">
                     <header>
-                        <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
-                            2000</a></strong>
-                        <nav>
-                            <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
-                               th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
-                               href="http://www.olympics.com/">olympics.com</a>
-                            <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
-                               href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
-                            <a th:if="${title.titleUrl != null}"
-                               th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
-                               href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
-                        </nav>
+                        <strong><a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" href="TitleView.html">Developing Canberra</a></strong>
+                        <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
+                           th:text="${collection.titleCount}" href="TitleSearch.html">16</a>
                     </header>
                     <div>
                         <ul class="subject-list">
-                            <li th:each="subject: ${title.subjects}">
+                            <li th:each="subject: ${collection.subjects}">
                                 <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}" href="SubjectView.html">Sport</a>
                             </li>
                         </ul>
-                        <span th:if="${title.publisher != null}" th:text="|&mdash; ${title.publisher.organisation.name}|">
-                            &mdash; International Olympic Committee
-                        </span>
                     </div>
-                    <footer>
-                        <span class="regdate" th:text="${title.regDate.toLocalDate()}">2000-04-01</span> ·
-                        <span class="status" th:text="${title.status.name}">ceased</span> ·
-                        <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
-                        <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
-                    </footer>
                 </li>
             </ol>
             <nav>

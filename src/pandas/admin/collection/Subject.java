@@ -2,9 +2,9 @@ package pandas.admin.collection;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
-import org.hibernate.search.annotations.ContainedIn;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.persistence.*;
@@ -24,10 +24,11 @@ public class Subject extends AbstractCategory {
     @Column(name = "SUBJECT_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SUBJECT_SEQ")
     @SequenceGenerator(name = "SUBJECT_SEQ", sequenceName = "SUBJECT_SEQ", allocationSize = 1)
+    @GenericField
     private Long id;
 
     @Column(name = "SUBJECT_NAME")
-    @Field
+    @FullTextField(analyzer = "english")
     private String name;
 
     private String thumbnailUrl;
@@ -46,7 +47,6 @@ public class Subject extends AbstractCategory {
             joinColumns = @JoinColumn(name = "SUBJECT_ID"),
             inverseJoinColumns = @JoinColumn(name = "TITLE_ID"))
     @OrderBy("name")
-    @ContainedIn
     private List<Title> titles;
 
     @ManyToMany
@@ -56,13 +56,17 @@ public class Subject extends AbstractCategory {
     @OrderBy("name")
     List<Collection> collections;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "THUMBNAIL_ID")
+    private Thumbnail thumbnail;
+
     @Formula("(select count(*) from SUBJECT_TITLES st where st.SUBJECT_ID = SUBJECT_ID)")
     private long titleCount;
 
     @Formula("(select count(*) from COL_SUBS cs where cs.SUBJECT_ID = SUBJECT_ID)")
     private long collectionCount;
 
-    static boolean isInRange(@PathVariable("id") long id) {
+    static boolean isInRange(long id) {
         return id >= CATEGORY_ID_RANGE_START && id <= CATEGORY_ID_RANGE_END;
     }
 
@@ -185,5 +189,13 @@ public class Subject extends AbstractCategory {
     @Override
     public List<Title> getTitles() {
         return titles;
+    }
+
+    public Thumbnail getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(Thumbnail thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

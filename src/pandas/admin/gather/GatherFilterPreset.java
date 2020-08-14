@@ -2,7 +2,8 @@ package pandas.admin.gather;
 
 import javax.persistence.*;
 
-@Entity(name = "GATHER_FILTER_PRESET")
+@Entity
+@Table(name = "GATHER_FILTER_PRESET")
 public class GatherFilterPreset {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GATHER_FILTER_PRESET_SEQ")

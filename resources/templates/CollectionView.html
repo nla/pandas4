@@ -52,7 +52,7 @@
                 <li th:each="child: ${collection.children}">
                     <a th:href="@{/collections/{id}(id=${child.id})}" th:text="${child.name}"
                        href="CollectionView.html">Documentaries</a>
-                    <a class="badge badge-light" th:href="@{/titles(collection=${child.id})}"
+                    <a class="title-count" th:href="@{/titles(collection=${child.id})}"
                        th:text="${child.titleCount}"
                        href="TitleSearch.html">16</a>
                 </li>

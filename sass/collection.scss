@@ -1,3 +1,5 @@
+@import "bootstrap/scss/bootstrap";
+
 .subcategories {
   list-style-type: none;
   padding-left: 0;
@@ -7,6 +9,16 @@
 .subcategories > li {
   break-inside: avoid-column;
   overflow: hidden;
+}
+
+.title-count {
+  @extend .badge;
+  @extend .badge-light;
+}
+
+.collection-count {
+  @extend .badge;
+  @extend .badge-info;
 }
 
 .category-subject { font-weight: bold; }

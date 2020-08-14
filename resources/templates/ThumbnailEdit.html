@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Thumbnail - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" th:href="@{/webjars/cropperjs/dist/cropper.min.css}" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.7/dist/cropper.min.css">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<main>
+    <nav th:replace="_layout.html :: sidebar"></nav>
+    <article>
+        <h1>Edit Thumbnail</h1>
+        <div><img id="image" src="https://lucene.apache.org/theme/images/lucene/mantle-power.png"></div>
+        <form name="cropForm">
+            <input name="cropX">
+            <input name="cropY">
+            <input name="cropWidth">
+            <input name="cropHeight">
+        </form>
+        <script th:src="@{/webjars/cropperjs/dist/cropper.min.js}" src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.7/dist/cropper.min.js"></script>
+        <script>
+            new Cropper(document.getElementById("image"), {
+                crop(event) {
+                    document.cropForm.cropX.value = Math.trunc(event.detail.x);
+                    document.cropForm.cropY.value = Math.trunc(event.detail.y);
+                    document.cropForm.cropWidth.value = Math.trunc(event.detail.width);
+                    document.cropForm.cropHeight.value = Math.trunc(event.detail.height);
+                }
+            });
+        </script>
+    </article>
+</main>

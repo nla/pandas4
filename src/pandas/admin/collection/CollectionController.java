@@ -1,36 +1,57 @@
 package pandas.admin.collection;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
-import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.hibernate.search.mapper.orm.Search;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 import pandas.admin.core.NotFoundException;
+import pandas.admin.core.SearchResults;
 
-import javax.validation.Valid;
+import javax.persistence.EntityManager;
 import java.util.List;
+
+import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
+import static pandas.admin.core.SearchUtils.mustMatchAny;
 
 @Controller
 public class CollectionController {
-    private final CategoryService categoryService;
     private final CollectionRepository collectionRepository;
+    private final EntityManager entityManager;
+    private final SubjectRepository subjectRepository;
 
-    public CollectionController(CategoryService categoryService, CollectionRepository collectionRepository) {
-        this.categoryService = categoryService;
+    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository) {
         this.collectionRepository = collectionRepository;
+        this.entityManager = entityManager;
+        this.subjectRepository = subjectRepository;
     }
+
 
     @GetMapping("/collections")
-    public String list() {
-        return "CollectionTable";
-    }
+    public String search(@RequestParam(value = "q", required = false) String rawQ,
+                          @RequestParam(value = "subject", required = false, defaultValue = "") List<Long> subjectIds,
+                          Pageable pageable,
+                          Model model) {
+        String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
 
-    @JsonView(DataTablesOutput.View.class)
-    @PostMapping("/collections/datatable")
-    @ResponseBody
-    public DataTablesOutput<Collection> table(@Valid @RequestBody DataTablesInput input) {
-        return collectionRepository.findAll(input);
+        var search = Search.session(entityManager).search(Collection.class)
+                .where(f -> f.bool(b -> {
+                    b.must(f.matchAll());
+                    if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
+                    mustMatchAny(f, b, "subjects.id", subjectIds);
+                })).sort(f -> q == null ? f.field("name_sort") : f.score());
+
+        var uri = UriComponentsBuilder.fromPath("/collections");
+        if (q != null) uri.queryParam("q", q);
+        if (!subjectIds.isEmpty()) uri.queryParam("subject", subjectIds);
+
+        SearchResults<Collection> results = SearchResults.from(search, uri, pageable);
+        model.addAttribute("results", results);
+        model.addAttribute("q", q);
+        model.addAttribute("selectedSubjectIds", subjectIds);
+        model.addAttribute("allSubjects", subjectRepository.findAllByOrderByName());
+        return "CollectionSearch";
     }
 
     @GetMapping("/collections/{id}")
@@ -41,74 +62,52 @@ public class CollectionController {
 
     @GetMapping("/collections/{id}/edit")
     public String edit(@PathVariable("id") long id, Model model) {
-        Category category = categoryService.getCategory(id);
-        model.addAttribute("category", category);
+        model.addAttribute("category", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
         return "CollectionEdit";
     }
 
     @PostMapping("/collections/{id}/edit")
     public String update(@PathVariable long id, @RequestParam("name") String name,
                        @RequestParam("description") String description) {
-        Category category = categoryService.getCategory(id);
-        category.setName(name);
-        category.setDescription(description);
-        categoryService.save(category);
+        Collection collection = collectionRepository.findById(id).orElseThrow(NotFoundException::new);
+        collection.setName(name);
+        collection.setDescription(description);
+        collectionRepository.save(collection);
         return "redirect:/collections/" + id;
     }
 
     @PostMapping("/collections/{id}/delete")
     public String delete(@PathVariable long id) {
-        categoryService.delete(id);
+        collectionRepository.deleteById(id);
         return "redirect:/collections";
     }
 
     @GetMapping("/collections/new")
-    public String newForm(@RequestParam("type") String type,
-                          @RequestParam("parentId") long parentId,
+    public String newForm(@RequestParam("parentId") long parentId,
                           Model model) {
-        Category category = type.equals("Subject") ? new Subject() : new Collection();
-        model.addAttribute("category", category);
+        Category collection = new Collection();
+        model.addAttribute("category", collection);
         model.addAttribute("parentId", parentId);
         return "CollectionEdit";
     }
 
     @PostMapping("/collections/new")
-    public String create(@RequestParam("type") String type,
-                         @RequestParam("parentId") long parentId,
+    public String create(@RequestParam("parentId") long parentId,
                          @RequestParam("name") String name,
                          @RequestParam("description") String description) {
-        Category parent = categoryService.getCategory(parentId);
-        Category category = type.equals("Subject") ? new Subject() : new Collection();
-        category.setParentCategory(parent);
-        category.setName(name);
-        category.setDescription(description);
-        categoryService.save(category);
-        return "redirect:/collections/" + category.getCategoryId();
-    }
-
-    @GetMapping("/collections/{id}/add-parents")
-    public String addParentSearch(@PathVariable long id,
-                                  @RequestParam(name = "q", required = false) String q,
-                                  Model model) {
-        model.addAttribute("category", categoryService.getCategory(id));
-        model.addAttribute("results", q == null ? List.of() : categoryService.search(q));
-        model.addAttribute("q", q);
-        return "CollectionSelect";
-    }
-
-    @GetMapping("/collections/search")
-    public String newForm(@RequestParam(value = "q", required = false) String q,
-                          @RequestParam(value = "subjectId", required = false) Long subjectId,
-                          Model model) {
-        model.addAttribute("results", categoryService.search(q));
-        model.addAttribute("q", q);
-        return "CollectionSearch";
+        Collection parent = collectionRepository.findById(parentId).orElseThrow(NotFoundException::new);
+        Collection collection = new Collection();
+        collection.setParent(parent);
+        collection.setName(name);
+        collection.setDescription(description);
+        collectionRepository.save(collection);
+        return "redirect:/collections/" + collection.getCategoryId();
     }
 
     @GetMapping("/collections/reindex")
     @ResponseBody
     public String reindex() throws InterruptedException {
-        categoryService.reindex();
+        Search.session(entityManager).massIndexer(Collection.class).startAndWait();
         return "OK";
     }
 }

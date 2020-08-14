@@ -30,9 +30,9 @@
                 <li th:each="child: ${subject.children}">
                     <a th:href="@{/subjects/{id}(id=${child.id})}" th:text="${child.name}"
                        href="SubjectView.html">Ballet</a>
-                    <a class="badge badge-light" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"
+                    <a class="title-count" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"
                        href="TitleSearch.html">42</a>
-                    <a class="badge badge-info" th:if="${child.collectionCount > 0}"
+                    <a class="batch-collection-count" th:if="${child.collectionCount > 0}"
                        th:href="@{/collections(subject=${child.id})}" th:text="${child.collectionCount}"
                        href="CollectionSearch.html">2</a>
                 </li>
@@ -45,7 +45,7 @@
                 <li th:each="collection: ${subject.collections}">
                     <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
                        href="CollectionView.html">2016 Adelaide Fringe Festival</a>
-                    <a class="badge badge-light" th:href="@{/titles(collection=${collection.id})}"
+                    <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
                        th:text="${collection.titleCount}"
                        href="TitleSearch.html">16</a>
                 </li>

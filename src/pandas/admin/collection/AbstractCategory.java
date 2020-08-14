@@ -1,6 +1,5 @@
 package pandas.admin.collection;
 
-import org.hibernate.search.annotations.Field;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 
@@ -14,7 +13,6 @@ public abstract class AbstractCategory implements Category {
     private static final PolicyFactory htmlSanitizer = Sanitizers.FORMATTING
             .and(Sanitizers.BLOCKS).and(Sanitizers.LINKS).and(Sanitizers.TABLES);
 
-    @Field
     @Override
     public String getFullName() {
         return getBreadcrumbs().stream().map(Category::getName).collect(joining(" / "));

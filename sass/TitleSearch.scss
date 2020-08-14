@@ -1,4 +1,9 @@
 .search-results {
+  > header {
+    color: #999;
+    margin-top: 0.5rem;
+  }
+
   > ol {
     list-style: none;
     padding: 0;

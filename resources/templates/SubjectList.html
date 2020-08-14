@@ -17,9 +17,9 @@
             <li th:each="subject: ${subjects}">
                 <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
                    href="SubjectView.html">Arts</a>
-                <a class="badge badge-light" th:href="@{/titles(subject=${subject.id})}" th:text="${subject.titleCount}"
+                <a class="title-count" th:href="@{/titles(subject=${subject.id})}" th:text="${subject.titleCount}"
                    href="TitleSearch.html">123</a>
-                <a class="badge badge-info" th:if="${subject.collectionCount > 0}"
+                <a class="collection-count" th:if="${subject.collectionCount > 0}"
                    th:href="@{/collections(subject=${subject.id})}" th:text="${subject.collectionCount}"
                    href="CollectionSearch.html">16</a>
 
@@ -27,9 +27,9 @@
                     <li th:each="child: ${subject.children}">
                         <a th:href="@{/subjects/{id}(id=${child.id})}" th:text="${child.name}"
                            href="SubjectView.html">Dance</a>
-                        <a class="badge badge-light" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"
+                        <a class="title-count" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"
                            href="TitleSearch.html">42</a>
-                        <a class="badge badge-info" th:if="${child.collectionCount > 0}"
+                        <a class="collection-count" th:if="${child.collectionCount > 0}"
                            th:href="@{/collections(subject=${child.id})}" th:text="${child.collectionCount}"
                            href="CollectionSearch.html">2</a>
                     </li>

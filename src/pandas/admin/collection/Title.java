@@ -1,14 +1,12 @@
 package pandas.admin.collection;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import org.hibernate.search.annotations.*;
-import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.admin.agency.Agency;
 import pandas.admin.core.Individual;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,22 +19,19 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
-    @JsonView(DataTablesOutput.View.class)
     private Long id;
 
-    @Field
-    @JsonView(DataTablesOutput.View.class)
+    @GenericField
     private Long pi;
 
-    @Field
-    @JsonView(DataTablesOutput.View.class)
+    @FullTextField(analyzer = "english")
+    @KeywordField(name = "name_sort", sortable = Sortable.YES)
     private String name;
 
-    @Field
+    @FullTextField(analyzer = "url")
     private String titleUrl;
 
-    @Field(analyze = Analyze.NO)
-    @SortableField
+    @GenericField(sortable = Sortable.YES)
     private LocalDateTime regDate;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -52,8 +47,8 @@ public class Title {
     private Publisher publisher;
 
     @ManyToMany(mappedBy = "titles")
-    @IndexedEmbedded(includePaths = "name", includeEmbeddedObjectId = true)
     @OrderBy("name")
+    @IndexedEmbedded(includePaths = {"id", "name"})
     private List<Subject> subjects;
 
     @ManyToOne
@@ -63,6 +58,15 @@ public class Title {
     @ManyToOne
     @JoinColumn(name = "CURRENT_STATUS_ID")
     private Status status;
+
+    @ManyToMany(mappedBy = "titles")
+    @OrderBy("name")
+    @IndexedEmbedded(includePaths = {"id", "name"})
+    private List<Collection> collections;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "THUMBNAIL_ID")
+    private Thumbnail thumbnail;
 
     public Agency getAgency() {
         return agency;
@@ -156,5 +160,21 @@ public class Title {
         return "https://pandas.nla.gov.au/api/image?url=" +
                 URLEncoder.encode("https://web.archive.org.au/awa-nobanner/29990730022559/" + getTitleUrl(), UTF_8) +
                 "&clip=240,50,800,500,0.4";
+    }
+
+    public List<Collection> getCollections() {
+        return collections;
+    }
+
+    public void setCollections(List<Collection> collections) {
+        this.collections = collections;
+    }
+
+    public Thumbnail getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(Thumbnail thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

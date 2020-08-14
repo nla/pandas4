@@ -1,31 +1,28 @@
 package pandas.admin.collection;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import org.hibernate.search.jpa.Search;
-import org.hibernate.search.query.dsl.BooleanJunction;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.springframework.data.domain.PageImpl;
+import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
-import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 import pandas.admin.Config;
 import pandas.admin.core.NotFoundException;
+import pandas.admin.core.SearchResults;
 import pandas.admin.render.Render;
 import pandas.admin.render.RenderService;
 
 import javax.persistence.EntityManager;
-import javax.validation.Valid;
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.Set;
+
+import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
+import static pandas.admin.core.SearchUtils.mustMatchAny;
 
 @Controller
 public class TitleController {
@@ -49,55 +46,38 @@ public class TitleController {
     }
 
     @GetMapping("/titles")
-    public String search(@RequestParam(name = "q", required = false) String q,
-                         @RequestParam(name = "subject", defaultValue = "") Set<Long> selectedSubjectIds,
+    public String search(@RequestParam(name = "q", required = false) String rawQ,
+                         @RequestParam(name = "collection", defaultValue = "") List<Long> collectionIds,
+                         @RequestParam(name = "subject", defaultValue = "") List<Long> subjectIds,
                          @PageableDefault(40) Pageable pageable,
                          Model model) {
+        String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
 
-        var uriBuilder = UriComponentsBuilder.fromPath("titles");
-        var em = Search.getFullTextEntityManager(entityManager);
-        var qb = em.getSearchFactory().buildQueryBuilder().forEntity(Title.class).get();
+        var search = Search.session(entityManager).search(Title.class)
+                .where(f -> f.bool(b -> {
+                    b.must(f.matchAll());
+                    if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
+                    mustMatchAny(f, b, "subjects.id", subjectIds);
+                    mustMatchAny(f, b, "collections.id", collectionIds);
+                })).sort(f -> q == null ? f.field("name_sort") : f.score());
 
-        var bool = qb.bool().must(qb.all().createQuery());
-        if (q != null && !q.isBlank()) {
-            bool.must(qb.simpleQueryString().onField("name").withAndAsDefaultOperator().matching(q).createQuery());
-            uriBuilder.queryParam("q", q);
-        }
+        var uri = UriComponentsBuilder.fromPath("/titles");
+        if (q != null) uri.queryParam("q", q);
+        if (!subjectIds.isEmpty()) uri.queryParam("subject", subjectIds);
+        if (!collectionIds.isEmpty()) uri.queryParam("collection", collectionIds);
 
-        if (!selectedSubjectIds.isEmpty()) {
-            BooleanJunction<?> clauses = qb.bool();
-            for (Long subjectId : selectedSubjectIds) {
-                clauses = clauses.should(qb.keyword().onField("subjects.id").matching(subjectId).createQuery());
-            }
-            bool.must(clauses.createQuery());
-            uriBuilder.queryParam("subject", selectedSubjectIds);
-        }
-
-        var jpaQuery = em.createFullTextQuery(bool.createQuery(), Title.class);
-        jpaQuery.setFirstResult((int)pageable.getOffset());
-        jpaQuery.setMaxResults(pageable.getPageSize());
-        PageImpl<Title> page = new PageImpl<Title>(jpaQuery.getResultList(), pageable, jpaQuery.getResultSize());
-
-        model.addAttribute("results", page);
+        model.addAttribute("results", SearchResults.from(search, uri, pageable));
         model.addAttribute("q", q);
-        model.addAttribute("uriBuilder", uriBuilder);
         model.addAttribute("allSubjects", subjectRepository.findAllByOrderByName());
-        model.addAttribute("selectedSubjectIds", selectedSubjectIds);
+        model.addAttribute("selectedSubjectIds", subjectIds);
         return "TitleSearch";
     }
 
     @GetMapping("/titles/reindex")
     @ResponseBody
     public String reindex() throws InterruptedException {
-        Search.getFullTextEntityManager(entityManager).createIndexer(Title.class).startAndWait();
+        Search.session(entityManager).massIndexer(Title.class).startAndWait();
         return "ok";
-    }
-
-    @PostMapping("/titles/datatable")
-    @JsonView(DataTablesOutput.View.class)
-    @ResponseBody
-    public DataTablesOutput<Title> table(@Valid @RequestBody DataTablesInput input) {
-        return titleRepository.findAll(input);
     }
 
     @GetMapping("/titles/{id}/thumbnail")

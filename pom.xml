@@ -168,9 +168,14 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-search-orm</artifactId>
-            <version>5.11.5.Final</version>
+            <groupId>org.hibernate.search</groupId>
+            <artifactId>hibernate-search-mapper-orm</artifactId>
+            <version>6.0.0.Beta9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.search</groupId>
+            <artifactId>hibernate-search-backend-lucene</artifactId>
+            <version>6.0.0.Beta9</version>
         </dependency>
 
         <dependency>
@@ -205,6 +210,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>cropperjs</artifactId>
+            <version>1.5.7</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
             <version>4.5.0</version>
@@ -214,21 +225,6 @@
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
             <artifactId>owasp-java-html-sanitizer</artifactId>
             <version>20200713.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.darrachequesne</groupId>
-            <artifactId>spring-data-jpa-datatables</artifactId>
-            <version>5.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-entitymanager</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
