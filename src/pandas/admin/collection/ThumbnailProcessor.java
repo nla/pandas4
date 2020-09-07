@@ -79,7 +79,9 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
 
     @NotNull
     private Thumbnail processOnce(Title title) throws IOException, InterruptedException {
-        String sourceUrl = "https://web.archive.org.au/awa-nobanner/20130328232628/" + title.getTitleUrl();
+        String url = title.getSeedUrl();
+        if (url == null) url = title.getTitleUrl();
+        String sourceUrl = "https://web.archive.org.au/awa-nobanner/20130328232628/" + url;
         log.info("Rendering title {}: {}", title.getId(), sourceUrl);
         Instant now = Instant.now();
 

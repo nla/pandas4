@@ -31,6 +31,9 @@ public class Title {
     @FullTextField(analyzer = "url")
     private String titleUrl;
 
+    @FullTextField(analyzer = "url")
+    private String seedUrl;
+
     @GenericField(sortable = Sortable.YES)
     private LocalDateTime regDate;
 
@@ -175,5 +178,13 @@ public class Title {
 
     public void setThumbnails(java.util.Collection<Thumbnail> thumbnails) {
         this.thumbnails = thumbnails;
+    }
+
+    public String getSeedUrl() {
+        return seedUrl;
+    }
+
+    public void setSeedUrl(String seedUrl) {
+        this.seedUrl = seedUrl;
     }
 }

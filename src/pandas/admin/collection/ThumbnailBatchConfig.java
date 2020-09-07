@@ -36,7 +36,7 @@ public class ThumbnailBatchConfig {
         return new JpaPagingItemReaderBuilder<Title>()
                 .name("titleReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("select t from Title t where t.thumbnails is empty")
+                .queryString("select t from Title t where t.thumbnails is empty and (t.titleUrl is not null or t.seedUrl is not null)")
                 .pageSize(100)
                 .build();
     }
