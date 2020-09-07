@@ -141,6 +141,17 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
     public void open(ExecutionContext executionContext) throws ItemStreamException {
         this.browserPool = new GenericObjectPool<>(new BasePooledObjectFactory<>() {
             @Override
+            public boolean validateObject(PooledObject<ChromeDriver> p) {
+                try {
+                    p.getObject().getCurrentUrl();
+                } catch (Exception e) {
+                    log.warn("ChromeDriver failed validation", e);
+                    return false;
+                }
+                return true;
+            }
+
+            @Override
             public void passivateObject(PooledObject<ChromeDriver> p) throws Exception {
                 p.getObject().get("about:blank");
             }
@@ -160,6 +171,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
                 return new DefaultPooledObject<>(chromeDriver);
             }
         });
+        browserPool.setTestOnBorrow(true);
         browserPool.setMinEvictableIdleTimeMillis(30000);
     }
 
