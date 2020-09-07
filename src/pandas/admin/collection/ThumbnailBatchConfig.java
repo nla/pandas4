@@ -57,8 +57,8 @@ public class ThumbnailBatchConfig {
                 .reader(reader())
                 .processor(new ThumbnailProcessor())
                 .writer(writer())
-                .taskExecutor(taskExecutor)
-                .throttleLimit(8)
+//                .taskExecutor(taskExecutor)
+//                .throttleLimit(8)
                 .build();
     }
 
