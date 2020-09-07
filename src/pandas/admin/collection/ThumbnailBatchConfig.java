@@ -11,11 +11,7 @@ import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import pandas.admin.collection.Thumbnail;
-import pandas.admin.collection.ThumbnailProcessor;
-import pandas.admin.collection.Title;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -57,8 +53,8 @@ public class ThumbnailBatchConfig {
                 .reader(reader())
                 .processor(new ThumbnailProcessor())
                 .writer(writer())
-//                .taskExecutor(taskExecutor)
-//                .throttleLimit(8)
+                .taskExecutor(taskExecutor)
+                .throttleLimit(8)
                 .build();
     }
 

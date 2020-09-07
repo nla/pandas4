@@ -1,5 +1,10 @@
 package pandas.admin.collection;
 
+import org.apache.commons.pool2.BasePooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.imgscalr.Scalr;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.OutputType;
@@ -42,8 +47,8 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
 
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
-    private ChromeDriver chromeDriver;
     private final HttpClient httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
+    private GenericObjectPool<ChromeDriver> browserPool;
 
     @Override
     public Thumbnail process(Title title) throws Exception {
@@ -78,7 +83,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
     }
 
     @NotNull
-    private Thumbnail processOnce(Title title) throws IOException, InterruptedException {
+    private Thumbnail processOnce(Title title) throws Exception {
         String url = title.getSeedUrl();
         if (url == null) url = title.getTitleUrl();
         String sourceUrl = "https://web.archive.org.au/awa-nobanner/20130328232628/" + url;
@@ -87,9 +92,16 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
 
         int status = sendHeadRequest(sourceUrl);
 
-        chromeDriver.get(sourceUrl);
-        Wbinfo wbinfo = new Wbinfo(chromeDriver);
-        byte[] imageData = chromeDriver.getScreenshotAs(OutputType.BYTES);
+        var chromeDriver = browserPool.borrowObject();
+        Wbinfo wbinfo;
+        byte[] imageData;
+        try {
+            chromeDriver.get(sourceUrl);
+            wbinfo = new Wbinfo(chromeDriver);
+            imageData = chromeDriver.getScreenshotAs(OutputType.BYTES);
+        } finally {
+            browserPool.returnObject(chromeDriver);
+        }
 
         var image = ImageIO.read(new ByteArrayInputStream(imageData));
         var scaled = stripAlphaChannel(Scalr.resize(image, 200, 200));
@@ -127,8 +139,28 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
 
     @Override
     public void open(ExecutionContext executionContext) throws ItemStreamException {
-        log.warn("YOYOYO {}", executionContext);
-        this.chromeDriver = new ChromeDriver(new ChromeOptions().setHeadless(true));
+        this.browserPool = new GenericObjectPool<>(new BasePooledObjectFactory<>() {
+            @Override
+            public void passivateObject(PooledObject<ChromeDriver> p) throws Exception {
+                p.getObject().get("about:blank");
+            }
+
+            @Override
+            public void destroyObject(PooledObject<ChromeDriver> p) {
+                p.getObject().quit();
+            }
+
+            @Override
+            public ChromeDriver create() {
+                return new ChromeDriver(new ChromeOptions().setHeadless(true));
+            }
+
+            @Override
+            public PooledObject<ChromeDriver> wrap(ChromeDriver chromeDriver) {
+                return new DefaultPooledObject<>(chromeDriver);
+            }
+        });
+        browserPool.setMinEvictableIdleTimeMillis(30000);
     }
 
     @Override
@@ -138,7 +170,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
 
     @Override
     public void close() throws ItemStreamException {
-        chromeDriver.quit();
+        browserPool.close();
     }
 
     public static class Wbinfo {
