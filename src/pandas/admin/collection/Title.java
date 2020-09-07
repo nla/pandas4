@@ -64,10 +64,6 @@ public class Title {
     @IndexedEmbedded(includePaths = {"id", "name"})
     private List<Collection> collections;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "THUMBNAIL_ID")
-    private Thumbnail thumbnail;
-
     public Agency getAgency() {
         return agency;
     }
@@ -170,11 +166,14 @@ public class Title {
         this.collections = collections;
     }
 
-    public Thumbnail getThumbnail() {
-        return thumbnail;
+    @OneToMany(mappedBy = "title")
+    private java.util.Collection<Thumbnail> thumbnails;
+
+    public java.util.Collection<Thumbnail> getThumbnails() {
+        return thumbnails;
     }
 
-    public void setThumbnail(Thumbnail thumbnail) {
-        this.thumbnail = thumbnail;
+    public void setThumbnails(java.util.Collection<Thumbnail> thumbnails) {
+        this.thumbnails = thumbnails;
     }
 }
