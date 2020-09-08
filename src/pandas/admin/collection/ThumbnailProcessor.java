@@ -1,8 +1,10 @@
 package pandas.admin.collection;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
-import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.imgscalr.Scalr;
@@ -16,11 +18,8 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.retry.RetryCallback;
-import org.springframework.retry.RetryContext;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.policy.TimeoutRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
 import javax.imageio.ImageIO;
@@ -29,9 +28,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -39,15 +35,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static java.net.http.HttpRequest.BodyPublishers.noBody;
-import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.time.ZoneOffset.UTC;
 
 public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, ItemStream {
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
 
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
-    private final HttpClient httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
+    private static final OkHttpClient httpClient = new OkHttpClient();
     private GenericObjectPool<ChromeDriver> browserPool;
 
     @Override
@@ -90,7 +84,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         log.info("Rendering title {}: {}", title.getId(), sourceUrl);
         Instant now = Instant.now();
 
-        int status = sendHeadRequest(sourceUrl);
+        int status = headRequest(sourceUrl);
 
         var chromeDriver = browserPool.borrowObject();
         Wbinfo wbinfo;
@@ -130,12 +124,12 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         return thumbnail;
     }
 
-    private int sendHeadRequest(String sourceUrl) throws java.io.IOException, InterruptedException {
-        return httpClient.send(HttpRequest.newBuilder(URI.create(sourceUrl))
-                .method("HEAD", noBody())
-                .build(), discarding()).statusCode();
+    private int headRequest(String sourceUrl) throws IOException {
+        Request request = new Request.Builder().url(sourceUrl).head().build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            return response.code();
+        }
     }
-
 
     @Override
     public void open(ExecutionContext executionContext) throws ItemStreamException {
