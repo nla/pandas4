@@ -116,7 +116,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         thumbnail.setCropHeight(image.getHeight());
         thumbnail.setWidth(scaled.getWidth());
         thumbnail.setHeight(scaled.getHeight());
-        thumbnail.setUrl(sourceUrl);
+        thumbnail.setUrl(url);
         thumbnail.setContentType("image/jpeg");
         thumbnail.setData(scaledData);
         thumbnail.setCreatedDate(now);
