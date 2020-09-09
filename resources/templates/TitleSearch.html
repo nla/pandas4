@@ -35,36 +35,61 @@
 
             <ol start="${results.pageable.offset + 1}">
                 <li th:each="title: ${results}">
-                    <header>
-                        <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
-                            2000</a></strong>
-                        <nav>
-                            <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
-                               th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
-                               href="http://www.olympics.com/">olympics.com</a>
-                            <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
-                               href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
-                            <a th:if="${title.titleUrl != null}"
-                               th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
-                               href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
-                        </nav>
-                    </header>
+                    <a th:href="@{|/titles/${title.id}|}"><img th:src="@{/titles/${title.id}/thumbnail/image}"></a>
                     <div>
-                        <ul class="subject-list">
-                            <li th:each="subject: ${title.subjects}">
-                                <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}" href="SubjectView.html">Sport</a>
-                            </li>
-                        </ul>
-                        <span th:if="${title.publisher != null}" th:text="|&mdash; ${title.publisher.organisation.name}|">
-                            &mdash; International Olympic Committee
-                        </span>
+                        <header>
+                            <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
+                                2000</a></strong>
+                            <nav>
+                                <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
+                                   th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
+                                   href="http://www.olympics.com/">olympics.com</a>
+                                <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
+                                   href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
+                                <a th:if="${title.titleUrl != null}"
+                                   th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
+                                   href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
+                            </nav>
+                        </header>
+                        <div>
+                            <ul class="subject-list">
+                                <li th:each="subject: ${title.subjects}">
+                                    <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}" href="SubjectView.html">Sport</a>
+                                </li>
+                            </ul>
+                            <span th:if="${title.publisher != null}" th:text="|&mdash; ${title.publisher.organisation.name}|">
+                                &mdash; International Olympic Committee
+                            </span>
+                        </div>
+                        <footer>
+                            <span class="regdate" th:text="${title.regDate.toLocalDate()}">2000-04-01</span> ·
+                            <span class="status" th:text="${title.status.name}">ceased</span> ·
+                            <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
+                            <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
+                        </footer>
                     </div>
-                    <footer>
-                        <span class="regdate" th:text="${title.regDate.toLocalDate()}">2000-04-01</span> ·
-                        <span class="status" th:text="${title.status.name}">ceased</span> ·
-                        <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
-                        <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
-                    </footer>
+                </li>
+                <li th:remove="all">
+                    <img>
+                    <div>
+                        <header>
+                            <strong><a href="TitleView.html">Sydney 2000</a></strong>
+                        </header>
+                        <div>
+                            <ul class="subject-list">
+                                <li>
+                                    <a href="SubjectView.html">Sport</a>
+                                </li>
+                            </ul>
+                            <span>&mdash; International Olympic Committee</span>
+                        </div>
+                        <footer>
+                            <span class="regdate">2000-04-01</span> ·
+                            <span class="status">ceased</span> ·
+                            <span class="owner">aosborne</span>
+                            <span class="agency">NLA</span>
+                        </footer>
+                    </div>
                 </li>
             </ol>
             <nav>

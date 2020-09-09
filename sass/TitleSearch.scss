@@ -10,27 +10,44 @@
 
     > li {
       margin: 1rem 0;
+      display: flex;
 
-      > header {
-        > nav {
-          display: inline;
-          font-size: 60%;
-          .live-url {
-            color: darkgreen;
-          }
-        }
+
+      > a > img {
+        width: 100px;
+        height: 75px;
+        margin-right: 12px;
+        flex-shrink: 0;
       }
 
       > div {
-        font-size: 80%;
-      }
+        > header {
+          > nav {
+            display: inline;
+            font-size: 60%;
 
-      > footer {
-        font-size: 80%;
-        color: #888;
+            .live-url {
+              color: darkgreen;
+            }
+          }
+        }
 
-        .regdate { font-weight: bold; }
-        .status { font-variant: small-caps; }
+        > div {
+          font-size: 80%;
+        }
+
+        > footer {
+          font-size: 80%;
+          color: #888;
+
+          .regdate {
+            font-weight: bold;
+          }
+
+          .status {
+            font-variant: small-caps;
+          }
+        }
       }
     }
   }
