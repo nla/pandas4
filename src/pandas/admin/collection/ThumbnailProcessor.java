@@ -1,11 +1,6 @@
 package pandas.admin.collection;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.jetbrains.annotations.NotNull;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
@@ -21,20 +16,21 @@ import pandas.admin.render.BrowserPool;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 import static java.time.ZoneOffset.UTC;
 
 public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, ItemStream {
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
-
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
-    private static final OkHttpClient httpClient = new OkHttpClient();
+    private static final HttpClient httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
     private GenericObjectPool<Browser> browserPool;
 
     @Override
@@ -69,7 +65,6 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         }
     }
 
-    @NotNull
     private Thumbnail processOnce(Title title) throws Exception {
         String url = title.getSeedUrl();
         if (url == null) url = title.getTitleUrl();
@@ -117,9 +112,12 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
     }
 
     private int headRequest(String sourceUrl) throws IOException {
-        Request request = new Request.Builder().url(sourceUrl).head().build();
-        try (Response response = httpClient.newCall(request).execute()) {
-            return response.code();
+        var request = HttpRequest.newBuilder(URI.create(sourceUrl)).method("head", HttpRequest.BodyPublishers.noBody()).build();
+        try {
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -136,33 +134,6 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
     @Override
     public void close() throws ItemStreamException {
         browserPool.close();
-    }
-
-    public static class Wbinfo {
-        private static final Pattern REGEX = Pattern.compile(".*?/([0-9]{14})[a-z_]*/(.*)");
-
-        private final String url;
-        private final Instant date;
-
-        @SuppressWarnings("unchecked")
-        Wbinfo(ChromeDriver chromeDriver) {
-            Object wbinfoRaw = chromeDriver.executeScript("if (typeof wbinfo === 'undefined') { return null; } else { return wbinfo; }");
-            if (wbinfoRaw instanceof Map) {
-                var map = (Map<String,Object>) wbinfoRaw;
-                this.date = ARC_DATE.parse((String)map.get("timestamp"), Instant::from);
-                this.url = (String)map.get("url");
-            } else {
-                String currentUrl = (String) chromeDriver.executeScript("return document.location.href");
-                var m = REGEX.matcher(currentUrl);
-                if (m.matches()) {
-                    date = ARC_DATE.parse(m.group(1), Instant::from);
-                    url = m.group(2);
-                } else {
-                    date = Instant.now();
-                    url = chromeDriver.getCurrentUrl();
-                }
-            }
-        }
     }
 
     public static BufferedImage stripAlphaChannel(BufferedImage image) {
