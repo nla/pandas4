@@ -14,8 +14,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pandas.admin.Config;
 import pandas.admin.core.NotFoundException;
 import pandas.admin.core.SearchResults;
-import pandas.admin.render.Render;
-import pandas.admin.render.RenderService;
 
 import javax.persistence.EntityManager;
 
@@ -30,14 +28,12 @@ public class TitleController {
     private final SubjectRepository subjectRepository;
     private final Config config;
     private final EntityManager entityManager;
-    private final RenderService renderService;
 
-    public TitleController(TitleRepository titleRepository, SubjectRepository subjectRepository, Config config, EntityManager entityManager, RenderService renderService) {
+    public TitleController(TitleRepository titleRepository, SubjectRepository subjectRepository, Config config, EntityManager entityManager) {
         this.titleRepository = titleRepository;
         this.subjectRepository = subjectRepository;
         this.config = config;
         this.entityManager = entityManager;
-        this.renderService = renderService;
     }
 
     @GetMapping("/titles/{id}")
@@ -78,24 +74,5 @@ public class TitleController {
     public String reindex() throws InterruptedException {
         Search.session(entityManager).massIndexer(Title.class).startAndWait();
         return "ok";
-    }
-
-    @GetMapping("/titles/{id}/thumbnail")
-    @SuppressWarnings("unchecked")
-    @ResponseBody
-    public Render thumbnail(@PathVariable("id") long id, Model model) {
-        Title title = titleRepository.findById(id).orElseThrow(NotFoundException::new);
-        return renderService.render("https://web.archive.org.au/awa-nobanner/20080718175912/" + title.getTitleUrl());
-
-//            model.addAttribute("images", images);
-//            return "TitleThumbnail";
-    }
-
-    @GetMapping("/titles/{id}/render.json")
-    @SuppressWarnings("unchecked")
-    @ResponseBody
-    public Render thumbnailJson(@PathVariable("id") long id, Model model) {
-        Title title = titleRepository.findById(id).orElseThrow(NotFoundException::new);
-        return renderService.render("https://web.archive.org.au/awa-nobanner/20080718175912/" + title.getTitleUrl());
     }
 }

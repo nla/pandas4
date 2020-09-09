@@ -3,15 +3,9 @@ package pandas.admin.collection;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.apache.commons.pool2.BasePooledObjectFactory;
-import org.apache.commons.pool2.PooledObject;
-import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.imgscalr.Scalr;
 import org.jetbrains.annotations.NotNull;
-import org.openqa.selenium.OutputType;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
@@ -21,12 +15,11 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import pandas.admin.render.Browser;
+import pandas.admin.render.BrowserPool;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -42,7 +35,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
 
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
     private static final OkHttpClient httpClient = new OkHttpClient();
-    private GenericObjectPool<ChromeDriver> browserPool;
+    private GenericObjectPool<Browser> browserPool;
 
     @Override
     public Thumbnail process(Title title) throws Exception {
@@ -86,39 +79,38 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
 
         int status = headRequest(sourceUrl);
 
-        var chromeDriver = browserPool.borrowObject();
-        Wbinfo wbinfo;
+        Thumbnail thumbnail = new Thumbnail();
+        thumbnail.setWidth(200);
+        thumbnail.setHeight(200);
+        thumbnail.setCropX(0);
+        thumbnail.setCropY(0);
+        thumbnail.setCropWidth(800);
+        thumbnail.setCropHeight(600);
+        double scale = ((double) thumbnail.getWidth()) / thumbnail.getCropWidth();
+        thumbnail.setHeight((int)(thumbnail.getCropHeight() * scale));
+
+
         byte[] imageData;
-        try {
-            chromeDriver.get(sourceUrl);
-            wbinfo = new Wbinfo(chromeDriver);
-            imageData = chromeDriver.getScreenshotAs(OutputType.BYTES);
+        var browser = browserPool.borrowObject();
+        try (Browser.Tab tab = browser.createTab(thumbnail.getCropWidth(), thumbnail.getCropHeight())) {
+            tab.navigate(sourceUrl);
+            String timestamp = tab.eval("if (typeof wbinfo === 'undefined') { return null; } else { return wbinfo.timestamp; }").getString("result");
+            if (timestamp != null) {
+                thumbnail.setDate(ARC_DATE.parse(timestamp, Instant::from));
+            } else {
+                thumbnail.setDate(now);
+            }
+            thumbnail.setData(tab.screenshot(thumbnail.getCropX(), thumbnail.getCropY(), thumbnail.getCropWidth(),
+                    thumbnail.getCropHeight(), scale));
         } finally {
-            browserPool.returnObject(chromeDriver);
+            browserPool.returnObject(browser);
         }
 
-        var image = ImageIO.read(new ByteArrayInputStream(imageData));
-        var scaled = stripAlphaChannel(Scalr.resize(image, 200, 200));
-        var baos = new ByteArrayOutputStream();
-        boolean ok = ImageIO.write(scaled, "jpeg", baos);
-        if (!ok) throw new RuntimeException("ImageIO.write failed");
-        byte[] scaledData = baos.toByteArray();
-
-        Thumbnail thumbnail = new Thumbnail();
         thumbnail.setPriority(0);
         thumbnail.setStatus(status);
         thumbnail.setTitle(title);
-        thumbnail.setUrl(title.getTitleUrl());
-        thumbnail.setDate(wbinfo.date);
-        thumbnail.setCropX(0);
-        thumbnail.setCropY(0);
-        thumbnail.setCropWidth(image.getWidth());
-        thumbnail.setCropHeight(image.getHeight());
-        thumbnail.setWidth(scaled.getWidth());
-        thumbnail.setHeight(scaled.getHeight());
         thumbnail.setUrl(url);
         thumbnail.setContentType("image/jpeg");
-        thumbnail.setData(scaledData);
         thumbnail.setCreatedDate(now);
         thumbnail.setLastModifiedDate(now);
         return thumbnail;
@@ -133,40 +125,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
 
     @Override
     public void open(ExecutionContext executionContext) throws ItemStreamException {
-        this.browserPool = new GenericObjectPool<>(new BasePooledObjectFactory<>() {
-            @Override
-            public boolean validateObject(PooledObject<ChromeDriver> p) {
-                try {
-                    p.getObject().getCurrentUrl();
-                } catch (Exception e) {
-                    log.warn("ChromeDriver failed validation", e);
-                    return false;
-                }
-                return true;
-            }
-
-            @Override
-            public void passivateObject(PooledObject<ChromeDriver> p) throws Exception {
-                p.getObject().get("about:blank");
-            }
-
-            @Override
-            public void destroyObject(PooledObject<ChromeDriver> p) {
-                p.getObject().quit();
-            }
-
-            @Override
-            public ChromeDriver create() {
-                return new ChromeDriver(new ChromeOptions().setHeadless(true));
-            }
-
-            @Override
-            public PooledObject<ChromeDriver> wrap(ChromeDriver chromeDriver) {
-                return new DefaultPooledObject<>(chromeDriver);
-            }
-        });
-        browserPool.setTestOnBorrow(true);
-        browserPool.setMinEvictableIdleTimeMillis(30000);
+        this.browserPool = new BrowserPool();
     }
 
     @Override
