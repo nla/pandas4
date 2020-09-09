@@ -468,5 +468,9 @@ public class Browser implements Closeable {
         public String title() {
             return eval("document.title").getString("value");
         }
+
+        public void hideScrollbars() {
+            eval("document.getElementsByTagName('body')[0].style.overflow='hidden'");
+        }
     }
 }

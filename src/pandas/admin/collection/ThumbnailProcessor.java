@@ -93,6 +93,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
             } catch (TimeoutException e) {
                 log.warn("Timeout loading {}", sourceUrl);
             }
+            tab.hideScrollbars();
             String timestamp = tab.eval("if (typeof wbinfo === 'undefined') { return null; } else { return wbinfo.timestamp; }").getString("result");
             if (timestamp != null) {
                 thumbnail.setDate(ARC_DATE.parse(timestamp, Instant::from));
