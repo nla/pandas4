@@ -10,6 +10,7 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.util.UriUtils;
 import pandas.admin.render.Browser;
 import pandas.admin.render.BrowserPool;
 
@@ -88,6 +89,10 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
             var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
             thumbnail.setStatus(response.statusCode());
             thumbnail.setSourceType(response.headers().firstValue("Content-Type").orElse(null));
+            if ("application/pdf".equalsIgnoreCase(thumbnail.getSourceType())) {
+                sourceUrl = "https://web.archive.org.au/webjars/pdf-js/web/viewer.html?file=" + UriUtils.encodeQueryParam(sourceUrl, StandardCharsets.UTF_8);
+            }
+
         } catch (InterruptedException e1) {
             throw new RuntimeException(e1);
         }
