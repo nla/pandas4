@@ -117,7 +117,7 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
     }
 
     private int headRequest(String sourceUrl) throws IOException {
-        var request = HttpRequest.newBuilder(URI.create(sourceUrl)).method("head", HttpRequest.BodyPublishers.noBody()).build();
+        var request = HttpRequest.newBuilder(URI.create(sourceUrl)).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
         try {
             var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
             return response.statusCode();
