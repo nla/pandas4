@@ -363,6 +363,7 @@ public class Browser implements Closeable {
         private CompletableFuture<Double> loadFuture;
         private CompletableFuture<Void> networkIdleFuture;
         private boolean closed;
+        private String loaderId;
 
         Tab(Browser browser, String targetId) {
             this.browser = browser;
@@ -406,7 +407,7 @@ public class Browser implements Closeable {
                     break;
                 case "Page.lifecycleEvent":
                     String eventName = params.getString("name");
-                    if (networkIdleFuture != null && eventName.equals("networkIdle") && params.getString("frameId").equals(targetId)) {
+                    if (networkIdleFuture != null && eventName.equals("networkIdle") && params.getString("frameId").equals(targetId) && params.getString("loaderId").equals(loaderId)) {
                         networkIdleFuture.complete(null);
                     }
                     break;
@@ -436,7 +437,7 @@ public class Browser implements Closeable {
             }
             loadFuture = new CompletableFuture<>();
             networkIdleFuture = new CompletableFuture<>();
-            call("Page.navigate", Map.of("url", url));
+            this.loaderId = call("Page.navigate", Map.of("url", url)).getString("loaderId");
             return CompletableFuture.allOf(networkIdleFuture, loadFuture);
         }
 

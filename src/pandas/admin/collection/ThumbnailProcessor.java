@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static java.time.ZoneOffset.UTC;
 
@@ -84,11 +86,13 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         double scale = ((double) thumbnail.getWidth()) / thumbnail.getCropWidth();
         thumbnail.setHeight((int)(thumbnail.getCropHeight() * scale));
 
-
-        byte[] imageData;
         var browser = browserPool.borrowObject();
         try (Browser.Tab tab = browser.createTab(thumbnail.getCropWidth(), thumbnail.getCropHeight())) {
-            tab.navigate(sourceUrl);
+            try {
+                tab.navigate(sourceUrl).get(15, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                log.warn("Timeout loading {}", sourceUrl);
+            }
             String timestamp = tab.eval("if (typeof wbinfo === 'undefined') { return null; } else { return wbinfo.timestamp; }").getString("result");
             if (timestamp != null) {
                 thumbnail.setDate(ARC_DATE.parse(timestamp, Instant::from));
