@@ -35,7 +35,7 @@
 
             <ol start="${results.pageable.offset + 1}">
                 <li th:each="title: ${results}">
-                    <a th:href="@{|/titles/${title.id}|}"><img th:src="@{/titles/${title.id}/thumbnail/image}"></a>
+                    <a th:href="@{|/titles/${title.id}|}"><img th:src="@{/titles/${title.id}/thumbnail/image}" loading=lazy></a>
                     <div>
                         <header>
                             <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
