@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,8 +44,13 @@ public class ThumbnailController {
     @GetMapping("/thumbnails/generate")
     @ResponseBody
     public String generate() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
-        jobLauncher.run(thumbnailJob, new JobParametersBuilder().addDate("launch", new Date()).toJobParameters());
+        generateThumbnails();
         return "OK";
+    }
+
+    @Scheduled(fixedRate = 24 * 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
+    public void generateThumbnails() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+        jobLauncher.run(thumbnailJob, new JobParametersBuilder().addDate("launch", new Date()).toJobParameters());
     }
 
     @GetMapping("/titles/{titleId}/thumbnail/image")
