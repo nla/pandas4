@@ -15,7 +15,6 @@ import pandas.admin.render.BrowserPool;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -74,8 +73,6 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         log.info("Rendering title {}: {}", title.getId(), sourceUrl);
         Instant now = Instant.now();
 
-        int status = headRequest(sourceUrl);
-
         Thumbnail thumbnail = new Thumbnail();
         thumbnail.setWidth(200);
         thumbnail.setHeight(200);
@@ -85,6 +82,15 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         thumbnail.setCropHeight(600);
         double scale = ((double) thumbnail.getWidth()) / thumbnail.getCropWidth();
         thumbnail.setHeight((int)(thumbnail.getCropHeight() * scale));
+
+        var request = HttpRequest.newBuilder(URI.create(sourceUrl)).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
+        try {
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            thumbnail.setStatus(response.statusCode());
+            thumbnail.setSourceType(response.headers().firstValue("Content-Type").orElse(null));
+        } catch (InterruptedException e1) {
+            throw new RuntimeException(e1);
+        }
 
         var browser = browserPool.borrowObject();
         try (Browser.Tab tab = browser.createTab(thumbnail.getCropWidth(), thumbnail.getCropHeight())) {
@@ -107,23 +113,12 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         }
 
         thumbnail.setPriority(0);
-        thumbnail.setStatus(status);
         thumbnail.setTitle(title);
         thumbnail.setUrl(url);
         thumbnail.setContentType("image/jpeg");
         thumbnail.setCreatedDate(now);
         thumbnail.setLastModifiedDate(now);
         return thumbnail;
-    }
-
-    private int headRequest(String sourceUrl) throws IOException {
-        var request = HttpRequest.newBuilder(URI.create(sourceUrl)).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
-        try {
-            var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-            return response.statusCode();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
