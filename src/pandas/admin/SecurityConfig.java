@@ -33,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService());
             http.logout().logoutSuccessUrl("/");
             http.authorizeRequests()
+                    .antMatchers("/actuator/health").anonymous()
                     .antMatchers("/collections", "/collections/**").hasRole("panadmin")
                     .antMatchers("/gather/**").hasRole("panadmin")
                     .anyRequest().hasRole("stduser");
