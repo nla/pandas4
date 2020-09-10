@@ -1,5 +1,7 @@
 package pandas.admin.collection;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +18,6 @@ import pandas.admin.render.BrowserPool;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -32,7 +30,7 @@ import static java.time.ZoneOffset.UTC;
 public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, ItemStream {
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
-    private static final HttpClient httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
+    private static final OkHttpClient httpClient = new OkHttpClient.Builder().followRedirects(true).build();
     private GenericObjectPool<Browser> browserPool;
 
     @Override
@@ -84,17 +82,13 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         double scale = ((double) thumbnail.getWidth()) / thumbnail.getCropWidth();
         thumbnail.setHeight((int)(thumbnail.getCropHeight() * scale));
 
-        var request = HttpRequest.newBuilder(URI.create(sourceUrl)).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
-        try {
-            var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-            thumbnail.setStatus(response.statusCode());
-            thumbnail.setSourceType(response.headers().firstValue("Content-Type").orElse(null));
+        var request = new Request.Builder().head().url(sourceUrl).build();
+        try (var response = httpClient.newCall(request).execute()) {
+            thumbnail.setStatus(response.code());
+            thumbnail.setSourceType(response.header("Content-Type"));
             if ("application/pdf".equalsIgnoreCase(thumbnail.getSourceType())) {
                 sourceUrl = "https://web.archive.org.au/webjars/pdf-js/web/viewer.html?file=" + UriUtils.encodeQueryParam(sourceUrl, StandardCharsets.UTF_8);
             }
-
-        } catch (InterruptedException e1) {
-            throw new RuntimeException(e1);
         }
 
         var browser = browserPool.borrowObject();
