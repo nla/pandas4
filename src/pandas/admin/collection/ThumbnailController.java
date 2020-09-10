@@ -48,7 +48,7 @@ public class ThumbnailController {
         return "OK";
     }
 
-    @Scheduled(fixedRate = 24 * 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
+    @Scheduled(fixedRate = 24 * 60 * 60 * 1000, initialDelay = 0)
     public void generateThumbnails() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
         jobLauncher.run(thumbnailJob, new JobParametersBuilder().addDate("launch", new Date()).toJobParameters());
     }
