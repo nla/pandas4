@@ -15,7 +15,7 @@ public class SearchScheduler {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    @Scheduled(fixedRate = 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
+    @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
     public void reindex() throws InterruptedException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
