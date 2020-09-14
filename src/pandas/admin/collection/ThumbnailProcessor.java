@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import static java.time.ZoneOffset.UTC;
 
@@ -46,18 +47,20 @@ public class ThumbnailProcessor {
             while (true) {
                 List<Title> titles = titleRepository.findWithoutThumbnails(PageRequest.of(0, 100));
                 if (titles.isEmpty()) break;
-                for (Title title :titles) {
-                    threadPool.submit(() -> processAndSave(title));
-                }
+                threadPool.invokeAll(titles.stream().map(t -> (Callable<Thumbnail>)(() -> processAndSave(t)))
+                        .collect(Collectors.toList()));
             }
+        } catch (InterruptedException e) {
+            log.warn("ThumbnailProcessor interrupted", e);
         } finally {
             threadPool.shutdown();
         }
     }
 
-    private void processAndSave(Title title) {
+    private Thumbnail processAndSave(Title title) {
         Thumbnail thumbnail = process(title);
         thumbnailRepository.save(thumbnail);
+        return Thumbnail;
     }
 
     public Thumbnail process(Title title) {
