@@ -26,9 +26,17 @@
           height: 75px;
           margin-right: 12px;
           flex-shrink: 0;
+          transition: width 0.25s, height 0.25s;
         }
 
-        > div {
+        > a > img:hover {
+          width: 200px;
+          height: 150px;
+          transition: width 0.25s, height 0.25s;
+        }
+
+
+          > div {
           > header {
             > nav {
               display: inline;
