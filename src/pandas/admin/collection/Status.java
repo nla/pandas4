@@ -1,5 +1,8 @@
 package pandas.admin.collection;
 
+import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,6 +10,7 @@ import javax.persistence.*;
 public class Status {
     @Id
     @Column(name = "STATUS_ID")
+    @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
     @Column(name = "STATUS_NAME")

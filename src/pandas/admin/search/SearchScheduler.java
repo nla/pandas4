@@ -1,4 +1,4 @@
-package pandas.admin.core;
+package pandas.admin.search;
 
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.scheduling.annotation.Scheduled;

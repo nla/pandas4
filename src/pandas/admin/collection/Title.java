@@ -1,6 +1,7 @@
 package pandas.admin.collection;
 
 import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.admin.agency.Agency;
 import pandas.admin.core.Individual;
@@ -43,6 +44,8 @@ public class Title {
 
     @ManyToOne
     @JoinColumn(name = "AGENCY_ID", referencedColumnName = "AGENCY_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Agency agency;
 
     @ManyToOne
@@ -60,6 +63,8 @@ public class Title {
 
     @ManyToOne
     @JoinColumn(name = "CURRENT_STATUS_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Status status;
 
     @ManyToMany(mappedBy = "titles")

@@ -4,48 +4,77 @@
     margin-top: 0.5rem;
   }
 
-  > ol {
-    list-style: none;
-    padding: 0;
+  > div {
+    display: flex;
+    align-items: flex-start;
 
-    > li {
-      margin: 1rem 0;
-      display: flex;
+    > .result-list {
+      flex-grow: 1;
+
+      > ol {
+        list-style: none;
+        padding: 0;
+
+        > li {
+          margin: 1rem 0;
+          display: flex;
 
 
-      > a > img {
-        width: 100px;
-        height: 75px;
-        margin-right: 12px;
-        flex-shrink: 0;
-      }
+          > a > img {
+            width: 100px;
+            height: 75px;
+            margin-right: 12px;
+            flex-shrink: 0;
+          }
 
-      > div {
-        > header {
-          > nav {
-            display: inline;
-            font-size: 60%;
+          > div {
+            > header {
+              > nav {
+                display: inline;
+                font-size: 60%;
 
-            .live-url {
-              color: darkgreen;
+                .live-url {
+                  color: darkgreen;
+                }
+              }
+            }
+
+            > div {
+              font-size: 80%;
+            }
+
+            > footer {
+              font-size: 80%;
+              color: #888;
+
+              .regdate {
+                font-weight: bold;
+              }
+
+              .status {
+                font-variant: small-caps;
+              }
             }
           }
         }
+      }
+    }
 
-        > div {
-          font-size: 80%;
-        }
+    > .facets {
+      @extend a.card;
 
-        > footer {
-          font-size: 80%;
-          color: #888;
+      list-style: none;
+      padding: 0;
 
-          .regdate {
-            font-weight: bold;
-          }
+      > li {
+        margin: 0.75rem;
 
-          .status {
-            font-variant: small-caps;
+        > ul {
+          list-style: none;
+          padding: 0;
+
+          > li > a:before {
+            content: "☐ ";
           }
         }
       }

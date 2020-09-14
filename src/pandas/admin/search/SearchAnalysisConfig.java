@@ -1,4 +1,4 @@
-package pandas.admin.core;
+package pandas.admin.search;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;

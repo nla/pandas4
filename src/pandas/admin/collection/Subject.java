@@ -2,6 +2,7 @@ package pandas.admin.collection;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
+import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
@@ -24,7 +25,7 @@ public class Subject extends AbstractCategory {
     @Column(name = "SUBJECT_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SUBJECT_SEQ")
     @SequenceGenerator(name = "SUBJECT_SEQ", sequenceName = "SUBJECT_SEQ", allocationSize = 1)
-    @GenericField
+    @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
     @Column(name = "SUBJECT_NAME")

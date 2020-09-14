@@ -7,13 +7,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import pandas.admin.core.NotFoundException;
-import pandas.admin.core.SearchResults;
+import pandas.admin.search.SearchResults;
 
 import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
-import static pandas.admin.core.SearchUtils.mustMatchAny;
+import static pandas.admin.search.SearchUtils.mustMatchAny;
 
 @Controller
 public class CollectionController {

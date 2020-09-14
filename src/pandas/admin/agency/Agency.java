@@ -1,5 +1,7 @@
 package pandas.admin.agency;
 
+import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import pandas.admin.core.Organisation;
 
 import javax.persistence.*;
@@ -10,6 +12,7 @@ import java.util.Collection;
 public class Agency {
     @Id
     @Column(name = "AGENCY_ID")
+    @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
     @Column(name = "EXTERNAL_EMAIL")

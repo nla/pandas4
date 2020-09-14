@@ -1,4 +1,4 @@
-package pandas.admin.core;
+package pandas.admin.search;
 
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
 import org.hibernate.search.engine.search.predicate.dsl.PredicateFinalStep;
