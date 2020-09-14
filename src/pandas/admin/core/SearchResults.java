@@ -10,7 +10,7 @@ public class SearchResults<T> extends PageImpl<T> {
     private final UriComponentsBuilder uriBuilder;
 
     public SearchResults(SearchResult<T> result, UriComponentsBuilder uriBuilder, Pageable pageable) {
-        super(result.hits(), pageable, result.totalHitCount());
+        super(result.hits(), pageable, result.total().hitCount());
         this.uriBuilder = uriBuilder;
     }
 
