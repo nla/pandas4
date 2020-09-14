@@ -7,7 +7,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class SearchResults<T> extends PageImpl<T> {
@@ -32,17 +35,19 @@ public class SearchResults<T> extends PageImpl<T> {
         return hasPrevious() ? uriBuilder.cloneBuilder().queryParam("page", previousPageable().getPageNumber()).toUriString() : null;
     }
 
-    public <I, T> Facet facet(AggregationKey<Map<I, Long>> key, Function<Iterable<I>, Iterable<T>> lookupFunction,
+    public <T> Facet facet(AggregationKey<Map<Long, Long>> key, Function<Iterable<Long>, Iterable<T>> lookupFunction,
                               String queryParam, Function<T, Long> idFunction, Function<T, String> nameFunction) {
-        var aggr = raw.aggregation(key);
-        Iterator<T> ki = lookupFunction.apply(aggr.keySet()).iterator();
-        Iterator<Long> vi = ((Iterable<Long>) aggr.values()).iterator();
+        var counts = raw.aggregation(key);
+        var entities = new HashMap<Long,T>();
+        for (T entity : lookupFunction.apply(counts.keySet())) {
+            entities.put(idFunction.apply(entity), entity);
+        }
         List<FacetEntry> entries = new ArrayList<>();
-        while (ki.hasNext() && vi.hasNext()) {
-            T value = ki.next();
-            entries.add(new FacetEntry(nameFunction.apply(value),
-                    uriBuilder.cloneBuilder().queryParam(queryParam, idFunction.apply(value)).toUriString(),
-                    vi.next()));
+        for (var count: counts.entrySet()) {
+            T entity = entities.get(count.getKey());
+            entries.add(new FacetEntry(nameFunction.apply(entity),
+                    uriBuilder.cloneBuilder().queryParam(queryParam, count.getKey()).toUriString(),
+                    count.getValue()));
         }
         return new Facet(key.name(), entries);
     }
