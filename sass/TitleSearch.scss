@@ -60,7 +60,7 @@
   }
 
   > .facets {
-    @extend a.card;
+    @extend .card;
 
     list-style: none;
     padding: 0;
