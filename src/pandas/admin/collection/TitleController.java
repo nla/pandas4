@@ -84,7 +84,6 @@ public class TitleController {
 
         model.addAttribute("results", results);
         model.addAttribute("q", q);
-        model.addAttribute("allSubjects", subjectRepository.findAllByOrderByName());
         model.addAttribute("selectedSubjectIds", subjectIds);
         model.addAttribute("facets", facets);
         return "TitleSearch";

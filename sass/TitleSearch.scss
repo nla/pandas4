@@ -1,81 +1,79 @@
 .search-results {
-  > header {
-    color: #999;
-    margin-top: 0.5rem;
-  }
+  display: flex;
+  align-items: flex-start;
 
-  > div {
-    display: flex;
-    align-items: flex-start;
+  > .result-list {
+    flex-grow: 1;
 
-    > .result-list {
-      flex-grow: 1;
+    > header {
+      color: #999;
+      margin-top: 0.5rem;
+    }
 
-      > ol {
-        list-style: none;
-        padding: 0;
+    > ol {
+      list-style: none;
+      padding: 0;
 
-        > li {
-          margin: 1rem 0;
-          display: flex;
+      > li {
+        margin: 1rem 0;
+        display: flex;
 
 
-          > a > img {
-            width: 100px;
-            height: 75px;
-            margin-right: 12px;
-            flex-shrink: 0;
+        > a > img {
+          width: 100px;
+          height: 75px;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+
+        > div {
+          > header {
+            > nav {
+              display: inline;
+              font-size: 60%;
+
+              .live-url {
+                color: darkgreen;
+              }
+            }
           }
 
           > div {
-            > header {
-              > nav {
-                display: inline;
-                font-size: 60%;
+            font-size: 80%;
+          }
 
-                .live-url {
-                  color: darkgreen;
-                }
-              }
+          > footer {
+            font-size: 80%;
+            color: #888;
+
+            .regdate {
+              font-weight: bold;
             }
 
-            > div {
-              font-size: 80%;
-            }
-
-            > footer {
-              font-size: 80%;
-              color: #888;
-
-              .regdate {
-                font-weight: bold;
-              }
-
-              .status {
-                font-variant: small-caps;
-              }
+            .status {
+              font-variant: small-caps;
             }
           }
         }
       }
     }
+  }
 
-    > .facets {
-      @extend a.card;
+  > .facets {
+    @extend a.card;
 
-      list-style: none;
-      padding: 0;
+    list-style: none;
+    padding: 0;
 
-      > li {
-        margin: 0.75rem;
+    > li {
+      margin: 0.75rem;
 
-        > ul {
-          list-style: none;
-          padding: 0;
+      > ul {
+        list-style: none;
+        padding: 0;
 
-          > li > a:before {
-            content: "☐ ";
-          }
+        > li > a:before {
+          content: "☐ ";
         }
       }
     }
