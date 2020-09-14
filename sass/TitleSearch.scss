@@ -64,6 +64,7 @@
   > .facets {
     @extend .card;
 
+    flex: 0 0 320px;
     list-style: none;
     padding: 0;
 
