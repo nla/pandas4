@@ -2,39 +2,65 @@ package pandas.admin.collection;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemStream;
-import org.springframework.batch.item.ItemStreamException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 import pandas.admin.render.Browser;
 import pandas.admin.render.BrowserPool;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 import static java.time.ZoneOffset.UTC;
 
-public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, ItemStream {
+@Service
+public class ThumbnailProcessor {
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
     private static final OkHttpClient httpClient = new OkHttpClient.Builder().followRedirects(true).build();
-    private GenericObjectPool<Browser> browserPool;
+    private final TitleRepository titleRepository;
+    private final ThumbnailRepository thumbnailRepository;
+    private final BrowserPool browserPool;
 
-    @Override
-    public Thumbnail process(Title title) throws Exception {
+    public ThumbnailProcessor(TitleRepository titleRepository, ThumbnailRepository thumbnailRepository) {
+        this.titleRepository = titleRepository;
+        this.thumbnailRepository = thumbnailRepository;
+        this.browserPool = new BrowserPool();
+    }
+
+    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000, initialDelay = 0)
+    public synchronized void run() {
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(8,8,1, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));
+        try {
+            threadPool.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+            while (true) {
+                List<Title> titles = titleRepository.findWithoutThumbnails(PageRequest.of(0, 100));
+                if (titles.isEmpty()) break;
+                for (Title title :titles) {
+                    threadPool.submit(() -> processAndSave(title));
+                }
+            }
+        } finally {
+            threadPool.shutdown();
+        }
+    }
+
+    private void processAndSave(Title title) {
+        Thumbnail thumbnail = process(title);
+        thumbnailRepository.save(thumbnail);
+    }
+
+    public Thumbnail process(Title title) {
         RetryTemplate retry = new RetryTemplate();
         retry.setBackOffPolicy(new ExponentialBackOffPolicy());
         SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(3);
@@ -118,35 +144,5 @@ public class ThumbnailProcessor implements ItemProcessor<Title, Thumbnail>, Item
         thumbnail.setCreatedDate(now);
         thumbnail.setLastModifiedDate(now);
         return thumbnail;
-    }
-
-    @Override
-    public void open(ExecutionContext executionContext) throws ItemStreamException {
-        this.browserPool = new BrowserPool();
-    }
-
-    @Override
-    public void update(ExecutionContext executionContext) throws ItemStreamException {
-
-    }
-
-    @Override
-    public void close() throws ItemStreamException {
-        browserPool.close();
-    }
-
-    public static BufferedImage stripAlphaChannel(BufferedImage image) {
-        if (!image.getColorModel().hasAlpha()) return image;
-
-        BufferedImage target = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = target.createGraphics();
-        try {
-            g.setColor(new Color(0, false));
-            g.fillRect(0, 0, image.getWidth(), image.getHeight());
-            g.drawImage(image, 0, 0, null);
-        } finally {
-            g.dispose();
-        }
-        return target;
     }
 }

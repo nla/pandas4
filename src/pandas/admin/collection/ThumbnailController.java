@@ -1,7 +1,6 @@
 package pandas.admin.collection;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,15 +18,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import pandas.admin.core.NotFoundException;
 
-import java.util.Date;
-
 @Controller
 public class ThumbnailController {
+    private final ThumbnailProcessor thumbnailProcessor;
     private final ThumbnailRepository thumbnailRepository;
     private final JobLauncher jobLauncher;
     private final Job thumbnailJob;
 
-    public ThumbnailController(ThumbnailRepository thumbnailRepository, JobLauncher jobLauncher, @Qualifier("thumbnailJob") Job thumbnailJob) {
+    public ThumbnailController(ThumbnailProcessor thumbnailProcessor, ThumbnailRepository thumbnailRepository, JobLauncher jobLauncher, @Qualifier("thumbnailJob") Job thumbnailJob) {
+        this.thumbnailProcessor = thumbnailProcessor;
         this.thumbnailRepository = thumbnailRepository;
         this.jobLauncher = jobLauncher;
         this.thumbnailJob = thumbnailJob;
@@ -44,13 +42,8 @@ public class ThumbnailController {
     @GetMapping("/thumbnails/generate")
     @ResponseBody
     public String generate() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
-        generateThumbnails();
+        thumbnailProcessor.run();
         return "OK";
-    }
-
-    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000, initialDelay = 0)
-    public void generateThumbnails() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
-        jobLauncher.run(thumbnailJob, new JobParametersBuilder().addDate("launch", new Date()).toJobParameters());
     }
 
     @GetMapping("/titles/{titleId}/thumbnail/image")
