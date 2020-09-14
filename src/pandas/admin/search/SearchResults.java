@@ -7,15 +7,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
+import static java.util.Comparator.comparing;
+
 public class SearchResults<T> extends PageImpl<T> {
-    private final UriComponentsBuilder uriBuilder;
     public final SearchResult<T> raw;
+    private final UriComponentsBuilder uriBuilder;
 
     public SearchResults(SearchResult<T> result, UriComponentsBuilder uriBuilder, Pageable pageable) {
         super(result.hits(), pageable, result.total().hitCount());
@@ -24,7 +23,7 @@ public class SearchResults<T> extends PageImpl<T> {
     }
 
     public static <T> SearchResults<T> from(SearchFetchable<T> search, UriComponentsBuilder uriBuilder, Pageable pageable) {
-        return new SearchResults<T>(search.fetch((int)pageable.getOffset(), pageable.getPageSize()), uriBuilder, pageable);
+        return new SearchResults<T>(search.fetch((int) pageable.getOffset(), pageable.getPageSize()), uriBuilder, pageable);
     }
 
     public String nextUrl() {
@@ -33,22 +32,5 @@ public class SearchResults<T> extends PageImpl<T> {
 
     public String previousUrl() {
         return hasPrevious() ? uriBuilder.cloneBuilder().queryParam("page", previousPageable().getPageNumber()).toUriString() : null;
-    }
-
-    public <T> Facet facet(AggregationKey<Map<Long, Long>> key, Function<Iterable<Long>, Iterable<T>> lookupFunction,
-                              String queryParam, Function<T, Long> idFunction, Function<T, String> nameFunction) {
-        var counts = raw.aggregation(key);
-        var entities = new HashMap<Long,T>();
-        for (T entity : lookupFunction.apply(counts.keySet())) {
-            entities.put(idFunction.apply(entity), entity);
-        }
-        List<FacetEntry> entries = new ArrayList<>();
-        for (var count: counts.entrySet()) {
-            T entity = entities.get(count.getKey());
-            entries.add(new FacetEntry(nameFunction.apply(entity),
-                    uriBuilder.cloneBuilder().queryParam(queryParam, count.getKey()).toUriString(),
-                    count.getValue()));
-        }
-        return new Facet(key.name(), entries);
     }
 }

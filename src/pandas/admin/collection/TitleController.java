@@ -50,7 +50,9 @@ public class TitleController {
     @GetMapping("/titles")
     public String search(@RequestParam(name = "q", required = false) String rawQ,
                          @RequestParam(name = "collection", defaultValue = "") List<Long> collectionIds,
-                         @RequestParam(name = "subject", defaultValue = "") List<Long> subjectIds,
+                         @RequestParam(name = "subject", defaultValue = "") Set<Long> subjectIds,
+                         @RequestParam(name = "status", defaultValue = "") Set<Long> statusIds,
+                         @RequestParam(name = "agency", defaultValue = "") Set<Long> agencyIds,
                          @PageableDefault(40) Pageable pageable,
                          Model model) {
         String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
@@ -62,13 +64,12 @@ public class TitleController {
         var search = Search.session(entityManager).search(Title.class)
                 .where(f -> f.bool(b -> {
                     b.must(f.matchAll());
-                    if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
-                    mustMatchAny(f, b, "subjects.id", subjectIds);
+                    if (q != null) b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(q).defaultOperator(AND));
+                    mustMatchAny(f, b, "agency.id", agencyIds);
                     mustMatchAny(f, b, "collections.id", collectionIds);
+                    mustMatchAny(f, b, "status.id", statusIds);
+                    mustMatchAny(f, b, "subjects.id", subjectIds);
                 }))
-                .aggregation(agencyFacet, f -> f.terms().field("agency.id", Long.class).maxTermCount(10))
-                .aggregation(statusFacet, f -> f.terms().field("status.id", Long.class).maxTermCount(10))
-                .aggregation(subjectFacet, f -> f.terms().field("subjects.id", Long.class).maxTermCount(10))
                 .sort(f -> q == null ? f.field("name_sort") : f.score());
 
         var uri = UriComponentsBuilder.fromPath("/titles");
@@ -76,11 +77,21 @@ public class TitleController {
         if (!subjectIds.isEmpty()) uri.queryParam("subject", subjectIds);
         if (!collectionIds.isEmpty()) uri.queryParam("collection", collectionIds);
 
+        var facetResult = Search.session(entityManager).search(Title.class)
+                .where(f -> f.bool(b -> {
+                    b.must(f.matchAll());
+                    if (q != null) b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(q).defaultOperator(AND));
+                }))
+                .aggregation(agencyFacet, f -> f.terms().field("agency.id", Long.class).maxTermCount(20))
+                .aggregation(statusFacet, f -> f.terms().field("status.id", Long.class).maxTermCount(20))
+                .aggregation(subjectFacet, f -> f.terms().field("subjects.id", Long.class).maxTermCount(20))
+                .fetch(0);
+
         SearchResults<Title> results = SearchResults.from(search, uri, pageable);
         List<Facet> facets = List.of(
-                results.facet(agencyFacet, agencyRepository::findAllById, "agency", Agency::getId, Agency::getName),
-                results.facet(statusFacet, statusRepository::findAllById, "status", Status::getId, Status::getName),
-                results.facet(subjectFacet, subjectRepository::findAllById, "subject", Subject::getId, Subject::getFullName));
+                Facet.from(facetResult, agencyFacet, agencyRepository::findAllById, "agency", Agency::getId, Agency::getName, agencyIds),
+                Facet.from(facetResult, statusFacet, statusRepository::findAllById, "status", Status::getId, Status::getName, statusIds),
+                Facet.from(facetResult, subjectFacet, subjectRepository::findAllById, "subject", Subject::getId, Subject::getName, subjectIds));
 
         model.addAttribute("results", results);
         model.addAttribute("q", q);

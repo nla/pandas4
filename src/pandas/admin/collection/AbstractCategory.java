@@ -15,7 +15,7 @@ public abstract class AbstractCategory implements Category {
 
     @Override
     public String getFullName() {
-        return getBreadcrumbs().stream().map(Category::getName).collect(joining(" / "));
+        return getBreadcrumbs().stream().map(Category::getName).collect(joining(" — "));
     }
 
     @Override

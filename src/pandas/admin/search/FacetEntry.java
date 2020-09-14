@@ -1,25 +1,31 @@
 package pandas.admin.search;
 
 public class FacetEntry {
+    private final long id;
     private final String name;
-    private final String href;
-    private final long count;
+    private final Long count;
+    private final boolean active;
 
-    public FacetEntry(String name, String href, long count) {
+    public FacetEntry(long id, String name, Long count, boolean active) {
         this.name = name;
-        this.href = href;
+        this.id = id;
         this.count = count;
+        this.active = active;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getHref() {
-        return href;
+    public Long getCount() {
+        return count;
     }
 
-    public long getCount() {
-        return count;
+    public boolean isActive() {
+        return active;
+    }
+
+    public long getId() {
+        return id;
     }
 }

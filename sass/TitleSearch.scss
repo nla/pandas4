@@ -70,22 +70,20 @@
   }
 
   > .facets {
-    @extend .card;
-
     flex: 0 0 320px;
     list-style: none;
     padding: 0;
 
     > li {
-      margin: 0.75rem;
+      margin-bottom: 0.5rem;
 
       > ul {
         list-style: none;
-        padding: 0;
-
-        > li > a:before {
-          content: "☐ ";
-        }
+        padding: 0.5rem;
+        overflow-y: scroll;
+        max-height: 200px;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 0.25rem;
       }
     }
   }
