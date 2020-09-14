@@ -1,12 +1,5 @@
 package pandas.admin.collection;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +15,10 @@ import pandas.admin.core.NotFoundException;
 public class ThumbnailController {
     private final ThumbnailProcessor thumbnailProcessor;
     private final ThumbnailRepository thumbnailRepository;
-    private final JobLauncher jobLauncher;
-    private final Job thumbnailJob;
 
-    public ThumbnailController(ThumbnailProcessor thumbnailProcessor, ThumbnailRepository thumbnailRepository, JobLauncher jobLauncher, @Qualifier("thumbnailJob") Job thumbnailJob) {
+    public ThumbnailController(ThumbnailProcessor thumbnailProcessor, ThumbnailRepository thumbnailRepository) {
         this.thumbnailProcessor = thumbnailProcessor;
         this.thumbnailRepository = thumbnailRepository;
-        this.jobLauncher = jobLauncher;
-        this.thumbnailJob = thumbnailJob;
     }
 
     @GetMapping("/thumbnails/{id}/edit")
@@ -41,7 +30,7 @@ public class ThumbnailController {
 
     @GetMapping("/thumbnails/generate")
     @ResponseBody
-    public String generate() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
+    public String generate() {
         thumbnailProcessor.run();
         return "OK";
     }
