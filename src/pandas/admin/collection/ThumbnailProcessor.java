@@ -60,7 +60,7 @@ public class ThumbnailProcessor {
     private Thumbnail processAndSave(Title title) {
         Thumbnail thumbnail = process(title);
         thumbnailRepository.save(thumbnail);
-        return Thumbnail;
+        return thumbnail;
     }
 
     public Thumbnail process(Title title) {
