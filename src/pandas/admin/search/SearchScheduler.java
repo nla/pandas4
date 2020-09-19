@@ -15,7 +15,7 @@ public class SearchScheduler {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 60 * 60 * 1000)
+    @Scheduled(fixedDelayString = "${pandas.searchScheduler.delay:3600000}", initialDelayString = "${pandas.searchScheduler.initialDelay:3600000}")
     public void reindex() throws InterruptedException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {

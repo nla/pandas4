@@ -2,9 +2,12 @@ package pandas.admin.collection;
 
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
+import org.hibernate.search.mapper.pojo.extractor.builtin.BuiltinContainerExtractors;
+import org.hibernate.search.mapper.pojo.extractor.mapping.annotation.ContainerExtraction;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.admin.agency.Agency;
 import pandas.admin.core.Individual;
+import pandas.admin.gather.TitleGather;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
@@ -71,6 +74,15 @@ public class Title {
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name"})
     private List<Collection> collections;
+
+    @OneToOne
+    @JoinColumn(name = "TITLE_ID")
+    @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes"})
+    // XXX: not sure why it can't find the inverse automatically
+    @AssociationInverseSide(
+            inversePath = @ObjectPath( @PropertyValue( propertyName = "title" ) )
+    )
+    private TitleGather gather;
 
     public Agency getAgency() {
         return agency;
@@ -191,5 +203,13 @@ public class Title {
 
     public void setSeedUrl(String seedUrl) {
         this.seedUrl = seedUrl;
+    }
+
+    public TitleGather getGather() {
+        return gather;
+    }
+
+    public void setGather(TitleGather gather) {
+        this.gather = gather;
     }
 }

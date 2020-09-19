@@ -39,7 +39,7 @@ public class ThumbnailProcessor {
         this.browserPool = new BrowserPool();
     }
 
-    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000, initialDelay = 0)
+    @Scheduled(fixedDelayString = "${pandas.thumbnailProcessor.delay:86400000}", initialDelayString = "${pandas.thumbnailProcessor.initialDelay:0}")
     public synchronized void run() {
         ThreadPoolExecutor threadPool = new ThreadPoolExecutor(8,8,1, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));
         try {
