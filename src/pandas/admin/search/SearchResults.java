@@ -1,36 +1,19 @@
 package pandas.admin.search;
 
-import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.query.SearchFetchable;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.*;
-import java.util.function.Function;
-
-import static java.util.Comparator.comparing;
 
 public class SearchResults<T> extends PageImpl<T> {
     public final SearchResult<T> raw;
-    private final UriComponentsBuilder uriBuilder;
 
-    public SearchResults(SearchResult<T> result, UriComponentsBuilder uriBuilder, Pageable pageable) {
+    public SearchResults(SearchResult<T> result, Pageable pageable) {
         super(result.hits(), pageable, result.total().hitCount());
-        this.uriBuilder = uriBuilder;
         this.raw = result;
     }
 
-    public static <T> SearchResults<T> from(SearchFetchable<T> search, UriComponentsBuilder uriBuilder, Pageable pageable) {
-        return new SearchResults<T>(search.fetch((int) pageable.getOffset(), pageable.getPageSize()), uriBuilder, pageable);
-    }
-
-    public String nextUrl() {
-        return hasNext() ? uriBuilder.cloneBuilder().queryParam("page", nextPageable().getPageNumber()).toUriString() : null;
-    }
-
-    public String previousUrl() {
-        return hasPrevious() ? uriBuilder.cloneBuilder().queryParam("page", previousPageable().getPageNumber()).toUriString() : null;
+    public static <T> SearchResults<T> from(SearchFetchable<T> search, Pageable pageable) {
+        return new SearchResults<T>(search.fetch((int) pageable.getOffset(), pageable.getPageSize()), pageable);
     }
 }

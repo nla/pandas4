@@ -1,12 +1,6 @@
 package pandas.admin.search;
 
-import org.hibernate.search.engine.search.aggregation.AggregationKey;
-import org.hibernate.search.engine.search.query.SearchResult;
-
-import java.util.*;
-import java.util.function.Function;
-
-import static java.util.Comparator.*;
+import java.util.List;
 
 public class FacetResults {
     private final String queryParam;

@@ -6,30 +6,28 @@
     <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
 </head>
 <header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <nav th:replace="_layout.html :: sidebar"></nav>
-    <article>
-        <header>
-            <h1>Edit Subject</h1>
-        </header>
-        <form method=post class=form>
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input class="form-control" id="name" name="name" th:value="${subject.name}" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea class="form-control" id="description" name="description"
-                          rows="3" th:text="${subject.description}"></textarea>
-            </div>
+    <header>
+        <h1>Edit Subject</h1>
+    </header>
+    <form method=post class=form>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input class="form-control" id="name" name="name" th:value="${subject.name}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea class="form-control" id="description" name="description"
+                      rows="3" th:text="${subject.description}"></textarea>
+        </div>
 
-            <div>
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a th:href="@{|/subjects/${subject.id}|}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
-                <button th:if="${subject.id != null}" type="submit" formaction="subjects/${subject.id?c}/delete"
-                        class="btn btn-danger float-right">Delete
-                </button>
-            </div>
-        </form>
-    </article>
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{|/subjects/${subject.id}|}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+            <button th:if="${subject.id != null}" type="submit" formaction="subjects/${subject.id?c}/delete"
+                    class="btn btn-danger float-right">Delete
+            </button>
+        </div>
+    </form>
 </main>

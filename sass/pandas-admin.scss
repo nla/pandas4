@@ -24,12 +24,23 @@ $theme-colors: (
 @import "collection";
 @import "TitleSearch";
 
-//body {
-//    @extend .container-fluid;
-//    padding: 0;
-//}
+body {
+    display: grid;
+    grid-template-areas: "header" "nav" "main";
+
+    @media (min-width: 540px) {
+        grid-template-areas: "header header"
+                     "nav main";
+        grid-template-columns: 250px 1fr;
+        grid-template-rows: auto 1fr;
+    }
+}
+
+
 
 body > header {
+    grid-area: header;
+
     @extend .navbar;
     @extend .navbar-dark;
 
@@ -42,110 +53,53 @@ body > header {
     }
 }
 
-body > main {
-    @extend .container-fluid;
-    @extend .row;
+body > nav {
+    grid-area: nav;
+    background-color: #f8f9fa;
+    padding: 1rem;
 
-    > nav {
-        @extend .col-md-3;
-        @extend .col-lg-2;
-        @extend .d-md-block;
-        @extend .bg-light;
-        @extend .pt-3;
-
-        > ul {
-            @extend .nav;
-            @extend .flex-column;
-            > li {
-                @extend .nav-item;
-                > a {
-                    @extend .nav-link;
-                    color: #333;
-                    font-weight: 500;
-                }
-            }
-        }
-    }
-
-    > article {
-        @extend .col-md-9;
-        @extend .ml-sm-auto;
-        @extend .col-lg-10;
-        @extend .px-md-4;
-        @extend .pt-3;
-
-        > header {
-            @extend .d-flex;
-            @extend .justify-content-between;
-
-            align-items: flex-start;
-            margin-bottom: 1rem;
-
-            > ol {
-                @extend .breadcrumb;
-                margin-bottom: 0;
-                margin-right: 1rem;
-                padding: 0.475rem 0.75rem;
-
-                > li { @extend .breadcrumb-item; }
-            }
-
-            > nav {
-                @extend .btn-toolbar;
-                > a {
-                    margin-right: 0.5rem;
-                }
+    > ul {
+        @extend .nav;
+        @extend .flex-column;
+        > li {
+            @extend .nav-item;
+            > a {
+                @extend .nav-link;
+                color: #333;
+                font-weight: 500;
             }
         }
     }
 }
 
-//body {
-//    margin: 0;
-//}
-//header {
-//    background: #010066;
-//    color: #ffffff;
-//    padding-top: 16px;
-//    padding-bottom: 16px;
-//}
-//
-//header h1 {
-//    margin-top: 0px;
-//    margin-left: 16px;
-//    margin-bottom: 0px;
-//    font-weight: 100;
-//    text-shadow: 3px 3px #00003a;
-//}
-//header .pandas-logo {
-//    color: #ffcc00;
-//    font-family: serif;
-//}
-//
-//.wrapper {
-//    display: flex;
-//}
-//
-//.sidebar {
-//    flex: 0 0 12em;
-//    margin-top: 16px;
-//    margin-left: 16px;
-//}
-//
-//.content {
-//    flex: 1;
-//    padding-left: 16px;
-//    padding-right: 16px;
-//}
-//
-//.form {
-//    max-width: 800px;
-//}
-//
-//.nav-header {
-//    font-size: 12px;
-//    font-weight: bold;
-//    text-transform: uppercase;
-//    color: #555;
-//    padding: 0px 0px;
-//}
+body > main {
+    grid-area: main;
+
+    @extend .px-md-4;
+    @extend .pt-3;
+
+    > header {
+        @extend .d-flex;
+        @extend .justify-content-between;
+
+        align-items: flex-start;
+        margin-bottom: 1rem;
+
+        > ol {
+            @extend .breadcrumb;
+            margin-bottom: 0;
+            margin-right: 1rem;
+            padding: 0.475rem 0.75rem;
+
+            > li { @extend .breadcrumb-item; }
+        }
+
+        > nav {
+            @extend .btn-toolbar;
+            > a {
+                margin-right: 0.5rem;
+            }
+        }
+    }
+
+}

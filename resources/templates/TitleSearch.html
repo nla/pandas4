@@ -7,107 +7,124 @@
 </head>
 <body>
 <header th:replace="_layout.html :: header"></header>
-<main>
-    <nav th:replace="_layout.html :: sidebar"></nav>
-    <article>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+    <header>
         <h1>Titles</h1>
+    </header>
+
+    <section class="results">
         <form id="searchForm">
             <input name="q" th:value="${q}" placeholder="Keywords">
-            <input type=submit value=Search>
+            <input type=submit value=Search class="btn btn-primary">
         </form>
-
-        <section class="search-results">
-            <div class="result-list">
-                <header>
-                    Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
-                    matching titles
-                </header>
-                <ol start="${results.pageable.offset + 1}">
-                    <li th:each="title: ${results}">
-                        <a th:href="@{|/titles/${title.id}|}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
-                        <div>
-                            <header>
-                                <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
-                                    2000</a></strong>
-                                <nav>
-                                    <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
-                                       th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
-                                       href="http://www.olympics.com/">olympics.com</a>
-                                    <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
-                                       href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
-                                    <a th:if="${title.titleUrl != null}"
-                                       th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
-                                       href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
-                                </nav>
-                            </header>
-                            <div>
-                                <ul class="subject-list">
-                                    <li th:each="subject: ${title.subjects}">
-                                        <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}" href="SubjectView.html">Sport</a>
-                                    </li>
-                                </ul>
-                                <span th:if="${title.publisher != null}" th:text="|&mdash; ${title.publisher.organisation.name}|">
-                                    &mdash; International Olympic Committee
-                                </span>
-                            </div>
-                            <footer>
-                                <span class="regdate" th:text="${title.regDate.toLocalDate()}">2000-04-01</span> ·
-                                <span class="status" th:text="${title.status.name}">ceased</span> ·
-                                <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
-                                <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
-                            </footer>
-                        </div>
-                    </li>
-                    <li th:remove="all">
-                        <img>
-                        <div>
-                            <header>
-                                <strong><a href="TitleView.html">Sydney 2000</a></strong>
-                            </header>
-                            <div>
-                                <ul class="subject-list">
-                                    <li>
-                                        <a href="SubjectView.html">Sport</a>
-                                    </li>
-                                </ul>
-                                <span>&mdash; International Olympic Committee</span>
-                            </div>
-                            <footer>
-                                <span class="regdate">2000-04-01</span> ·
-                                <span class="status">ceased</span> ·
-                                <span class="owner">aosborne</span>
-                                <span class="agency">NLA</span>
-                            </footer>
-                        </div>
-                    </li>
-                </ol>
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item" th:classappend="${!results.hasPrevious()} ? disabled">
-                            <a class="page-link" th:href="@{${results.previousUrl()}}" tabindex="-1">Previous</a>
-                        </li>
-                        <li class="page-item" th:classappend="${!results.hasNext()} ? disabled">
-                            <a class="page-link" th:href="@{${results.nextUrl()}}">Next</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-
-            <ul class="facets">
-                <li th:each="facet: ${facets}" th:if="${!facet.entries.isEmpty()}">
-                    <strong th:text="${facet.name}">Subject</strong>
-                    <ul>
-                        <li th:each="entry: ${facet.entries}">
-                            <label>
-                                <input form="searchForm" type=checkbox th:name="${facet.queryParam}"
-                                          th:value="${entry.id}" th:checked="${entry.active}" onchange="this.form.submit()">
-                                <span th:text="${entry.name}">Sport</span>
-                                <span th:if="${entry.count != null}" th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</span>
-                            </label>
-                        </li>
-                    </ul>
+        <header>
+            Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
+            matching titles
+        </header>
+        <ol start="${results.pageable.offset + 1}">
+            <li th:each="title: ${results}">
+                <a th:href="@{|/titles/${title.id}|}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
+                <div>
+                    <header>
+                        <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
+                            2000</a></strong>
+                        <nav>
+                            <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
+                               th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
+                               href="http://www.olympics.com/">olympics.com</a>
+                            <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
+                               href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
+                            <a th:if="${title.titleUrl != null}"
+                               th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
+                               href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
+                        </nav>
+                    </header>
+                    <div>
+                        <ul class="subject-list">
+                            <li th:each="subject: ${title.subjects}">
+                                <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
+                                   href="SubjectView.html">Sport</a>
+                            </li>
+                        </ul>
+                        <span th:if="${title.publisher != null}"
+                              th:text="|&mdash; ${title.publisher.organisation.name}|">
+                                &mdash; International Olympic Committee
+                            </span>
+                    </div>
+                    <footer>
+                        <span class="regdate" th:text="${title.regDate.toLocalDate()}">2000-04-01</span> ·
+                        <span class="status" th:text="${title.status.name}">ceased</span> ·
+                        <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
+                        <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
+                    </footer>
+                </div>
+            </li>
+            <li th:remove="all">
+                <img>
+                <div>
+                    <header>
+                        <strong><a href="TitleView.html">Sydney 2000</a></strong>
+                    </header>
+                    <div>
+                        <ul class="subject-list">
+                            <li>
+                                <a href="SubjectView.html">Sport</a>
+                            </li>
+                        </ul>
+                        <span>&mdash; International Olympic Committee</span>
+                    </div>
+                    <footer>
+                        <span class="regdate">2000-04-01</span> ·
+                        <span class="status">ceased</span> ·
+                        <span class="owner">aosborne</span>
+                        <span class="agency">NLA</span>
+                    </footer>
+                </div>
+            </li>
+        </ol>
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${!results.hasPrevious()} ? disabled">
+                    <button form="searchForm" type="submit" name="page"
+                            th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
+                            class="page-link" tabindex="-1">Previous
+                    </button>
+                </li>
+                <li class="page-item" th:classappend="${!results.hasNext()} ? disabled">
+                    <button form="searchForm" type="submit" name="page"
+                            th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}" class="page-link">
+                        Next
+                    </button>
                 </li>
             </ul>
-        </section>
-    </article>
+        </nav>
+    </section>
+
+    <section class="facets">
+        <header>
+            <h3>Filters</h3>
+            <button form="searchForm" class="btn btn-primary"
+                    onclick="document.querySelectorAll('.facet-checkbox').forEach(cb => cb.checked = false); this.form.submit()">
+                Clear
+            </button>
+        </header>
+        <ul>
+            <li th:each="facet: ${facets}" th:if="${!facet.entries.isEmpty()}">
+                <strong th:text="${facet.name}">Subject</strong>
+                <ul>
+                    <li th:each="entry: ${facet.entries}">
+                        <label>
+                            <input form="searchForm" type=checkbox th:name="${facet.queryParam}"
+                                   th:value="${entry.id}" th:checked="${entry.active}" class="facet-checkbox"
+                                   onchange="this.form.submit()">
+                            <span th:text="${entry.name}">Sport</span>
+                            <span th:if="${entry.count != null}"
+                                  th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</span>
+                        </label>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </section>
 </main>

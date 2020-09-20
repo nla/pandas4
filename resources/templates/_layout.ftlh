@@ -21,22 +21,21 @@
     <form action="titles"><input name="q" placeholder="Search titles..."></form>
 </header>
 
+<nav>
+    <ul>
+        <li>Tools</li>
+        [@navli href="titles"]Titles[/@navli]
+        [@navli href="collections"]Collections[/@navli]
+        [@navli href="subjects"]Subjects[/@navli]
+        [@navli href="marcexport"]MARC Export[/@navli]
+        <li>Gather</li>
+        [@navli href="gather/filterpresets"]Filter Presets[/@navli]
+    </ul>
+</nav>
+
 <main>
-    <nav>
-        <ul>
-            <li>Tools</li>
-            [@navli href="titles"]Titles[/@navli]
-            [@navli href="collections"]Collections[/@navli]
-            [@navli href="subjects"]Subjects[/@navli]
-            [@navli href="marcexport"]MARC Export[/@navli]
-            <li>Gather</li>
-            [@navli href="gather/filterpresets"]Filter Presets[/@navli]
-        </ul>
-    </nav>
-    <article>
-        [#if header]<h1>${title}</h1>[/#if]
-        [#nested/]
-    </article>
+    [#if header]<h1>${title}</h1>[/#if]
+    [#nested/]
 </main>
 
 </body>

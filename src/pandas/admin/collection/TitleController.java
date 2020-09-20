@@ -104,7 +104,7 @@ public class TitleController {
             facetResults.add(facet.results(queryParams, facetResult));
         }
 
-        SearchResults<Title> results = SearchResults.from(search, uri, pageable);
+        SearchResults<Title> results = SearchResults.from(search, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", q);
         model.addAttribute("facets", facetResults);

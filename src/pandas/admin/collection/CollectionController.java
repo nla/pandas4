@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 import pandas.admin.core.NotFoundException;
 import pandas.admin.search.SearchResults;
 
@@ -42,11 +41,7 @@ public class CollectionController {
                     mustMatchAny(f, b, "subjects.id", subjectIds);
                 })).sort(f -> q == null ? f.field("name_sort") : f.score());
 
-        var uri = UriComponentsBuilder.fromPath("/collections");
-        if (q != null) uri.queryParam("q", q);
-        if (!subjectIds.isEmpty()) uri.queryParam("subject", subjectIds);
-
-        SearchResults<Collection> results = SearchResults.from(search, uri, pageable);
+        SearchResults<Collection> results = SearchResults.from(search, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", q);
         model.addAttribute("selectedSubjectIds", subjectIds);

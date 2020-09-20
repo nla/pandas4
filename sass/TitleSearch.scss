@@ -1,11 +1,22 @@
 @import "bootstrap/scss/bootstrap";
 
-.search-results {
-  display: flex;
-  align-items: flex-start;
+main.search {
+  display: grid;
+  grid-template-areas: "header" "results" "facets";
 
-  > .result-list {
-    flex-grow: 1;
+  @media (min-width: 540px) {
+    grid-template-areas: "header header"
+                     "results facets";
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: auto 1fr;
+  }
+
+  > .header {
+    grid-area: header;
+  }
+
+  > .results {
+    grid-area: results;
 
     > header {
       color: #999;
@@ -36,7 +47,7 @@
         }
 
 
-          > div {
+        > div {
           > header {
             > nav {
               display: inline;
@@ -70,20 +81,29 @@
   }
 
   > .facets {
-    flex: 0 0 320px;
-    list-style: none;
-    padding: 0;
+    grid-area: facets;
 
-    > li {
-      margin-bottom: 0.5rem;
+    > header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
 
-      > ul {
-        list-style: none;
-        padding: 0.5rem;
-        overflow-y: scroll;
-        max-height: 200px;
-        border: 1px solid rgba(0, 0, 0, 0.125);
-        border-radius: 0.25rem;
+    > ul {
+      list-style: none;
+      padding: 0;
+
+      > li {
+        margin-bottom: 0.5rem;
+
+        > ul {
+          list-style: none;
+          padding: 0.5rem;
+          overflow-y: scroll;
+          max-height: 200px;
+          border: 1px solid rgba(0, 0, 0, 0.125);
+          border-radius: 0.25rem;
+        }
       }
     }
   }

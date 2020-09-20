@@ -12,20 +12,19 @@
     <form th:action="@{/titles}"><input name="q" placeholder="Search titles..."></form>
 </header>
 
+<nav th:fragment="sidebar">
+    <ul>
+        <li>Tools</li>
+        <li><a th:href="@{/titles}">Titles</a>
+        <li><a th:href="@{/collections}">Collections</a>
+        <li><a th:href="@{/subjects}">Subjects</a>
+        <li><a th:href="@{/marcexport}">MARC Export</a>
+        <li>Gather
+        <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
+    </ul>
+</nav>
+
 <main>
-    <nav th:fragment="sidebar">
-        <ul>
-            <li>Tools</li>
-            <li><a th:href="@{/titles}">Titles</a>
-            <li><a th:href="@{/collections}">Collections</a>
-            <li><a th:href="@{/subjects}">Subjects</a>
-            <li><a th:href="@{/marcexport}">MARC Export</a>
-            <li>Gather
-            <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
-        </ul>
-    </nav>
-    <article>
-    </article>
 </main>
 
 </body>
