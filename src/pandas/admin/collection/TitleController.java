@@ -16,6 +16,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pandas.admin.Config;
 import pandas.admin.agency.Agency;
 import pandas.admin.agency.AgencyRepository;
+import pandas.admin.core.Individual;
+import pandas.admin.core.IndividualRepository;
 import pandas.admin.gather.GatherMethod;
 import pandas.admin.gather.GatherMethodRepository;
 import pandas.admin.gather.GatherSchedule;
@@ -38,14 +40,17 @@ public class TitleController {
     private final EntityManager entityManager;
     private final Facet<?>[] facets;
 
-    public TitleController(TitleRepository titleRepository, SubjectRepository subjectRepository, AgencyRepository agencyRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, Config config, EntityManager entityManager) {
+    public TitleController(TitleRepository titleRepository, SubjectRepository subjectRepository, AgencyRepository agencyRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, Config config, EntityManager entityManager) {
         this.titleRepository = titleRepository;
         this.config = config;
         this.entityManager = entityManager;
         facets = new Facet<?>[]{
                 new Facet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
+                new Facet<>("Format", "format", "format.id", formatRepository::findAllById, Format::getId, Format::getName),
                 new Facet<>("Gather Method", "method", "gather.method.id", gatherMethodRepository::findAllById, GatherMethod::getId, GatherMethod::getName),
                 new Facet<>("Gather Schedule", "schedule", "gather.schedule.id", gatherScheduleRepository::findAllById, GatherSchedule::getId, GatherSchedule::getName),
+                new Facet<>("Owner", "owner", "owner.id", individualRepository::findAllById, Individual::getId, Individual::getName),
+                new Facet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName),
                 new Facet<>("Status", "status", "status.id", statusRepository::findAllById, Status::getId, Status::getName),
                 new Facet<>("Subject", "subject", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName)
         };
@@ -60,7 +65,7 @@ public class TitleController {
     public String search(@RequestParam(name = "q", required = false) String rawQ,
                          @RequestParam(name = "collection", defaultValue = "") List<Long> collectionIds,
                          @RequestParam MultiValueMap<String, String> queryParams,
-                         @PageableDefault(40) Pageable pageable,
+                         @PageableDefault(20) Pageable pageable,
                          Model model) {
         String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
         SearchSession session = Search.session(entityManager);

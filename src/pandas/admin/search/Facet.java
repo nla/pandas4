@@ -60,6 +60,6 @@ public class Facet<T> {
             entries.add(new FacetEntry(id, nameFunction.apply(entity), counts.get(id), activeIds.contains(id)));
         }
         entries.sort(comparing(FacetEntry::isActive).thenComparing(FacetEntry::getCount, nullsFirst(naturalOrder())).reversed());
-        return new FacetResults(queryParam, name, entries);
+        return new FacetResults(queryParam, name, entries, !activeIds.isEmpty());
     }
 }

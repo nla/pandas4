@@ -2,8 +2,6 @@ package pandas.admin.collection;
 
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
-import org.hibernate.search.mapper.pojo.extractor.builtin.BuiltinContainerExtractors;
-import org.hibernate.search.mapper.pojo.extractor.mapping.annotation.ContainerExtraction;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.admin.agency.Agency;
 import pandas.admin.core.Individual;
@@ -41,6 +39,12 @@ public class Title {
     @GenericField(sortable = Sortable.YES)
     private LocalDateTime regDate;
 
+    @ManyToOne
+    @JoinColumn(name = "FORMAT_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    private Format format;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEP_ID")
     private Tep tep;
@@ -53,6 +57,8 @@ public class Title {
 
     @ManyToOne
     @JoinColumn(name = "PUBLISHER_ID", referencedColumnName = "PUBLISHER_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Publisher publisher;
 
     @ManyToMany(mappedBy = "titles")
@@ -62,6 +68,8 @@ public class Title {
 
     @ManyToOne
     @JoinColumn(name = "CURRENT_OWNER_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Individual owner;
 
     @ManyToOne
@@ -211,5 +219,13 @@ public class Title {
 
     public void setGather(TitleGather gather) {
         this.gather = gather;
+    }
+
+    public Format getFormat() {
+        return format;
+    }
+
+    public void setFormat(Format format) {
+        this.format = format;
     }
 }

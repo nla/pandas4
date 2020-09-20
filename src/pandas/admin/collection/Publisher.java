@@ -1,5 +1,7 @@
 package pandas.admin.collection;
 
+import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import pandas.admin.core.Organisation;
 
 import javax.persistence.*;
@@ -8,6 +10,7 @@ import javax.persistence.*;
 public class Publisher {
     @Id
     @Column(name="PUBLISHER_ID")
+    @GenericField(aggregable = Aggregable.YES)
     private Long id;
     private String localReference;
     private String notes;
@@ -46,5 +49,9 @@ public class Publisher {
 
     public void setOrganisation(Organisation organisation) {
         this.organisation = organisation;
+    }
+
+    public String getName() {
+        return getOrganisation().getName();
     }
 }

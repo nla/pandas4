@@ -14,7 +14,7 @@
     </header>
 
     <section class="results">
-        <form id="searchForm">
+        <form id="sf">
             <input name="q" th:value="${q}" placeholder="Keywords">
             <input type=submit value=Search class="btn btn-primary">
         </form>
@@ -86,13 +86,13 @@
         <nav>
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${!results.hasPrevious()} ? disabled">
-                    <button form="searchForm" type="submit" name="page"
+                    <button form="sf" type="submit" name="page"
                             th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
                             class="page-link" tabindex="-1">Previous
                     </button>
                 </li>
                 <li class="page-item" th:classappend="${!results.hasNext()} ? disabled">
-                    <button form="searchForm" type="submit" name="page"
+                    <button form="sf" type="submit" name="page"
                             th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}" class="page-link">
                         Next
                     </button>
@@ -104,27 +104,24 @@
     <section class="facets">
         <header>
             <h3>Filters</h3>
-            <button form="searchForm" class="btn btn-primary"
-                    onclick="document.querySelectorAll('.facet-checkbox').forEach(cb => cb.checked = false); this.form.submit()">
+            <button form="sf" class="btn btn-primary"
+                    onclick="document.querySelectorAll('.facets input[type=\'checkbox\']').forEach(cb => cb.checked = false); this.form.submit()">
                 Clear
             </button>
         </header>
-        <ul>
-            <li th:each="facet: ${facets}" th:if="${!facet.entries.isEmpty()}">
-                <strong th:text="${facet.name}">Subject</strong>
-                <ul>
-                    <li th:each="entry: ${facet.entries}">
-                        <label>
-                            <input form="searchForm" type=checkbox th:name="${facet.queryParam}"
-                                   th:value="${entry.id}" th:checked="${entry.active}" class="facet-checkbox"
-                                   onchange="this.form.submit()">
-                            <span th:text="${entry.name}">Sport</span>
-                            <span th:if="${entry.count != null}"
-                                  th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</span>
-                        </label>
-                    </li>
-                </ul>
-            </li>
-        </ul>
+        <details th:each="facet: ${facets}" th:if="${!facet.entries.isEmpty()}" th:open="${facet.active}" open>
+            <summary th:text="${facet.name}">Subject</summary>
+            <fieldset>
+                <label th:each="entry: ${facet.entries}">
+                    <input form="sf" type=checkbox th:name="${facet.queryParam}" th:value="${entry.id}" th:checked="${entry.active}">
+                    <th:block th:text="${entry.name}">Sport</th:block>
+                    <th:block th:if="${entry.count != null}" th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</th:block>
+                </label>
+            </fieldset>
+        </details>
     </section>
+    <script>
+        document.querySelectorAll(".facets input[type='checkbox']").forEach(checkbox =>
+            checkbox.onchange = function() { this.form.submit(); });
+    </script>
 </main>

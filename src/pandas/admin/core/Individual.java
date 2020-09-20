@@ -1,6 +1,12 @@
 package pandas.admin.core;
 
-import javax.persistence.*;
+import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "INDIVIDUAL")
@@ -31,7 +37,8 @@ public class Individual {
 
     @Id
     @Column(name = "INDIVIDUAL_ID")
-    private Long individualId;
+    @GenericField(aggregable = Aggregable.YES)
+    private Long id;
 
     @Column(name = "IS_ACTIVE")
     private Long isActive;
@@ -134,12 +141,12 @@ public class Individual {
         this.function = function;
     }
 
-    public Long getIndividualId() {
-        return this.individualId;
+    public Long getId() {
+        return this.id;
     }
 
-    public void setIndividualId(Long individualId) {
-        this.individualId = individualId;
+    public void setId(Long individualId) {
+        this.id = individualId;
     }
 
     public Long getIsActive() {
@@ -236,5 +243,9 @@ public class Individual {
 
     public void setPwdigest(String pwdigest) {
         this.pwdigest = pwdigest;
+    }
+
+    public String getName() {
+        return nameGiven + " " + nameFamily;
     }
 }

@@ -89,20 +89,33 @@ main.search {
       align-items: flex-start;
     }
 
-    > ul {
-      list-style: none;
+
+
+    > details {
+      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
+      border: 1px solid rgba(0, 0, 0, 0.125);
+      border-radius: 0.25rem;
       padding: 0;
 
-      > li {
-        margin-bottom: 0.5rem;
+      > summary {
+        padding: .5rem;
+        font-weight: bold;
+        user-select: none;
+      }
 
-        > ul {
-          list-style: none;
-          padding: 0.5rem;
-          overflow-y: scroll;
-          max-height: 200px;
-          border: 1px solid rgba(0, 0, 0, 0.125);
-          border-radius: 0.25rem;
+      &[open] > summary {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+      }
+
+      > fieldset {
+        padding: 0.5rem;
+        overflow-y: auto;
+        max-height: 200px;
+        margin: 0;
+
+        > label {
+          display: block;
         }
       }
     }
