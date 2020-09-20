@@ -57,8 +57,7 @@ public class Title {
 
     @ManyToOne
     @JoinColumn(name = "PUBLISHER_ID", referencedColumnName = "PUBLISHER_ID")
-    @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexedEmbedded(includePaths = {"id", "type.id"})
     private Publisher publisher;
 
     @ManyToMany(mappedBy = "titles")

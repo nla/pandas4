@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.web.util.UriComponentsBuilder;
 import pandas.admin.Config;
 import pandas.admin.agency.Agency;
 import pandas.admin.agency.AgencyRepository;
@@ -31,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
-import static pandas.admin.search.SearchUtils.mustMatchAny;
 
 @Controller
 public class TitleController {
@@ -40,19 +38,22 @@ public class TitleController {
     private final EntityManager entityManager;
     private final Facet<?>[] facets;
 
-    public TitleController(TitleRepository titleRepository, SubjectRepository subjectRepository, AgencyRepository agencyRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, Config config, EntityManager entityManager) {
+    public TitleController(TitleRepository titleRepository, SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager) {
         this.titleRepository = titleRepository;
         this.config = config;
         this.entityManager = entityManager;
         facets = new Facet<?>[]{
                 new Facet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
+                new Facet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName),
                 new Facet<>("Format", "format", "format.id", formatRepository::findAllById, Format::getId, Format::getName),
                 new Facet<>("Gather Method", "method", "gather.method.id", gatherMethodRepository::findAllById, GatherMethod::getId, GatherMethod::getName),
                 new Facet<>("Gather Schedule", "schedule", "gather.schedule.id", gatherScheduleRepository::findAllById, GatherSchedule::getId, GatherSchedule::getName),
                 new Facet<>("Owner", "owner", "owner.id", individualRepository::findAllById, Individual::getId, Individual::getName),
                 new Facet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName),
+                new Facet<>("Publisher Type", "publisher.type", "publisher.type.id", publisherTypeRepository::findAllById, PublisherType::getId, PublisherType::getName),
                 new Facet<>("Status", "status", "status.id", statusRepository::findAllById, Status::getId, Status::getName),
-                new Facet<>("Subject", "subject", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName)
+                new Facet<>("Subject", "subject", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName),
+                new Facet<>("Subject 2", "subject2", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName)
         };
     }
 
@@ -63,7 +64,6 @@ public class TitleController {
 
     @GetMapping("/titles")
     public String search(@RequestParam(name = "q", required = false) String rawQ,
-                         @RequestParam(name = "collection", defaultValue = "") List<Long> collectionIds,
                          @RequestParam MultiValueMap<String, String> queryParams,
                          @PageableDefault(20) Pageable pageable,
                          Model model) {
@@ -75,20 +75,11 @@ public class TitleController {
                     b.must(f.matchAll());
                     if (q != null)
                         b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes").matching(q).defaultOperator(AND));
-                    mustMatchAny(f, b, "collections.id", collectionIds);
                     for (Facet<?> filter : facets) {
                         filter.mustMatch(f, b, queryParams);
                     }
                 }))
                 .sort(f -> q == null ? f.field("name_sort") : f.score());
-
-        var uri = UriComponentsBuilder.fromPath("/titles");
-        if (q != null) uri.queryParam("q", q);
-        if (!collectionIds.isEmpty()) uri.queryParam("collection", collectionIds);
-        for (Facet<?> facet : facets) {
-            var values = queryParams.get(facet.queryParam);
-            if (values != null && !values.isEmpty()) uri.queryParam(facet.queryParam, values);
-        }
 
         List<FacetResults> facetResults = new ArrayList<>();
 

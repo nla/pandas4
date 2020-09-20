@@ -1,10 +1,14 @@
 package pandas.admin.collection;
 
 import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 import pandas.admin.core.Organisation;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 public class Publisher {
@@ -18,6 +22,15 @@ public class Publisher {
     @OneToOne
     @JoinColumn(name = "ORGANISATION_ID")
     private Organisation organisation;
+
+    @OneToMany(mappedBy = "publisher")
+    private Collection<Title> titles;
+
+    @ManyToOne
+    @JoinColumn(name = "PUBLISHER_TYPE_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    private PublisherType type;
 
     public String getLocalReference() {
         return localReference;
@@ -53,5 +66,21 @@ public class Publisher {
 
     public String getName() {
         return getOrganisation().getName();
+    }
+
+    public PublisherType getType() {
+        return type;
+    }
+
+    public void setType(PublisherType type) {
+        this.type = type;
+    }
+
+    public Collection<Title> getTitles() {
+        return titles;
+    }
+
+    public void setTitles(Collection<Title> titles) {
+        this.titles = titles;
     }
 }

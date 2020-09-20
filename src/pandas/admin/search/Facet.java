@@ -59,7 +59,10 @@ public class Facet<T> {
             Long id = idFunction.apply(entity);
             entries.add(new FacetEntry(id, nameFunction.apply(entity), counts.get(id), activeIds.contains(id)));
         }
-        entries.sort(comparing(FacetEntry::isActive).thenComparing(FacetEntry::getCount, nullsFirst(naturalOrder())).reversed());
+        entries.sort(comparing(FacetEntry::isActive)
+                .thenComparing(FacetEntry::getCount, nullsFirst(naturalOrder()))
+                .reversed()
+                .thenComparing(FacetEntry::getName));
         return new FacetResults(queryParam, name, entries, !activeIds.isEmpty());
     }
 }

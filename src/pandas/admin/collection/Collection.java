@@ -2,6 +2,7 @@ package pandas.admin.collection;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
+import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 
@@ -19,7 +20,7 @@ public class Collection extends AbstractCategory {
     @Column(name = "COL_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
     @SequenceGenerator(name = "COL_SEQ", sequenceName = "COL_SEQ", allocationSize = 1)
-    @GenericField
+    @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
     private String displayComment;
