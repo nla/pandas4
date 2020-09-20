@@ -41,7 +41,8 @@ public class CollectionController {
                     mustMatchAny(f, b, "subjects.id", subjectIds);
                 })).sort(f -> q == null ? f.field("name_sort") : f.score());
 
-        SearchResults<Collection> results = SearchResults.from(search, pageable);
+        var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
+        SearchResults<Collection> results = new SearchResults<>(result, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", q);
         model.addAttribute("selectedSubjectIds", subjectIds);

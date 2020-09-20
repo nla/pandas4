@@ -29,6 +29,7 @@ import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Comparator.comparing;
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 
 @Controller
@@ -69,6 +70,7 @@ public class TitleController {
                          Model model) {
         String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
         SearchSession session = Search.session(entityManager);
+        List<FacetResults> facetResults = new ArrayList<>();
 
         var search = session.search(Title.class)
                 .where(f -> f.bool(b -> {
@@ -81,15 +83,28 @@ public class TitleController {
                 }))
                 .sort(f -> q == null ? f.field("name_sort") : f.score());
 
-        List<FacetResults> facetResults = new ArrayList<>();
-
+        // we can do inactive facets as part of the main search
         for (Facet<?> facet : facets) {
+            if (!queryParams.containsKey(facet.queryParam)) {
+                search.aggregation(facet.key, f -> f.terms().field(facet.indexField, Long.class).maxTermCount(20));
+            }
+        }
+
+        var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
+        for (Facet<?> facet : facets) {
+            if (!queryParams.containsKey(facet.queryParam)) {
+                facetResults.add(facet.results(queryParams, result));
+            }
+        }
+
+        // we need to do separate searches for each active facet that applies all other facets
+        for (Facet<?> facet : facets) {
+            if (!queryParams.containsKey(facet.queryParam)) continue;
             var facetResult = session.search(Title.class)
                     .where(f -> f.bool(b -> {
                         b.must(f.matchAll());
                         if (q != null)
                             b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(q).defaultOperator(AND));
-                        // we apply all filters except the current one
                         for (Facet<?> facet2 : facets) {
                             if (facet != facet2) {
                                 facet2.mustMatch(f, b, queryParams);
@@ -100,8 +115,9 @@ public class TitleController {
             facetResults.add(facet.results(queryParams, facetResult));
         }
 
-        SearchResults<Title> results = SearchResults.from(search, pageable);
-        model.addAttribute("results", results);
+        facetResults.sort(comparing(FacetResults::getName));
+
+        model.addAttribute("results", new SearchResults<>(result, pageable));
         model.addAttribute("q", q);
         model.addAttribute("facets", facetResults);
         return "TitleSearch";
