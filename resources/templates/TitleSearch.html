@@ -53,7 +53,7 @@
                             </span>
                     </div>
                     <footer>
-                        <span class="regdate" th:text="${title.regDate.toLocalDate()}">2000-04-01</span> ·
+                        <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal}">2000-04-01</time> ·
                         <span class="status" th:text="${title.status.name}">ceased</span> ·
                         <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
                         <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
@@ -135,5 +135,10 @@
     <script>
         document.querySelectorAll(".facets input[type='checkbox']").forEach(checkbox =>
             checkbox.onchange = function() { this.form.submit(); });
+
+        // hide empty date fields from query string for cleaner URLs
+        document.getElementById("sf").onsubmit = function () {
+          document.querySelectorAll('.facets input[type=date]').forEach(field => { if (!field.value) { field.name = ""; }});
+        };
     </script>
 </main>

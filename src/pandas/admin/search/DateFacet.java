@@ -6,6 +6,7 @@ import org.hibernate.search.engine.search.query.SearchResult;
 import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 public class DateFacet extends Facet {
@@ -22,8 +23,8 @@ public class DateFacet extends Facet {
         LocalDate start = parseDate(form.getFirst(param + ".start"));
         LocalDate end = parseDate(form.getFirst(param + ".end"));
         if (start != null || end != null) {
-            bool.must(f.range().field(field).between(start == null ? null : start.atStartOfDay(),
-                    end == null ? null : end.plusDays(1).atStartOfDay()));
+            bool.must(f.range().field(field).between(start == null ? null : start.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
+                    end == null ? null : end.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
         }
     }
 

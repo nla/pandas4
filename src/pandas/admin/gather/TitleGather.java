@@ -2,11 +2,13 @@ package pandas.admin.gather;
 
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 import pandas.admin.collection.Title;
 
 import javax.persistence.*;
+import java.time.Instant;
 
 @Entity
 @Table(name = "TITLE_GATHER")
@@ -29,10 +31,10 @@ public class TitleGather {
     private Long authenticateUser;
 
     @Column(name = "CAL_START_DATE")
-    private java.sql.Timestamp calStartDate;
+    private Instant calStartDate;
 
     @Column(name = "FIRST_GATHER_DATE")
-    private java.sql.Timestamp firstGatherDate;
+    private Instant firstGatherDate;
 
     @ManyToOne
     @JoinColumn(name = "GATHER_METHOD_ID")
@@ -50,10 +52,11 @@ public class TitleGather {
     private String gatherUrl;
 
     @Column(name = "LAST_GATHER_DATE")
-    private java.sql.Timestamp lastGatherDate;
+    private Instant lastGatherDate;
 
     @Column(name = "NEXT_GATHER_DATE")
-    private java.sql.Timestamp nextGatherDate;
+    @GenericField
+    private Instant nextGatherDate;
 
     @Column(name = "NOTES")
     @FullTextField(analyzer = "english")
@@ -69,7 +72,7 @@ public class TitleGather {
     private Long isScheduled;
 
     @Column(name = "SCHEDULED_DATE")
-    private java.sql.Timestamp scheduledDate;
+    private Instant scheduledDate;
 
     @Column(name = "USERNAME")
     private String username;
@@ -107,19 +110,19 @@ public class TitleGather {
         this.authenticateUser = authenticateUser;
     }
 
-    public java.sql.Timestamp getCalStartDate() {
+    public Instant getCalStartDate() {
         return this.calStartDate;
     }
 
-    public void setCalStartDate(java.sql.Timestamp calStartDate) {
+    public void setCalStartDate(Instant calStartDate) {
         this.calStartDate = calStartDate;
     }
 
-    public java.sql.Timestamp getFirstGatherDate() {
+    public Instant getFirstGatherDate() {
         return this.firstGatherDate;
     }
 
-    public void setFirstGatherDate(java.sql.Timestamp firstGatherDate) {
+    public void setFirstGatherDate(Instant firstGatherDate) {
         this.firstGatherDate = firstGatherDate;
     }
 
@@ -147,19 +150,19 @@ public class TitleGather {
         this.gatherUrl = gatherUrl;
     }
 
-    public java.sql.Timestamp getLastGatherDate() {
+    public Instant getLastGatherDate() {
         return this.lastGatherDate;
     }
 
-    public void setLastGatherDate(java.sql.Timestamp lastGatherDate) {
+    public void setLastGatherDate(Instant lastGatherDate) {
         this.lastGatherDate = lastGatherDate;
     }
 
-    public java.sql.Timestamp getNextGatherDate() {
+    public Instant getNextGatherDate() {
         return this.nextGatherDate;
     }
 
-    public void setNextGatherDate(java.sql.Timestamp nextGatherDate) {
+    public void setNextGatherDate(Instant nextGatherDate) {
         this.nextGatherDate = nextGatherDate;
     }
 
@@ -195,11 +198,11 @@ public class TitleGather {
         this.isScheduled = isScheduled;
     }
 
-    public java.sql.Timestamp getScheduledDate() {
+    public Instant getScheduledDate() {
         return this.scheduledDate;
     }
 
-    public void setScheduledDate(java.sql.Timestamp scheduledDate) {
+    public void setScheduledDate(Instant scheduledDate) {
         this.scheduledDate = scheduledDate;
     }
 

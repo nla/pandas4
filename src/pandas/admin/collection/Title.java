@@ -9,7 +9,9 @@ import pandas.admin.gather.TitleGather;
 
 import javax.persistence.*;
 import java.net.URLEncoder;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -37,7 +39,7 @@ public class Title {
     private String seedUrl;
 
     @GenericField(sortable = Sortable.YES)
-    private LocalDateTime regDate;
+    private Instant regDate;
 
     @ManyToOne
     @JoinColumn(name = "FORMAT_ID")
@@ -84,7 +86,7 @@ public class Title {
 
     @OneToOne
     @JoinColumn(name = "TITLE_ID")
-    @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes"})
+    @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes", "nextGatherDate"})
     // XXX: not sure why it can't find the inverse automatically
     @AssociationInverseSide(
             inversePath = @ObjectPath( @PropertyValue( propertyName = "title" ) )
@@ -131,12 +133,16 @@ public class Title {
         this.publisher = publisher;
     }
 
-    public LocalDateTime getRegDate() {
+    public Instant getRegDate() {
         return regDate;
     }
 
-    public void setRegDate(LocalDateTime regDate) {
+    public void setRegDate(Instant regDate) {
         this.regDate = regDate;
+    }
+
+    public LocalDate getRegDateLocal() {
+        return LocalDate.ofInstant(getRegDate(), ZoneId.systemDefault());
     }
 
     public List<Subject> getSubjects() {
