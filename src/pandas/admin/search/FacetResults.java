@@ -3,13 +3,13 @@ package pandas.admin.search;
 import java.util.List;
 
 public class FacetResults {
-    private final String queryParam;
     private final String name;
+    private final String param;
     private final List<FacetEntry> entries;
     private final boolean active;
 
-    public FacetResults(String queryParam, String name, List<FacetEntry> entries, boolean active) {
-        this.queryParam = queryParam;
+    public FacetResults(String name, String param, List<FacetEntry> entries, boolean active) {
+        this.param = param;
         this.name = name;
         this.entries = entries;
         this.active = active;
@@ -23,11 +23,19 @@ public class FacetResults {
         return entries;
     }
 
-    public String getQueryParam() {
-        return queryParam;
+    public String getParam() {
+        return param;
     }
 
     public boolean isActive() {
         return active;
+    }
+
+    public boolean isVisible() {
+        return !entries.isEmpty();
+    }
+
+    public String getType() {
+        return "entity";
     }
 }

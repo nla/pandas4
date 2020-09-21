@@ -104,16 +104,28 @@
     <section class="facets">
         <header>
             <h3>Filters</h3>
-            <button form="sf" class="btn btn-primary"
-                    onclick="document.querySelectorAll('.facets input[type=\'checkbox\']').forEach(cb => cb.checked = false); this.form.submit()">
-                Clear
-            </button>
+            <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
+            <script>
+                document.getElementById("filter-clear-button").onclick = function() {
+                    document.querySelectorAll('.facets input[type=checkbox]').forEach(cb => cb.checked = false);
+                    document.querySelectorAll('.facets input[type=date]').forEach(field => field.value = "");
+                    this.form.submit();
+                }
+            </script>
         </header>
-        <details th:each="facet: ${facets}" th:if="${!facet.entries.isEmpty()}" th:open="${facet.active}" open>
+        <details th:each="facet: ${facets}" th:if="${facet.visible}" th:open="${facet.active}" open>
             <summary th:text="${facet.name}">Subject</summary>
-            <fieldset>
+            <fieldset th:if="${facet.type == 'date'}" class="date-range">
+                <!--suppress ThymeleafVariablesResolveInspection -->
+                <input form="sf" th:name="${facet.param + '.start'}" th:value="${facet.start}" type=date>
+                <span>&mdash;</span>
+                <!--suppress ThymeleafVariablesResolveInspection -->
+                <input form="sf"  th:name="${facet.param + '.end'}" th:value="${facet.end}" type=date>
+                <button form="sf" type=submit class="btn btn-primary btn-sm">Apply</button>
+            </fieldset>
+            <fieldset th:if="${facet.type == 'entity'}">
                 <label th:each="entry: ${facet.entries}">
-                    <input form="sf" type=checkbox th:name="${facet.queryParam}" th:value="${entry.id}" th:checked="${entry.active}">
+                    <input form="sf" type=checkbox th:name="${facet.param}" th:value="${entry.id}" th:checked="${entry.active}">
                     <th:block th:text="${entry.name}">Sport</th:block>
                     <th:block th:if="${entry.count != null}" th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</th:block>
                 </label>

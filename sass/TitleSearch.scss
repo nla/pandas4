@@ -117,6 +117,17 @@ main.search {
         > label {
           display: block;
         }
+
+        &.date-range {
+          display: grid;
+          grid-gap: 0.5rem;
+          grid-template-columns: auto auto;
+          align-items: center;
+
+          input[type=date] {
+            @extend .form-control;
+          }
+        }
       }
     }
   }
