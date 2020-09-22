@@ -9,6 +9,7 @@ import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ContentDisposition;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
@@ -39,6 +40,7 @@ import java.util.function.Function;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
 @Controller
 public class TitleController {
@@ -89,6 +91,8 @@ public class TitleController {
     @GetMapping(value = "/titles.csv", produces = "text/csv")
     public void search(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
         TitleSearch search = new TitleSearch(entityManager, facets, params, Pageable.unpaged());
+        response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
+                .filename("titles.csv").build().toString());
         try (SearchScroll<Title> scroll = search.scroll();
              CSVPrinter csv = CSVFormat.DEFAULT.withHeader(
                      "PI", "Name", "Date Registered", "Agency", "Owner", "Format",
