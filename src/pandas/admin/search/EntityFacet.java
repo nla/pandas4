@@ -17,16 +17,25 @@ public class EntityFacet<T> extends Facet {
     private final Function<Iterable<Long>, Iterable<T>> lookupFunction;
     private final Function<T, Long> idFunction;
     private final Function<T, String> nameFunction;
+    private final boolean searchable;
 
-    public EntityFacet(String name, String queryParam, String indexField,
+    public EntityFacet(String name, String param, String field,
                        Function<Iterable<Long>, Iterable<T>> lookupFunction,
                        Function<T, Long> idFunction,
                        Function<T, String> nameFunction) {
-        super(name, queryParam, indexField);
+        this(name, param, field, lookupFunction, idFunction, nameFunction, false);
+    }
+
+    public EntityFacet(String name, String param, String field,
+                       Function<Iterable<Long>, Iterable<T>> lookupFunction,
+                       Function<T, Long> idFunction,
+                       Function<T, String> nameFunction, boolean searchable) {
+        super(name, param, field);
         this.key = AggregationKey.of(name);
         this.lookupFunction = lookupFunction;
         this.idFunction = idFunction;
         this.nameFunction = nameFunction;
+        this.searchable = searchable;
     }
 
     private Set<Long> parseParam(MultiValueMap<String, String> queryParams) {
@@ -60,6 +69,6 @@ public class EntityFacet<T> extends Facet {
                 .thenComparing(FacetEntry::getCount, nullsFirst(naturalOrder()))
                 .reversed()
                 .thenComparing(FacetEntry::getName));
-        return new FacetResults(name, param, entries, !activeIds.isEmpty());
+        return new FacetResults(name, param, entries, !activeIds.isEmpty(), searchable);
     }
 }

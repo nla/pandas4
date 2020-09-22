@@ -42,7 +42,7 @@ public class CollectionController {
                 })).sort(f -> q == null ? f.field("name_sort") : f.score());
 
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
-        SearchResults<Collection> results = new SearchResults<>(result, pageable);
+        SearchResults<Collection> results = new SearchResults<>(result, null, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", q);
         model.addAttribute("selectedSubjectIds", subjectIds);

@@ -17,6 +17,7 @@
         <form id="sf">
             <input name="q" th:value="${q}" placeholder="Keywords">
             <input type=submit value=Search class="btn btn-primary">
+            <button type=submit th:formaction="@{/titles.csv}" class="btn btn-outline-dark">Export CSV</button>
         </form>
         <header>
             Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
@@ -47,14 +48,14 @@
                                    href="SubjectView.html">Sport</a>
                             </li>
                         </ul>
-                        <span th:if="${title.publisher != null}"
-                              th:text="|&mdash; ${title.publisher.organisation.name}|">
-                                &mdash; International Olympic Committee
-                            </span>
                     </div>
                     <footer>
-                        <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal}">2000-04-01</time> ·
                         <span class="status" th:text="${title.status.name}">ceased</span> ·
+                        <span th:if="${title.publisher != null}"
+                              th:text="|${title.publisher.organisation.name}, |">
+                            International Olympic Committee
+                        </span>
+                        <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
                         <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
                         <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
                     </footer>
@@ -114,7 +115,7 @@
             </script>
         </header>
         <details th:each="facet: ${facets}" th:if="${facet.visible}" th:open="${facet.active}" open>
-            <summary th:text="${facet.name}">Subject</summary>
+            <summary ><th:block th:text="${facet.name}">Subject</th:block><input th:if="${facet.searchable}" placeholder="Search..."></summary>
             <fieldset th:if="${facet.type == 'date'}" class="date-range">
                 <!--suppress ThymeleafVariablesResolveInspection -->
                 <input form="sf" th:name="${facet.param + '.start'}" th:value="${facet.start}" type=date>

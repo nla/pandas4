@@ -33,7 +33,7 @@ public class DateFacet extends Facet {
         String start = form.getFirst(param + ".start");
         String end = form.getFirst(param + ".end");
         boolean active = (start != null && !start.isBlank()) || (end != null && !end.isBlank());
-        return new FacetResults(name, param, List.of(), active) {
+        return new FacetResults(name, param, List.of(), active, false) {
             @Override
             public boolean isVisible() {
                 return true;

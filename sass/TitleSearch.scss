@@ -102,10 +102,35 @@ main.search {
         padding: .5rem;
         font-weight: bold;
         user-select: none;
+
+        > input {
+          float: right;
+          border: 1px solid #ccc;
+          border-radius: 0.25rem;
+          padding: 0 0.4rem;
+          //display: none;
+          width: 150px;
+          transition: visibility 0.2s, opacity 0.2s;
+          visibility: hidden;
+          opacity: 0;
+          margin: -1px;
+        }
+
+        &:after {
+          content: "";
+          display: block;
+          clear: both;
+        }
       }
 
       &[open] > summary {
         border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+
+        > input {
+          opacity: 1;
+          visibility: visible;
+          transition: opacity 0.2s;
+        }
       }
 
       > fieldset {
