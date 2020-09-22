@@ -105,8 +105,8 @@ public class TitleController {
                     csv.print(title.getName());
                     csv.print(title.getRegDateLocal());
                     csv.print(title.getAgency().getOrganisation().getAlias());
-                    csv.print(title.getFormat() == null ? null : title.getFormat().getName());
                     csv.print(title.getOwner() == null ? null : title.getOwner().getUserid());
+                    csv.print(title.getFormat() == null ? null : title.getFormat().getName());
                     csv.print(title.getGather() == null || title.getGather().getMethod() == null ? null : title.getGather().getMethod().getName());
                     csv.print(title.getGather() == null || title.getGather().getSchedule() == null ? null : title.getGather().getSchedule().getName());
                     csv.print(title.getTitleUrl());
