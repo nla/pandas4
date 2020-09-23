@@ -106,13 +106,6 @@
         <header>
             <h3>Filters</h3>
             <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
-            <script>
-                document.getElementById("filter-clear-button").onclick = function() {
-                    document.querySelectorAll('.facets input[type=checkbox]').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.facets input[type=date]').forEach(field => field.value = "");
-                    this.form.submit();
-                }
-            </script>
         </header>
         <details th:each="facet: ${facets}" th:if="${facet.visible}" th:open="${facet.active}" open>
             <summary ><th:block th:text="${facet.name}">Subject</th:block><input form="sf" type="search" th:if="${facet.searchable}" th:value="${facet.search}" th:name="|${facet.param}.name|" placeholder="Search..."></summary>
@@ -134,6 +127,13 @@
         </details>
     </section>
     <script>
+        document.getElementById("filter-clear-button").onclick = function() {
+            document.querySelectorAll('.facets input[type=checkbox]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => field.value = "");
+            this.form.submit();
+        }
+
+        // auto-submit when checkboxes are clicked
         document.querySelectorAll(".facets input[type='checkbox']").forEach(checkbox =>
             checkbox.onchange = function() { this.form.submit(); });
 
