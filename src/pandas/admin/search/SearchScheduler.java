@@ -19,6 +19,18 @@ public class SearchScheduler {
     public void reindex() throws InterruptedException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
+            Search.session(entityManager).massIndexer()
+                    .purgeAllOnStart(false)
+                    .startAndWait();
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    @Scheduled(cron = "${pandas.searchScheduler.fullCron:0 2 1 * * *}")
+    public void fullReindex() throws InterruptedException {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
             Search.session(entityManager).massIndexer().startAndWait();
         } finally {
             entityManager.close();
