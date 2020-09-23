@@ -33,6 +33,8 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -55,18 +57,18 @@ public class TitleController {
         this.entityManager = entityManager;
         facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
-                new EntityFacet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, true),
+                new EntityFacet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.name")),
                 new DateFacet("Date Registered", "regdate", "regDate"),
                 new EntityFacet<>("Format", "format", "format.id", formatRepository::findAllById, Format::getId, Format::getName),
                 new EntityFacet<>("Gather Method", "method", "gather.method.id", gatherMethodRepository::findAllById, GatherMethod::getId, GatherMethod::getName),
                 new EntityFacet<>("Gather Schedule", "schedule", "gather.schedule.id", gatherScheduleRepository::findAllById, GatherSchedule::getId, GatherSchedule::getName),
                 new DateFacet("Next Gather Date", "nextgather", "gather.nextGatherDate"),
-                new EntityFacet<>("Owner", "owner", "owner.id", individualRepository::findAllById, Individual::getId, Individual::getName, true),
-                new EntityFacet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName, true),
+                new EntityFacet<>("Owner", "owner", "owner.id", individualRepository::findAllById, Individual::getId, Individual::getName, List.of("owner.nameGiven", "owner.nameFamily", "owner.userid")),
+                new EntityFacet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName, List.of("publisher.organisation.name")),
                 new EntityFacet<>("Publisher Type", "publisher.type", "publisher.type.id", publisherTypeRepository::findAllById, PublisherType::getId, PublisherType::getName),
                 new EntityFacet<>("Status", "status", "status.id", statusRepository::findAllById, Status::getId, Status::getName),
-                new EntityFacet<>("Subject", "subject", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName, true),
-                new EntityFacet<>("Subject 2", "subject2", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName, true)
+                new EntityFacet<>("Subject", "subject", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName, List.of("subjects.name")),
+                new EntityFacet<>("Subject 2", "subject2", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName, List.of("subjects.name"))
         };
     }
 
@@ -96,7 +98,7 @@ public class TitleController {
         try (SearchScroll<Title> scroll = search.scroll();
              CSVPrinter csv = CSVFormat.DEFAULT.withHeader(
                      "PI", "Name", "Date Registered", "Agency", "Owner", "Format",
-                     "Gather Method", "Gather Schedule", "Title URL", "Seed URL",
+                     "Gather Method", "Gather Schedule", "Next Gather Date", "Title URL", "Seed URL",
                      "Publisher", "Publisher Type", "Subjects")
                      .print(new OutputStreamWriter(response.getOutputStream(), UTF_8))) {
             for (var chunk = scroll.next(); chunk.hasHits(); chunk = scroll.next()) {
@@ -109,6 +111,7 @@ public class TitleController {
                     csv.print(title.getFormat() == null ? null : title.getFormat().getName());
                     csv.print(title.getGather() == null || title.getGather().getMethod() == null ? null : title.getGather().getMethod().getName());
                     csv.print(title.getGather() == null || title.getGather().getSchedule() == null ? null : title.getGather().getSchedule().getName());
+                    csv.print(title.getGather() == null || title.getGather().getNextGatherDate() == null ? null : LocalDateTime.ofInstant(title.getGather().getNextGatherDate(), ZoneId.systemDefault()));
                     csv.print(title.getTitleUrl());
                     csv.print(title.getSeedUrl());
                     csv.print(title.getPublisher() == null ? null : title.getPublisher().getName());
@@ -149,6 +152,7 @@ public class TitleController {
                 if (q != null)
                     b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes").matching(q).defaultOperator(AND));
                 for (Facet facet : facets) {
+                    facet.search(f, b, params);
                     if (facet == exceptFacet) continue;
                     facet.mustMatch(f, b, params);
                 }

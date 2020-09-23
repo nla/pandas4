@@ -8,13 +8,15 @@ public class FacetResults {
     private final List<FacetEntry> entries;
     private final boolean active;
     private final boolean searchable;
+    private final String search;
 
-    public FacetResults(String name, String param, List<FacetEntry> entries, boolean active, boolean searchable) {
+    public FacetResults(String name, String param, List<FacetEntry> entries, boolean active, boolean searchable, String search) {
         this.param = param;
         this.name = name;
         this.entries = entries;
         this.active = active;
         this.searchable = searchable;
+        this.search = search;
     }
 
     public String getName() {
@@ -34,7 +36,7 @@ public class FacetResults {
     }
 
     public boolean isVisible() {
-        return !entries.isEmpty();
+        return !entries.isEmpty() || search != null;
     }
 
     public String getType() {
@@ -43,5 +45,9 @@ public class FacetResults {
 
     public boolean isSearchable() {
         return searchable;
+    }
+
+    public String getSearch() {
+        return search;
     }
 }

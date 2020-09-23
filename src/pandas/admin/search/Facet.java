@@ -18,5 +18,7 @@ public abstract class Facet {
 
     public abstract void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams);
 
+    public abstract void search(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams);
+
     public abstract FacetResults results(MultiValueMap<String, String> queryParams, SearchResult<?> result);
 }

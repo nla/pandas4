@@ -1,6 +1,7 @@
 package pandas.admin.core;
 
 import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 import javax.persistence.Column;
@@ -47,9 +48,11 @@ public class Individual {
     private String mobilePhone;
 
     @Column(name = "NAME_FAMILY")
+    @FullTextField(analyzer = "english")
     private String nameFamily;
 
     @Column(name = "NAME_GIVEN")
+    @FullTextField(analyzer = "english")
     private String nameGiven;
 
     @Column(name = "NAME_TITLE")
@@ -65,6 +68,7 @@ public class Individual {
     private String url;
 
     @Column(name = "USERID")
+    @GenericField
     private String userid;
 
     @Column(name = "ALT_CONTACT_ID")

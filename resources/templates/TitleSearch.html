@@ -15,7 +15,7 @@
 
     <section class="results">
         <form id="sf">
-            <input name="q" th:value="${q}" placeholder="Keywords">
+            <input type=search name="q" th:value="${q}" placeholder="Keywords">
             <input type=submit value=Search class="btn btn-primary">
             <button type=submit th:formaction="@{/titles.csv}" class="btn btn-outline-dark">Export CSV</button>
         </form>
@@ -115,7 +115,7 @@
             </script>
         </header>
         <details th:each="facet: ${facets}" th:if="${facet.visible}" th:open="${facet.active}" open>
-            <summary ><th:block th:text="${facet.name}">Subject</th:block><input th:if="${facet.searchable}" placeholder="Search..."></summary>
+            <summary ><th:block th:text="${facet.name}">Subject</th:block><input form="sf" type="search" th:if="${facet.searchable}" th:value="${facet.search}" th:name="|${facet.param}.name|" placeholder="Search..."></summary>
             <fieldset th:if="${facet.type == 'date'}" class="date-range">
                 <!--suppress ThymeleafVariablesResolveInspection -->
                 <input form="sf" th:name="${facet.param + '.start'}" th:value="${facet.start}" type=date>
@@ -139,7 +139,7 @@
 
         // hide empty date fields from query string for cleaner URLs
         document.getElementById("sf").onsubmit = function () {
-          document.querySelectorAll('.facets input[type=date]').forEach(field => { if (!field.value) { field.name = ""; }});
+          document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => { if (!field.value) { field.name = ""; }});
         };
     </script>
 </main>

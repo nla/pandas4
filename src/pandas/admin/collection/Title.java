@@ -59,7 +59,7 @@ public class Title {
 
     @ManyToOne
     @JoinColumn(name = "PUBLISHER_ID", referencedColumnName = "PUBLISHER_ID")
-    @IndexedEmbedded(includePaths = {"id", "type.id"})
+    @IndexedEmbedded(includePaths = {"id", "type.id", "organisation.name"})
     private Publisher publisher;
 
     @ManyToMany(mappedBy = "titles")
@@ -69,7 +69,7 @@ public class Title {
 
     @ManyToOne
     @JoinColumn(name = "CURRENT_OWNER_ID")
-    @IndexedEmbedded(includePaths = {"id"})
+    @IndexedEmbedded(includePaths = {"id", "nameGiven", "nameFamily", "userid"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Individual owner;
 

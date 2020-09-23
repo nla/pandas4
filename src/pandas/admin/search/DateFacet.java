@@ -29,11 +29,15 @@ public class DateFacet extends Facet {
     }
 
     @Override
+    public void search(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams) {
+    }
+
+    @Override
     public FacetResults results(MultiValueMap<String, String> form, SearchResult<?> result) {
         String start = form.getFirst(param + ".start");
         String end = form.getFirst(param + ".end");
         boolean active = (start != null && !start.isBlank()) || (end != null && !end.isBlank());
-        return new FacetResults(name, param, List.of(), active, false) {
+        return new FacetResults(name, param, List.of(), active, false, null) {
             @Override
             public boolean isVisible() {
                 return true;

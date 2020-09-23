@@ -17,25 +17,25 @@ public class EntityFacet<T> extends Facet {
     private final Function<Iterable<Long>, Iterable<T>> lookupFunction;
     private final Function<T, Long> idFunction;
     private final Function<T, String> nameFunction;
-    private final boolean searchable;
+    private final String[] searchFields;
 
     public EntityFacet(String name, String param, String field,
                        Function<Iterable<Long>, Iterable<T>> lookupFunction,
                        Function<T, Long> idFunction,
                        Function<T, String> nameFunction) {
-        this(name, param, field, lookupFunction, idFunction, nameFunction, false);
+        this(name, param, field, lookupFunction, idFunction, nameFunction, List.of());
     }
 
     public EntityFacet(String name, String param, String field,
                        Function<Iterable<Long>, Iterable<T>> lookupFunction,
                        Function<T, Long> idFunction,
-                       Function<T, String> nameFunction, boolean searchable) {
+                       Function<T, String> nameFunction, List<String> searchFields) {
         super(name, param, field);
         this.key = AggregationKey.of(name);
         this.lookupFunction = lookupFunction;
         this.idFunction = idFunction;
         this.nameFunction = nameFunction;
-        this.searchable = searchable;
+        this.searchFields = searchFields.toArray(new String[0]);
     }
 
     private Set<Long> parseParam(MultiValueMap<String, String> queryParams) {
@@ -54,6 +54,16 @@ public class EntityFacet<T> extends Facet {
     }
 
     @Override
+    public void search(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams) {
+        if (searchFields.length != 0) {
+            String search = queryParams.getFirst(param + ".name");
+            if (search != null && !search.isBlank()) {
+                bool.must(predicateFactory.simpleQueryString().fields(searchFields).matching(search));
+            }
+        }
+    }
+
+    @Override
     public FacetResults results(MultiValueMap<String, String> queryParams, SearchResult<?> result) {
         var counts = result.aggregation(key);
         Set<Long> activeIds = parseParam(queryParams);
@@ -69,6 +79,9 @@ public class EntityFacet<T> extends Facet {
                 .thenComparing(FacetEntry::getCount, nullsFirst(naturalOrder()))
                 .reversed()
                 .thenComparing(FacetEntry::getName));
-        return new FacetResults(name, param, entries, !activeIds.isEmpty(), searchable);
+        String search = queryParams.getFirst(param + ".name");
+        if (search != null && search.isBlank()) search = null;
+        boolean active = !activeIds.isEmpty() || search != null;
+        return new FacetResults(name, param, entries, active, searchFields.length != 0, search);
     }
 }

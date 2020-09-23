@@ -21,6 +21,8 @@ public class Publisher {
 
     @OneToOne
     @JoinColumn(name = "ORGANISATION_ID")
+    @IndexedEmbedded(includePaths = {"id", "name"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Organisation organisation;
 
     @OneToMany(mappedBy = "publisher")

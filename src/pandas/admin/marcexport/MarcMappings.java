@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static pandas.admin.marcexport.Format.MONO;
-import static pandas.admin.marcexport.PublisherType.*;
+import static pandas.admin.marcexport.PublisherType.GOVERNMENT;
+import static pandas.admin.marcexport.PublisherType.PERSONAL;
 
 public class MarcMappings {
     public static Record nlaCatalogue(Title title, Date today) {
@@ -22,7 +23,7 @@ public class MarcMappings {
         leader.setRecordStatus('n'); // New
         leader.setTypeOfRecord('a'); // Language material
         leader.setImplDefined1(new char[] {
-                title.getFormat().leaderCode(), // 07 - Bilbiographic level = monograph
+                title.getFormat().leaderCode(), // 07 - Bibliographic level = monograph
                 ' '  // 08 - Type of control = No specified type
         });
         leader.setCharCodingScheme('a'); // UCS/Unicode

@@ -1,14 +1,19 @@
 package pandas.admin.core;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
 public class Organisation implements Serializable {
     @Id
+    @Column(name="ORGANISATION_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ORGANISATION_SEQ")
     @SequenceGenerator(name = "ORGANISATION_SEQ", sequenceName = "ORGANISATION_SEQ", allocationSize = 1)
-    private Long organisationId;
+    @GenericField
+    private Long id;
 
     private String alias;
     private Long agencyId;
@@ -23,7 +28,10 @@ public class Organisation implements Serializable {
     private String line2;
     private String locality;
     private String mobilePhone;
+
+    @FullTextField(analyzer = "english")
     private String name;
+
     private String phone;
     private String postcode;
     private Long publisherId;
@@ -143,12 +151,12 @@ public class Organisation implements Serializable {
         this.name = name;
     }
 
-    public Long getOrganisationId() {
-        return this.organisationId;
+    public Long getId() {
+        return this.id;
     }
 
-    public void setOrganisationId(Long organisationId) {
-        this.organisationId = organisationId;
+    public void setId(Long organisationId) {
+        this.id = organisationId;
     }
 
     public String getPhone() {
