@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
@@ -92,6 +93,9 @@ public class Title {
             inversePath = @ObjectPath( @PropertyValue( propertyName = "title" ) )
     )
     private TitleGather gather;
+
+    @Formula("(select MIN(i.INSTANCE_DATE) from INSTANCE i where i.TITLE_ID = TITLE_ID)")
+    private Instant firstInstanceDate;
 
     public Agency getAgency() {
         return agency;
@@ -232,5 +236,9 @@ public class Title {
 
     public void setFormat(Format format) {
         this.format = format;
+    }
+
+    public Instant getFirstInstanceDate() {
+        return firstInstanceDate;
     }
 }

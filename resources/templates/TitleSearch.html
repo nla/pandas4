@@ -17,7 +17,17 @@
         <form id="sf">
             <input type=search name="q" th:value="${q}" placeholder="Keywords">
             <input type=submit value=Search class="btn btn-primary">
-            <button type=submit th:formaction="@{/titles.csv}" class="btn btn-outline-dark">Export CSV</button>
+            <div class="dropdown" style="display: inline-block">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="exportMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Export
+                </button>
+                <div class="dropdown-menu" aria-labelledby="exportMenu">
+                    <button type="submit" class="dropdown-item" th:formaction="@{/titles.csv}">CSV</button>
+                    <div class="dropdown-divider"></div>
+                    <button type="submit" class="dropdown-item" th:formaction="@{/titles.marc}">MARC</button>
+                    <button type="submit" class="dropdown-item" th:formaction="@{/titles.marc.txt}">MARC (text)</button>
+                </div>
+            </div>
         </form>
         <header>
             Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
@@ -142,4 +152,7 @@
           document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => { if (!field.value) { field.name = ""; }});
         };
     </script>
+
+    <script th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.bundle.min.js}"></script>
 </main>

@@ -1,0 +1,7 @@
+/data
+/target
+*.iml
+*~
+*#
+/.project
+/.idea

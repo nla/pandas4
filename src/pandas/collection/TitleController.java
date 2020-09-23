@@ -7,6 +7,7 @@ import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchScroll;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
+import org.marc4j.MarcStreamWriter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ContentDisposition;
@@ -36,6 +37,7 @@ import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
@@ -91,7 +93,7 @@ public class TitleController {
     }
 
     @GetMapping(value = "/titles.csv", produces = "text/csv")
-    public void search(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
+    public void exportCsv(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
         TitleSearch search = new TitleSearch(entityManager, facets, params, Pageable.unpaged());
         response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
                 .filename("titles.csv").build().toString());
@@ -118,6 +120,40 @@ public class TitleController {
                     csv.print(title.getPublisher() == null || title.getPublisher().getType() == null ? null : title.getPublisher().getType().getName());
                     csv.print(title.getSubjects().stream().map(Subject::getName).collect(joining("; ")));
                     csv.println();
+                }
+            }
+        }
+    }
+
+    @GetMapping(value = "/titles.marc", produces = "application/marc")
+    public void exportMarc(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
+        TitleSearch search = new TitleSearch(entityManager, facets, params, Pageable.unpaged());
+        response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
+                .filename("titles.marc").build().toString());
+        try (SearchScroll<Title> scroll = search.scroll()) {
+            MarcStreamWriter marc = new MarcStreamWriter(response.getOutputStream(), "UTF-8");
+            Date today = new Date();
+            for (var chunk = scroll.next(); chunk.hasHits(); chunk = scroll.next()) {
+                for (Title title : chunk.hits()) {
+                    marc.write(TitleMarcConverter.convert(title, today));
+                }
+            }
+            marc.close();
+        }
+    }
+
+    @GetMapping(value = "/titles.marc.txt", produces = "text/plain")
+    public void exportMarcText(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
+        TitleSearch search = new TitleSearch(entityManager, facets, params, Pageable.unpaged());
+        response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("inline")
+                .filename("titles.marc.txt").build().toString());
+        try (SearchScroll<Title> scroll = search.scroll()) {
+            OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), UTF_8);
+            Date today = new Date();
+            for (var chunk = scroll.next(); chunk.hasHits(); chunk = scroll.next()) {
+                for (Title title : chunk.hits()) {
+                    writer.write(TitleMarcConverter.convert(title, today).toString());
+                    writer.write("\n");
                 }
             }
         }
