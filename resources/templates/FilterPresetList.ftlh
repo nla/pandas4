@@ -1,4 +1,4 @@
-[#-- @ftlvariable name="presets" type="java.util.Collection<pandas.admin.gather.GatherFilterPreset>" --]
+[#-- @ftlvariable name="presets" type="java.util.Collection<pandas.gather.GatherFilterPreset>" --]
 [#include "_layout.ftlh"]
 [@page "Gather Filter Presets"]
 

@@ -1,4 +1,4 @@
-[#-- @ftlvariable name="preset" type="pandas.admin.gather.GatherFilterPreset" --]
+[#-- @ftlvariable name="preset" type="pandas.gather.GatherFilterPreset" --]
 [#include "_layout.ftlh"]
 [@page (preset.id??)?string("Edit Filter Preset", "New Filter Preset")]
 

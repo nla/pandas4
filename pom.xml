@@ -2,13 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>au.gov.nla.pandas</groupId>
-        <artifactId>pandas</artifactId>
-        <version>3.8.2</version>
-    </parent>
-
-    <artifactId>pandas-admin</artifactId>
+    <groupId>au.gov.nla.pandas</groupId>
+    <artifactId>pandas4</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -41,7 +37,7 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>pandas.admin.PandasAdmin</mainClass>
+                            <mainClass>pandas.Pandas</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -82,6 +78,26 @@
                     <sourceMapOutputPath>${basedir}/target/classes/static/</sourceMapOutputPath>
                     <enableClasspathAwareImporter>true</enableClasspathAwareImporter>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>spring-boot</classifier>
+                            <mainClass>
+                                pandas.Pandas
+                            </mainClass>
+                            <addResources>true</addResources>
+                            <arguments>--spring.jpa.hibernate.ddl-auto=update</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -127,7 +143,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -135,20 +150,17 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
             <version>1.3.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <version>${spring.version}</version>
             <optional>true</optional>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -161,19 +173,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>au.gov.nla.pandas</groupId>
-            <artifactId>pandas-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>info.freelibrary</groupId>
             <artifactId>freelib-marc4j</artifactId>
             <version>2.6.11</version>
         </dependency>
-
         <dependency>
             <groupId>org.hibernate.search</groupId>
             <artifactId>hibernate-search-mapper-orm</artifactId>
@@ -184,32 +188,32 @@
             <artifactId>hibernate-search-backend-lucene</artifactId>
             <version>${hibernate.search.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.oracle.ojdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>19.3.0.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.197</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.21</version>
         </dependency>
-
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>webshim</artifactId>
             <version>1.15.8</version>
         </dependency>
-
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>datatables</artifactId>
@@ -270,7 +274,6 @@
             <artifactId>commons-csv</artifactId>
             <version>1.8</version>
         </dependency>
-
         <!-- seems to be needed by spring on servers -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
