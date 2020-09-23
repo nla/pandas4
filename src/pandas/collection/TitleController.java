@@ -125,11 +125,11 @@ public class TitleController {
         }
     }
 
-    @GetMapping(value = "/titles.marc", produces = "application/marc")
+    @GetMapping(value = "/titles.mrc", produces = "application/marc")
     public void exportMarc(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
         TitleSearch search = new TitleSearch(entityManager, facets, params, Pageable.unpaged());
         response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
-                .filename("titles.marc").build().toString());
+                .filename("titles.mrc").build().toString());
         try (SearchScroll<Title> scroll = search.scroll()) {
             MarcStreamWriter marc = new MarcStreamWriter(response.getOutputStream(), "UTF-8");
             Date today = new Date();
@@ -142,11 +142,11 @@ public class TitleController {
         }
     }
 
-    @GetMapping(value = "/titles.marc.txt", produces = "text/plain")
+    @GetMapping(value = "/titles.mrc.txt", produces = "text/plain")
     public void exportMarcText(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
         TitleSearch search = new TitleSearch(entityManager, facets, params, Pageable.unpaged());
         response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("inline")
-                .filename("titles.marc.txt").build().toString());
+                .filename("titles.mrc.txt").build().toString());
         try (SearchScroll<Title> scroll = search.scroll()) {
             OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), UTF_8);
             Date today = new Date();
