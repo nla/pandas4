@@ -89,10 +89,7 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <classifier>spring-boot</classifier>
-                            <mainClass>
-                                pandas.Pandas
-                            </mainClass>
+                            <mainClass>pandas.Pandas</mainClass>
                             <addResources>true</addResources>
                             <arguments>--spring.jpa.hibernate.ddl-auto=update</arguments>
                         </configuration>
