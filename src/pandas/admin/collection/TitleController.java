@@ -125,9 +125,8 @@ public class TitleController {
 
     @GetMapping("/titles/reindex")
     @ResponseBody
-    public String reindex(@RequestParam(name="purge", defaultValue = "false") boolean purge) throws InterruptedException {
+    public String reindex(@RequestParam(name="purge") boolean purge) throws InterruptedException {
         Search.session(entityManager).massIndexer(Title.class)
-                .purgeAllOnStart(purge)
                 .startAndWait();
         return "ok";
     }
