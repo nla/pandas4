@@ -3,9 +3,7 @@ package pandas.collection;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Aggregable;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -96,6 +94,21 @@ public class Subject extends AbstractCategory {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @FullTextField(analyzer = "english")
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath(@PropertyValue(propertyName = "name")),
+            @ObjectPath(@PropertyValue(propertyName = "parent"))})
+    @Override
+    public String getFullName() {
+        StringBuilder sb = new StringBuilder();
+        for (Subject s: getSubjectBreadcrumbs()) {
+            sb.append(s.getName());
+            sb.append(" / ");
+        }
+        sb.append(getName());
+        return sb.toString();
     }
 
     @Override
