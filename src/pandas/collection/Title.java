@@ -65,7 +65,7 @@ public class Title {
 
     @ManyToMany(mappedBy = "titles")
     @OrderBy("name")
-    @IndexedEmbedded(includePaths = {"id", "name"})
+    @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Subject> subjects;
 
     @ManyToOne
@@ -82,7 +82,7 @@ public class Title {
 
     @ManyToMany(mappedBy = "titles")
     @OrderBy("name")
-    @IndexedEmbedded(includePaths = {"id", "name"})
+    @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Collection> collections;
 
     @OneToOne
