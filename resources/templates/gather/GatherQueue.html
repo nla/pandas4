@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gather Queue - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <h1>Gather Queue</h1>
+
+    <h2 id="queued">Queued</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>PI</th>
+            <th>Title</th>
+            <th>Agency</th>
+            <th>Owner</th>
+            <th>Method</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="gather: ${queuedGathers}">
+            <td th:text="${gather.title.pi}">12345</td>
+            <td><a th:href="@{|/titles/${gather.title.id}|}" th:text="${gather.title.name}" href="#">Fishes of Australia</a></td>
+            <td th:text="${gather.title?.agency?.organisation?.alias}">NLA</td>
+            <td><a th:href="@{|/users/${gather.title?.owner?.id}|}" th:text="${gather.title?.owner?.userid}">jsmith</a></td>
+            <td th:text="${gather.method.name}">Heritrix</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Gathering</h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>PI</th>
+            <th>Title</th>
+            <th>Method</th>
+            <th>State</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="instance: ${gatheringInstances}">
+            <td th:text="${instance.date}">Date</td>
+            <td th:text="${instance.title.pi}">12345</td>
+            <td><a th:href="@{|/titles/${instance.title.id}|}" th:text="${instance.title.name}" href="#">Fishes of Australia</a></td>
+            <td th:text="${instance.gatherMethodName}">Heritrix</td>
+            <td th:text="${instance.state.name}">Heritrix</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+</main>

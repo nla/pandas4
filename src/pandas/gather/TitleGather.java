@@ -80,7 +80,7 @@ public class TitleGather {
     @Column(name = "GATHER_COMMAND")
     private String gatherCommand;
 
-    @OneToOne(mappedBy = "gather", optional = false)
+    @OneToOne(mappedBy = "gather")
     private Title title;
 
     public TitleGather() {
