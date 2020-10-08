@@ -62,9 +62,6 @@ public class Instance {
     @Column(name = "TEP_URL")
     private String tepUrl;
 
-    @Column(name = "TITLE_ID")
-    private Long titleId;
-
     @Column(name = "TRANSPORTABLE")
     private Long transportable;
 

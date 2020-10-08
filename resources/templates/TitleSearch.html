@@ -66,7 +66,7 @@
                             International Olympic Committee
                         </span>
                         <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
-                        <span class="owner" th:text="${title?.owner?.userid}">aosborne</span>
+                        <span class="owner"><a th:href="@{|/users/${title?.owner?.id}|}" th:text="${title?.owner?.userid}">aosborne</a></span>
                         <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
                     </footer>
                 </div>
