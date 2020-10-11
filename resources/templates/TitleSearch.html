@@ -31,7 +31,14 @@
         </form>
         <header>
             Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
-            matching titles
+            matching titles.
+
+            <label>
+                Sort by:
+                <select form="sf" name="sort" id="sort-field">
+                    <option th:each="ordering : ${orderings}" th:text="${ordering}" th:selected="${ordering.equals(sort)}">Relevance</option>
+                </select>
+            </label>
         </header>
         <ol start="${results.pageable.offset + 1}">
             <li th:each="title: ${results}">
@@ -137,20 +144,24 @@
         </details>
     </section>
     <script>
+        // omit empty/default fields from the query string for cleaner URLs
+        function omitEmptyFields() {
+            document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => { if (!field.value) { field.name = ""; }});
+        }
+        document.getElementById("sf").onsubmit = omitEmptyFields();
+
+        // clear all
         document.getElementById("filter-clear-button").onclick = function() {
             document.querySelectorAll('.facets input[type=checkbox]').forEach(cb => cb.checked = false);
             document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => field.value = "");
+            omitEmptyFields();
             this.form.submit();
         }
 
         // auto-submit when checkboxes are clicked
-        document.querySelectorAll(".facets input[type='checkbox']").forEach(checkbox =>
-            checkbox.onchange = function() { this.form.submit(); });
+        document.querySelectorAll(".facets input[type='checkbox'], #sort-field").forEach(field =>
+            field.onchange = function() { omitEmptyFields(); this.form.submit(); });
 
-        // hide empty date fields from query string for cleaner URLs
-        document.getElementById("sf").onsubmit = function () {
-          document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => { if (!field.value) { field.name = ""; }});
-        };
     </script>
 
     <script th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
