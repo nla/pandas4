@@ -148,7 +148,7 @@
         function omitEmptyFields() {
             document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => { if (!field.value) { field.name = ""; }});
         }
-        document.getElementById("sf").onsubmit = omitEmptyFields();
+        document.getElementById("sf").onsubmit = omitEmptyFields;
 
         // clear all
         document.getElementById("filter-clear-button").onclick = function() {
