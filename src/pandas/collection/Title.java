@@ -87,7 +87,7 @@ public class Title {
 
     @OneToOne
     @JoinColumn(name = "TITLE_ID")
-    @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes", "nextGatherDate"})
+    @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes", "nextGatherDate", "lastGatherDate", "firstGatherDate"})
     // XXX: not sure why it can't find the inverse automatically
     @AssociationInverseSide(
             inversePath = @ObjectPath( @PropertyValue( propertyName = "title" ) )

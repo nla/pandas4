@@ -60,6 +60,7 @@ public class TitleSearcher {
         orderings.put("Relevance", f -> f.score());
         orderings.put("Newest", f -> f.field("regDate").desc());
         orderings.put("Oldest", f -> f.field("regDate"));
+        orderings.put("Recently Gathered", f -> f.field("gather.lastGatherDate").desc());
         orderings.put("Name (ascending)", f -> f.field("name_sort"));
         orderings.put("Name (descending)", f -> f.field("name_sort").desc());
     }

@@ -1,5 +1,6 @@
 package pandas.gather;
 
+import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
@@ -34,6 +35,7 @@ public class TitleGather {
     private Instant calStartDate;
 
     @Column(name = "FIRST_GATHER_DATE")
+    @GenericField(sortable = Sortable.YES)
     private Instant firstGatherDate;
 
     @ManyToOne
@@ -52,10 +54,11 @@ public class TitleGather {
     private String gatherUrl;
 
     @Column(name = "LAST_GATHER_DATE")
+    @GenericField(sortable = Sortable.YES)
     private Instant lastGatherDate;
 
     @Column(name = "NEXT_GATHER_DATE")
-    @GenericField
+    @GenericField(sortable = Sortable.YES)
     private Instant nextGatherDate;
 
     @Column(name = "NOTES")
