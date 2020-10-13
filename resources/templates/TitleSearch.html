@@ -35,8 +35,17 @@
 
             <label>
                 Sort by:
-                <select form="sf" name="sort" id="sort-field">
+                <select form="sf" name="sort" class="auto-submit" data-default="Relevance">
                     <option th:each="ordering : ${orderings}" th:text="${ordering}" th:selected="${ordering.equals(sort)}">Relevance</option>
+                </select>
+            </label>
+
+            <label>
+                Page size:
+                <select form="sf" name="size" class="auto-submit" data-default="20">
+                    <option th:selected="${results.size == 20}">20</option>
+                    <option th:selected="${results.size == 100}">100</option>
+                    <option th:selected="${results.size == 1000}">1000</option>
                 </select>
             </label>
         </header>
@@ -147,6 +156,7 @@
         // omit empty/default fields from the query string for cleaner URLs
         function omitEmptyFields() {
             document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => { if (!field.value) { field.name = ""; }});
+            document.querySelectorAll('select.auto-submit').forEach(field => { if (field.value === field.dataset.default) { field.name = ""; }});
         }
         document.getElementById("sf").onsubmit = omitEmptyFields;
 
@@ -159,7 +169,7 @@
         }
 
         // auto-submit when checkboxes are clicked
-        document.querySelectorAll(".facets input[type='checkbox'], #sort-field").forEach(field =>
+        document.querySelectorAll(".facets input[type='checkbox'], .auto-submit").forEach(field =>
             field.onchange = function() { omitEmptyFields(); this.form.submit(); });
 
     </script>

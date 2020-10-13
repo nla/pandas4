@@ -47,6 +47,8 @@ public class TitleSearcher {
                 new EntityFacet<>("Format", "format", "format.id", formatRepository::findAllById, Format::getId, Format::getName),
                 new EntityFacet<>("Gather Method", "method", "gather.method.id", gatherMethodRepository::findAllById, GatherMethod::getId, GatherMethod::getName),
                 new EntityFacet<>("Gather Schedule", "schedule", "gather.schedule.id", gatherScheduleRepository::findAllById, GatherSchedule::getId, GatherSchedule::getName),
+                new DateFacet("First Gather Date", "firstgather", "gather.firstGatherDate"),
+                new DateFacet("Last Gather Date", "lastgather", "gather.lastGatherDate"),
                 new DateFacet("Next Gather Date", "nextgather", "gather.nextGatherDate"),
                 new EntityFacet<>("Owner", "owner", "owner.id", individualRepository::findAllById, Individual::getId, Individual::getName, List.of("owner.nameGiven", "owner.nameFamily", "owner.userid")),
                 new EntityFacet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName, List.of("publisher.organisation.name")),
