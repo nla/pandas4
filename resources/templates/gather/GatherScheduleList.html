@@ -20,8 +20,8 @@
         <tbody>
         <tr th:each="schedule: ${schedules}">
             <td><a href="GatherScheduleEdit.html" th:href="@{|/schedules/${schedule.id}|}" th:text="${schedule.name}">Daily</a></td>
-            <td><a th:href="@{/titles(schedule=${schedule.id})}" th:if="${titleCounts.containsKey(schedule.id)}"><span th:text="${titleCounts.getOrDefault(schedule.id, 0)}">2</span> titles</a></td>
             <td th:text="${schedule.summary()}"></td>
+            <td><a th:href="@{/titles(schedule=${schedule.id})}" th:if="${titleCounts.containsKey(schedule.id)}"><span th:text="${titleCounts.getOrDefault(schedule.id, 0)}">2</span> titles</a></td>
         </tr>
         </tbody>
     </table>
