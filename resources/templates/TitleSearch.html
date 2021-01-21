@@ -28,6 +28,7 @@
                     <button type="submit" class="dropdown-item" th:formaction="@{/titles.mrc.txt}">MARC (text)</button>
                 </div>
             </div>
+            <button th:formaction="@{/titles/bulkchange}" class="btn btn-secondary">Bulk Change</button>
         </form>
         <header>
             Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>

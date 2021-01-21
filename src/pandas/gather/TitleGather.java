@@ -1,5 +1,6 @@
 package pandas.gather;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
@@ -13,6 +14,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "TITLE_GATHER")
+@DynamicUpdate
 public class TitleGather {
     @Id
     @Column(name="TITLE_ID")

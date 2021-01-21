@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.dsl.PredicateFinalStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchScroll;
@@ -77,6 +78,14 @@ public class TitleSearcher {
 
     public Map<String, Function<SearchSortFactory, SortFinalStep>> getOrderings() {
         return orderings;
+    }
+
+    public Map<Long, Long> countTitlesBySchedule() {
+        AggregationKey<Map<Long, Long>> titlesBySchedule = AggregationKey.of("titlesBySchedule");
+        var result = Search.session(entityManager).search(Title.class).
+                where(f -> f.matchAll()).aggregation(titlesBySchedule, f -> f.terms().field("gather.schedule.id", Long.class))
+                .fetch(0);
+        return result.aggregation(titlesBySchedule);
     }
 
     private class Query {

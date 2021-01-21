@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gather Schedules - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <h1>Edit Gather Schedule</h1>
+
+    <form method=post>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input class="form-control" id="name" name="name" th:value="${schedule.name}" required>
+        </div>
+        <fieldset>
+            Every
+            <label><input type=number name=years th:value="${schedule.years}" size=1 min=0> years, </label>
+            <label><input type=number name=months th:value="${schedule.months}" size=1 min=0> months and</label>
+            <label><input type=number name=days th:value="${schedule.days}" size=1 min=0> days</label>
+        </fieldset>
+
+        <style>
+            .columns {
+                display: flex;
+            }
+
+            .columns > fieldset {
+                border: 1px solid #aaa;
+                padding-left: 8px;
+                padding-right: 8px;
+                margin: 0px;
+                margin-right: 8px;
+                margin-bottom: 8px;
+            }
+
+            .columns > fieldset legend {
+                font-size: 1rem;
+                margin-bottom: 0px;
+            }
+            .columns > fieldset label {
+                display: block;
+            }
+
+            .columns > fieldset input {
+                margin-right: 5px;
+            }
+        </style>
+
+        <div class="columns">
+            <fieldset>
+                <legend>On specific days</legend>
+                <label><input type=checkbox name=daysOfWeekList value=0 th:checked="${schedule.hasDayOfWeek(0)}">Monday</label>
+                <label><input type=checkbox name=daysOfWeekList value=1 th:checked="${schedule.hasDayOfWeek(1)}">Tuesday</label>
+                <label><input type=checkbox name=daysOfWeekList value=2 th:checked="${schedule.hasDayOfWeek(2)}">Wednesday</label>
+                <label><input type=checkbox name=daysOfWeekList value=3 th:checked="${schedule.hasDayOfWeek(3)}">Thursday</label>
+                <label><input type=checkbox name=daysOfWeekList value=4 th:checked="${schedule.hasDayOfWeek(4)}">Friday</label>
+                <label><input type=checkbox name=daysOfWeekList value=5 th:checked="${schedule.hasDayOfWeek(5)}">Saturday</label>
+                <label><input type=checkbox name=daysOfWeekList value=6 th:checked="${schedule.hasDayOfWeek(6)}">Sunday</label>
+            </fieldset>
+
+            <fieldset>
+                <legend>At specific times</legend>
+                <div style="column-count: 2">
+                    <label><input type=checkbox name=hoursOfDayList value=0 th:checked="${schedule.hasHourOfDay(0)}">midnight</label>
+                    <label><input type=checkbox name=hoursOfDayList value=1 th:checked="${schedule.hasHourOfDay(1)}">1am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=2 th:checked="${schedule.hasHourOfDay(2)}">2am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=3 th:checked="${schedule.hasHourOfDay(3)}">3am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=4 th:checked="${schedule.hasHourOfDay(4)}">4am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=5 th:checked="${schedule.hasHourOfDay(5)}">5am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=6 th:checked="${schedule.hasHourOfDay(6)}">6am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=7 th:checked="${schedule.hasHourOfDay(7)}">7am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=8 th:checked="${schedule.hasHourOfDay(8)}">8am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=9 th:checked="${schedule.hasHourOfDay(9)}">9am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=10 th:checked="${schedule.hasHourOfDay(10)}">10am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=11 th:checked="${schedule.hasHourOfDay(11)}">11am</label>
+                    <label><input type=checkbox name=hoursOfDayList value=12 th:checked="${schedule.hasHourOfDay(12)}">noon</label>
+                    <label><input type=checkbox name=hoursOfDayList value=13 th:checked="${schedule.hasHourOfDay(13)}">1pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=14 th:checked="${schedule.hasHourOfDay(14)}">2pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=15 th:checked="${schedule.hasHourOfDay(15)}">3pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=16 th:checked="${schedule.hasHourOfDay(16)}">4pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=17 th:checked="${schedule.hasHourOfDay(17)}">5pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=18 th:checked="${schedule.hasHourOfDay(18)}">6pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=19 th:checked="${schedule.hasHourOfDay(19)}">7pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=20 th:checked="${schedule.hasHourOfDay(20)}">8pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=21 th:checked="${schedule.hasHourOfDay(21)}">9pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=22 th:checked="${schedule.hasHourOfDay(22)}">10pm</label>
+                    <label><input type=checkbox name=hoursOfDayList value=23 th:checked="${schedule.hasHourOfDay(23)}">11pm</label>
+                </div>
+            </fieldset>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{/schedules}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+            <button th:if="${schedule.id != null}" type="submit" th:formaction="@{|/schedules/${schedule.id}/delete|}"
+                    class="btn btn-danger float-right">Delete
+            </button>
+        </div>
+    </form>
+
+</main>

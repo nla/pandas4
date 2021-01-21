@@ -15,4 +15,6 @@ public interface TitleGatherRepository extends CrudRepository<TitleGather, Long>
             "where tg.nextGatherDate < :time and tg.title is not null " +
             "order by tg.nextGatherDate")
     List<TitleGather> findQueuedBefore(@Param("time") Instant time);
+
+    boolean existsBySchedule(GatherSchedule schedule);
 }

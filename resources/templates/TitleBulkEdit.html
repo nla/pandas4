@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulk Change Titles - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>Bulk Change Titles</h1>
+    </header>
+
+    <form method=post>
+        <details>
+            <summary>Changing <span th:text="${results.totalElements}">42</span> titles</summary>
+            <table>
+                <thead>
+                <tr>
+                    <td><input type=checkbox checked></td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="title : ${results}">
+                    <td><label><input type=checkbox name=id th:value="${title.id}" checked><th:block th:text="${title.name}">Sports Australia</th:block></label></td>
+                </tr>
+                </tbody>
+            </table>
+        </details>
+
+        <label style="display: block">Change Gather Method:
+            <select name="method">
+                <option></option>
+                <option th:each="method: ${allGatherMethods}" th:text="${method.name}" th:value="${method.id}">Heritrix</option>
+            </select>
+        </label>
+
+        <label style="display: block">Change Gather Schedule:
+            <select name="schedule">
+                <option></option>
+                <option th:each="schedule: ${allGatherSchedules}" th:text="${schedule.name}" th:value="${schedule.id}">Weekly</option>
+            </select>
+        </label>
+
+        <label style="display: block">Transfer Ownership:
+            <select name="owner">
+                <option></option>
+                <option th:each="user: ${allUsers}" th:text="${user.name}" th:value="${user.id}">jsmith</option>
+            </select>
+        </label>
+
+        <label style="display: block">Add Note:
+            <textarea name="note"></textarea>
+        </label>
+
+        <button>Show Summary</button>
+    </form>
+</main>

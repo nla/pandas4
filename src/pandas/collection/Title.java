@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
@@ -21,6 +22,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Indexed
 @NamedEntityGraph(name = "Title.subjects",
         attributeNodes = @NamedAttributeNode("subjects"))
+@DynamicUpdate
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
@@ -85,7 +87,7 @@ public class Title {
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Collection> collections;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "TITLE_ID")
     @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes", "nextGatherDate", "lastGatherDate", "firstGatherDate"})
     // XXX: not sure why it can't find the inverse automatically
@@ -96,6 +98,8 @@ public class Title {
 
     @Formula("(select MIN(i.INSTANCE_DATE) from INSTANCE i where i.TITLE_ID = TITLE_ID)")
     private Instant firstInstanceDate;
+
+    private String notes;
 
     public Agency getAgency() {
         return agency;
@@ -240,5 +244,13 @@ public class Title {
 
     public Instant getFirstInstanceDate() {
         return firstInstanceDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

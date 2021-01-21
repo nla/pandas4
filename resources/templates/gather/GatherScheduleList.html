@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gather Schedules - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>Gather Schedules</h1>
+        <nav><a th:href="@{/schedules/new}" href="GatherScheduleEdit.html" class="btn btn-primary">New Schedule</a></nav>
+    </header>
+
+    <p th:text="${danger}" th:if="${danger}" class="alert alert-danger"></p>
+
+    <table>
+        <tbody>
+        <tr th:each="schedule: ${schedules}">
+            <td><a href="GatherScheduleEdit.html" th:href="@{|/schedules/${schedule.id}|}" th:text="${schedule.name}">Daily</a></td>
+            <td><a th:href="@{/titles(schedule=${schedule.id})}" th:if="${titleCounts.containsKey(schedule.id)}"><span th:text="${titleCounts.getOrDefault(schedule.id, 0)}">2</span> titles</a></td>
+            <td th:text="${schedule.summary()}"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>

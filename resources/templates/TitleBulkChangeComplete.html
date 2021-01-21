@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulk Change - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>Bulk Change</h1>
+    </header>
+
+    <p>Changed <span th:text="${count}">56</span> titles.</p>
+</main>

@@ -14,14 +14,16 @@
 
 <nav th:fragment="sidebar">
     <ul>
-        <li>Tools</li>
+        <li>Search</li>
         <li><a th:href="@{/titles}">Titles</a>
         <li><a th:href="@{/collections}">Collections</a>
         <li><a th:href="@{/subjects}">Subjects</a>
+        <li>Tools</li>
         <li><a th:href="@{/marcexport}">MARC Export</a>
-        <li>Gather
+        <li><a th:href="@{/queue}">Gather Queue</a>
+        <li>Settings
+        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/schedules}">Gather Schedules</a>
         <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
-        <li><a th:href="@{/queue}">Queue</a>
     </ul>
 </nav>
 
