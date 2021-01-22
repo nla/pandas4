@@ -59,7 +59,7 @@ public class SearchScheduler {
                     @SuppressWarnings("unchecked")
                     List<Title> candidates = (List<Title>)entityManager.createQuery(
                             "select t from Title t where t.lastModifiedDate > :date or " +
-                            "(t.lastModifiedDate = :date and t.id > :id) order by t.lastModifiedDate")
+                            "(t.lastModifiedDate = :date and t.id > :id) order by t.lastModifiedDate, t.id")
                             .setParameter("date", lastIndexedDate)
                             .setParameter("id", lastId)
                             .setMaxResults(100)
