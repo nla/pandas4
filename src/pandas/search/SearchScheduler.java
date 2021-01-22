@@ -64,11 +64,11 @@ public class SearchScheduler {
                         for (Title candidate: candidates) {
                             indexingPlan.addOrUpdate(candidate);
                         }
-                        log.info("Incrementally indexed {} titles", candidates.size());
                         entityManager.getTransaction().commit();
                         Title last = candidates.get(candidates.size() - 1);
                         lastIndexedDate = last.getLastModifiedDate();
                         lastId = last.getId();
+                        log.info("Incrementally indexed {} titles (lastDate={}, lastId={})", candidates.size(), lastIndexedDate, lastId);
                     } else {
                         // no more to do
                         entityManager.getTransaction().rollback();
