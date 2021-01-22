@@ -20,6 +20,8 @@ public class SearchScheduler {
     private static final Logger log = LoggerFactory.getLogger(SearchScheduler.class);
 
     private final EntityManagerFactory entityManagerFactory;
+    private long lastId = -1;
+    private Instant lastIndexedDate;
 
     public SearchScheduler(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
@@ -42,12 +44,13 @@ public class SearchScheduler {
         try {
             SearchSession session = Search.session(entityManager);
             SearchIndexingPlan indexingPlan = session.indexingPlan();
-            List<Title> hits = session.search(Title.class).where(SearchPredicateFactory::matchAll)
-                    .sort(f -> f.field("lastModifiedDate").desc())
-                    .fetch(1)
-                    .hits();
-            long lastId = -1;
-            Instant lastIndexedDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
+            if (lastIndexedDate == null) {
+                List<Title> hits = session.search(Title.class).where(SearchPredicateFactory::matchAll)
+                        .sort(f -> f.field("lastModifiedDate").desc())
+                        .fetch(1)
+                        .hits();
+                lastIndexedDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
+            }
 
             while (true) {
                 entityManager.getTransaction().begin();
