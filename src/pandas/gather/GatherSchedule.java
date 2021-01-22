@@ -148,7 +148,15 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
         // find the next hour slot we're eligible for
         if (hoursOfDay != 0) {
             int hour = nextSetBitWrap(hoursOfDay, next.getHour() + 1);
-            if (hour <= next.getHour()) next = next.plusDays(1);
+            if (hour <= next.getHour()) {
+                next = next.plusDays(1);
+
+                if (daysOfWeek != 0) {
+                    if (hoursOfDay == 0) next = next.plusDays(1);
+                    int day = nextSetBitWrap(daysOfWeek, next.getDayOfWeek().getValue() - 1);
+                    next = next.with(TemporalAdjusters.nextOrSame(DayOfWeek.of(day + 1)));
+                }
+            }
             next = next.withHour(hour).truncatedTo(ChronoUnit.HOURS);
         }
 
