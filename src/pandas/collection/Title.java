@@ -5,6 +5,7 @@ import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import org.springframework.data.annotation.LastModifiedDate;
 import pandas.agency.Agency;
 import pandas.core.Individual;
 import pandas.gather.TitleGather;
@@ -100,6 +101,10 @@ public class Title {
     private Instant firstInstanceDate;
 
     private String notes;
+
+    @GenericField(sortable = Sortable.YES)
+    @LastModifiedDate
+    private Instant lastModifiedDate;
 
     public Agency getAgency() {
         return agency;
@@ -252,5 +257,13 @@ public class Title {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Instant getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Instant lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 }
