@@ -50,6 +50,7 @@ public class SearchScheduler {
                         .fetch(1)
                         .hits();
                 lastIndexedDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
+                lastId = hits.isEmpty() ? -1 : hits.get(0).getId();
             }
 
             while (true) {
@@ -71,7 +72,7 @@ public class SearchScheduler {
                         Title last = candidates.get(candidates.size() - 1);
                         lastIndexedDate = last.getLastModifiedDate();
                         lastId = last.getId();
-                        log.info("Incrementally indexed {} titles (lastDate={}, lastId={})", candidates.size(), lastIndexedDate, lastId);
+                        log.info("Incrementally indexed {} titles (lastLastModifiedDate={}, lastId={})", candidates.size(), lastIndexedDate, lastId);
                     } else {
                         // no more to do
                         entityManager.getTransaction().rollback();
