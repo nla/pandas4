@@ -11,7 +11,7 @@
 <main>
     <h1>Edit Gather Schedule</h1>
 
-    <form method=post>
+    <form method=post id=scheduleForm>
         <div class="form-group">
             <label for="name">Name:</label>
             <input class="form-control" id="name" name="name" th:value="${schedule.name}" required>
@@ -91,7 +91,22 @@
                     <label><input type=checkbox name=hoursOfDayList value=23 th:checked="${schedule.hasHourOfDay(23)}">11pm</label>
                 </div>
             </fieldset>
+
+            <fieldset>
+                <legend>Preview</legend>
+                <pre id="preview"></pre>
+            </fieldset>
         </div>
+
+        <script>
+            let form = document.getElementById("scheduleForm");
+            function updatePreview() {
+                var q = new URLSearchParams(new FormData(form)).toString();
+                fetch("preview?" + q).then(response => response.text()).then(data => document.getElementById("preview").innerHTML = data);
+            }
+            updatePreview();
+            form.addEventListener('change', updatePreview);
+        </script>
 
         <div>
             <button type="submit" class="btn btn-primary">Save</button>

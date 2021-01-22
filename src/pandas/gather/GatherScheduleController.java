@@ -7,10 +7,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pandas.collection.TitleSearcher;
 import pandas.core.NotFoundException;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -76,6 +79,21 @@ public class GatherScheduleController {
             gatherScheduleRepository.deleteById(id);
         }
         return "redirect:/schedules";
+    }
+
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E dd MMM uuuu hh:mm a");
+
+    @GetMapping(value = "/schedules/preview", produces = "text/plain")
+    @ResponseBody
+    public String preview(GatherSchedule schedule) {
+        StringBuilder sb = new StringBuilder();
+        ZonedDateTime t = ZonedDateTime.now();
+        for (int i = 0; i < 15; i++) {
+            t = schedule.calculateNextTime(t);
+            sb.append(t.format(formatter)).append("\n");
+        }
+        sb.append("...\n");
+        return sb.toString();
     }
 
     private List<GatherSchedule> sortedSchedules() {
