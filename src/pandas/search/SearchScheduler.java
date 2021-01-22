@@ -27,7 +27,8 @@ public class SearchScheduler {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    @Scheduled(fixedDelayString = "${pandas.searchScheduler.delay:3600000}", initialDelayString = "${pandas.searchScheduler.initialDelay:3600000}")
+    // do a full reindex once a day
+    @Scheduled(fixedDelayString = "${pandas.searchScheduler.delay:86400000}", initialDelayString = "${pandas.searchScheduler.initialDelay:86400000}")
     public synchronized void reindex() throws InterruptedException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {
