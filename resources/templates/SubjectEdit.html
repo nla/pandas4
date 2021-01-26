@@ -11,7 +11,9 @@
     <header>
         <h1>Edit Subject</h1>
     </header>
-    <form method=post class=form>
+    <form method=post class=form th:action="@{/subjects}">
+        <input type=hidden name=id th:value="${subject.id}">
+
         <div class="form-group">
             <label for="name">Name:</label>
             <input class="form-control" id="name" name="name" th:value="${subject.name}" required>

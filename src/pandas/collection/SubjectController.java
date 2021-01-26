@@ -21,10 +21,17 @@ public class SubjectController {
         return "SubjectList";
     }
 
+
     @GetMapping("/subjects/{id}")
     public String list(@PathVariable("id") long id, Model model) {
         model.addAttribute("subject", subjectRepository.findById(id).orElseThrow(NotFoundException::new));
         return "SubjectView";
+    }
+
+    @GetMapping("/subjects/new")
+    public String newForm(Model model) {
+        model.addAttribute("subject", new Subject());
+        return "SubjectEdit";
     }
 
     @GetMapping("/subjects/{id}/edit")
@@ -33,11 +40,10 @@ public class SubjectController {
         return "SubjectEdit";
     }
 
-    @PostMapping("/subjects/{id}/edit")
-    public String update(@PathVariable("id") long id, Subject subject) {
-        subject.setId(id);
+    @PostMapping("/subjects")
+    public String update(Subject subject) {
         subjectRepository.save(subject);
-        return "SubjectEdit";
+        return "redirect:/subjects/" + subject.getId();
     }
 
     @PostMapping("/subjects/{id}/delete")
