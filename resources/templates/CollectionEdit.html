@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Collection - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>Edit Collection</h1>
+    </header>
+    <form method=post class=form th:action="@{/collections}">
+        <input type=hidden name=id th:value="${collection.id}">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input class="form-control" id="name" name="name" th:value="${collection.name}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea class="form-control" id="description" name="description" rows="3" th:text="${collection.description}"></textarea>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{|/collections/${(collection.id ?: parentId) ?: ''}|}" class="btn btn-secondary">Cancel</a>
+            [#if collection.collectionId??]
+                <button type="submit" th:formaction="${|collections/${collection.id}/delete|}" class="btn btn-danger float-right">Delete</button>
+            [/#if]
+        </div>
+    </form>
+[/@page]

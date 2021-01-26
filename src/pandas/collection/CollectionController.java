@@ -58,7 +58,7 @@ public class CollectionController {
 
     @GetMapping("/collections/{id}/edit")
     public String edit(@PathVariable("id") long id, Model model) {
-        model.addAttribute("category", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
+        model.addAttribute("collection", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
         return "CollectionEdit";
     }
 
@@ -82,7 +82,7 @@ public class CollectionController {
     public String newForm(@RequestParam("parentId") long parentId,
                           Model model) {
         Category collection = new Collection();
-        model.addAttribute("category", collection);
+        model.addAttribute("collection", collection);
         model.addAttribute("parentId", parentId);
         return "CollectionEdit";
     }
