@@ -183,9 +183,14 @@ public class TitleController {
 
     @GetMapping("/titles/reindex")
     @ResponseBody
-    public String reindex(@RequestParam(name="purge") boolean purge) throws InterruptedException {
+    public String reindex(@RequestParam(name = "purge") boolean purge) throws InterruptedException {
         Search.session(entityManager).massIndexer(Title.class)
                 .startAndWait();
         return "ok";
+    }
+
+    @GetMapping("/titles/new")
+    public String newForm() {
+        return "TitleNew.html";
     }
 }

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Title - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>New Title</h1>
+    </header>
+    <form method=get class=form>
+        <div class="form-group">
+            <label for="url">URL:</label>
+            <input class="form-control" id="url" name="url" required>
+            <button>Load</button>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Next</button>
+        </div>
+    </form>
+</main>

@@ -37,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/collections", "/collections/**").hasRole("panadmin")
                     .antMatchers("/gather/**").hasRole("panadmin")
                     .antMatchers("/schedules", "/schedules/**").hasRole("panadmin")
+                    .antMatchers("/pageinfo").hasRole("stduser")
                     .anyRequest().hasRole("stduser");
         }
     }
