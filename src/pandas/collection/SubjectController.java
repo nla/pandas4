@@ -21,7 +21,6 @@ public class SubjectController {
         return "SubjectList";
     }
 
-
     @GetMapping("/subjects/{id}")
     public String list(@PathVariable("id") long id, Model model) {
         model.addAttribute("subject", subjectRepository.findById(id).orElseThrow(NotFoundException::new));

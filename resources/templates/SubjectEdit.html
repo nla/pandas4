@@ -26,7 +26,7 @@
 
         <div>
             <button type="submit" class="btn btn-primary">Save</button>
-            <a th:href="@{|/subjects/${subject.id}|}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+            <a th:href="@{|/subjects/${subject.id ?: ''}|}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
             <button th:if="${subject.id != null}" type="submit" th:formaction="@{|/subjects/${subject.id}/delete|}"
                     class="btn btn-danger float-right">Delete
             </button>
