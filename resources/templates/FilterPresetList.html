@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gather Filter Presets - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>Gather Filter Presets</h1>
+    </header>
+    <ul>
+        <li th:each="preset: ${presets}"><a href="FilterPresetEdit.html" th:href="@{|/gather/filterpresets/${preset.id}|}" th:text="${preset.name}"></a>
+    </ul>
+
+    <a th:href="@{/gather/filterpresets/new}" class="btn btn-primary">New Filter Preset</a>
+</main>

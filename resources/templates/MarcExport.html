@@ -1,14 +1,24 @@
-[#include "_layout.ftlh"]
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Filter Preset - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>Export MARC Records</h1>
+    </header>
 
-[@page "Export MARC Records"]
-
-<link rel="stylesheet" href="webjars/datatables/1.10.21/css/dataTables.bootstrap4.min.css">
-<script src="webjars/jquery/1.11.1/jquery.min.js" defer></script>
-<script src="webjars/bootstrap/4.5.0/js/bootstrap.min.js" defer></script>
-<script src="webjars/webshim/1.15.8/dev/polyfiller.js" defer></script>
-<script src="webjars/datatables/1.10.21/js/jquery.dataTables.min.js" defer></script>
-<script src="webjars/datatables/1.10.21/js/dataTables.bootstrap4.min.js" defer></script>
-<script src="${requestContext.getContextUrl('/marcexport/MarcExport.js')}" defer></script>
+<link rel="stylesheet" th:href="@{/webjars/datatables/1.10.21/css/dataTables.bootstrap4.min.css}">
+<script th:src="@{/webjars/jquery/1.11.1/jquery.min.js}" defer></script>
+<script th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}" defer></script>
+<script th:src="@{/webjars/webshim/1.15.8/dev/polyfiller.js}" defer></script>
+<script th:src="@{/webjars/datatables/1.10.21/js/jquery.dataTables.min.js}" defer></script>
+<script th:src="@{/webjars/datatables/1.10.21/js/dataTables.bootstrap4.min.js}" defer></script>
+<script th:src="@{/marcexport/MarcExport.js}" defer></script>
 
 <style>
     form textarea {
@@ -97,6 +107,4 @@
         </form>
     </div>
 </div>
-
-
-[/@page]
+</main>

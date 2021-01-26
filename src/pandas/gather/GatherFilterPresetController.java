@@ -33,14 +33,8 @@ public class GatherFilterPresetController {
         return "FilterPresetEdit";
     }
 
-    @PostMapping("/gather/filterpresets/{id}/update")
+    @PostMapping("/gather/filterpresets")
     String update(GatherFilterPreset preset) {
-        repository.save(preset);
-        return "redirect:/gather/filterpresets";
-    }
-
-    @PostMapping("/gather/filterpresets/create")
-    String create(GatherFilterPreset preset) {
         repository.save(preset);
         return "redirect:/gather/filterpresets";
     }
