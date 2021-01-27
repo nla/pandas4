@@ -106,6 +106,10 @@ public class Title {
     @LastModifiedDate
     private Instant lastModifiedDate;
 
+    private String anbdNumber;
+    private String localDatabaseNo;
+    private String localReference;
+
     public Agency getAgency() {
         return agency;
     }
@@ -155,7 +159,7 @@ public class Title {
     }
 
     public LocalDate getRegDateLocal() {
-        return LocalDate.ofInstant(getRegDate(), ZoneId.systemDefault());
+        return getRegDate() == null ? null : LocalDate.ofInstant(getRegDate(), ZoneId.systemDefault());
     }
 
     public List<Subject> getSubjects() {
@@ -265,5 +269,29 @@ public class Title {
 
     public void setLastModifiedDate(Instant lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public String getAnbdNumber() {
+        return anbdNumber;
+    }
+
+    public void setAnbdNumber(String anbdNumber) {
+        this.anbdNumber = anbdNumber;
+    }
+
+    public String getLocalDatabaseNo() {
+        return localDatabaseNo;
+    }
+
+    public void setLocalDatabaseNo(String localDatabaseNo) {
+        this.localDatabaseNo = localDatabaseNo;
+    }
+
+    public String getLocalReference() {
+        return localReference;
+    }
+
+    public void setLocalReference(String localReference) {
+        this.localReference = localReference;
     }
 }

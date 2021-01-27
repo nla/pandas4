@@ -17,6 +17,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import pandas.Config;
 import pandas.core.Individual;
 import pandas.core.IndividualRepository;
+import pandas.core.NotFoundException;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherMethodRepository;
 import pandas.gather.GatherSchedule;
@@ -44,8 +45,9 @@ public class TitleController {
     private final TitleSearcher titleSearcher;
     private final Config config;
     private final EntityManager entityManager;
+    private final FormatRepository formatRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleSearcher titleSearcher, Config config, EntityManager entityManager) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -53,6 +55,7 @@ public class TitleController {
         this.titleSearcher = titleSearcher;
         this.config = config;
         this.entityManager = entityManager;
+        this.formatRepository = formatRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -189,8 +192,23 @@ public class TitleController {
         return "ok";
     }
 
+    @GetMapping("/titles/{id}/edit")
+    public String edit(@PathVariable long id, Model model) {
+        model.addAttribute("title", titleRepository.findById(id).orElseThrow(NotFoundException::new));
+        model.addAttribute("allFormats", formatRepository.findAll());
+        return "TitleEdit";
+    }
+
     @GetMapping("/titles/new")
-    public String newForm() {
-        return "TitleNew.html";
+    public String newForm(Model model) {
+        model.addAttribute(new Title());
+        model.addAttribute("allFormats", formatRepository.findAll());
+        return "TitleEdit";
+    }
+
+    @PostMapping(value = "/titles", produces = "application/json")
+    @ResponseBody
+    public Title newForm(Title title) {
+        return title;
     }
 }

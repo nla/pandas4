@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import pandas.core.NotFoundException;
 
+import java.util.Optional;
+
 @Controller
 public class SubjectController {
     private final SubjectRepository subjectRepository;
@@ -22,8 +24,8 @@ public class SubjectController {
     }
 
     @GetMapping("/subjects/{id}")
-    public String list(@PathVariable("id") long id, Model model) {
-        model.addAttribute("subject", subjectRepository.findById(id).orElseThrow(NotFoundException::new));
+    public String list(@PathVariable("id") Optional<Subject> subject, Model model) {
+        model.addAttribute("subject", subject.orElseThrow(NotFoundException::new));
         return "SubjectView";
     }
 
@@ -34,8 +36,8 @@ public class SubjectController {
     }
 
     @GetMapping("/subjects/{id}/edit")
-    public String edit(@PathVariable("id") long id, Model model) {
-        model.addAttribute("subject", subjectRepository.findById(id).orElseThrow(NotFoundException::new));
+    public String edit(@PathVariable("id") Optional<Subject> subject, Model model) {
+        model.addAttribute("subject", subject.orElseThrow(NotFoundException::new));
         return "SubjectEdit";
     }
 

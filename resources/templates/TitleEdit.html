@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Title - PANDAS</title>
+    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+</head>
+<body>
+<header th:replace="_layout.html :: header"></header>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <h1>New Title</h1>
+    </header>
+    <form method=post class=form th:object="${title}" th:action="@{/titles}">
+        <input type=hidden th:field="*{id}">
+
+        <fieldset>
+            <legend>Basics</legend>
+            <label>URL: <input th:field="*{titleUrl}" required></label>
+            <label>Name: <input th:field="*{name}" required></label>
+            <label>Gather Schedule: <select th:field="*{gather.schedule.name}"></select></label>
+            <label>Gather Type: <select></select></label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Cataloguing</legend>
+            <div>Format:
+                <label th:each="fmt: ${allFormats}"><input type=radio th:field="*{format}" th:value="${fmt.id}"> <th:block th:text="${fmt.name}">Integrating</th:block></label>
+            </div>
+            <label>ABND No. <input th:field="*{anbdNumber}"></label>
+            <label>Local Reference No. <input th:field="*{localReference}"></label>
+            <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
+        </fieldset>
+
+        <div>
+            <button type="submit" class="btn btn-primary">Next</button>
+        </div>
+    </form>
+</main>
