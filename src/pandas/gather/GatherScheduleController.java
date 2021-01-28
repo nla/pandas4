@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pandas.collection.TitleSearcher;
+import pandas.collection.TitleService;
 import pandas.core.NotFoundException;
 
 import java.time.ZonedDateTime;
@@ -25,19 +25,19 @@ public class GatherScheduleController {
 
     private final GatherScheduleRepository gatherScheduleRepository;
     private final TitleGatherRepository titleGatherRepository;
-    private final TitleSearcher titleSearcher;
+    private final TitleService titleService;
 
-    public GatherScheduleController(GatherScheduleRepository gatherScheduleRepository, TitleGatherRepository titleGatherRepository, TitleSearcher titleSearcher) {
+    public GatherScheduleController(GatherScheduleRepository gatherScheduleRepository, TitleGatherRepository titleGatherRepository, TitleService titleService) {
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.titleGatherRepository = titleGatherRepository;
-        this.titleSearcher = titleSearcher;
+        this.titleService = titleService;
     }
 
     @GetMapping("/schedules")
     public String list(Model model) {
         model.addAttribute("schedules", sortedSchedules());
         try {
-            model.addAttribute("titleCounts", titleSearcher.countTitlesBySchedule());
+            model.addAttribute("titleCounts", titleService.countTitlesBySchedule());
         } catch (Exception e) {
             log.warn("Title count search failed", e);
             model.addAttribute("titleCounts", Collections.emptyMap());

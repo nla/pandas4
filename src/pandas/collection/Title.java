@@ -5,12 +5,15 @@ import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.Agency;
 import pandas.core.Individual;
 import pandas.gather.TitleGather;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -24,9 +27,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @NamedEntityGraph(name = "Title.subjects",
         attributeNodes = @NamedAttributeNode("subjects"))
 @DynamicUpdate
+@EntityListeners(AuditingEntityListener.class)
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TITLE_SEQ")
+    @SequenceGenerator(name = "TITLE_SEQ", sequenceName = "TITLE_SEQ", allocationSize = 1)
     private Long id;
 
     @GenericField
@@ -34,6 +40,7 @@ public class Title {
 
     @FullTextField(analyzer = "english")
     @KeywordField(name = "name_sort", sortable = Sortable.YES)
+    @NotNull
     private String name;
 
     @FullTextField(analyzer = "url")
@@ -43,6 +50,8 @@ public class Title {
     private String seedUrl;
 
     @GenericField(sortable = Sortable.YES)
+    @CreatedDate
+    @NotNull
     private Instant regDate;
 
     @ManyToOne
@@ -81,6 +90,7 @@ public class Title {
     @JoinColumn(name = "CURRENT_STATUS_ID")
     @IndexedEmbedded(includePaths = {"id"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @NotNull
     private Status status;
 
     @ManyToMany(mappedBy = "titles")
@@ -88,8 +98,7 @@ public class Title {
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Collection> collections;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "TITLE_ID")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "title")
     @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes", "nextGatherDate", "lastGatherDate", "firstGatherDate"})
     // XXX: not sure why it can't find the inverse automatically
     @AssociationInverseSide(

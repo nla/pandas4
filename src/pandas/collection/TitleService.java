@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import com.google.common.base.Strings;
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.dsl.PredicateFinalStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
@@ -10,16 +11,15 @@ import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import pandas.Config;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.core.Individual;
 import pandas.core.IndividualRepository;
-import pandas.gather.GatherMethod;
-import pandas.gather.GatherMethodRepository;
-import pandas.gather.GatherSchedule;
-import pandas.gather.GatherScheduleRepository;
+import pandas.core.NotFoundException;
+import pandas.gather.*;
 import pandas.search.*;
 
 import javax.persistence.EntityManager;
@@ -33,14 +33,22 @@ import java.util.function.Function;
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 
 @Service
-public class TitleSearcher {
+public class TitleService {
     private final Facet[] facets;
-    private final Map<String,Function<SearchSortFactory, SortFinalStep>> orderings;
+    private final Map<String, Function<SearchSortFactory, SortFinalStep>> orderings;
+    private final TitleRepository titleRepository;
+    private final TitleGatherRepository titleGatherRepository;
+    private final FormatRepository formatRepository;
+    private final StatusRepository statusRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public TitleSearcher(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager) {
+    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository) {
+        this.titleRepository = titleRepository;
+        this.titleGatherRepository = titleGatherRepository;
+        this.formatRepository = formatRepository;
+        this.statusRepository = statusRepository;
         facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
                 new EntityFacet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
@@ -157,5 +165,41 @@ public class TitleSearcher {
             if (order.equals("Relevance") && q == null) order = "Name (ascending)";
             return orderings.getOrDefault(order, f2 -> f2.score()).apply(f);
         }
+    }
+
+    public TitleEditForm newTitleForm() {
+        TitleEditForm form = new TitleEditForm();
+        form.setFormat(formatRepository.findById(Format.INTEGRATING_ID).orElseThrow());
+        form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+        return form;
+    }
+
+    @Transactional
+    public Title update(TitleEditForm form) {
+        Title title = form.getId() == null ? new Title() : titleRepository.findById(form.getId()).orElseThrow(NotFoundException::new);
+        title.setTitleUrl(form.getTitleUrl());
+        title.setName(form.getName());
+        title.setFormat(form.getFormat());
+        title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
+        title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
+        title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
+        title.setCollections(form.getCollections());
+        title.setSubjects(form.getSubjects());
+        title.setStatus(form.getStatus());
+        titleRepository.save(title);
+
+        if (title.getPi() == null) {
+            title.setPi(title.getId());
+            titleRepository.save(title);
+        }
+
+        TitleGather titleGather = title.getGather();
+        if (titleGather == null) {
+            titleGather = new TitleGather();
+            titleGather.setTitle(title);
+        }
+        titleGather.setSchedule(form.getGatherSchedule());
+        titleGatherRepository.save(titleGather);
+        return title;
     }
 }

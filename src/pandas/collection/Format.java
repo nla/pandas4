@@ -11,6 +11,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "FORMAT")
 public class Format {
+    public static final long INTEGRATING_ID = 3;
     @Id
     @Column(name = "FORMAT_ID")
     @GenericField(aggregable = Aggregable.YES)

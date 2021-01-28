@@ -27,13 +27,15 @@ public class PageInfo {
     private final String contentType;
     private final String charset;
     private final String title;
+    private final String location;
 
-    public PageInfo(int status, String reason, String contentType, String charset, String title) {
+    public PageInfo(int status, String reason, String contentType, String charset, String title, String location) {
         this.status = status;
         this.reason = reason;
         this.contentType = contentType;
         this.charset = charset;
         this.title = title;
+        this.location = location;
     }
 
     public static PageInfo fetch(String url) throws IOException {
@@ -76,10 +78,14 @@ public class PageInfo {
                 }
                 title = handler.title;
             }
-            return new PageInfo(status, reason, contentType, charsetName, title);
+            return new PageInfo(status, reason, contentType, charsetName, title, connection.getHeaderField("Location"));
         } finally {
             connection.getInputStream().close();
         }
+    }
+
+    public String getLocation() {
+        return location;
     }
 
     static class TitleHandler extends AbstractMarkupHandler {

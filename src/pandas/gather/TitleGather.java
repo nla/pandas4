@@ -1,5 +1,6 @@
 package pandas.gather;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
@@ -85,7 +86,10 @@ public class TitleGather {
     @Column(name = "GATHER_COMMAND")
     private String gatherCommand;
 
-    @OneToOne(mappedBy = "gather")
+    @OneToOne
+    @JoinColumn(name="TITLE_ID")
+    @MapsId
+    @JsonIgnore
     private Title title;
 
     public TitleGather() {

@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "COL")
 @DynamicUpdate
 @Indexed
-public class Collection extends AbstractCategory {
+public class Collection {
     @Id
     @Column(name = "COL_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
@@ -90,11 +90,6 @@ public class Collection extends AbstractCategory {
         isDisplayed = displayed;
     }
 
-    @Override
-    public Long getCategoryId() {
-        return getId();
-    }
-
     public String getName() {
         return name;
     }
@@ -103,20 +98,24 @@ public class Collection extends AbstractCategory {
         this.name = name;
     }
 
+    private transient String fullName;
+
     @FullTextField(analyzer = "english")
     @KeywordField(name="name_sort", sortable = Sortable.YES)
     @IndexingDependency(derivedFrom = {
             @ObjectPath(@PropertyValue(propertyName = "name")),
             @ObjectPath(@PropertyValue(propertyName = "parent"))})
-    @Override
     public String getFullName() {
-        StringBuilder sb = new StringBuilder();
-        for (Collection c: getCollectionBreadcrumbs()) {
-            sb.append(c.getName());
-            sb.append(" / ");
+        if (fullName == null) {
+            StringBuilder sb = new StringBuilder();
+            for (Collection c : getCollectionBreadcrumbs()) {
+                sb.append(c.getName());
+                sb.append(" / ");
+            }
+            sb.append(getName());
+            fullName = sb.toString();
         }
-        sb.append(getName());
-        return sb.toString();
+        return fullName;
     }
 
     public String getThumbnailUrl() {
@@ -127,46 +126,12 @@ public class Collection extends AbstractCategory {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    @Override
     public String getDescription() {
         return getDisplayComment();
     }
 
-    @Override
     public void setDescription(String description) {
         setDisplayComment(description);
-    }
-
-    @Override
-    public List<Category> getSubcategories() {
-        return new ArrayList<>(getChildren());
-    }
-
-    @Override
-    public List<Category> getParents() {
-        List<Category> parents = new ArrayList<>();
-        Collection parent = getParent();
-        if (parent != null) parents.add(parent);
-        parents.addAll(getSubjects());
-        return parents;
-    }
-
-    @Override
-    public Category getParentCategory() {
-        Collection parent = getParent();
-        if (parent != null) return parent;
-        return null;
-    }
-
-    @Override
-    public void setParentCategory(Category parent) {
-        if (parent instanceof Collection) {
-            setParent((Collection) parent);
-        } else if (parent instanceof Subject) {
-            getSubjects().add((Subject) parent);
-        } else {
-            throw new IllegalArgumentException(parent.getClass().getName());
-        }
     }
 
     public List<Collection> getCollectionBreadcrumbs() {
@@ -204,11 +169,6 @@ public class Collection extends AbstractCategory {
 
     public List<Title> getTitles() {
         return titles;
-    }
-
-    @Override
-    public String getType() {
-        return getClass().getSimpleName();
     }
 
     public long getTitleCount() {

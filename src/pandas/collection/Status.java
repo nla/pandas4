@@ -11,6 +11,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "STATUS")
 public class Status {
+    public static final long SELECTED_ID = 3;
+
     @Id
     @Column(name = "STATUS_ID")
     @GenericField(aggregable = Aggregable.YES)

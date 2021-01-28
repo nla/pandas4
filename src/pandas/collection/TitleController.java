@@ -4,6 +4,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.hibernate.search.engine.search.query.SearchScroll;
 import org.hibernate.search.mapper.orm.Search;
+import org.jetbrains.annotations.NotNull;
 import org.marc4j.MarcStreamWriter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,12 +26,13 @@ import pandas.gather.GatherScheduleRepository;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
@@ -42,20 +44,26 @@ public class TitleController {
     private final IndividualRepository individualRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
-    private final TitleSearcher titleSearcher;
+    private final TitleService titleService;
     private final Config config;
     private final EntityManager entityManager;
     private final FormatRepository formatRepository;
+    private final SubjectRepository subjectRepository;
+    private final CollectionRepository collectionRepository;
+    private final StatusRepository statusRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, SubjectRepository subjectRepository, CollectionRepository collectionRepository, StatusRepository statusRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
-        this.titleSearcher = titleSearcher;
+        this.titleService = titleService;
         this.config = config;
         this.entityManager = entityManager;
         this.formatRepository = formatRepository;
+        this.subjectRepository = subjectRepository;
+        this.collectionRepository = collectionRepository;
+        this.statusRepository = statusRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -67,18 +75,18 @@ public class TitleController {
     public String search(@RequestParam MultiValueMap<String, String> params,
                          @PageableDefault(20) Pageable pageable,
                          Model model) {
-        var results = titleSearcher.search(params, pageable);
+        var results = titleService.search(params, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", params.getFirst("q"));
         model.addAttribute("sort", params.getFirst("sort"));
-        model.addAttribute("orderings", titleSearcher.getOrderings().keySet());
+        model.addAttribute("orderings", titleService.getOrderings().keySet());
         model.addAttribute("facets", results.getFacets());
         return "TitleSearch";
     }
 
     @GetMapping("/titles/bulkchange")
     public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model) {
-        var results = titleSearcher.search(params, PageRequest.of(0, 1000));
+        var results = titleService.search(params, PageRequest.of(0, 1000));
         model.addAttribute("results", results);
         model.addAttribute("allUsers", individualRepository.findByUseridIsNotNull());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
@@ -124,7 +132,7 @@ public class TitleController {
     public void exportCsv(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
         response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
                 .filename("titles.csv").build().toString());
-        try (SearchScroll<Title> scroll = titleSearcher.scroll(params);
+        try (SearchScroll<Title> scroll = titleService.scroll(params);
              CSVPrinter csv = CSVFormat.DEFAULT.withHeader(
                      "PI", "Name", "Date Registered", "Agency", "Owner", "Format",
                      "Gather Method", "Gather Schedule", "Next Gather Date", "Title URL", "Seed URL",
@@ -154,7 +162,7 @@ public class TitleController {
 
     @GetMapping(value = "/titles.mrc", produces = "application/marc")
     public void exportMarc(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
-        try (SearchScroll<Title> scroll = titleSearcher.scroll(params)) {
+        try (SearchScroll<Title> scroll = titleService.scroll(params)) {
             response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
                     .filename("titles.mrc").build().toString());
             MarcStreamWriter marc = new MarcStreamWriter(response.getOutputStream(), "UTF-8");
@@ -170,7 +178,7 @@ public class TitleController {
 
     @GetMapping(value = "/titles.mrc.txt", produces = "text/plain")
     public void exportMarcText(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
-        try (SearchScroll<Title> scroll = titleSearcher.scroll(params)) {
+        try (SearchScroll<Title> scroll = titleService.scroll(params)) {
             response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("inline")
                     .filename("titles.mrc.txt").build().toString());
             OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), UTF_8);
@@ -193,22 +201,38 @@ public class TitleController {
     }
 
     @GetMapping("/titles/{id}/edit")
-    public String edit(@PathVariable long id, Model model) {
-        model.addAttribute("title", titleRepository.findById(id).orElseThrow(NotFoundException::new));
-        model.addAttribute("allFormats", formatRepository.findAll());
+    public String edit(@PathVariable("id") Optional<Title> title, Model model) {
+        return editForm(new TitleEditForm(title.orElseThrow(NotFoundException::new)), model);
+    }
+
+    @NotNull
+    private String editForm(TitleEditForm form, Model model) {
+        model.addAttribute("form", form);
+        model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
+        model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
+        model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
+        model.addAttribute("allCollections", sortBy(collectionRepository.findAll(), Collection::getFullName));
+        model.addAttribute("allStatuses", statusRepository.findAll());
         return "TitleEdit";
+    }
+
+    private static <T> List<T> sortBy(Iterable<T> items, Function<T, String> key) {
+        List<T> list = new ArrayList<>();
+        for (T item: items) {
+            list.add(item);
+        }
+        list.sort(Comparator.comparing(key));
+        return list;
     }
 
     @GetMapping("/titles/new")
     public String newForm(Model model) {
-        model.addAttribute(new Title());
-        model.addAttribute("allFormats", formatRepository.findAll());
-        return "TitleEdit";
+        return editForm(titleService.newTitleForm(), model);
     }
 
     @PostMapping(value = "/titles", produces = "application/json")
     @ResponseBody
-    public Title newForm(Title title) {
-        return title;
+    public Title newForm(@Valid TitleEditForm form) {
+        return titleService.update(form);
     }
 }

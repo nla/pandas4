@@ -26,7 +26,6 @@ public class CollectionController {
         this.subjectRepository = subjectRepository;
     }
 
-
     @GetMapping("/collections")
     public String search(@RequestParam(value = "q", required = false) String rawQ,
                           @RequestParam(value = "subject", required = false, defaultValue = "") List<Long> subjectIds,
@@ -81,7 +80,7 @@ public class CollectionController {
     @GetMapping("/collections/new")
     public String newForm(@RequestParam("parentId") long parentId,
                           Model model) {
-        Category collection = new Collection();
+        Collection collection = new Collection();
         model.addAttribute("collection", collection);
         model.addAttribute("parentId", parentId);
         return "CollectionEdit";
@@ -97,7 +96,7 @@ public class CollectionController {
         collection.setName(name);
         collection.setDescription(description);
         collectionRepository.save(collection);
-        return "redirect:/collections/" + collection.getCategoryId();
+        return "redirect:/collections/" + collection.getId();
     }
 
     @GetMapping("/collections/reindex")

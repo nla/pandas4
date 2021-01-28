@@ -2,7 +2,7 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>New Title - PANDAS</title>
+    <title th:text="${form.id == null ? 'New Title - PANDAS' : 'Edit Title - PANDAS'}">Edit Title - PANDAS</title>
     <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
 </head>
 <body>
@@ -10,31 +10,96 @@
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <h1>New Title</h1>
+        <h1 th:text="${form.id == null ? 'New Title' : 'Edit Title'}">Edit Title</h1>
     </header>
-    <form method=post class=form th:object="${title}" th:action="@{/titles}">
+    <form method=post class=form th:object="${form}" th:action="@{/titles}">
         <input type=hidden th:field="*{id}">
 
         <fieldset>
             <legend>Basics</legend>
             <label>URL: <input th:field="*{titleUrl}" required></label>
+            <div id="urlInfo"></div>
             <label>Name: <input th:field="*{name}" required></label>
-            <label>Gather Schedule: <select th:field="*{gather.schedule.name}"></select></label>
+            <label>
+                Status:
+                <select th:field="*{status}">
+                    <option th:each="status: ${allStatuses}" th:value="${status.id}"
+                            th:text="${status.name}">selected</option>
+                </select>
+            </label>
+            <label>Gather Schedule: <select th:field="*{gatherSchedule}">
+                <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
+                        th:text="${schedule.name}"></option>
+            </select></label>
             <label>Gather Type: <select></select></label>
         </fieldset>
 
         <fieldset>
             <legend>Cataloguing</legend>
             <div>Format:
-                <label th:each="fmt: ${allFormats}"><input type=radio th:field="*{format}" th:value="${fmt.id}"> <th:block th:text="${fmt.name}">Integrating</th:block></label>
+                <label th:each="fmt: ${allFormats}"><input type=radio th:field="*{format}" th:value="${fmt.id}">
+                    <th:block th:text="${fmt.name}">Integrating</th:block>
+                </label>
             </div>
-            <label>ABND No. <input th:field="*{anbdNumber}"></label>
-            <label>Local Reference No. <input th:field="*{localReference}"></label>
-            <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
+            <label>
+                Subjects:
+                <select th:field="*{subjects}" multiple>
+                    <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
+                            th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                            th:data-fullname="${subject.fullName}">Arts
+                    </option>
+                </select>
+            </label>
+            <label>
+                Collections:
+                <select th:field="*{collections}" multiple>
+                    <option th:each="collection: ${allCollections}" th:value="${collection.id}"
+                            th:text="${collection.fullName}">Arts
+                    </option>
+                </select>
+            </label>
+            <div>
+                <label>ABND No. <input th:field="*{anbdNumber}"></label>
+                <label>Local Reference No. <input th:field="*{localReference}"></label>
+                <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
+            </div>
         </fieldset>
 
         <div>
-            <button type="submit" class="btn btn-primary">Next</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{|/titles/${form.id ?: ''}|}" href="javascript:history.back()"
+               class="btn btn-secondary">Cancel</a>
+            <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
+                    class="btn btn-danger float-right">Delete
+            </button>
         </div>
     </form>
 </main>
+<link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}">
+<script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}"></script>
+<script>
+    new SlimSelect({
+        select: '#subjects',
+        searchFilter: function (option, search) {
+            return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+        }
+    });
+    new SlimSelect({
+        select: '#collections'
+    });
+    document.getElementById("titleUrl").addEventListener("change", function () {
+        document.getElementById("urlInfo").innerText = "Loading...";
+        document.getElementById("urlInfo").style.color = "#555";
+
+        fetch("../../pageinfo?url=" + encodeURIComponent(this.value))
+            .then(response => response.json())
+            .then(info => {
+                let contentType = info.contentType == null ? "?" : info.contentType.replace(/\s*;.*/, "");
+                document.getElementById("urlInfo").innerText = contentType + " " + info.status + " " + info.reason;
+                document.getElementById("urlInfo").style.color = info.status < 300 ? "green" : info.status < 400 ? "blue" : "red";
+                if (!document.getElementById("name").value && info.title && info.status < 300) {
+                    document.getElementById("name").value = info.title;
+                }
+            });
+    });
+</script>

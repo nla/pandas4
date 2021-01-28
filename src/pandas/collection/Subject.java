@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Aggregable;
@@ -8,13 +9,12 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Entity
 @DynamicUpdate
 @Indexed
-public class Subject extends AbstractCategory {
+public class Subject {
     public static final long CATEGORY_ID_RANGE_START = 15000;
     public static final long CATEGORY_ID_RANGE_END = 15999;
 
@@ -38,6 +38,7 @@ public class Subject extends AbstractCategory {
 
     @OneToMany(mappedBy = "parent")
     @OrderBy("name")
+    @JsonIgnore
     private List<Subject> children;
 
     @ManyToMany
@@ -45,6 +46,7 @@ public class Subject extends AbstractCategory {
             joinColumns = @JoinColumn(name = "SUBJECT_ID"),
             inverseJoinColumns = @JoinColumn(name = "TITLE_ID"))
     @OrderBy("name")
+    @JsonIgnore
     private List<Title> titles;
 
     @ManyToMany
@@ -81,52 +83,46 @@ public class Subject extends AbstractCategory {
         this.id = id;
     }
 
-    @Override
-    public Long getCategoryId() {
-        return getId() == null ? null : CATEGORY_ID_RANGE_START + getId();
-    }
-
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
+
+    private transient String fullName;
 
     @FullTextField(analyzer = "english")
     @IndexingDependency(derivedFrom = {
             @ObjectPath(@PropertyValue(propertyName = "name")),
             @ObjectPath(@PropertyValue(propertyName = "parent"))})
-    @Override
     public String getFullName() {
-        StringBuilder sb = new StringBuilder();
-        for (Subject s: getSubjectBreadcrumbs()) {
-            sb.append(s.getName());
-            sb.append(" / ");
+        if (fullName == null) {
+            StringBuilder sb = new StringBuilder();
+            for (Subject s : getSubjectBreadcrumbs()) {
+                if (sb.length() > 0) {
+                    sb.append(" / ");
+                }
+                sb.append(s.getName());
+            }
+            fullName = sb.toString();
         }
-        sb.append(getName());
-        return sb.toString();
+        return fullName;
     }
 
-    @Override
     public String getThumbnailUrl() {
         return thumbnailUrl;
     }
 
-    @Override
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    @Override
     public String getDescription() {
         return description;
     }
 
-    @Override
     public void setDescription(String description) {
         this.description = description;
     }
@@ -137,41 +133,6 @@ public class Subject extends AbstractCategory {
 
     public void setParent(Subject parent) {
         this.parent = parent;
-    }
-
-    public List<Category> getSubcategories() {
-        ArrayList<Category> subcategories = new ArrayList<>();
-        subcategories.addAll(getChildren());
-        subcategories.addAll(getCollections());
-        subcategories.sort(Comparator.comparing(Category::getName));
-        return subcategories;
-    }
-
-    @Override
-    public List<Category> getParents() {
-        Subject parent = getParent();
-        return parent == null ? List.of() : List.of(parent);
-    }
-
-    @Override
-    public Category getParentCategory() {
-        return getParent();
-    }
-
-    @Override
-    public void setParentCategory(Category parent) {
-        if (parent instanceof Subject) {
-            setParent((Subject) parent);
-        } else if (parent.getCategoryId() == 0) {
-            setParent(null);
-        } else {
-            throw new IllegalArgumentException(parent.getClass().getName());
-        }
-    }
-
-    @Override
-    public String getType() {
-        return getClass().getSimpleName();
     }
 
     public List<Subject> getChildren() {
@@ -190,6 +151,7 @@ public class Subject extends AbstractCategory {
         return collectionCount;
     }
 
+    @JsonIgnore
     public List<Subject> getSubjectBreadcrumbs() {
         List<Subject> breadcrumbs = new ArrayList<>();
         for (Subject s = this; s != null; s = s.getParent()) {
@@ -199,7 +161,6 @@ public class Subject extends AbstractCategory {
         return breadcrumbs;
     }
 
-    @Override
     public List<Title> getTitles() {
         return titles;
     }
@@ -210,5 +171,13 @@ public class Subject extends AbstractCategory {
 
     public void setThumbnail(Thumbnail thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public int getDepth() {
+        int depth = 0;
+        for (Subject s = getParent(); s != null; s = s.getParent()) {
+            depth++;
+        }
+        return depth;
     }
 }
