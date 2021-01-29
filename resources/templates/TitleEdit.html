@@ -20,13 +20,6 @@
             <label>URL: <input th:field="*{titleUrl}" required></label>
             <div id="urlInfo"></div>
             <label>Name: <input th:field="*{name}" required></label>
-            <label>
-                Status:
-                <select th:field="*{status}">
-                    <option th:each="status: ${allStatuses}" th:value="${status.id}"
-                            th:text="${status.name}">selected</option>
-                </select>
-            </label>
             <label>Gather Schedule: <select th:field="*{gatherSchedule}">
                 <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
                         th:text="${schedule.name}"></option>
@@ -63,6 +56,8 @@
                 <label>Local Reference No. <input th:field="*{localReference}"></label>
                 <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
             </div>
+            <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
+            <label>Notes: <textarea th:field="*{notes}"></textarea></label>
         </fieldset>
 
         <div>

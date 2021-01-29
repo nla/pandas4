@@ -115,9 +115,22 @@ public class Title {
     @LastModifiedDate
     private Instant lastModifiedDate;
 
+    private String contentWarning;
     private String anbdNumber;
     private String localDatabaseNo;
     private String localReference;
+    @Column(name = "IS_CATALOGUING_NOT_REQ")
+    @NotNull
+    private boolean cataloguingNotRequired;
+    @Column(name = "IS_SUBSCRIPTION")
+    @NotNull
+    private boolean subscription;
+    @NotNull
+    private boolean legalDeposit;
+    @NotNull
+    private boolean unableToArchive;
+    @NotNull
+    private boolean disappeared;
 
     public Agency getAgency() {
         return agency;
@@ -302,5 +315,53 @@ public class Title {
 
     public void setLocalReference(String localReference) {
         this.localReference = localReference;
+    }
+
+    public boolean isCataloguingNotRequired() {
+        return cataloguingNotRequired;
+    }
+
+    public void setCataloguingNotRequired(boolean cataloguingNotRequired) {
+        this.cataloguingNotRequired = cataloguingNotRequired;
+    }
+
+    public boolean isSubscription() {
+        return subscription;
+    }
+
+    public void setSubscription(boolean subscription) {
+        this.subscription = subscription;
+    }
+
+    public boolean getLegalDeposit() {
+        return legalDeposit;
+    }
+
+    public void setLegalDeposit(boolean legalDeposit) {
+        this.legalDeposit = legalDeposit;
+    }
+
+    public boolean isUnableToArchive() {
+        return unableToArchive;
+    }
+
+    public void setUnableToArchive(boolean unableToArchive) {
+        this.unableToArchive = unableToArchive;
+    }
+
+    public String getContentWarning() {
+        return contentWarning;
+    }
+
+    public void setContentWarning(String contentWarning) {
+        this.contentWarning = contentWarning;
+    }
+
+    public boolean isDisappeared() {
+        return disappeared;
+    }
+
+    public void setDisappeared(boolean disappeared) {
+        this.disappeared = disappeared;
     }
 }

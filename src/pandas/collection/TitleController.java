@@ -4,7 +4,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.hibernate.search.engine.search.query.SearchScroll;
 import org.hibernate.search.mapper.orm.Search;
-import org.jetbrains.annotations.NotNull;
 import org.marc4j.MarcStreamWriter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -202,17 +201,21 @@ public class TitleController {
 
     @GetMapping("/titles/{id}/edit")
     public String edit(@PathVariable("id") Optional<Title> title, Model model) {
-        return editForm(new TitleEditForm(title.orElseThrow(NotFoundException::new)), model);
-    }
-
-    @NotNull
-    private String editForm(TitleEditForm form, Model model) {
-        model.addAttribute("form", form);
+        model.addAttribute("form", new TitleEditForm(title.orElseThrow(NotFoundException::new)));
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         model.addAttribute("allCollections", sortBy(collectionRepository.findAll(), Collection::getFullName));
-        model.addAttribute("allStatuses", statusRepository.findAll());
+        return "TitleEdit";
+    }
+
+    @GetMapping("/titles/new")
+    public String newForm(Model model) {
+        model.addAttribute("form", titleService.newTitleForm());
+        model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
+        model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
+        model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
+        model.addAttribute("allCollections", sortBy(collectionRepository.findAll(), Collection::getFullName));
         return "TitleEdit";
     }
 
@@ -223,11 +226,6 @@ public class TitleController {
         }
         list.sort(Comparator.comparing(key));
         return list;
-    }
-
-    @GetMapping("/titles/new")
-    public String newForm(Model model) {
-        return editForm(titleService.newTitleForm(), model);
     }
 
     @PostMapping(value = "/titles", produces = "application/json")

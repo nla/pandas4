@@ -170,22 +170,25 @@ public class TitleService {
     public TitleEditForm newTitleForm() {
         TitleEditForm form = new TitleEditForm();
         form.setFormat(formatRepository.findById(Format.INTEGRATING_ID).orElseThrow());
-        form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
         return form;
     }
 
     @Transactional
     public Title update(TitleEditForm form) {
         Title title = form.getId() == null ? new Title() : titleRepository.findById(form.getId()).orElseThrow(NotFoundException::new);
-        title.setTitleUrl(form.getTitleUrl());
-        title.setName(form.getName());
-        title.setFormat(form.getFormat());
         title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
-        title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
-        title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
+        title.setCataloguingNotRequired(form.isCataloguingNotRequired());
         title.setCollections(form.getCollections());
+        title.setFormat(form.getFormat());
+        title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
+        title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
+        title.setName(form.getName());
+        title.setNotes(form.getNotes());
         title.setSubjects(form.getSubjects());
-        title.setStatus(form.getStatus());
+        title.setTitleUrl(form.getTitleUrl());
+        if (title.getStatus() == null) {
+            title.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+        }
         titleRepository.save(title);
 
         if (title.getPi() == null) {

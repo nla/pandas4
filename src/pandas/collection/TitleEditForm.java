@@ -2,12 +2,14 @@ package pandas.collection;
 
 import pandas.gather.GatherSchedule;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class TitleEditForm {
     private Long id;
+    private boolean disappeared;
     @NotBlank
     private String titleUrl;
     @NotBlank
@@ -23,21 +25,25 @@ public class TitleEditForm {
     private List<Subject> subjects;
     @NotNull
     private Status status;
+    @Column(name = "IS_CATALOGUING_NOT_REQ")
+    private boolean cataloguingNotRequired;
+    private String notes;
 
     public TitleEditForm() {}
 
     public TitleEditForm(Title title) {
-        id = title.getId();
-        titleUrl = title.getTitleUrl();
-        name = title.getName();
-        gatherSchedule = title.getGather() == null ? null : title.getGather().getSchedule();
-        format = title.getFormat();
-        anbdNumber = title.getAnbdNumber();
-        localReference = title.getLocalReference();
-        localDatabaseNo = title.getLocalDatabaseNo();
-        collections = title.getCollections();
-        subjects = title.getSubjects();
-        status = title.getStatus();
+        setAnbdNumber(title.getAnbdNumber());
+        setCataloguingNotRequired(title.isCataloguingNotRequired());
+        setCollections(title.getCollections());
+        setFormat(title.getFormat());
+        setGatherSchedule(title.getGather() == null ? null : title.getGather().getSchedule());
+        setId(title.getId());
+        setLocalDatabaseNo(title.getLocalDatabaseNo());
+        setLocalReference(title.getLocalReference());
+        setName(title.getName());
+        setNotes(title.getNotes());
+        setSubjects(title.getSubjects());
+        setTitleUrl(title.getTitleUrl());
     }
 
     public Long getId() {
@@ -120,11 +126,19 @@ public class TitleEditForm {
         this.subjects = subjects;
     }
 
-    public Status getStatus() {
-        return status;
+    public boolean isCataloguingNotRequired() {
+        return cataloguingNotRequired;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setCataloguingNotRequired(boolean cataloguingNotRequired) {
+        this.cataloguingNotRequired = cataloguingNotRequired;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }
