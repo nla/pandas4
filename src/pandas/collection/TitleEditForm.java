@@ -9,7 +9,6 @@ import java.util.List;
 
 public class TitleEditForm {
     private Long id;
-    private boolean disappeared;
     @NotBlank
     private String titleUrl;
     @NotBlank
@@ -23,8 +22,6 @@ public class TitleEditForm {
     private String localDatabaseNo;
     private List<Collection> collections;
     private List<Subject> subjects;
-    @NotNull
-    private Status status;
     @Column(name = "IS_CATALOGUING_NOT_REQ")
     private boolean cataloguingNotRequired;
     private String notes;

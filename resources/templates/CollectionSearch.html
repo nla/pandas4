@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Titles - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <h1>Collections</h1>
+    <header>
+        <nav><a th:href="@{/collections/new}" data-keybind=c class="btn btn-primary">New Collection</a></nav>
+        <input name="q" th:value="${q}" placeholder="Search Collections" form=searchForm>
+    </header>
     <form id="searchForm">
-        <input name="q" th:value="${q}" placeholder="Keywords">
-        <input type=submit value=Search>
         <details>
             <summary>Advanced</summary>
             <label for=subjectFilter>Subject:</label>

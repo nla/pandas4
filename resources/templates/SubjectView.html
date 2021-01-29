@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="|${subject.name} (Subject) - PANDAS|">Dance (Subject) - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
+    <header>
+        <nav>
+            <a th:href="@{/subjects/{id}/edit(id=${subject.id})}" href="CollectionEdit.html" data-keybind="e" class="btn btn-primary">Edit</a>
+            <a th:href="@{/titles/new(subject=${subject.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary">New Title</a>
+            <a th:href="@{/collections/new(subject=${subject.id})}" href="CollectionEdit.html" data-keybind="c" class="btn btn-secondary">New Collection</a>
+            <a th:href="@{/subjects/new(parent=${subject.id})}" href="SubjectEdit.html" data-keybind="s" class="btn btn-secondary">New Subcategory</a>
+        </nav>
+    </header>
+
     <ol class="breadcrumb">
         <li class=breadcrumb-item style="font-weight: bold"><a th:href="@{/subjects}" href="SubjectList.html">Subjects</a></li>
         <th:block th:each="breadcrumb, i: ${subject.subjectBreadcrumbs}">
@@ -16,12 +25,6 @@
             <li th:if="${i.last}" class="active breadcrumb-item" th:text="${breadcrumb.name}">Dance</li>
         </th:block>
     </ol>
-
-    <header>
-        <h1 th:text="${subject.name}">Dance</h1>
-        <nav><a th:href="@{/subjects/{id}/edit(id=${subject.id})}" href="CollectionEdit.html"
-                class="btn btn-primary">Edit</a></nav>
-    </header>
 
     <section>
         <h5>Subcategories</h5>

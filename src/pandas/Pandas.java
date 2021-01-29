@@ -1,7 +1,11 @@
 package pandas;
 
+import okhttp3.OkHttpClient;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -21,5 +25,15 @@ public class Pandas {
         if (value != null && !value.isBlank()) {
             System.setProperty(property, value);
         }
+    }
+
+    @Bean(name = "htmlSanitizer")
+    public PolicyFactory htmlSanitizer() {
+        return Sanitizers.FORMATTING.and(Sanitizers.BLOCKS).and(Sanitizers.LINKS).and(Sanitizers.TABLES);
+    }
+
+    @Bean(name = "httpClient")
+    public OkHttpClient httpClient() {
+        return new OkHttpClient.Builder().build();
     }
 }

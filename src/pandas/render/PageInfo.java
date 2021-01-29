@@ -1,27 +1,10 @@
 package pandas.render;
 
 import org.attoparser.AbstractMarkupHandler;
-import org.attoparser.MarkupParser;
 import org.attoparser.ParseException;
-import org.attoparser.config.ParseConfiguration;
 import org.attoparser.util.TextUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.charset.UnsupportedCharsetException;
 
 public class PageInfo {
-    private static final Logger log = LoggerFactory.getLogger(PageInfo.class);
-
     private final int status;
     private final String reason;
     private final String contentType;
@@ -36,52 +19,6 @@ public class PageInfo {
         this.charset = charset;
         this.title = title;
         this.location = location;
-    }
-
-    public static PageInfo fetch(String url) throws IOException {
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            throw new IllegalArgumentException("bad url");
-        }
-
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        try {
-            int status = connection.getResponseCode();
-            String reason = connection.getResponseMessage();
-            String contentType = connection.getHeaderField("Content-Type");
-            MediaType mediaType = MediaType.parseMediaType(contentType);
-            String charsetName = mediaType.getParameter("charset");
-            String title = null;
-            if (mediaType.equalsTypeAndSubtype(MediaType.TEXT_HTML)) {
-                TitleHandler handler = new TitleHandler();
-
-                InputStream stream = connection.getInputStream();
-                // if there was no charset in the Content-Type header, probe for meta tags near the top of the file
-                if (charsetName == null) {
-                    BufferedInputStream bis = new BufferedInputStream(stream);
-                    charsetName = HtmlCharset.detect(bis);
-                    stream = bis;
-                }
-
-                Charset charset = StandardCharsets.ISO_8859_1;
-                if (charsetName != null) {
-                    try {
-                        charset = Charset.forName(charsetName);
-                    } catch (UnsupportedCharsetException e) {
-                        log.warn("Unsupported charset {}, defaulting to iso-8859-1", charsetName);
-                    }
-                }
-
-                try {
-                    new MarkupParser(ParseConfiguration.htmlConfiguration()).parse(new InputStreamReader(stream, charset), handler);
-                } catch (ParseException e) {
-                    log.warn("Exception parsing " + url, e);
-                }
-                title = handler.title;
-            }
-            return new PageInfo(status, reason, contentType, charsetName, title, connection.getHeaderField("Location"));
-        } finally {
-            connection.getInputStream().close();
-        }
     }
 
     public String getLocation() {

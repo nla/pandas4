@@ -3,34 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Titles - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <link rel="stylesheet" href="../static/assets/TitleSearch.css" th:href="@{/assets/TitleSearch.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main class="search">
+    <form id="sf" th:action="@{/titles}">
+        <!-- hidden default submit button (otherwise the export buttons will be the default!) -->
+        <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+    </form>
+
     <header>
-        <h1>Titles</h1>
-        <nav><a th:href="@{/titles/new}" href="TitleEdit.html" class="btn btn-primary">New Title</a></nav>
+        <nav>
+            <a th:href="@{/titles/new}" href="TitleEdit.html" data-keybind=t class="btn btn-primary">New Title</a>
+            <span style="width: 2rem; display: inline-block"></span>
+            <button type="submit" th:formaction="@{/titles.csv}" form=sf>Export CSV</button>
+            <button type="submit" th:formaction="@{/titles.mrc}" form=sf>Export MARC</button>
+            <button type="submit" th:formaction="@{/titles.mrc.txt}" form=sf>Export MARC (text)</button>
+            <span style="width: 2rem; display: inline-block"></span>
+            <button th:formaction="@{/titles/bulkchange}" class="btn-secondary" form=sf>Bulk Change</button>
+        </nav>
+        <input type=search name="q" th:value="${q}" placeholder="Search Titles" form=sf>
     </header>
 
+
+    <aside class="facets">
+        <header>
+            <h3>Filters</h3>
+            <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
+        </header>
+        <details th:each="facet: ${facets}" th:if="${facet.visible}" th:open="${facet.active}" open>
+            <summary ><th:block th:text="${facet.name}">Subject</th:block><input form="sf" type="search" th:if="${facet.searchable}" th:value="${facet.search}" th:name="|${facet.param}.name|" placeholder="Search..."></summary>
+            <fieldset th:if="${facet.type == 'date'}" class="date-range">
+                <!--suppress ThymeleafVariablesResolveInspection -->
+                <input form="sf" th:name="${facet.param + '.start'}" th:value="${facet.start}" type=date>
+                <span>&mdash;</span>
+                <!--suppress ThymeleafVariablesResolveInspection -->
+                <input form="sf"  th:name="${facet.param + '.end'}" th:value="${facet.end}" type=date>
+                <button form="sf" type=submit class="btn btn-primary btn-sm">Apply</button>
+            </fieldset>
+            <fieldset th:if="${facet.type == 'entity'}">
+                <label th:each="entry: ${facet.entries}">
+                    <input form="sf" type=checkbox th:name="${facet.param}" th:value="${entry.id}" th:checked="${entry.active}">
+                    <th:block th:text="${entry.name}">Sport</th:block>
+                    <th:block th:if="${entry.count != null}" th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</th:block>
+                </label>
+            </fieldset>
+        </details>
+    </aside>
+
     <section class="results">
-        <form id="sf">
-            <input type=search name="q" th:value="${q}" placeholder="Keywords">
-            <input type=submit value=Search class="btn btn-primary">
-            <div class="dropdown" style="display: inline-block">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="exportMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Export
-                </button>
-                <div class="dropdown-menu" aria-labelledby="exportMenu">
-                    <button type="submit" class="dropdown-item" th:formaction="@{/titles.csv}">CSV</button>
-                    <div class="dropdown-divider"></div>
-                    <button type="submit" class="dropdown-item" th:formaction="@{/titles.mrc}">MARC</button>
-                    <button type="submit" class="dropdown-item" th:formaction="@{/titles.mrc.txt}">MARC (text)</button>
-                </div>
-            </div>
-            <button th:formaction="@{/titles/bulkchange}" class="btn btn-secondary">Bulk Change</button>
-        </form>
         <header>
             Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
             matching titles.
@@ -129,31 +153,6 @@
             </ul>
         </nav>
     </section>
-
-    <section class="facets">
-        <header>
-            <h3>Filters</h3>
-            <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
-        </header>
-        <details th:each="facet: ${facets}" th:if="${facet.visible}" th:open="${facet.active}" open>
-            <summary ><th:block th:text="${facet.name}">Subject</th:block><input form="sf" type="search" th:if="${facet.searchable}" th:value="${facet.search}" th:name="|${facet.param}.name|" placeholder="Search..."></summary>
-            <fieldset th:if="${facet.type == 'date'}" class="date-range">
-                <!--suppress ThymeleafVariablesResolveInspection -->
-                <input form="sf" th:name="${facet.param + '.start'}" th:value="${facet.start}" type=date>
-                <span>&mdash;</span>
-                <!--suppress ThymeleafVariablesResolveInspection -->
-                <input form="sf"  th:name="${facet.param + '.end'}" th:value="${facet.end}" type=date>
-                <button form="sf" type=submit class="btn btn-primary btn-sm">Apply</button>
-            </fieldset>
-            <fieldset th:if="${facet.type == 'entity'}">
-                <label th:each="entry: ${facet.entries}">
-                    <input form="sf" type=checkbox th:name="${facet.param}" th:value="${entry.id}" th:checked="${entry.active}">
-                    <th:block th:text="${entry.name}">Sport</th:block>
-                    <th:block th:if="${entry.count != null}" th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</th:block>
-                </label>
-            </fieldset>
-        </details>
-    </section>
     <script>
         // omit empty/default fields from the query string for cleaner URLs
         function omitEmptyFields() {
@@ -175,7 +174,4 @@
             field.onchange = function() { omitEmptyFields(); this.form.submit(); });
 
     </script>
-
-    <script th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
-    <script th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.bundle.min.js}"></script>
 </main>

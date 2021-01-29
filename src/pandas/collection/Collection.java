@@ -1,5 +1,7 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Aggregable;
@@ -15,6 +17,9 @@ import java.util.List;
 @Table(name = "COL")
 @DynamicUpdate
 @Indexed
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Collection {
     @Id
     @Column(name = "COL_ID")
@@ -39,14 +44,14 @@ public class Collection {
     @OrderBy("name")
     private List<Collection> children = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(name = "TITLE_COL",
-            joinColumns = @JoinColumn(name = "COLLECTION_ID"),
-            inverseJoinColumns = @JoinColumn(name = "TITLE_ID"))
+    @ManyToMany(mappedBy = "collections")
     @OrderBy("name")
     private List<Title> titles;
 
-    @ManyToMany(mappedBy = "collections")
+    @ManyToMany
+    @JoinTable(name = "COL_SUBS",
+            joinColumns = @JoinColumn(name = "COL_ID"),
+            inverseJoinColumns = @JoinColumn(name = "SUBJECT_ID"))
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name"})
     private List<Subject> subjects = new ArrayList<>();

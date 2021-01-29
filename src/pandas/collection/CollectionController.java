@@ -9,9 +9,11 @@ import pandas.core.NotFoundException;
 import pandas.search.SearchResults;
 
 import javax.persistence.EntityManager;
+import javax.validation.Valid;
 import java.util.List;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
+import static pandas.Utils.sortBy;
 import static pandas.search.SearchUtils.mustMatchAny;
 
 @Controller
@@ -58,17 +60,8 @@ public class CollectionController {
     @GetMapping("/collections/{id}/edit")
     public String edit(@PathVariable("id") long id, Model model) {
         model.addAttribute("collection", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
+        model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         return "CollectionEdit";
-    }
-
-    @PostMapping("/collections/{id}/edit")
-    public String update(@PathVariable long id, @RequestParam("name") String name,
-                       @RequestParam("description") String description) {
-        Collection collection = collectionRepository.findById(id).orElseThrow(NotFoundException::new);
-        collection.setName(name);
-        collection.setDescription(description);
-        collectionRepository.save(collection);
-        return "redirect:/collections/" + id;
     }
 
     @PostMapping("/collections/{id}/delete")
@@ -78,24 +71,28 @@ public class CollectionController {
     }
 
     @GetMapping("/collections/new")
-    public String newForm(@RequestParam("parentId") long parentId,
+    public String newForm(@RequestParam(value = "parent", required = false) Long parentId,
+                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
                           Model model) {
         Collection collection = new Collection();
+        collection.setSubjects(subjects);
         model.addAttribute("collection", collection);
         model.addAttribute("parentId", parentId);
+        model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         return "CollectionEdit";
     }
 
-    @PostMapping("/collections/new")
-    public String create(@RequestParam("parentId") long parentId,
-                         @RequestParam("name") String name,
-                         @RequestParam("description") String description) {
-        Collection parent = collectionRepository.findById(parentId).orElseThrow(NotFoundException::new);
-        Collection collection = new Collection();
-        collection.setParent(parent);
-        collection.setName(name);
-        collection.setDescription(description);
-        collectionRepository.save(collection);
+    @PostMapping("/collections")
+    public String update(@Valid Collection collection) {
+        if (collection.getId() == null) {
+            collectionRepository.save(collection);
+        } else {
+            Collection existing = collectionRepository.findById(collection.getId()).orElseThrow(NotFoundException::new);
+            existing.setName(collection.getName());
+            existing.setSubjects(collection.getSubjects());
+            existing.setDescription(collection.getDescription());
+            collectionRepository.save(existing);
+        }
         return "redirect:/collections/" + collection.getId();
     }
 

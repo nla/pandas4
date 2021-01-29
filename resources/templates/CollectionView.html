@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="|${collection.name} (Collection) - PANDAS|">Television shows (Collection) - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
 </head>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
+    <header>
+        <nav>
+            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary">Edit</a>
+            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary">New Title</a>
+            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary">New Subcollection</a>
+        </nav>
+    </header>
+
     <ol class="breadcrumb">
         <li class=breadcrumb-item style="font-weight: bold"><a th:href="@{/collections}"
                                                                href="CollectionSearch.html">Collections</a></li>
@@ -17,12 +24,6 @@
         </li>
         <li class="active breadcrumb-item" th:text="${collection.name}">Television shows</li>
     </ol>
-
-    <header>
-        <h1 th:text="${collection.name}">Television shows</h1>
-        <nav><a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html"
-                class="btn btn-primary">Edit</a></nav>
-    </header>
 
     <section class="card card-body">
         <table th:unless="${collection.subjects.isEmpty()}" class="table table-responsive table-borderless table-sm">
@@ -41,7 +42,7 @@
                 </td>
             </tr>
         </table>
-        <div th:utext="${collection.descriptionSanitized}">This is a description.</div>
+        <div th:utext="${@htmlSanitizer.sanitize(collection.description)}">This is a description.</div>
     </section>
     <p>
 

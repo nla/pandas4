@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit Subject - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <h1>Edit Subject</h1>
+        <nav>
+            <button type="submit" data-keybind="s" class="btn btn-primary" form=form>Save</button>
+            <a th:href="@{|/subjects/${subject.id ?: ''}|}" href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary" form=form>Cancel</a>
+        </nav>
+        <button th:if="${subject.id != null}" type="submit" th:formaction="@{|/subjects/${subject.id}/delete|}"
+                class="btn btn-danger float-right" form=form>Delete
+        </button>
     </header>
-    <form method=post class=form th:action="@{/subjects}">
+    <form method=post class=form th:action="@{/subjects}" id=form>
         <input type=hidden name=id th:value="${subject.id}">
 
         <div class="form-group">
@@ -22,14 +28,6 @@
             <label for="description">Description:</label>
             <textarea class="form-control" id="description" name="description"
                       rows="3" th:text="${subject.description}"></textarea>
-        </div>
-
-        <div>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a th:href="@{|/subjects/${subject.id ?: ''}|}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
-            <button th:if="${subject.id != null}" type="submit" th:formaction="@{|/subjects/${subject.id}/delete|}"
-                    class="btn btn-danger float-right">Delete
-            </button>
         </div>
     </form>
 </main>

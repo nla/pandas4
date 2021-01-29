@@ -3,23 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${form.id == null ? 'New Title - PANDAS' : 'Edit Title - PANDAS'}">Edit Title - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <header>
-        <h1 th:text="${form.id == null ? 'New Title' : 'Edit Title'}">Edit Title</h1>
-    </header>
     <form method=post class=form th:object="${form}" th:action="@{/titles}">
+        <header>
+            <div>
+                <button type="submit" data-keybind=s class="btn btn-primary">Save</button>
+                <button onclick="history.back()" data-keybind=Escape class="btn btn-secondary">Cancel</button>
+            </div>
+            <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
+                    class="btn btn-danger float-right">Delete</button>
+        </header>
+
         <input type=hidden th:field="*{id}">
 
         <fieldset>
             <legend>Basics</legend>
-            <label>URL: <input th:field="*{titleUrl}" required></label>
+            <label>URL: <input th:field="*{titleUrl}" required class="form-control"></label>
             <div id="urlInfo"></div>
-            <label>Name: <input th:field="*{name}" required></label>
+            <label>Name: <input th:field="*{name}" required class="form-control"></label>
+            <br>
             <label>Gather Schedule: <select th:field="*{gatherSchedule}">
                 <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
                         th:text="${schedule.name}"></option>
@@ -35,19 +42,19 @@
                 </label>
             </div>
             <label>
+                Collections:
+                <select th:field="*{collections}" multiple>
+                    <option th:each="collection: ${allCollections}" th:value="${collection.id}"
+                            th:text="${collection.fullName}">Arts
+                    </option>
+                </select>
+            </label>
+            <label>
                 Subjects:
                 <select th:field="*{subjects}" multiple>
                     <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
                             th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
                             th:data-fullname="${subject.fullName}">Arts
-                    </option>
-                </select>
-            </label>
-            <label>
-                Collections:
-                <select th:field="*{collections}" multiple>
-                    <option th:each="collection: ${allCollections}" th:value="${collection.id}"
-                            th:text="${collection.fullName}">Arts
                     </option>
                 </select>
             </label>
@@ -59,15 +66,6 @@
             <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
             <label>Notes: <textarea th:field="*{notes}"></textarea></label>
         </fieldset>
-
-        <div>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a th:href="@{|/titles/${form.id ?: ''}|}" href="javascript:history.back()"
-               class="btn btn-secondary">Cancel</a>
-            <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
-                    class="btn btn-danger float-right">Delete
-            </button>
-        </div>
     </form>
 </main>
 <link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}">

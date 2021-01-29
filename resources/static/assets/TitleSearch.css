@@ -1,0 +1,76 @@
+/*
+ * Search Filters
+ */
+
+.facets > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.facets > details {
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+    padding: 0;
+}
+
+.facets > details > summary {
+    padding: .5rem;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+}
+
+.facets > details > summary > input {
+    float: right;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    padding: 0 0.4rem;
+    width: 150px;
+    transition: visibility 0.2s, opacity 0.2s;
+    visibility: hidden;
+    opacity: 0;
+    margin: -1px;
+    margin-left: 8px;
+}
+
+.facets > details > summary:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.facets > details[open] > summary {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.facets > details[open] > summary > input {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s;
+}
+
+.facets > details > fieldset {
+    padding: 0.5rem;
+    overflow-y: auto;
+    max-height: 200px;
+    margin: 0;
+    border: 0;
+}
+
+.facets > details > fieldset > label {
+    display: block;
+}
+
+.facets > details > fieldset.date-range {
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: auto auto;
+    align-items: center;
+}
+
+.facets input[type=date] {
+    /*@extend .form-control;*/
+}

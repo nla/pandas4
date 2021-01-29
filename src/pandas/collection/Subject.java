@@ -1,6 +1,8 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Aggregable;
@@ -14,6 +16,9 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Indexed
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Subject {
     public static final long CATEGORY_ID_RANGE_START = 15000;
     public static final long CATEGORY_ID_RANGE_END = 15999;
@@ -49,10 +54,7 @@ public class Subject {
     @JsonIgnore
     private List<Title> titles;
 
-    @ManyToMany
-    @JoinTable(name = "COL_SUBS",
-            joinColumns = @JoinColumn(name = "SUBJECT_ID"),
-            inverseJoinColumns = @JoinColumn(name = "COL_ID"))
+    @ManyToMany(mappedBy = "subjects")
     @OrderBy("name")
     List<Collection> collections;
 

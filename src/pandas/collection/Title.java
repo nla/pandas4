@@ -1,5 +1,7 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Sortable;
@@ -28,6 +30,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
         attributeNodes = @NamedAttributeNode("subjects"))
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
@@ -93,7 +98,10 @@ public class Title {
     @NotNull
     private Status status;
 
-    @ManyToMany(mappedBy = "titles")
+    @ManyToMany
+    @JoinTable(name = "TITLE_COL",
+            joinColumns = @JoinColumn(name = "TITLE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "COLLECTION_ID"))
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Collection> collections;

@@ -1,0 +1,188 @@
+/* PANDAS 4 Stylesheet */
+
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+    min-height: 100%;
+}
+
+a { text-decoration: none; }
+
+
+/*
+ * Sidebar
+ */
+
+body > nav {
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    height: 100%;
+    width: 180px;
+    background-color: #f5f5f5;
+    padding: 0;
+    border-right: 1px solid #ddd;
+}
+
+/* brand link */
+body > nav > header a { 
+    background-color: #011f85;
+    width: 164px;
+    height: 40px;
+    display: block;
+    color: #fff;
+    padding-top: 10px;
+    padding-left: 16px;
+    font-size: 1.5rem;
+}
+
+body > nav > header a:hover {
+    background-color: #313096;
+}
+
+/* nav menu */
+body > nav > ul {
+    list-style: none;
+    padding: 0;
+}
+
+body > nav > ul > li > a {
+    padding-left: 1rem;
+    color: #333;
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+body > nav > ul > li > a.active {
+    background: #ddd;
+    font-weight: bold;
+}
+
+body > nav > ul > li > a:hover {
+    background: #eee;
+}
+
+body > nav > ul > li > a > svg {
+    margin-right: 8px;
+}
+
+/*
+ * Main
+ */
+
+body > main {
+    flex-grow: 1;
+    padding: 0 15px;
+    padding-left: 196px;
+    margin-top: 70px;
+}
+
+body > main > header, main > form > header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    
+    background: #010066 url("https://pandas.nla.gov.au/images/galaxy90.jpg") no-repeat;
+    background-position-x: -100px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    
+    height: 50px;
+    box-sizing: border-box;
+    padding: 8px 15px;
+    padding-left: 196px;
+}
+
+body > main > header > ol {
+    /*@extend .breadcrumb;*/
+    margin-bottom: 0;
+    margin-right: 1rem;
+    padding: 0.475rem 0.75rem;
+}
+
+body > main > header > ol > li {
+    /*@extend .breadcrumb-item;*/
+}
+
+body > main > nav {
+    /*@extend .btn-toolbar;*/
+}
+
+body > main > nav > a {
+    margin-right: 0.5rem;
+}
+
+body > main > aside {
+    float: right;
+}
+
+/*
+ * Buttons
+ */
+
+.btn, button {
+    border-radius: .2rem;
+    /*border: none;*/
+    padding: .375rem .75rem;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    background-color: #4164b5;
+    border: 1px solid #333;
+    background-image: linear-gradient(#6f97e1, #4164b5);
+}
+
+.btn:hover, button:hover {
+    background-image: linear-gradient(#6f97e1, #6f97e1);
+}
+
+.btn-secondary {
+    background: linear-gradient(#eee, #bbb);
+    color: black;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(#eee, #eee);
+}
+
+.btn-danger {
+    background: linear-gradient(#c55, #933);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(#c55, #c55);
+}
+
+/*
+ * Badges
+ */
+
+.title-count, .collection-count {
+    display: inline-block;
+    padding: .25em .4em;
+    font-size: 75%;
+    font-weight: bold;
+    white-space: nowrap;
+    border-radius: .25rem;
+}
+
+.title-count {
+    color: #212529;
+    background-color: #f8f9fa;
+}
+
+.collection-count {
+    color: #fff;
+    background-color: #17a2b8;
+}

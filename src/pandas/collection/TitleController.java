@@ -30,12 +30,14 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
-import java.util.function.Function;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static pandas.Utils.sortBy;
 
 @Controller
 public class TitleController {
@@ -210,22 +212,18 @@ public class TitleController {
     }
 
     @GetMapping("/titles/new")
-    public String newForm(Model model) {
-        model.addAttribute("form", titleService.newTitleForm());
+    public String newForm(@RequestParam(value = "collection", required = false) List<Collection> collections,
+                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
+                          Model model) {
+        TitleEditForm form = titleService.newTitleForm();
+        form.setCollections(collections);
+        form.setSubjects(subjects);
+        model.addAttribute("form", form);
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         model.addAttribute("allCollections", sortBy(collectionRepository.findAll(), Collection::getFullName));
         return "TitleEdit";
-    }
-
-    private static <T> List<T> sortBy(Iterable<T> items, Function<T, String> key) {
-        List<T> list = new ArrayList<>();
-        for (T item: items) {
-            list.add(item);
-        }
-        list.sort(Comparator.comparing(key));
-        return list;
     }
 
     @PostMapping(value = "/titles", produces = "application/json")
