@@ -10,4 +10,6 @@ import java.util.List;
 public interface IndividualRepository extends CrudRepository<Individual, Long> {
     @Query("select i from Individual i where i.userid is not null order by i.nameGiven, i.nameFamily")
     List<Individual> findByUseridIsNotNull();
+
+    Individual findByUserid(String userid);
 }

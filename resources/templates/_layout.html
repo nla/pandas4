@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>PANDAS</title>
@@ -50,11 +50,13 @@
         <li sec:authorize="hasRole('panadmin')"><a th:href="@{/schedules}">Gather Schedules</a>
         <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
     </ul>
+    <div style="padding-left: 1rem; color: #999">User: <span sec:authentication="name">jsmith</span></div>
+
 </nav>
 
 <main>
     <header>
-        <button class="btn btn-primary">New Titlex</button>
+        <button class="btn btn-primary">Placeholder Button</button>
         <input name="q" placeholder="Search Titles">
     </header>
     An example sentence.

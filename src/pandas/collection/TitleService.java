@@ -19,6 +19,7 @@ import pandas.agency.AgencyRepository;
 import pandas.core.Individual;
 import pandas.core.IndividualRepository;
 import pandas.core.NotFoundException;
+import pandas.core.UserService;
 import pandas.gather.*;
 import pandas.search.*;
 
@@ -40,15 +41,17 @@ public class TitleService {
     private final TitleGatherRepository titleGatherRepository;
     private final FormatRepository formatRepository;
     private final StatusRepository statusRepository;
+    private final UserService userService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository) {
+    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
         this.statusRepository = statusRepository;
+        this.userService = userService;
         facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
                 new EntityFacet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
@@ -188,6 +191,15 @@ public class TitleService {
         title.setTitleUrl(form.getTitleUrl());
         if (title.getStatus() == null) {
             title.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+        }
+
+        if (title.getId() == null) {
+            // set initial owning user and agency
+            Individual currentUser = userService.getCurrentUser();
+            if (currentUser != null) {
+                title.setOwner(currentUser);
+                title.setAgency(currentUser.getRole().getOrganisation().getAgency());
+            }
         }
         titleRepository.save(title);
 

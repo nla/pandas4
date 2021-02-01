@@ -1,5 +1,7 @@
 package pandas.agency;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import pandas.core.Organisation;
@@ -9,6 +11,7 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "AGENCY")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Agency {
     @Id
     @Column(name = "AGENCY_ID")

@@ -1,12 +1,16 @@
 package pandas.core;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import pandas.agency.Agency;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Organisation implements Serializable {
     @Id
     @Column(name="ORGANISATION_ID")
@@ -16,7 +20,6 @@ public class Organisation implements Serializable {
     private Long id;
 
     private String alias;
-    private Long agencyId;
     private java.sql.Timestamp auditDate;
     private Long auditUserid;
     private String comments;
@@ -39,20 +42,16 @@ public class Organisation implements Serializable {
     private String longstate;
     private String url;
 
+    @OneToOne
+    @JoinColumn(name = "AGENCY_ID")
+    private Agency agency;
+
     public String getAlias() {
         return this.alias;
     }
 
     public void setAlias(String alias) {
         this.alias = alias;
-    }
-
-    public Long getAgencyId() {
-        return this.agencyId;
-    }
-
-    public void setAgencyId(Long agencyId) {
-        this.agencyId = agencyId;
     }
 
     public java.sql.Timestamp getAuditDate() {
@@ -208,4 +207,11 @@ public class Organisation implements Serializable {
     }
 
 
+    public Agency getAgency() {
+        return agency;
+    }
+
+    public void setAgency(Agency agency) {
+        this.agency = agency;
+    }
 }

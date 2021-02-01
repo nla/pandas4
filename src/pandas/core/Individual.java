@@ -1,16 +1,17 @@
 package pandas.core;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "INDIVIDUAL")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Individual {
     @Column(name = "AUDIT_CREATE_DATE")
     private java.sql.Timestamp auditCreateDate;
@@ -59,6 +60,7 @@ public class Individual {
     private String nameTitle;
 
     @Column(name = "PASSWORD")
+    @JsonIgnore
     private String password;
 
     @Column(name = "PHONE")
@@ -78,8 +80,11 @@ public class Individual {
     private String emailSignature;
 
     @Column(name = "PWDIGEST")
+    @JsonIgnore
     private String pwdigest;
 
+    @OneToOne(mappedBy = "individual")
+    private Role role;
 
     public java.sql.Timestamp getAuditCreateDate() {
         return this.auditCreateDate;
@@ -251,5 +256,9 @@ public class Individual {
 
     public String getName() {
         return nameGiven + " " + nameFamily;
+    }
+
+    public Role getRole() {
+        return role;
     }
 }
