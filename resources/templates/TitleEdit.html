@@ -84,7 +84,7 @@
         document.getElementById("urlInfo").innerText = "Loading...";
         document.getElementById("urlInfo").style.color = "#555";
 
-        fetch("../../pageinfo?url=" + encodeURIComponent(this.value))
+        fetch("../pageinfo?url=" + encodeURIComponent(this.value))
             .then(response => response.json())
             .then(info => {
                 let contentType = info.contentType == null ? "?" : info.contentType.replace(/\s*;.*/, "");
