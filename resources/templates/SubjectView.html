@@ -10,21 +10,22 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{/subjects/{id}/edit(id=${subject.id})}" href="CollectionEdit.html" data-keybind="e" class="btn btn-primary">Edit</a>
-            <a th:href="@{/titles/new(subject=${subject.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary">New Title</a>
-            <a th:href="@{/collections/new(subject=${subject.id})}" href="CollectionEdit.html" data-keybind="c" class="btn btn-secondary">New Collection</a>
-            <a th:href="@{/subjects/new(parent=${subject.id})}" href="SubjectEdit.html" data-keybind="s" class="btn btn-secondary">New Subcategory</a>
+            <a th:href="@{/subjects/{id}/edit(id=${subject.id})}" href="SubjectEdit.html" data-keybind="e" class="btn btn-primary"><i class="icon edit"></i> Edit</a>
+            <a th:href="@{/titles/new(subject=${subject.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary"><i class="icon title"></i> New Title</a>
+            <a th:href="@{/collections/new(subject=${subject.id})}" href="CollectionEdit.html" data-keybind="c" class="btn btn-secondary"><i class="icon collection"></i> New Collection</a>
+            <a th:href="@{/subjects/new(parent=${subject.id})}" href="SubjectEdit.html" data-keybind="s" class="btn btn-secondary"><i class="icon subject"></i> New Subcategory</a>
         </nav>
     </header>
 
-    <ol class="breadcrumb">
-        <li class=breadcrumb-item style="font-weight: bold"><a th:href="@{/subjects}" href="SubjectList.html">Subjects</a></li>
-        <th:block th:each="breadcrumb, i: ${subject.subjectBreadcrumbs}">
-            <li th:unless="${i.last}" class="breadcrumb-item"><a th:href="@{/subjects/{id}(id=${breadcrumb.id})}"
-                                                                 th:text="${breadcrumb.name}">Arts</a></li>
-            <li th:if="${i.last}" class="active breadcrumb-item" th:text="${breadcrumb.name}">Dance</li>
-        </th:block>
-    </ol>
+    <nav class="breadcrumb">
+        <ol>
+            <li><a th:href="@{/subjects}" href="SubjectList.html" style="font-weight: bold">Subjects</a></li>
+            <li th:each="breadcrumb: ${subject.subjectBreadcrumbs}" th:classappend="${breadcrumbStat.last} ? 'active'"><a th:href="@{/subjects/{id}(id=${breadcrumb.id})}" href="#" th:text="${breadcrumb.name}">Arts</a></li>
+            <li th:remove="all" class="active"><a href="#">Dance & Fashion</a></li>
+        </ol>
+    </nav>
+
+    <h1 th:text="${subject.name}">Dance & Fashion</h1>
 
     <section>
         <h5>Subcategories</h5>

@@ -1,6 +1,103 @@
+
+ul.subject-list {
+    display: inline;
+    list-style: none;
+    padding: 0;
+}
+
+ul.subject-list li {
+    display: inline;
+}
+
+ul.subject-list a {
+    color: teal;
+}
+
+ul.subject-list li + li:before {
+    content: " · ";
+}
+
+
+.search {
+    display: grid;
+    grid-template-areas: "header header" "results facets";
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: auto 1fr;
+}
+
+.search > .header {
+    grid-area: header;
+}
+
+.results {
+    grid-area: results;
+}
+
+.results > header {
+    color: #999;
+}
+
+.results > ol {
+    list-style: none;
+    padding: 0;
+}
+
+.results > ol > li {
+    margin: 1rem 0;
+    display: flex;
+}
+
+.results > ol > li > a > img {
+    width: 100px;
+    height: 75px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    transition: width 0.25s, height 0.25s;
+}
+
+.results > ol > li > a > img:hover {
+    width: 200px;
+    height: 150px;
+    transition: width 0.25s, height 0.25s;
+}
+
+.results > ol > li > div > header > nav {
+    display: inline;
+    font-size: 60%;
+}
+
+.results > ol > li > div > div {
+    font-size: 80%;
+}
+
+.results > ol > li > div > footer {
+    font-size: 80%;
+    color: #888;
+}
+
+.live-url {
+    color: darkgreen;
+}
+
+.regdate {
+    font-weight: bold;
+}
+
+.status {
+    font-variant: small-caps;
+}
+
 /*
- * Search Filters
+ * Filters
  */
+
+.facets {
+    grid-area: facets;
+}
+
+.facets h3 {
+    margin: 8px 8px;
+}
 
 .facets > header {
     display: flex;

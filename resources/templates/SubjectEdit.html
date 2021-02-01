@@ -10,11 +10,11 @@
 <main>
     <header>
         <nav>
-            <button type="submit" data-keybind="s" class="btn btn-primary" form=form>Save</button>
-            <a th:href="@{|/subjects/${subject.id ?: ''}|}" href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary" form=form>Cancel</a>
+            <button type="submit" data-keybind="s" class="btn btn-primary" form=form><i class="icon save"></i> Save</button>
+            <a th:href="@{|/subjects/${subject.id ?: ''}|}" href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary" form=form><i class="icon cancel"></i> Cancel</a>
         </nav>
         <button th:if="${subject.id != null}" type="submit" th:formaction="@{|/subjects/${subject.id}/delete|}"
-                class="btn btn-danger float-right" form=form>Delete
+                class="btn btn-danger float-right" form=form><i class="icon delete"></i> Delete
         </button>
     </header>
     <form method=post class=form th:action="@{/subjects}" id=form>

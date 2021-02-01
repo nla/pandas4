@@ -21,7 +21,7 @@
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <nav><a th:href="@{/subjects/new}" href="SubjectEdit.html" data-keybind=s class="btn btn-primary">New Subject</a></nav>
+        <nav><a th:href="@{/subjects/new}" href="SubjectEdit.html" data-keybind=s class="btn btn-primary"><i class="icon add"></i> New Subject</a></nav>
     </header>
     <ul class="subcategories" style="column-count: 3">
         <li th:each="subject: ${subjects}">

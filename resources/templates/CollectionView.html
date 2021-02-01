@@ -9,21 +9,23 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary">Edit</a>
-            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary">New Title</a>
-            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary">New Subcollection</a>
+            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary"><i class="icon edit"></i> Edit</a>
+            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary"><i class="icon title"></i> New Title</a>
+            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary"><i class="icon collection"></i> New Subcollection</a>
         </nav>
     </header>
 
-    <ol class="breadcrumb">
-        <li class=breadcrumb-item style="font-weight: bold"><a th:href="@{/collections}"
-                                                               href="CollectionSearch.html">Collections</a></li>
-        <li th:each="breadcrumb: ${collection.collectionBreadcrumbs}" class="breadcrumb-item">
-            <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}" href="CollectionView.html">Australian
-                Broadcasting Corporation (ABC)</a>
-        </li>
-        <li class="active breadcrumb-item" th:text="${collection.name}">Television shows</li>
-    </ol>
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/collections}"
+                                                                   href="CollectionSearch.html">Collections</a></li>
+            <li th:each="breadcrumb: ${collection.collectionBreadcrumbs}">
+                <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}" href="CollectionView.html">Australian
+                    Broadcasting Corporation (ABC)</a>
+            </li>
+            <li class="active" th:text="${collection.name}">Television shows</li>
+        </ol>
+    </nav>
 
     <section class="card card-body">
         <table th:unless="${collection.subjects.isEmpty()}" class="table table-responsive table-borderless table-sm">

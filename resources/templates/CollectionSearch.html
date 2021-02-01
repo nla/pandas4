@@ -10,7 +10,7 @@
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <nav><a th:href="@{/collections/new}" data-keybind=c class="btn btn-primary">New Collection</a></nav>
+        <nav><a th:href="@{/collections/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New Collection</a></nav>
         <input name="q" th:value="${q}" placeholder="Search Collections" form=searchForm>
     </header>
     <form id="searchForm">
@@ -54,15 +54,13 @@
                     </div>
                 </li>
             </ol>
-            <nav>
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" th:classappend="${!results.hasPrevious()} ? disabled">
-                        <button form="searchForm" type="submit" name="page" th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}" class="page-link" tabindex="-1">Previous</button>
-                    </li>
-                    <li class="page-item" th:classappend="${!results.hasNext()} ? disabled">
-                        <button form="searchForm" type="submit" name="page" th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}" class="page-link">Next</button>
-                    </li>
-                </ul>
+            <nav class="pagination">
+                <button form="searchForm" type="submit" name="page" class="btn btn-secondary" data-keybind=","
+                        th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
+                        tabindex="-1" th:disabled="${!results.hasPrevious()}"><i class="icon previous"></i>Previous</button>
+                <button form="searchForm" type="submit" name="page" class="btn btn-secondary" data-keybind="."
+                        th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}"
+                        th:disabled="${!results.hasNext()}">Next<i class="icon icon-right next"></i></button>
             </nav>
         </div>
         <!-- <ul class="facets"></ul> -->

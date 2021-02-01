@@ -17,7 +17,7 @@
 
     <header>
         <nav>
-            <a th:href="@{/titles/new}" href="TitleEdit.html" data-keybind=t class="btn btn-primary">New Title</a>
+            <a th:href="@{/titles/new}" href="TitleEdit.html" data-keybind=t class="btn btn-primary"><i class="icon add"></i> New Title</a>
             <span style="width: 2rem; display: inline-block"></span>
             <button type="submit" th:formaction="@{/titles.csv}" form=sf>Export CSV</button>
             <button type="submit" th:formaction="@{/titles.mrc}" form=sf>Export MARC</button>
@@ -25,9 +25,8 @@
             <span style="width: 2rem; display: inline-block"></span>
             <button th:formaction="@{/titles/bulkchange}" class="btn-secondary" form=sf>Bulk Change</button>
         </nav>
-        <input type=search name="q" th:value="${q}" placeholder="Search Titles" form=sf>
+        <input type=search name="q" th:value="${q}" placeholder="Search Titles" data-keybind="f" form=sf>
     </header>
-
 
     <aside class="facets">
         <header>
@@ -136,21 +135,13 @@
                 </div>
             </li>
         </ol>
-        <nav>
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${!results.hasPrevious()} ? disabled">
-                    <button form="sf" type="submit" name="page"
-                            th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
-                            class="page-link" tabindex="-1">Previous
-                    </button>
-                </li>
-                <li class="page-item" th:classappend="${!results.hasNext()} ? disabled">
-                    <button form="sf" type="submit" name="page"
-                            th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}" class="page-link">
-                        Next
-                    </button>
-                </li>
-            </ul>
+        <nav class="pagination">
+            <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind=","
+                    th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
+                    tabindex="-1" th:disabled="${!results.hasPrevious()}"><i class="icon previous"></i>Previous</button>
+            <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind="."
+                    th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}"
+                    th:disabled="${!results.hasNext()}">Next<i class="icon icon-right next"></i></button>
         </nav>
     </section>
     <script>
