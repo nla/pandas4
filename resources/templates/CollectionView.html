@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <title th:text="|${collection.name} (Collection) - PANDAS|">Television shows (Collection) - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
         <nav>
-            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary"><i class="icon edit"></i> Edit</a>
-            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary"><i class="icon title"></i> New Title</a>
-            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary"><i class="icon collection"></i> New Subcollection</a>
+            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary" data-keybind="e"><i class="icon edit"></i> Edit</a>
+            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary" data-keybind="t"><i class="icon title"></i> New Title</a>
+            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary" data-keybind="c"><i class="icon collection"></i> New Subcollection</a>
         </nav>
     </header>
 

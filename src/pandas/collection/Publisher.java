@@ -1,16 +1,16 @@
 package pandas.collection;
 
 import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.core.Organisation;
 
 import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
+@Indexed
 public class Publisher {
     @Id
     @Column(name="PUBLISHER_ID")
@@ -66,6 +66,10 @@ public class Publisher {
         this.organisation = organisation;
     }
 
+    @FullTextField(analyzer = "english")
+    @KeywordField(name = "name_sort", sortable = Sortable.YES)
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath(@PropertyValue(propertyName = "organisation"))})
     public String getName() {
         return getOrganisation().getName();
     }

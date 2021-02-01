@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Publishers - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <link rel="stylesheet" href="../static/assets/TitleSearch.css" th:href="@{/assets/TitleSearch.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+    <form id="sf" th:action="@{/publishers}">
+        <!-- hidden default submit button (otherwise the export buttons will be the default!) -->
+        <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+    </form>
+
+    <header>
+        <nav>
+<!--            <a th:href="@{/publishers/new}" href="TitleEdit.html" data-keybind=t class="btn btn-primary"><i class="icon add"></i> New Publisher</a>-->
+        </nav>
+        <input type=search name="q" th:value="${q}" placeholder="Search Publishers" data-keybind="f" form=sf>
+    </header>
+
+    <section class="results">
+        <header>
+            Found <strong th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
+            matching publishers.
+
+            <label>
+                Sort by:
+                <select form="sf" name="sort" class="auto-submit" data-default="Relevance">
+                    <option th:each="ordering : ${orderings}" th:text="${ordering}" th:selected="${ordering.equals(sort)}">Relevance</option>
+                </select>
+            </label>
+
+            <label>
+                Page size:
+                <select form="sf" name="size" class="auto-submit" data-default="20">
+                    <option th:selected="${results.size == 20}">20</option>
+                    <option th:selected="${results.size == 100}">100</option>
+                    <option th:selected="${results.size == 1000}">1000</option>
+                </select>
+            </label>
+        </header>
+        <table>
+            <tbody>
+            <tr th:each="publisher: ${results}">
+                <td><a th:href="@{|/publishers/${publisher.id}|}">National Library of Australia</a></td>
+                <td th:text="${publisher.type.name}">Government</td>
+                <td th:text="${publisher.organisation.getLocality()}">Canberra</td>
+                <td><a th:href="@{/titles(publisher=${publisher.id})}">Titles</a></td>
+            </tr>
+            </tbody>
+        </table>
+        <nav class="pagination">
+            <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind=","
+                    th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
+                    tabindex="-1" th:disabled="${!results.hasPrevious()}"><i class="icon previous"></i>Previous</button>
+            <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind="."
+                    th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}"
+                    th:disabled="${!results.hasNext()}">Next<i class="icon icon-right next"></i></button>
+        </nav>
+    </section>
+</main>
