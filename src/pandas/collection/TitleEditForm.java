@@ -1,6 +1,6 @@
 package pandas.collection;
 
-import joptsimple.internal.Strings;
+import com.google.common.base.Strings;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
 import pandas.gather.TitleGather;
