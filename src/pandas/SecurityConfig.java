@@ -126,8 +126,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             } catch (ParseException e) {
                 log.error("Error parsing access token", e);
             }
-            String usernameAttribute = userRequest.getClientRegistration().getProviderDetails()
-                    .getUserInfoEndpoint().getUserNameAttributeName();
+            String usernameAttribute = "preferred_username";
             return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), usernameAttribute);
         };
     }
