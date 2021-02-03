@@ -1,6 +1,9 @@
 package pandas.collection;
 
+import joptsimple.internal.Strings;
+import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
+import pandas.gather.TitleGather;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
@@ -25,6 +28,8 @@ public class TitleEditForm {
     @Column(name = "IS_CATALOGUING_NOT_REQ")
     private boolean cataloguingNotRequired;
     private String notes;
+    private GatherMethod gatherMethod;
+    private String seedUrls;
 
     public TitleEditForm() {}
 
@@ -33,7 +38,6 @@ public class TitleEditForm {
         setCataloguingNotRequired(title.isCataloguingNotRequired());
         setCollections(title.getCollections());
         setFormat(title.getFormat());
-        setGatherSchedule(title.getGather() == null ? null : title.getGather().getSchedule());
         setId(title.getId());
         setLocalDatabaseNo(title.getLocalDatabaseNo());
         setLocalReference(title.getLocalReference());
@@ -41,6 +45,20 @@ public class TitleEditForm {
         setNotes(title.getNotes());
         setSubjects(title.getSubjects());
         setTitleUrl(title.getTitleUrl());
+        if (title.getSeedUrl() != null) {
+            setSeedUrls(title.getSeedUrl());
+        } else {
+            setSeedUrls(title.getTitleUrl());
+        }
+
+        TitleGather gather = title.getGather();
+        if (gather != null) {
+            setGatherMethod(gather.getMethod());
+            setGatherSchedule(gather.getSchedule());
+            if (!Strings.isNullOrEmpty(gather.getAdditionalUrls())) {
+                setSeedUrls(getSeedUrls() + "\n" + gather.getAdditionalUrls());
+            }
+        }
     }
 
     public Long getId() {
@@ -137,5 +155,21 @@ public class TitleEditForm {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public GatherMethod getGatherMethod() {
+        return gatherMethod;
+    }
+
+    public void setGatherMethod(GatherMethod gatherMethod) {
+        this.gatherMethod = gatherMethod;
+    }
+
+    public String getSeedUrls() {
+        return seedUrls;
+    }
+
+    public void setSeedUrls(String seedUrls) {
+        this.seedUrls = seedUrls;
     }
 }

@@ -30,16 +30,32 @@
         <input type=hidden th:field="*{id}">
 
         <fieldset>
-            <legend>Basics</legend>
+            <legend>Details</legend>
             <label>URL: <input th:field="*{titleUrl}" required class="form-control"></label>
             <div id="urlInfo"></div>
             <label>Name: <input th:field="*{name}" required class="form-control"></label>
-            <br>
-            <label>Gather Schedule: <select th:field="*{gatherSchedule}">
-                <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
-                        th:text="${schedule.name}"></option>
+        </fieldset>
+
+        <fieldset>
+            <legend>Gather</legend>
+            <label>Method: <select th:field="*{gatherMethod}">
+                <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
+                    Heritrix
+                </option>
             </select></label>
-            <label>Gather Type: <select></select></label>
+            <label>Schedule: <select th:field="*{gatherSchedule}">
+                <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
+                        th:text="${schedule.name}">Weekly
+                </option>
+            </select></label>
+            <label><input type="checkbox">Gather immediately</label>
+            <details th:open="${form.seedUrls != form.titleUrl}">
+                <summary>Options</summary>
+                <label>
+                    Seed URLs:
+                    <textarea th:field="*{seedUrls}"></textarea>
+                </label>
+            </details>
         </fieldset>
 
         <fieldset>
@@ -51,7 +67,7 @@
             </div>
             <label>
                 Collections:
-                <select th:field="*{collections}" multiple>
+                <select th:field="*{collections}" id="collections" multiple>
                     <option th:each="collection: ${allCollections}" th:value="${collection.id}"
                             th:text="${collection.fullName}">Arts
                     </option>
@@ -59,7 +75,7 @@
             </label>
             <label>
                 Subjects:
-                <select th:field="*{subjects}" multiple>
+                <select th:field="*{subjects}" id="subjects" multiple>
                     <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
                             th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
                             th:data-fullname="${subject.fullName}">Arts
@@ -76,8 +92,8 @@
         </fieldset>
     </form>
 </main>
-<link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}">
-<script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}"></script>
+<link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.css">
+<script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
 <script>
     new SlimSelect({
         select: '#subjects',

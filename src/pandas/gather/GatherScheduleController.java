@@ -14,10 +14,7 @@ import pandas.core.NotFoundException;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 @Controller
 public class GatherScheduleController {
@@ -26,16 +23,18 @@ public class GatherScheduleController {
     private final GatherScheduleRepository gatherScheduleRepository;
     private final TitleGatherRepository titleGatherRepository;
     private final TitleService titleService;
+    private final GatherService gatherService;
 
-    public GatherScheduleController(GatherScheduleRepository gatherScheduleRepository, TitleGatherRepository titleGatherRepository, TitleService titleService) {
+    public GatherScheduleController(GatherScheduleRepository gatherScheduleRepository, TitleGatherRepository titleGatherRepository, TitleService titleService, GatherService gatherService) {
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.titleService = titleService;
+        this.gatherService = gatherService;
     }
 
     @GetMapping("/schedules")
     public String list(Model model) {
-        model.addAttribute("schedules", sortedSchedules());
+        model.addAttribute("schedules", gatherService.allGatherSchedules());
         try {
             model.addAttribute("titleCounts", titleService.countTitlesBySchedule());
         } catch (Exception e) {
@@ -94,12 +93,5 @@ public class GatherScheduleController {
         }
         sb.append("...\n");
         return sb.toString();
-    }
-
-    private List<GatherSchedule> sortedSchedules() {
-        ArrayList<GatherSchedule> schedules = new ArrayList<>();
-        gatherScheduleRepository.findAll().forEach(schedules::add);
-        schedules.sort(Comparator.naturalOrder());
-        return schedules;
     }
 }

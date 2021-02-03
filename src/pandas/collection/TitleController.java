@@ -18,10 +18,7 @@ import pandas.Config;
 import pandas.core.Individual;
 import pandas.core.IndividualRepository;
 import pandas.core.NotFoundException;
-import pandas.gather.GatherMethod;
-import pandas.gather.GatherMethodRepository;
-import pandas.gather.GatherSchedule;
-import pandas.gather.GatherScheduleRepository;
+import pandas.gather.*;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +34,6 @@ import java.util.Optional;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static pandas.Utils.sortBy;
 
 @Controller
 public class TitleController {
@@ -49,11 +45,10 @@ public class TitleController {
     private final Config config;
     private final EntityManager entityManager;
     private final FormatRepository formatRepository;
-    private final SubjectRepository subjectRepository;
-    private final CollectionRepository collectionRepository;
-    private final StatusRepository statusRepository;
+    private final GatherService gatherService;
+    private final ClassificationService classificationService;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, SubjectRepository subjectRepository, CollectionRepository collectionRepository, StatusRepository statusRepository) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -62,9 +57,8 @@ public class TitleController {
         this.config = config;
         this.entityManager = entityManager;
         this.formatRepository = formatRepository;
-        this.subjectRepository = subjectRepository;
-        this.collectionRepository = collectionRepository;
-        this.statusRepository = statusRepository;
+        this.gatherService = gatherService;
+        this.classificationService = classificationService;
     }
 
     @GetMapping("/titles/{id}")
@@ -203,10 +197,11 @@ public class TitleController {
     @GetMapping("/titles/{id}/edit")
     public String edit(@PathVariable("id") Optional<Title> title, Model model) {
         model.addAttribute("form", new TitleEditForm(title.orElseThrow(NotFoundException::new)));
+        model.addAttribute("allCollections", classificationService.allCollections());
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
+        model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
-        model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
-        model.addAttribute("allCollections", sortBy(collectionRepository.findAll(), Collection::getFullName));
+        model.addAttribute("allSubjects", classificationService.allSubjects());
         return "TitleEdit";
     }
 
@@ -214,14 +209,13 @@ public class TitleController {
     public String newForm(@RequestParam(value = "collection", required = false) List<Collection> collections,
                           @RequestParam(value = "subject", required = false) List<Subject> subjects,
                           Model model) {
-        TitleEditForm form = titleService.newTitleForm();
-        form.setCollections(collections);
-        form.setSubjects(subjects);
+        TitleEditForm form = titleService.newTitleForm(collections, subjects);
         model.addAttribute("form", form);
+        model.addAttribute("allCollections", classificationService.allCollections());
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
-        model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
-        model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
-        model.addAttribute("allCollections", sortBy(collectionRepository.findAll(), Collection::getFullName));
+        model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
+        model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
+        model.addAttribute("allSubjects", classificationService.allSubjects());
         return "TitleEdit";
     }
 

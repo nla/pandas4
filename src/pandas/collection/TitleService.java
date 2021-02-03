@@ -25,10 +25,7 @@ import pandas.search.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
@@ -42,16 +39,18 @@ public class TitleService {
     private final FormatRepository formatRepository;
     private final StatusRepository statusRepository;
     private final UserService userService;
+    private final GatherService gatherService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService) {
+    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
         this.statusRepository = statusRepository;
         this.userService = userService;
+        this.gatherService = gatherService;
         facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
                 new EntityFacet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
@@ -170,9 +169,23 @@ public class TitleService {
         }
     }
 
-    public TitleEditForm newTitleForm() {
+    public TitleEditForm newTitleForm(List<Collection> collections, List<Subject> subjects) {
         TitleEditForm form = new TitleEditForm();
+        form.setCollections(collections);
         form.setFormat(formatRepository.findById(Format.INTEGRATING_ID).orElseThrow());
+        form.setGatherMethod(gatherService.defaultMethod());
+        form.setGatherSchedule(gatherService.defaultSchedule());
+        form.setSubjects(subjects);
+
+        // prefill subjects based on the collections
+        if ((subjects == null || subjects.isEmpty()) && (collections != null && !collections.isEmpty())) {
+            Set<Subject> subjectList = new HashSet<>();
+            for (Collection collection: collections) {
+                subjectList.addAll(collection.getSubjects());
+            }
+            form.setSubjects(new ArrayList<>(subjectList));
+        }
+
         return form;
     }
 
@@ -214,6 +227,7 @@ public class TitleService {
             titleGather.setTitle(title);
         }
         titleGather.setSchedule(form.getGatherSchedule());
+        titleGather.setMethod(form.getGatherMethod());
         titleGatherRepository.save(titleGather);
         return title;
     }
