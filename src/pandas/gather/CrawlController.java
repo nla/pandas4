@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -25,7 +26,7 @@ public class CrawlController {
     public Object config() {
         List<String> seeds = new ArrayList<>();
         List<String> surts = new ArrayList<>();
-        for (Title title: titleRepository.findBulkTitles()) {
+        for (Title title: titleRepository.findBulkTitles(Instant.now())) {
             seeds.addAll(title.getAllSeeds());
             for (String seed: seeds) {
                 var m = TWITTER_URL.matcher(seed);
