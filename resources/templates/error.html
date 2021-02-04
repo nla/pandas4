@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error - PANDAS</title>
+</head>
+<h1 th:text="${status + ' ' + error}">400 Bad Request</h1>
+
+<p th:text="${trace}" style="white-space: pre-wrap; word-wrap: anywhere">Stacktrace</p>
+
+<!--/*
+<table border=1>
+    <tr th:each="var : ${#vars.getVariableNames()}">
+        <td th:text="${var}"></td>
+        <td th:text="${#vars.getVariable(var)}"></td>
+    </tr>
+    <tr>
+        <td>param</td>
+        <td th:text="${#vars.getVariable('param')}"></td>
+    </tr>
+    <tr>
+        <td>session</td>
+        <td th:text="${#vars.getVariable('session')}"></td>
+    </tr>
+    <tr>
+        <td>application</td>
+        <td th:text="${#vars.getVariable('application')}"></td>
+    </tr>
+</table>
+*/-->

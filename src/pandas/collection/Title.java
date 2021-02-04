@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -139,6 +140,25 @@ public class Title {
     private boolean unableToArchive;
     @NotNull
     private boolean disappeared;
+
+    public List<String> getAllSeeds() {
+        List<String> seeds = new ArrayList<>();
+        if (getSeedUrl() != null) {
+            seeds.add(getSeedUrl());
+        } else if (getTitleUrl() != null) {
+            seeds.add(getTitleUrl());
+        }
+        TitleGather gather = getGather();
+        if (gather != null && gather.getAdditionalUrls() != null) {
+            for (String url: gather.getAdditionalUrls().split("\n")) {
+                url = url.trim();
+                if (!url.isBlank()) {
+                    seeds.add(url);
+                }
+            }
+        }
+        return seeds;
+    }
 
     public Agency getAgency() {
         return agency;

@@ -94,7 +94,8 @@
 </main>
 <link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.css">
 <script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
-<script>
+<script th:inline="javascript">
+    var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
     new SlimSelect({
         select: '#subjects',
         searchFilter: function (option, search) {
@@ -108,7 +109,7 @@
         document.getElementById("urlInfo").innerText = "Loading...";
         document.getElementById("urlInfo").style.color = "#555";
 
-        fetch("../pageinfo?url=" + encodeURIComponent(this.value))
+        fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(this.value))
             .then(response => response.json())
             .then(info => {
                 let contentType = info.contentType == null ? "?" : info.contentType.replace(/\s*;.*/, "");

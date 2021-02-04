@@ -16,4 +16,6 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     List<Title> findFirst100ByLastModifiedDateAfterOrderByLastModifiedDate(Instant start);
 
+    @Query("select t from Title t where t.gather.method.name = 'Bulk'")
+    List<Title> findBulkTitles();
 }

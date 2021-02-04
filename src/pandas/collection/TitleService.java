@@ -205,6 +205,12 @@ public class TitleService {
         if (title.getStatus() == null) {
             title.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
         }
+        String[] seeds = form.getSeedUrls().split("\n+");
+        if (seeds.length > 0) {
+            title.setSeedUrl(seeds[0]);
+        } else {
+            title.setSeedUrl(form.getTitleUrl());
+        }
 
         if (title.getId() == null) {
             // set initial owning user and agency
@@ -228,7 +234,15 @@ public class TitleService {
         }
         titleGather.setSchedule(form.getGatherSchedule());
         titleGather.setMethod(form.getGatherMethod());
+
+        if (seeds.length > 1) {
+            titleGather.setAdditionalUrls(String.join("\n", Arrays.copyOfRange(seeds, 1, seeds.length)));
+        } else {
+            titleGather.setAdditionalUrls(null);
+        }
+
         titleGatherRepository.save(titleGather);
+
         return title;
     }
 }

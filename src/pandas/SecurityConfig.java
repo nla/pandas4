@@ -95,6 +95,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/gather/**").hasRole("panadmin")
                 .antMatchers("/schedules", "/schedules/**").hasRole("panadmin")
                 .antMatchers("/pageinfo").hasRole("stduser")
+                .antMatchers("/crawls/**").hasRole("panadmin")
                 .anyRequest().hasRole("stduser");
         if (oidcIssuerUri == null && config.getAutologin() == null) {
                 auth.and().formLogin().defaultSuccessUrl("/test")
