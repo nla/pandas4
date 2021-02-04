@@ -5,6 +5,7 @@ import com.grack.nanojson.JsonWriter;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
@@ -12,7 +13,7 @@ import java.util.*;
 
 public class DbTool {
     public static void main(String args[]) throws SQLException, IOException {
-        if (args.length == 0 || System.getenv("PANDAS_DB_URL") == null) {
+        if (args.length < 2 || System.getenv("PANDAS_DB_URL") == null) {
             usage();
         }
         Properties properties = new Properties();
@@ -20,9 +21,9 @@ public class DbTool {
         properties.put("password", System.getenv("PANDAS_DB_PASSWORD"));
         properties.put("defaultRowPrefetch", 500);
         try (Connection connection = DriverManager.getConnection(System.getenv("PANDAS_DB_URL"), properties)) {
-            switch (args[1]) {
+            switch (args[0]) {
                 case "dump":
-                    dump(connection);
+                    dump(connection, Paths.get(args[1]));
                     break;
                 default:
                     usage();
@@ -31,14 +32,14 @@ public class DbTool {
     }
 
     private static void usage() {
-        System.err.println("Usage: DbTool dump");
+        System.err.println("Usage: DbTool dump <outfile>");
         System.err.println("\nSet env vars PANDAS_DB_URL, PANDAS_DB_USER, PANDAS_DB_PASSWORD");
         System.exit(1);
     }
 
-    private static void dump(Connection connection) throws IOException, SQLException {
+    private static void dump(Connection connection, Path outfile) throws IOException, SQLException {
         Set<String> excludedTables = new HashSet<>(Arrays.asList(System.getenv().getOrDefault("IGNORE_TABLES", "THUMBNAIL,STATUS_HISTORY,schema_version").split(",")));
-        JsonAppendableWriter json = JsonWriter.indent("  ").on(Files.newBufferedWriter(Paths.get("/tmp/pandas.json"), StandardOpenOption.TRUNCATE_EXISTING))
+        JsonAppendableWriter json = JsonWriter.indent("  ").on(Files.newBufferedWriter(outfile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))
                 .array();
 
         List<String> tableNames = new ArrayList<>();
