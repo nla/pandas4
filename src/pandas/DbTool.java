@@ -37,7 +37,7 @@ public class DbTool {
     }
 
     private static void dump(Connection connection) throws IOException, SQLException {
-        Set<String> excludedTables = Set.of("THUMBNAIL", "schema_version");
+        Set<String> excludedTables = new HashSet<>(Arrays.asList(System.getenv().getOrDefault("IGNORE_TABLES", "THUMBNAIL,STATUS_HISTORY,schema_version").split(",")));
         JsonAppendableWriter json = JsonWriter.indent("  ").on(Files.newBufferedWriter(Paths.get("/tmp/pandas.json"), StandardOpenOption.TRUNCATE_EXISTING))
                 .array();
 
