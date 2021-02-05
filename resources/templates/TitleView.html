@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title.name + ' - PANDAS'}">Example Title - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <a th:href="@{|/titles/${title.id}/p3|}" class="btn">View in PANDAS 3</a>
+            <a th:href="@{|/titles/${title.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
+        </nav>
+    </header>
+
+    <h1 th:text="${title.name}">Example Title</h1>
+
+    <table>
+        <tr><th>PI</th><td th:text="${title.pi}"></td></tr>
+        <tr><th>Title URL</th><td th:text="${title.titleUrl}"></td></tr>
+        <tr><th>Seed URL</th><td th:text="${title.seedUrl}"></td></tr>
+        <tr><th>Registered</th><td th:text="${title.regDate}"></td></tr>
+        <tr><th>Owner</th><td th:text="${title.owner.fullName}"></td></tr>
+        <tr><th>Agency</th><td th:text="${title.agency.name}"></td></tr>
+        <tr><th>Status</th><td th:text="${title.status.name}"></td></tr>
+        <tr><th>&nbsp;</th></tr>
+        <tr><th>Format</th><td th:text="${title.format.name}"></td></tr>
+        <tr><th>ANBD No.</th><td th:text="${title.anbdNumber}"></td></tr>
+        <tr><th>Local DB No.</th><td th:text="${title.localDatabaseNo}"></td></tr>
+        <tr><th>Local Ref.</th><td th:text="${title.localReference}"></td></tr>
+        <tr><th>&nbsp;</th></tr>
+        <tr th:if="${title.publisher != null}"><th>Publisher</th><td><a th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a> [<span th:text="${title.publisher.type.name}"></span>] </td></tr>
+        <tr>
+            <th>Collections<th>
+            <td>
+                <ul class="collection-list">
+                    <li th:each="collection: ${title.collections}">
+                        <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
+                           href="CollectionView.html">Nice Sites</a>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>Subjects</th>
+            <td>
+                <ul class="subject-list">
+                    <li th:each="subject: ${title.subjects}">
+                        <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
+                           href="SubjectView.html">Sport</a>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+        <tr><th>Notes</th><td th:text="${title.notes}" style="white-space: pre-wrap"></td></tr>
+        <tr><th>&nbsp;</th></tr>
+        <tr><th>Gather Method</th><td th:text="${title?.gather?.method?.name}"></td></tr>
+        <tr><th>First Gathered</th><td th:text="${title?.gather.firstGatherDate}"></td></tr>
+        <tr><th>Last Gathered</th><td th:text="${title?.gather.lastGatherDate}"></td></tr>
+        <tr><th>Next Gather</th><td th:text="${title?.gather.nextGatherDate}"></td></tr>
+        <tr><th>Schedule</th><td th:text="${title?.gather?.schedule?.name}"></td></tr>
+    </table>
+
+    <h2>Instances (<span th:text="${title.instances.size()}"></span>)</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Files</th>
+            <th>Size</th>
+            <th>Duration</th>
+            <th>Method</th>
+            <th>State</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="instance: ${title.instances}">
+            <td th:text="${instance.date}"></td>
+            <td th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></td>
+            <td th:text="${instance.gather.sizeHuman}"></td>
+            <td th:text="${instance.gather.timeHuman}"></td>
+            <td th:text="${instance.gatherMethodName}"></td>
+            <td th:text="${instance.state.name}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</main>

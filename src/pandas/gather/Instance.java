@@ -71,6 +71,8 @@ public class Instance {
     @Column(name = "GATHER_COMMAND")
     private String gatherCommand;
 
+    @OneToOne(mappedBy = "instance")
+    private InstanceGather gather;
 
     public State getState() {
         return this.state;
@@ -230,5 +232,9 @@ public class Instance {
 
     public void setTitle(Title title) {
         this.title = title;
+    }
+
+    public InstanceGather getGather() {
+        return gather;
     }
 }

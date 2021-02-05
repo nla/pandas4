@@ -62,7 +62,13 @@ public class TitleController {
     }
 
     @GetMapping("/titles/{id}")
-    public RedirectView get(@PathVariable("id") long id) {
+    public String get(@PathVariable("id") Title title, Model model) {
+        model.addAttribute("title", title);
+        return "TitleView";
+    }
+
+    @GetMapping("/titles/{id}/p3")
+    public RedirectView pandas3(@PathVariable("id") long id) {
         return new RedirectView(config.managementDirectActionUrl("titleView?id=" + id));
     }
 

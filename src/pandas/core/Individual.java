@@ -86,6 +86,10 @@ public class Individual {
     @OneToOne(mappedBy = "individual")
     private Role role;
 
+    public String getFullName() {
+        return getNameGiven() + " "  + getNameFamily();
+    }
+
     public java.sql.Timestamp getAuditCreateDate() {
         return this.auditCreateDate;
     }

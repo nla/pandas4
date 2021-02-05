@@ -12,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.Agency;
 import pandas.core.Individual;
+import pandas.gather.Instance;
 import pandas.gather.TitleGather;
 
 import javax.persistence.*;
@@ -140,6 +141,10 @@ public class Title {
     private boolean unableToArchive;
     @NotNull
     private boolean disappeared;
+
+    @OneToMany(mappedBy = "title")
+    @OrderBy("date desc")
+    private List<Instance> instances;
 
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
@@ -391,5 +396,9 @@ public class Title {
 
     public void setDisappeared(boolean disappeared) {
         this.disappeared = disappeared;
+    }
+
+    public List<Instance> getInstances() {
+        return instances;
     }
 }
