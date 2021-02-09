@@ -2,59 +2,125 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Bulk Change Titles - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <title>Bulk Title Change - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <header>
-        <h1>Bulk Change Titles</h1>
-    </header>
+    <form method=post th:object="${form}" id="titleBulkEditForm">
+        <header>
+            <div>
+                <button type="submit" data-keybind=s class="btn btn-primary" id="actionSave"><i class="icon save"></i> <span>Change <span class="titleCount" th:text="${form.titles.size()}">42</span> titles</span></button>
+                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
+            </div>
+        </header>
 
-    <form method=post>
+        <h1>Bulk Title Change</h1>
+
         <details>
-            <summary>Changing <span th:text="${results.totalElements}">42</span> titles</summary>
+            <summary><span th:text="${form.titles.size()}" class="titleCount">42</span> titles selected</summary>
             <table>
                 <thead>
                 <tr>
-                    <td><input type=checkbox checked></td>
+                    <td><input id="selectAllTitles" type=checkbox checked></td>
+                    <th>PI</th>
+                    <th>Title</th>
+                    <th>Owner</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="title : ${results}">
-                    <td><label><input type=checkbox name=id th:value="${title.id}" checked><th:block th:text="${title.name}">Sports Australia</th:block></label></td>
+                <tr th:each="title: ${form.titles}">
+                    <td>
+                        <input type=checkbox name=titles th:field="*{titles}" th:value="${title.id}" checked>
+                    </td>
+                    <td><label th:for="${#ids.prev('titles')}" th:text="${title.pi}"></label></td>
+                    <td><label th:for="${#ids.prev('titles')}" th:text="${title.name}"></label></td>
+                    <td th:text="${title?.owner?.name ?: 'Nobody'}"></td>
                 </tr>
                 </tbody>
             </table>
         </details>
 
-        <label style="display: block">Change Gather Method:
-            <select name="method">
-                <option></option>
-                <option th:each="method: ${allGatherMethods}" th:text="${method.name}" th:value="${method.id}">Heritrix</option>
+        <p class="formgrid">
+            <input type=checkbox id=editMethod th:field="*{editMethod}">
+            <label for=editMethod>Gather Method:</label>
+            <select id=method th:field="*{method}">
+                <option th:each="method: ${allGatherMethods}" th:text="${method.name}" th:value="${method.id}">
+                    Heritrix
+                </option>
             </select>
-        </label>
 
-        <label style="display: block">Change Gather Schedule:
-            <select name="schedule">
-                <option></option>
-                <option th:each="schedule: ${allGatherSchedules}" th:text="${schedule.name}" th:value="${schedule.id}">Weekly</option>
+            <input type=checkbox id=editSchedule th:field="*{editSchedule}">
+            <label for=editSchedule>Gather Schedule:</label>
+            <select id=schedule th:field="*{schedule}">
+                <option th:each="schedule: ${allGatherSchedules}" th:text="${schedule.name}" th:value="${schedule.id}">
+                    Weekly
+                </option>
             </select>
-        </label>
 
-        <label style="display: block">Transfer Ownership:
-            <select name="owner">
-                <option></option>
-                <option th:each="user: ${allUsers}" th:text="${user.name}" th:value="${user.id}">jsmith</option>
+            <input type=checkbox id=editOwner th:field="*{editOwner}">
+            <label for=editOwner>Owner:</label>
+            <select id=owner th:field="*{owner}">
+                <option th:each="user: ${allUsers}" th:text="${user.name}" th:value="${user.id}">John Smith</option>
             </select>
-        </label>
 
-        <label style="display: block">Add Note:
-            <textarea name="note"></textarea>
-        </label>
+            <input type=checkbox id=editAnbdNumber th:field="*{editAnbdNumber}">
+            <label for=editAnbdNumber>ANBD Number:</label>
+            <input id=anbdNumber th:field="*{anbdNumber}">
 
-        <button>Show Summary</button>
+            <input type=checkbox id=editAddNote th:field="*{editAddNote}">
+            <label for=editAddNote>Add Note:</label>
+            <textarea id=addNote th:field="*{addNote}"></textarea>
+
+
+        </p>
+
+        <style>
+            .formgrid {
+                display: grid;
+                grid-template-columns: 1em 200px 1fr;
+                grid-gap: 1rem;
+                align-items: center;
+            }
+        </style>
+
+        <script>
+            document.querySelectorAll("input[type=checkbox][id^=edit]").forEach(checkbox => {
+                const inputId = checkbox.id.substr(4, 1).toLowerCase() + checkbox.id.substr(5);
+                const input = document.getElementById(inputId);
+                input.disabled = !checkbox.checked;
+                checkbox.addEventListener("change", () => {
+                    input.disabled = !checkbox.checked;
+                    if (checkbox.checked) {
+                        input.focus();
+                    }
+                });
+            });
+
+            function updateTitleCount() {
+                const count = document.querySelectorAll("input[name=titles]:checked").length;
+                document.querySelectorAll(".titleCount").forEach(span => {
+                    span.textContent = count.toLocaleString();
+                });
+                document.getElementById("actionSave").disabled = (count === 0);
+            }
+
+            document.querySelectorAll("input[name=titles]").forEach(checkbox => {
+                checkbox.addEventListener("change", () => {
+                    updateTitleCount();
+                });
+            });
+
+            document.getElementById("selectAllTitles").addEventListener("change", function () {
+                document.querySelectorAll('input[name=titles]').forEach(cb => cb.checked = this.checked);
+                updateTitleCount();
+            });
+
+            document.getElementById("titleBulkEditForm").addEventListener("submit", function () {
+                return confirm("Are you certain you wish to bulk change " + document.querySelectorAll("input[name=titles]:checked").length + " titles?\n\nThis operation cannot be undone.")
+            });
+        </script>
     </form>
 </main>

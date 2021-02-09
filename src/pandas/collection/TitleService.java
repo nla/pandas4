@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
+import static pandas.Utils.getIfSame;
 
 @Service
 public class TitleService {
@@ -96,6 +97,16 @@ public class TitleService {
                 where(f -> f.matchAll()).aggregation(titlesBySchedule, f -> f.terms().field("gather.schedule.id", Long.class))
                 .fetch(0);
         return result.aggregation(titlesBySchedule);
+    }
+
+    public TitleBulkEditForm newBulkEditForm(List<Title> titles) {
+        var form = new TitleBulkEditForm();
+        form.setTitles(titles);
+        form.setMethod(getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getMethod()));
+        form.setSchedule(getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getSchedule()));
+        form.setAnbdNumber(getIfSame(titles, Title::getAnbdNumber));
+        form.setOwner(getIfSame(titles, Title::getOwner));
+        return form;
     }
 
     private class Query {
@@ -244,5 +255,31 @@ public class TitleService {
         titleGatherRepository.save(titleGather);
 
         return title;
+    }
+
+    @Transactional
+    public void bulkEdit(TitleBulkEditForm form) {
+        List<TitleGather> gathers = new ArrayList<>();
+        for (Title title: form.getTitles()) {
+            if (form.isEditAnbdNumber()) title.setAnbdNumber(form.getAnbdNumber());
+            if (form.isEditOwner()) title.setOwner(form.getOwner());
+
+            if (form.isEditAddNote()) {
+                title.setNotes(title.getNotes() == null ? form.getAddNote() : (title.getNotes() + "\n" + form.getAddNote()));
+            }
+
+            if (form.isEditSchedule() || form.isEditMethod()) {
+                TitleGather gather = title.getGather();
+                if (gather == null) {
+                    gather = new TitleGather();
+                    gather.setTitle(title);
+                }
+                if (form.isEditSchedule()) gather.setSchedule(form.getSchedule());
+                if (form.isEditMethod()) gather.setMethod(form.getMethod());
+                gathers.add(gather);
+            }
+        }
+        titleRepository.saveAll(form.getTitles());
+        titleGatherRepository.saveAll(gathers);
     }
 }

@@ -15,10 +15,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import pandas.Config;
-import pandas.core.Individual;
 import pandas.core.IndividualRepository;
 import pandas.core.NotFoundException;
-import pandas.gather.*;
+import pandas.gather.GatherMethodRepository;
+import pandas.gather.GatherScheduleRepository;
+import pandas.gather.GatherService;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
@@ -87,8 +88,11 @@ public class TitleController {
 
     @GetMapping("/titles/bulkchange")
     public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model) {
-        var results = titleService.search(params, PageRequest.of(0, 1000));
-        model.addAttribute("results", results);
+        var results = titleService.search(params, PageRequest.of(0, 10000));
+        List<Title> titles = results.getContent();
+        var form = titleService.newBulkEditForm(titles);
+
+        model.addAttribute("form", form);
         model.addAttribute("allUsers", individualRepository.findByUseridIsNotNull());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
@@ -96,35 +100,10 @@ public class TitleController {
     }
 
     @PostMapping("/titles/bulkchange")
-    public String bulkEditSummary(@RequestParam("id") List<Long> titleIds,
-                                  @RequestParam("method") Long methodId,
-                                  @RequestParam("schedule") Long scheduleId,
-                                  @RequestParam("owner") Long ownerId,
-                                  @RequestParam("note") String note, Model model) {
-        GatherMethod gatherMethod = methodId == null ? null : gatherMethodRepository.findById(methodId).orElseThrow();
-        GatherSchedule gatherSchedule = scheduleId == null ? null : gatherScheduleRepository.findById(scheduleId).orElseThrow();
-        Individual owner = ownerId == null ? null : individualRepository.findById(ownerId).orElseThrow();
-        Iterable<Title> titles = titleRepository.findAllById(titleIds);
-        long count = 0;
-        for (Title title : titles) {
-            if (gatherMethod != null) title.getGather().setMethod(gatherMethod);
-            if (gatherSchedule != null) title.getGather().setSchedule(gatherSchedule);
-            if (owner != null) title.setOwner(owner);
+    public String bulkEditPerform(TitleBulkEditForm form, Model model) {
 
-            if (note != null && !note.isBlank()) {
-                String notes = title.getNotes();
-                if (notes == null) {
-                    notes = "";
-                } else if (!notes.endsWith("\n")) {
-                    notes += "\n";
-                }
-                notes += note;
-                title.setNotes(notes);
-            }
-            count++;
-        }
-        titleRepository.saveAll(titles);
-        model.addAttribute("count", count);
+        titleService.bulkEdit(form);
+        model.addAttribute("count", form.getTitles().size());
         return "TitleBulkChangeComplete";
     }
 
