@@ -43,7 +43,7 @@ public class Individual {
     private Long id;
 
     @Column(name = "IS_ACTIVE")
-    private Long isActive;
+    private Boolean active;
 
     @Column(name = "MOBILE_PHONE")
     private String mobilePhone;
@@ -162,12 +162,12 @@ public class Individual {
         this.id = individualId;
     }
 
-    public Long getIsActive() {
-        return this.isActive;
+    public boolean isActive() {
+        return this.active != null && this.active;
     }
 
-    public void setIsActive(Long isActive) {
-        this.isActive = isActive;
+    public void setActive(boolean isActive) {
+        this.active = isActive;
     }
 
     public String getMobilePhone() {

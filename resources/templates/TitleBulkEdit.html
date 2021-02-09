@@ -63,7 +63,7 @@
             <input type=checkbox id=editOwner th:field="*{editOwner}">
             <label for=editOwner>Owner:</label>
             <select id=owner th:field="*{owner}">
-                <option th:each="user: ${allUsers}" th:text="${user.name}" th:value="${user.id}">John Smith</option>
+                <option th:each="user: ${allUsers}" th:text="${user.name + ' [' + user?.role?.organisation?.alias + ']'}" th:value="${user.id}">John Smith</option>
             </select>
 
             <input type=checkbox id=editAnbdNumber th:field="*{editAnbdNumber}">

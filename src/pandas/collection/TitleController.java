@@ -89,9 +89,7 @@ public class TitleController {
     @GetMapping("/titles/bulkchange")
     public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model) {
         var results = titleService.search(params, PageRequest.of(0, 10000));
-        List<Title> titles = results.getContent();
-        var form = titleService.newBulkEditForm(titles);
-
+        var form = titleService.newBulkEditForm(results.getContent());
         model.addAttribute("form", form);
         model.addAttribute("allUsers", individualRepository.findByUseridIsNotNull());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
