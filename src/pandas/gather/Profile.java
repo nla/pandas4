@@ -1,26 +1,26 @@
 package pandas.gather;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "PROFILE")
 public class Profile {
+    @Id
+    @Column(name = "PROFILE_ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PROFILE_SEQ")
+    @SequenceGenerator(name = "PROFILE_SEQ", sequenceName = "PROFILE_SEQ", allocationSize = 1)
+    private Long id;
+
     @Column(name = "NAME")
+    @NotBlank
     private String name;
 
     @Column(name = "PROFILE_DESCRIPTION")
-    private String profileDescription;
-
-    @Id
-    @Column(name = "PROFILE_ID")
-    private Long profileId;
+    private String description;
 
     @Column(name = "IS_DEFAULT")
-    private Long isDefault;
-
+    private boolean isDefault;
 
     public String getName() {
         return this.name;
@@ -30,27 +30,27 @@ public class Profile {
         this.name = name;
     }
 
-    public String getProfileDescription() {
-        return this.profileDescription;
+    public String getDescription() {
+        return this.description;
     }
 
-    public void setProfileDescription(String profileDescription) {
-        this.profileDescription = profileDescription;
+    public void setDescription(String profileDescription) {
+        this.description = profileDescription;
     }
 
-    public Long getProfileId() {
-        return this.profileId;
+    public Long getId() {
+        return this.id;
     }
 
-    public void setProfileId(Long profileId) {
-        this.profileId = profileId;
+    public void setId(Long profileId) {
+        this.id = profileId;
     }
 
-    public Long getIsDefault() {
-        return this.isDefault;
+    public boolean isDefault() {
+        return isDefault;
     }
 
-    public void setIsDefault(Long isDefault) {
-        this.isDefault = isDefault;
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
 }

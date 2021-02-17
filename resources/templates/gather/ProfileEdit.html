@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${profile.id == null ? 'New Profile - PANDAS' : 'Edit Profile - PANDAS'}">Edit Profile - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <form method=post class=form th:object="${profile}" th:action="@{/profiles}">
+        <header>
+            <div>
+                <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
+                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
+            </div>
+            <button th:if="${profile.id != null}" type="submit" th:formaction="@{|/profiles/${profile.id}/delete|}"
+                    class="btn btn-danger float-right"><i class="icon delete"></i>Delete</button>
+        </header>
+
+        <input type=hidden th:field="*{id}">
+        <input type=hidden th:field="*{default}">
+
+        <fieldset>
+            <label>Name: <input th:field="*{name}" required class="form-control"></label>
+            <label>Description: <textarea th:field="*{description}" required class="form-control"></textarea></label>
+        </fieldset>
+    </form>
+</main>

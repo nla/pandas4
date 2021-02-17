@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gather Profiles - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav><a th:href="@{/profiles/new}" href="ProfileEdit.html" class="btn btn-primary">New Profile</a></nav>
+    </header>
+
+    <h1>Gather Profiles</h1>
+
+    <table>
+        <tbody>
+        <tr th:each="profile: ${profiles}">
+            <td><a href="ProfileEdit.html" th:href="@{|/profiles/${profile.id}|}" th:text="${profile.name}">Defaults</a></td>
+        </tr>
+        </tbody>
+    </table>
+</main>

@@ -50,6 +50,7 @@
         <li><a th:href="@{/queue}">Gather Queue</a>
     </ul>
     <ul>
+        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/profiles}">Gather Profiles</a>
         <li sec:authorize="hasRole('panadmin')"><a th:href="@{/schedules}">Gather Schedules</a>
         <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
     </ul>
