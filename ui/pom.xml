@@ -83,6 +83,10 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.version}</version>
+                <configuration>
+                    <addResources>true</addResources>
+                    <arguments>--spring.jpa.hibernate.ddl-auto=update</arguments>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -90,8 +94,6 @@
                         </goals>
                         <configuration>
                             <mainClass>pandas.Pandas</mainClass>
-                            <addResources>true</addResources>
-                            <arguments>--spring.jpa.hibernate.ddl-auto=update</arguments>
                         </configuration>
                     </execution>
                 </executions>
