@@ -83,7 +83,7 @@ ul.subject-list li + li:before {
     font-weight: bold;
 }
 
-.status {
+.status, .schedule {
     font-variant: small-caps;
 }
 
