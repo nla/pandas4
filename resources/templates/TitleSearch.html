@@ -101,12 +101,12 @@
                         </ul>
                     </div>
                     <footer>
-                        <span class="status" th:text="${title.status.name}">ceased</span> ·
+                        <span class="status" th:text="${title.status.name}" th:classappend="status-${title.status.name.replace(' ','-')}">ceased</span> ·
                         <th:block th:if="${title.gather != null && title.gather.schedule != null && title.gather.schedule.name != 'None'}">
                             <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
                             <span th:text="${title.gather.method.name}">HTTrack</span> ·
                         </th:block>
-                        <span th:if="${title.publisher != null}"
+                        <span class="method" th:if="${title.publisher != null}"
                               th:text="|${title.publisher.organisation.name}, |">
                             International Olympic Committee
                         </span>
