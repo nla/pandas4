@@ -1,4 +1,4 @@
-package pandas;
+package pandas.core;
 
 import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONArray;
@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import pandas.core.PandasUserDetailsService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;

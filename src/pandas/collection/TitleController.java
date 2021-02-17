@@ -14,7 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-import pandas.Config;
+import pandas.core.Config;
 import pandas.core.IndividualRepository;
 import pandas.core.NotFoundException;
 import pandas.gather.GatherMethodRepository;
@@ -64,6 +64,7 @@ public class TitleController {
 
     @GetMapping("/titles/{id}")
     public String get(@PathVariable("id") Title title, Model model) {
+        model.addAttribute("config", config);
         model.addAttribute("title", title);
         return "TitleView";
     }

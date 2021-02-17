@@ -84,6 +84,7 @@
             <td th:text="${instance.gather.timeHuman}"></td>
             <td th:text="${instance.gatherMethodName}"></td>
             <td th:text="${instance.state.name}"></td>
+            <td><a th:href="${config.bambooUrl + '/instances/' + instance.id}">View in Bamboo</a></td>
         </tr>
         </tbody>
     </table>

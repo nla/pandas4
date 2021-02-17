@@ -13,13 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
-import pandas.Config;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
-import pandas.core.NotFoundException;
-import pandas.core.UserService;
+import pandas.core.*;
 import pandas.gather.*;
 import pandas.search.*;
 
