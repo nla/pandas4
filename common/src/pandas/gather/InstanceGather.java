@@ -1,7 +1,6 @@
 package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.io.FileUtils;
 
 import javax.persistence.*;
 import java.time.Duration;
@@ -64,11 +63,6 @@ public class InstanceGather {
 
     public Long getSize() {
         return this.size;
-    }
-
-    public String getSizeHuman() {
-        if (getSize() == null) return null;
-        return FileUtils.byteCountToDisplaySize(getSize());
     }
 
     public void setSize(Long gatherSize) {

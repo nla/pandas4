@@ -4,6 +4,7 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import org.springframework.stereotype.Indexed;
 import pandas.core.Organisation;
 
 import javax.persistence.*;

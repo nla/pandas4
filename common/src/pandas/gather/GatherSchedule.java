@@ -2,7 +2,6 @@ package pandas.gather;
 
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.time.DayOfWeek;
@@ -126,7 +125,7 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
     }
 
     @Override
-    public int compareTo(@NotNull GatherSchedule o) {
+    public int compareTo(GatherSchedule o) {
         return this.calculateNextTime(referenceTime).compareTo(o.calculateNextTime(referenceTime));
     }
 

@@ -1,5 +1,6 @@
 /data
-/target
+/tmp
+target
 *.iml
 *~
 *#
