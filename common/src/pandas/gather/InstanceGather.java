@@ -1,6 +1,7 @@
 package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.Duration;
@@ -8,6 +9,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "INS_GATHER")
+@DynamicUpdate
 public class InstanceGather {
     @Id
     @Column(name = "INSTANCE_ID")
@@ -103,5 +105,9 @@ public class InstanceGather {
 
     public Instance getInstance() {
         return instance;
+    }
+
+    public void setInstance(Instance instance) {
+        this.instance = instance;
     }
 }

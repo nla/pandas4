@@ -1,13 +1,19 @@
 package pandas.gather;
 
+import org.hibernate.annotations.DynamicUpdate;
 import pandas.collection.Title;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "INSTANCE")
+@DynamicUpdate
 public class Instance {
+    static final DateTimeFormatter instanceDateFormat = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
+
     @Id
     @Column(name = "INSTANCE_ID")
     private Long id;
@@ -110,6 +116,10 @@ public class Instance {
         return this.date;
     }
 
+    public String getDateString() {
+        return getDate().atZone(ZoneId.systemDefault()).format(instanceDateFormat);
+    }
+
     public void setDate(Instant instanceDate) {
         this.date = instanceDate;
     }
@@ -120,6 +130,10 @@ public class Instance {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getHumanId() {
+        return "nla.arc-" + getTitle().getPi() + "-" + getDateString();
     }
 
     public Long getInstanceStateId() {

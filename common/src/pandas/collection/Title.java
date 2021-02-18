@@ -10,7 +10,6 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.stereotype.Indexed;
 import pandas.agency.Agency;
 import pandas.core.Individual;
 import pandas.gather.Instance;
@@ -156,7 +155,7 @@ public class Title {
         }
         TitleGather gather = getGather();
         if (gather != null && gather.getAdditionalUrls() != null) {
-            for (String url: gather.getAdditionalUrls().split("\n")) {
+            for (String url: gather.getAdditionalUrls().split("\\s+")) {
                 url = url.trim();
                 if (!url.isBlank()) {
                     seeds.add(url);

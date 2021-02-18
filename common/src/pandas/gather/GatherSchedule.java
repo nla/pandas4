@@ -5,6 +5,8 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericFie
 
 import javax.persistence.*;
 import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
@@ -127,6 +129,10 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
     @Override
     public int compareTo(GatherSchedule o) {
         return this.calculateNextTime(referenceTime).compareTo(o.calculateNextTime(referenceTime));
+    }
+
+    public Instant calculateNextTime(Instant prev) {
+        return calculateNextTime(prev.atZone(ZoneId.systemDefault())).toInstant();
     }
 
     public ZonedDateTime calculateNextTime(ZonedDateTime prev) {

@@ -26,6 +26,7 @@ public class Tep {
     private Long hitCount;
     private Boolean isPublished;
     private String metadata;
+    private boolean publishImmediately;
 
     public Title getTitle() {
         return title;
@@ -53,5 +54,13 @@ public class Tep {
 
     public boolean isHasDisclaimer() {
         return hasDisclaimer;
+    }
+
+    public boolean isPublishImmediately() {
+        return publishImmediately;
+    }
+
+    public void setPublishImmediately(boolean publishImmediately) {
+        this.publishImmediately = publishImmediately;
     }
 }
