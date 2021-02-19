@@ -95,7 +95,7 @@ public class HttrackGatherer implements Backend {
 	}
 
 	public void postprocess(Instance instance) throws IOException, InterruptedException {
-		scripts.archivePreserve(instance.getTitle().getPi(), instance.getDateString());
+		workingArea.preserveInstance(instance.getTitle().getPi(), instance.getDateString());
 		scripts.postGather(instance.getTitle().getPi(), instance.getDateString());
 
 		String tepUrl = arcUrlFromMap(instance.getTitle().getPi(), instance.getDateString());
@@ -107,7 +107,7 @@ public class HttrackGatherer implements Backend {
 
 	@Override
 	public void archive(Instance instance) throws IOException, InterruptedException {
-		scripts.archiveMove(instance.getTitle().getPi(), instance.getDateString());
+		workingArea.archiveInstance(instance.getTitle().getPi(), instance.getDateString());
 	}
 
 	@Override

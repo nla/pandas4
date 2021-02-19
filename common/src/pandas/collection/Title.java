@@ -148,7 +148,9 @@ public class Title {
 
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
-        if (getSeedUrl() != null) {
+        if (getGather() != null && getGather().getGatherUrl() != null) {
+            seeds.add(getGather().getGatherUrl());
+        } else if (getSeedUrl() != null) {
             seeds.add(getSeedUrl());
         } else if (getTitleUrl() != null) {
             seeds.add(getTitleUrl());

@@ -39,6 +39,7 @@ public class Config {
     private String oidcUrl;
     private String oidcClientId;
     private String oidcClientSecret;
+    private Path legacyScripts;
 
     public Config() {
     }
@@ -282,5 +283,21 @@ public class Config {
 
     public void setOidcClientSecret(String oidcClientSecret) {
         this.oidcClientSecret = oidcClientSecret;
+    }
+
+    public Path getUploadDir() {
+        return getWorkingDir().getParent().resolve("upload");
+    }
+
+    public Path getMimeDir() {
+        return getWorkingDir().getParent().resolve("mime");
+    }
+
+    public Path getLegacyScripts() {
+        return legacyScripts;
+    }
+
+    public void setLegacyScripts(Path legacyScripts) {
+        this.legacyScripts = legacyScripts;
     }
 }

@@ -3,9 +3,6 @@ package pandas.gatherer.core;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -13,8 +10,6 @@ import java.util.*;
 public class Scripts {
     private final Map<String, String> environment;
     private final Path postGatherScript;
-    private final Path archiveMoveScript;
-    private final Path archivePreserveScript;
     private final Path globalReplaceScript;
     private final Path uploadProcessScript;
 
@@ -22,29 +17,19 @@ public class Scripts {
         this.environment = buildEnvMap(config);
         Path scriptsDir = config.getScriptsDir();
         postGatherScript = checkExists(scriptsDir.resolve("post_gather"));
-        archiveMoveScript = checkExists(scriptsDir.resolve("archive_move"));
-        archivePreserveScript = checkExists(scriptsDir.resolve("archive_preserve"));
         globalReplaceScript = checkExists(scriptsDir.resolve("global_replace"));
         uploadProcessScript = checkExists(scriptsDir.resolve("upload_process"));
     }
 
     private Path checkExists(Path path) {
-        if (!Files.exists(path)) {
-            throw new UncheckedIOException(new NoSuchFileException(path.toString()));
-        }
+//        if (!Files.exists(path)) {
+//            throw new UncheckedIOException(new NoSuchFileException(path.toString()));
+//        }
         return path;
     }
 
     public void postGather(long pi, String dateString) throws IOException, InterruptedException {
         runScript(postGatherScript, pi, dateString);
-    }
-
-    public void archiveMove(long pi, String dateString) throws IOException, InterruptedException {
-        runScript(archiveMoveScript, pi, dateString);
-    }
-
-    public void archivePreserve(long pi, String dateString) throws IOException, InterruptedException {
-        runScript(archivePreserveScript, pi, dateString);
     }
 
     public void globalReplace(long pi, String dateString, String... args) throws IOException, InterruptedException {
