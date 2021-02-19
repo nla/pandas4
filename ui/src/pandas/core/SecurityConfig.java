@@ -1,8 +1,6 @@
 package pandas.core;
 
 import com.nimbusds.jwt.SignedJWT;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +26,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -103,14 +102,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Set<GrantedAuthority> mapClaimsToAuthorities(Map<String, Object> claims) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        JSONArray array = (JSONArray) (((JSONObject) claims.get("realm_access")).get("roles"));
-        for (var entry : array) {
-            if (entry instanceof String) {
-                var role = (String) entry;
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-            }
+        for (String role : (List<String>)((Map<String,Object>)claims.get("realm_access")).get("roles")) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
         }
         return authorities;
     }
