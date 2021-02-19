@@ -9,6 +9,8 @@ import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
 import org.hibernate.search.engine.search.sort.dsl.SortFinalStep;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,8 @@ import static pandas.Utils.getIfSame;
 
 @Service
 public class TitleService {
+    private static final Logger log = LoggerFactory.getLogger(TitleService.class);
+
     private final Facet[] facets;
     private final Map<String, Function<SearchSortFactory, SortFinalStep>> orderings;
     private final TitleRepository titleRepository;
@@ -255,6 +259,7 @@ public class TitleService {
 
     @Transactional
     public void bulkEdit(TitleBulkEditForm form) {
+        log.info("Applying bulk change {}", form.toString());
         List<TitleGather> gathers = new ArrayList<>();
         for (Title title: form.getTitles()) {
             if (form.isEditAnbdNumber()) title.setAnbdNumber(form.getAnbdNumber());

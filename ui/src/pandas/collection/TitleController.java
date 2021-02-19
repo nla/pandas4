@@ -100,7 +100,6 @@ public class TitleController {
 
     @PostMapping("/titles/bulkchange")
     public String bulkEditPerform(TitleBulkEditForm form, Model model) {
-
         titleService.bulkEdit(form);
         model.addAttribute("count", form.getTitles().size());
         return "TitleBulkChangeComplete";

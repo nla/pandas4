@@ -9,7 +9,7 @@
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <form method=post th:object="${form}" id="titleBulkEditForm">
+    <form method=post th:action="@{/titles/bulkchange}" th:object="${form}" id="titleBulkEditForm">
         <header>
             <div>
                 <button type="submit" data-keybind=s class="btn btn-primary" id="actionSave"><i class="icon save"></i> <span>Change <span class="titleCount" th:text="${form.titles.size()}">42</span> titles</span></button>

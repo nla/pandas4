@@ -24,6 +24,23 @@ public class TitleBulkEditForm {
     private boolean editAddNote;
     private String addNote;
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TitleBulkEditForm[");
+        if (isEditMethod()) sb.append(" method=").append(method.getId());
+        if (isEditSchedule()) sb.append(" schedule=").append(method.getId());
+        if (isEditOwner()) sb.append(" owner=").append(owner.getId());
+        if (isEditAnbdNumber()) sb.append(" anbdNumber=").append(anbdNumber);
+        if (isEditAddNote()) sb.append(" addNote=").append(addNote);
+        sb.append(" titles=[");
+        for (Title title: titles) {
+            sb.append(title.getId());
+            sb.append(",");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
     public List<Title> getTitles() {
         return titles;
     }
