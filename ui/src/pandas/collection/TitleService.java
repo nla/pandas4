@@ -205,6 +205,7 @@ public class TitleService {
 
     @Transactional
     public Title update(TitleEditForm form) {
+        Instant now = Instant.now();
         Title title = form.getId() == null ? new Title() : titleRepository.findById(form.getId()).orElseThrow(NotFoundException::new);
         title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
@@ -236,11 +237,24 @@ public class TitleService {
         }
         titleRepository.save(title);
 
+        // if there's no PI, populate it using the title id
         if (title.getPi() == null) {
             title.setPi(title.getId());
             titleRepository.save(title);
         }
 
+        // create an owner history record if the title is new
+        if (form.getId() == null && (title.getOwner() != null || title.getAgency() != null)) {
+            OwnerHistory ownerHistory = new OwnerHistory();
+            ownerHistory.setTitle(title);
+            ownerHistory.setIndividual(title.getOwner());
+            ownerHistory.setAgency(title.getAgency());
+            ownerHistory.setNote("Created new title");
+            ownerHistory.setDate(now);
+            ownerHistoryRepository.save(ownerHistory);
+        }
+
+        // create or update the corresponding TitleGather record
         TitleGather titleGather = title.getGather();
         if (titleGather == null) {
             titleGather = new TitleGather();
@@ -248,13 +262,11 @@ public class TitleService {
         }
         titleGather.setSchedule(form.getGatherSchedule());
         titleGather.setMethod(form.getGatherMethod());
-
         if (seeds.length > 1) {
             titleGather.setAdditionalUrls(String.join("\n", Arrays.copyOfRange(seeds, 1, seeds.length)));
         } else {
             titleGather.setAdditionalUrls(null);
         }
-
         titleGatherRepository.save(titleGather);
 
         return title;
