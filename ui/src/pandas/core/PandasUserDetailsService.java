@@ -24,7 +24,7 @@ public class PandasUserDetailsService implements UserDetailsService, Authenticat
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Individual individual = individualRepository.findByUserid(username);
+        Individual individual = individualRepository.findByUserid(username).orElseThrow(() -> new UsernameNotFoundException(username + " has no individual record"));
         if (individual == null || individual.getRole() == null || !ALLOWED_LOGIN_ROLE_TYPES.contains(individual.getRole().getType())) {
             throw new UsernameNotFoundException(username);
         }

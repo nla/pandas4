@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${'Ownership History - ' + title.name + ' - PANDAS'}">Ownership History - Example Title - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+
+    <style>
+        table.history-table {
+            border-collapse: collapse;
+        }
+
+        .history-table td:first-child, .history-table th:first-child {
+            text-align: right;
+        }
+
+        .history-table td, .history-table th {
+            border: solid 1px #ddd;
+            padding: 6px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <a th:href="@{|/titles/${title.id}|}" class="btn"><i class="icon back"></i> Back</a>
+        </nav>
+    </header>
+
+    <h1 th:text="${'Ownership History - ' + title.name}">Owner History - Example Title</h1>
+
+    <table class="history-table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Owner</th>
+            <th>Agency</th>
+            <th>Transferred By</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="event: ${history}">
+            <td th:text="${dateFormat.format(event.date)}">Today</td>
+            <td th:text="${timeFormat.format(event.date)}">Today</td>
+            <td th:text="${event.individual?.userid}">jsmith</td>
+            <td th:text="${event.agency?.organisation?.alias}">NLA</td>
+            <td th:text="${event.transferrer?.userid}">somebody</td>
+            <td th:text="${event.note}">Bulk change</td>
+        </tr>
+        </tbody>
+    </table>
+</main>

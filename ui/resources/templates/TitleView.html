@@ -23,7 +23,10 @@
         <tr><th>Title URL</th><td th:text="${title.titleUrl}"></td></tr>
         <tr><th>Seed URL</th><td th:text="${title.seedUrl}"></td></tr>
         <tr><th>Registered</th><td th:text="${title.regDate}"></td></tr>
-        <tr><th>Owner</th><td th:text="${title.owner.fullName}"></td></tr>
+        <tr><th>Owner</th><td>
+            <span th:text="${title.owner.fullName}"></span>
+            <a th:href="@{|/titles/${title.id}/ownerhistory|}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
+        </td></tr>
         <tr><th>Agency</th><td th:text="${title.agency.name}"></td></tr>
         <tr><th>Status</th><td th:text="${title.status.name}"></td></tr>
         <tr><th>&nbsp;</th></tr>

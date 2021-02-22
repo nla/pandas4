@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import pandas.core.Config;
+import pandas.core.Individual;
 import pandas.core.IndividualRepository;
 import pandas.core.NotFoundException;
 import pandas.gather.GatherMethodRepository;
@@ -26,8 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -48,8 +52,9 @@ public class TitleController {
     private final FormatRepository formatRepository;
     private final GatherService gatherService;
     private final ClassificationService classificationService;
+    private final OwnerHistoryRepository ownerHistoryRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -60,6 +65,7 @@ public class TitleController {
         this.formatRepository = formatRepository;
         this.gatherService = gatherService;
         this.classificationService = classificationService;
+        this.ownerHistoryRepository = ownerHistoryRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -67,6 +73,15 @@ public class TitleController {
         model.addAttribute("config", config);
         model.addAttribute("title", title);
         return "TitleView";
+    }
+
+    @GetMapping("/titles/{id}/ownerhistory")
+    public String ownerHistory(@PathVariable("id") Title title, Model model) {
+        model.addAttribute("title", title);
+        model.addAttribute("history", ownerHistoryRepository.findByTitleOrderByDate(title));
+        model.addAttribute("dateFormat", DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));
+        model.addAttribute("timeFormat", DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));
+        return "TitleOwnerHistory";
     }
 
     @GetMapping("/titles/{id}/p3")
@@ -99,8 +114,9 @@ public class TitleController {
     }
 
     @PostMapping("/titles/bulkchange")
-    public String bulkEditPerform(TitleBulkEditForm form, Model model) {
-        titleService.bulkEdit(form);
+    public String bulkEditPerform(TitleBulkEditForm form, Model model, Principal principal) {
+        Individual user = individualRepository.findByUserid(principal.getName()).orElse(null);
+        titleService.bulkEdit(form, user);
         model.addAttribute("count", form.getTitles().size());
         return "TitleBulkChangeComplete";
     }

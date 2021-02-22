@@ -23,6 +23,7 @@ import pandas.search.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 
@@ -41,17 +42,19 @@ public class TitleService {
     private final StatusRepository statusRepository;
     private final UserService userService;
     private final GatherService gatherService;
+    private final OwnerHistoryRepository ownerHistoryRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService) {
+    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService, OwnerHistoryRepository ownerHistoryRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
         this.statusRepository = statusRepository;
         this.userService = userService;
         this.gatherService = gatherService;
+        this.ownerHistoryRepository = ownerHistoryRepository;
         facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
                 new EntityFacet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
@@ -258,12 +261,26 @@ public class TitleService {
     }
 
     @Transactional
-    public void bulkEdit(TitleBulkEditForm form) {
+    public void bulkEdit(TitleBulkEditForm form, Individual currentUser) {
         log.info("Applying bulk change {}", form.toString());
+        Instant now = Instant.now();
         List<TitleGather> gathers = new ArrayList<>();
         for (Title title: form.getTitles()) {
             if (form.isEditAnbdNumber()) title.setAnbdNumber(form.getAnbdNumber());
-            if (form.isEditOwner()) title.setOwner(form.getOwner());
+
+            if (form.isEditOwner()) {
+                if (!Objects.equals(title.getOwner(), form.getOwner())) {
+                    title.setOwner(form.getOwner());
+                    OwnerHistory ownerHistory = new OwnerHistory();
+                    ownerHistory.setTitle(title);
+                    ownerHistory.setDate(now);
+                    ownerHistory.setIndividual(form.getOwner());
+                    ownerHistory.setAgency(title.getAgency());
+                    ownerHistory.setTransferrer(currentUser);
+                    ownerHistory.setNote("Bulk change");
+                    ownerHistoryRepository.save(ownerHistory);
+                }
+            }
 
             if (form.isEditAddNote()) {
                 title.setNotes(title.getNotes() == null ? form.getAddNote() : (title.getNotes() + "\n" + form.getAddNote()));

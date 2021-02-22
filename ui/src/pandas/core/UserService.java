@@ -21,6 +21,6 @@ public class UserService {
         if (username == null) {
             return null;
         }
-        return individualRepository.findByUserid(username);
+        return individualRepository.findByUserid(username).orElse(null);
     }
 }
