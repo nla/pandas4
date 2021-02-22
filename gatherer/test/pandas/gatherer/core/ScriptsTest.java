@@ -1,6 +1,7 @@
 package pandas.gatherer.core;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -16,6 +17,7 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class ScriptsTest {
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
