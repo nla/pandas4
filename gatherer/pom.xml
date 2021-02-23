@@ -25,6 +25,11 @@
                 <directory>${basedir}/resources</directory>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/test-resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -103,8 +108,18 @@
             <version>1.20</version>
         </dependency>
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netpreserve</groupId>
+            <artifactId>jwarc</artifactId>
+            <version>0.13.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

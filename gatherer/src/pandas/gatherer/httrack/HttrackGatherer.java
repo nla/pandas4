@@ -84,9 +84,9 @@ public class HttrackGatherer implements Backend {
 			}
 
 			log.info("HTTrack {} returned {}", instance.getHumanId(), httrack.process.exitValue());
-			log.info("Output: {}", new String(Files.readAllBytes(logFile.toPath()), UTF_8));
+			log.info("Output: {}", Files.readString(logFile.toPath()));
 			if (httrack.process.exitValue() != 0) {
-				String output = new String(Files.readAllBytes(logFile.toPath()), UTF_8);
+				String output = Files.readString(logFile.toPath());
 				throw new GatherException("HTTrack returned error: " + output);
 			}
 		} finally {
@@ -96,7 +96,8 @@ public class HttrackGatherer implements Backend {
 
 	public void postprocess(Instance instance) throws IOException, InterruptedException {
 		workingArea.preserveInstance(instance.getTitle().getPi(), instance.getDateString());
-		scripts.postGather(instance.getTitle().getPi(), instance.getDateString());
+		Path root = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
+		HttrackUtils.postGather(instance.getTitle().getPi(), instance.getDateString(), root);
 
 		String tepUrl = arcUrlFromMap(instance.getTitle().getPi(), instance.getDateString());
 		if (tepUrl != null) {
