@@ -3,6 +3,7 @@ package pandas.gatherer.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pandas.gatherer.httrack.Pandora2Warc;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -10,6 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
@@ -105,41 +107,19 @@ public class WorkingArea {
         exec(config.getMimeDir(), "tar", "-zcf", mimeTgz.toString(), pi + "/" + date);
 
         // construct warc
-        if (config.getLegacyScripts() != null) {
-            ProcessBuilder pb = new ProcessBuilder("java", "-Xmx64m", "-jar",
-                    config.getLegacyScripts().resolve("pandora2warc.jar").toString(),
-                    config.getUploadDir().toString(), workingdir.toString());
-            pb.environment().put("LC_ALL", "C");
-            int status;
-            try {
-                status = pb.start().waitFor();
-            } catch (InterruptedException e) {
-                throw new IOException(e);
+        List<Path> warcs = Pandora2Warc.convertInstance(pwd, config.getUploadDir());
+        for (Path warcGz : warcs) {
+            if (config.getRepo2Dir() != null) {
+                Path repo2Dir = config.getRepo2Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
+                if (!Files.exists(repo2Dir)) Files.createDirectories(repo2Dir);
+                log.info("Copying {} to {}", warcGz, repo2Dir);
+                Files.copy(warcGz, repo2Dir);
             }
-            if (status != 0) throw new IOException("pandora2warc returned code " + status);
 
-            // compress warc
-            exec(workingdir, "java", "-Xmx64m", "-cp",
-                    config.getLegacyScripts().resolve("warcserve.jar").toString(),
-                    "warcserve.gzip_warc", "1048576000",
-                    config.getUploadDir().resolve("nla.arc-" + pi + "-" + date + ".warc").toString());
-
-            for (int i = 0;; i++) {
-                Path warcGz = config.getUploadDir().resolve("nla.arc-" + pi + "-" + date + "-" + String.format("%03d", i) + ".warc.gz");
-                if (!Files.exists(warcGz)) break;
-
-                if (config.getRepo2Dir() != null) {
-                    Path repo2Dir = config.getRepo2Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
-                    if (!Files.exists(repo2Dir)) Files.createDirectories(repo2Dir);
-                    log.info("Copying {} to {}", warcGz, repo2Dir);
-                    Files.copy(warcGz, repo2Dir);
-                }
-
-                Path repo1Dir = config.getRepo1Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
-                if (!Files.exists(repo1Dir)) Files.createDirectories(repo1Dir);
-                log.info("Moving {} to {}", warcGz, repo1Dir);
-                Files.move(warcGz, repo1Dir);
-            }
+            Path repo1Dir = config.getRepo1Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
+            if (!Files.exists(repo1Dir)) Files.createDirectories(repo1Dir);
+            log.info("Moving {} to {}", warcGz, repo1Dir);
+            Files.move(warcGz, repo1Dir);
         }
 
         // copy to master storage

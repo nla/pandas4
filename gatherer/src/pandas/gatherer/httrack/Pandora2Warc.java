@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -24,15 +25,52 @@ public class Pandora2Warc {
         dateFmt.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
     }
 
-    private static FileOutputStream renamingOutput(Path file) throws FileNotFoundException {
-        Path tmpFile = Paths.get(file + ".new");
-        return new FileOutputStream(tmpFile.toFile()) {
-            @Override
-            public void close() throws IOException {
-                super.close();
-                Files.move(tmpFile, file);
+    private static class WarcWriter implements Closeable {
+        private OutputStream stream;
+        private String currentPath;
+        private final String pathPattern;
+        private final long maxLength = 1024l * 1024 * 1024;
+        private final byte[] trailer = "\r\n\r\n".getBytes(UTF_8);
+        int serial = 0;
+        private List<Path> writtenFiles = new ArrayList<>();
+
+        public WarcWriter(String pathPattern) throws IOException {
+            this.pathPattern = pathPattern;
+            openNextFile();
+        }
+
+        private void openNextFile() throws IOException {
+            closeCurrentFile();
+            this.currentPath = String.format(pathPattern, serial);
+            this.stream = Files.newOutputStream(Paths.get(currentPath + ".open"));
+        }
+
+        private void closeCurrentFile() throws IOException {
+            if (stream == null) return;
+            stream.close();
+            Path path = Paths.get(currentPath);
+            Files.move(Paths.get(currentPath + ".open"), path, StandardCopyOption.REPLACE_EXISTING);
+            writtenFiles.add(path);
+            currentPath = null;
+            stream = null;
+        }
+
+        @Override
+        public void close() throws IOException {
+            closeCurrentFile();
+        }
+
+        public void write(String header, Path body) throws IOException {
+            if (Files.size(Paths.get(currentPath + ".open")) >= maxLength) {
+                openNextFile();
             }
-        };
+            GZIPOutputStream gz = new GZIPOutputStream(stream);
+            byte[] headerBytes = header.getBytes(UTF_8);
+            gz.write(headerBytes);
+            Files.copy(body, gz);
+            gz.write(trailer);
+            gz.finish();
+        }
     }
 
     private static String b32sha1(MessageDigest md) {
@@ -69,11 +107,9 @@ public class Pandora2Warc {
         "\r\n";
     }
 
-    private static void writeRecord(Path file, Date ctime, int prefixSize, Map<String, String> typeMap, FileOutputStream warc) {
+    private static void writeRecord(Path file, Date ctime, int prefixSize, Map<String, String> typeMap, WarcWriter warc) {
         try {
-            warc.write(makeHeader(file, ctime, prefixSize, typeMap).getBytes(UTF_8));
-            Files.copy(file, warc);
-            warc.write("\r\n\r\n".getBytes(UTF_8));
+            warc.write(makeHeader(file, ctime, prefixSize, typeMap), file);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -99,15 +135,15 @@ public class Pandora2Warc {
         return map;
     }
 
-
-    public static void convertInstance(Path srcDir, Path destDir) throws IOException {
+    public static List<Path> convertInstance(Path srcDir, Path destDir) throws IOException {
         String pi = srcDir.getParent().getFileName().toString();
         String timestamp = srcDir.getFileName().toString();
         int prefixSize = srcDir.getParent().getParent().toString().length() + 1;
-        Path outfile = destDir.resolve("nla.arc-" + pi + "-" + timestamp + ".warc");
+        String outpattern = destDir.resolve("nla.arc-" + pi + "-" + timestamp + "-%03d.warc.gz").toString();
         var typeMap = buildTypeMap(srcDir);
 
-        try (FileOutputStream warc = renamingOutput(outfile)) {
+        WarcWriter warcWriter = new WarcWriter(outpattern);
+        try (WarcWriter warc = warcWriter) {
             Files.walkFileTree(srcDir, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
@@ -119,5 +155,6 @@ public class Pandora2Warc {
                 }
             });
         }
+        return warcWriter.writtenFiles;
     }
 }

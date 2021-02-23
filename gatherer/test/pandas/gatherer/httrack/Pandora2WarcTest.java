@@ -31,7 +31,7 @@ public class Pandora2WarcTest {
         Path root = srcDir.resolve("12345").resolve("20210223-0954");
         unzip(srcDir, "testcrawl.zip");
         Pandora2Warc.convertInstance(root, destDir);
-        Path warc = destDir.resolve("nla.arc-12345-20210223-0954.warc");
+        Path warc = destDir.resolve("nla.arc-12345-20210223-0954-000.warc.gz");
         assertTrue(Files.exists(warc));
 
         Set<String> seen = new HashSet<>();
