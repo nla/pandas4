@@ -12,8 +12,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -34,7 +34,7 @@ public class Pandora2WarcTest {
         Path warc = destDir.resolve("nla.arc-12345-20210223-0954.warc");
         assertTrue(Files.exists(warc));
 
-        List<String> seen = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
         try (WarcReader reader = new WarcReader(warc)) {
             for (WarcRecord record: reader) {
                 WarcResource resource = (WarcResource) record;
@@ -45,7 +45,7 @@ public class Pandora2WarcTest {
                 }
             }
         }
-        assertEquals(List.of("http://pandora.nla.gov.au/pan/12345/20210223-0954/hts-cache/new.zip",
+        assertEquals(Set.of("http://pandora.nla.gov.au/pan/12345/20210223-0954/hts-cache/new.zip",
                 "http://pandora.nla.gov.au/pan/12345/20210223-0954/hts-cache/new.txt",
                 "http://pandora.nla.gov.au/pan/12345/20210223-0954/hts-cache/doit.log",
                 "http://pandora.nla.gov.au/pan/12345/20210223-0954/hts-cache/new.lst",
