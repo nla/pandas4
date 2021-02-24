@@ -51,12 +51,15 @@ public class WorkingArea {
      * Create pre-qa preservation tarball metadata files.
      */
     public void preserveInstance(long pi, String date) throws IOException {
+        Path uploadDir = config.getUploadDir().toAbsolutePath();
+        if (!Files.exists(uploadDir)) Files.createDirectories(uploadDir);
+
         // create preservation tarball and metadata files
         Path pwd = instancePath(pi, date);
-        Path tgz = config.getUploadDir().resolve("ps-ar2-" + pi + "-" + date + ".tgz");
-        Path lst = config.getUploadDir().resolve("ps-ar2-" + pi + "-" + date + ".lst");
-        Path sz = config.getUploadDir().resolve("ps-ar2-" + pi + "-" + date + ".sz");
-        Path md5 = config.getUploadDir().resolve("ps-ar2-" + pi + "-" + date + ".md5");
+        Path tgz = uploadDir.resolve("ps-ar2-" + pi + "-" + date + ".tgz");
+        Path lst = uploadDir.resolve("ps-ar2-" + pi + "-" + date + ".lst");
+        Path sz = uploadDir.resolve("ps-ar2-" + pi + "-" + date + ".sz");
+        Path md5 = uploadDir.resolve("ps-ar2-" + pi + "-" + date + ".md5");
 
         exec(workingdir, "tar", "-zcf", tgz.toString(), pi + "/" + date);
         execRedir(workingdir, lst,"find", pi + "/" + date, "-type", "f", "-exec", "ls", "-l", "{}", ";");
@@ -88,12 +91,15 @@ public class WorkingArea {
     }
 
     public void archiveInstance(long pi, String date) throws IOException {
+        Path uploadDir = config.getUploadDir().toAbsolutePath();
+        if (!Files.exists(uploadDir)) Files.createDirectories(uploadDir);
+
         // create access tarball and metadata files
         Path pwd = instancePath(pi, date);
-        Path tgz = config.getUploadDir().resolve("ac-ar2-" + pi + "-" + date + ".tgz");
-        Path lst = config.getUploadDir().resolve("ac-ar2-" + pi + "-" + date + ".lst");
-        Path sz = config.getUploadDir().resolve("ac-ar2-" + pi + "-" + date + ".sz");
-        Path md5 = config.getUploadDir().resolve("ac-ar2-" + pi + "-" + date + ".md5");
+        Path tgz = uploadDir.resolve("ac-ar2-" + pi + "-" + date + ".tgz");
+        Path lst = uploadDir.resolve("ac-ar2-" + pi + "-" + date + ".lst");
+        Path sz = uploadDir.resolve("ac-ar2-" + pi + "-" + date + ".sz");
+        Path md5 = uploadDir.resolve("ac-ar2-" + pi + "-" + date + ".md5");
         exec(workingdir, "chmod", "-R", "gu=rwX,o=rX", pwd.toString());
         exec(workingdir, "tar", "-zcf", tgz.toString(), pi + "/" + date);
         execRedir(workingdir, lst,"find", pi + "/" + date, "-type", "f", "-exec", "ls", "-l", "{}", ";");
@@ -101,25 +107,25 @@ public class WorkingArea {
         execRedir(workingdir, md5, "md5sum", tgz.toString());
 
         // create mime tarball
-        Path mimeTgz = config.getUploadDir().resolve("mi-ar2-" + pi + "-" + date + ".tgz");
+        Path mimeTgz = uploadDir.resolve("mi-ar2-" + pi + "-" + date + ".tgz");
         Path insMime = config.getMimeDir().resolve(Long.toString(pi)).resolve(date);
         if (!Files.exists(insMime)) Files.createDirectories(insMime);
         exec(config.getMimeDir(), "tar", "-zcf", mimeTgz.toString(), pi + "/" + date);
 
         // construct warc
-        List<Path> warcs = Pandora2Warc.convertInstance(pwd, config.getUploadDir());
+        List<Path> warcs = Pandora2Warc.convertInstance(pwd, uploadDir);
         for (Path warcGz : warcs) {
             if (config.getRepo2Dir() != null) {
                 Path repo2Dir = config.getRepo2Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
                 if (!Files.exists(repo2Dir)) Files.createDirectories(repo2Dir);
                 log.info("Copying {} to {}", warcGz, repo2Dir);
-                Files.copy(warcGz, repo2Dir);
+                Files.copy(warcGz, repo2Dir.resolve(warcGz.getFileName()));
             }
 
             Path repo1Dir = config.getRepo1Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
             if (!Files.exists(repo1Dir)) Files.createDirectories(repo1Dir);
             log.info("Moving {} to {}", warcGz, repo1Dir);
-            Files.move(warcGz, repo1Dir);
+            Files.move(warcGz, repo1Dir.resolve(warcGz.getFileName()));
         }
 
         // copy to master storage
@@ -219,6 +225,6 @@ public class WorkingArea {
     }
 
     public Path getInstanceDir(long pi, String dateString) {
-        return workingdir.resolve(String.valueOf(pi)).resolve(dateString);
+        return workingdir.resolve(String.valueOf(pi)).resolve(dateString).toAbsolutePath();
     }
 }

@@ -1,5 +1,7 @@
 package pandas.gatherer.httrack;
 
+import pandas.gatherer.scripter.GlobalReplace;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -7,6 +9,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -40,15 +44,19 @@ public class HttrackUtils {
     }
 
     public static void postGather(long pi, String date, Path root) throws IOException {
+        if (!Files.exists(root.resolve("hts-cache").resolve("new.zip"))) return; // not a httrack crawl
         writeUrlAndMimeMappings(pi, date, root);
         Files.deleteIfExists(root.resolve("external.html"));
         Files.deleteIfExists(root.resolve("fade.gif"));
         Files.deleteIfExists(root.resolve("backblue.gif"));
+        GlobalReplace.globrep(root, Integer.MAX_VALUE, "*.htm*", Pattern.compile("(\\.\\.\\/)+external\\.html"), "/external.html", null);
     }
 
     private static void writeUrlAndMimeMappings(long pi, String date, Path root) throws IOException {
+        Path urlMapPath = root.resolve("url.map");
+        if (Files.exists(urlMapPath)) return; // already post-processed
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(root.resolve("hts-cache").resolve("new.zip")));
-             BufferedWriter urlMapWriter = Files.newBufferedWriter(root.resolve("url.map"), TRUNCATE_EXISTING, CREATE, WRITE)) {
+             BufferedWriter urlMapWriter = Files.newBufferedWriter(urlMapPath, TRUNCATE_EXISTING, CREATE, WRITE)) {
             while (true) {
                 ZipEntry entry = zis.getNextEntry();
                 if (entry == null) break;
@@ -60,12 +68,12 @@ public class HttrackUtils {
                 String qualSaveFile = pi + "/" + date + "/" + saveFile;
                 if (saveFile == null) continue;
 
-                urlMapWriter.append(url).append("^^").append(qualSaveFile);
+                urlMapWriter.append(url).append("^^").append(qualSaveFile).append("\n");
 
                 String mime = extra.get("Content-Type");
                 if (mime == null || mime.isBlank() || mime.contains(" ")) continue;
 
-                if (mimeTypeByExtension(saveFile).equals(mime)) continue;
+                if (Objects.equals(mimeTypeByExtension(saveFile), mime)) continue;
 
                 Path savePath = root.resolve(saveFile);
                 Path saveDir = savePath.getParent();

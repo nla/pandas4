@@ -5,6 +5,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import pandas.gatherer.httrack.HttrackUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +27,6 @@ public class ScriptsTest {
     static final String dateString = "20170101-1234";
 
     private Config buildTestConfig() throws IOException {
-
         Path master = tmp.newFolder("master").toPath();
         Path warcDir = master.resolve("warc");
         Files.createDirectory(warcDir);
@@ -76,7 +76,7 @@ public class ScriptsTest {
         Path siteDir = instanceDir.resolve("example.org");
         populateTestInstance(instanceDir);
 
-        scripts.postGather(pi, dateString);
+        HttrackUtils.postGather(pi, dateString, instanceDir);
 
         String urlMap = new String(Files.readAllBytes(instanceDir.resolve("url.map")));
         assertEquals("http://example.org/index.html^^12345/20170101-1234/example.org/index.html\n", urlMap);
@@ -88,44 +88,6 @@ public class ScriptsTest {
 
         assertEquals("Hello world <a href=\"/external.html\">test</a>",
                 new String(Files.readAllBytes(siteDir.resolve("index.html"))));
-
-        assertEquals(htmeta.replace("\r\n", "\n"), new String(Files.readAllBytes(config.getWorkingDir().resolve("mime/12345/20170101-1234/example.org/index.html"))));
-
-    }
-
-    @Test
-    public void testArchiveMove() throws IOException, InterruptedException {
-        Path instanceDir = config.getWorkingDir().resolve("" + pi).resolve(dateString);
-        populateTestInstance(instanceDir);
-
-        new WorkingArea(config).archiveInstance(pi, dateString);
-
-        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20170101-1234.md5")));
-        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20170101-1234.tgz")));
-        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20170101-1234.lst")));
-        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20170101-1234.sz")));
-//        if (!System.getenv().containsKey("PANDORA2WARC_JAR")) {
-//            assertTrue(Files.exists(config.getMastersDir().resolve("warc/012/12345/nla.arc-12345-20170101-1234.cdx")));
-//            assertTrue(Files.exists(config.getMastersDir().resolve("warc/012/12345/nla.arc-12345-20170101-1234-0.warc.gz")));
-//            assertTrue(Files.exists(config.getRepo1Dir().resolve("012/12345/nla.arc-12345-20170101-1234.cdx")));
-//            assertTrue(Files.exists(config.getRepo1Dir().resolve("012/12345/nla.arc-12345-20170101-1234-0.warc.gz")));
-//        }
-
-        find();
-    }
-
-    private void find() throws InterruptedException, IOException {
-        //new ProcessBuilder("find", config.getWorkingDir().getParent().toString()).redirectOutput(ProcessBuilder.Redirect.INHERIT).start().waitFor();
-    }
-
-    @Test
-    public void testUploadProcess() throws IOException, InterruptedException {
-        Path instanceDir = config.getWorkingDir().resolve("" + pi).resolve(dateString);
-        populateTestInstance(instanceDir);
-
-        scripts.uploadProcess(pi, dateString);
-
-        assertTrue(Files.exists(config.getWorkingDir().resolve("12345/20170101-1234/example.org/.panaccess-mime.types")));
     }
 
     @Test
@@ -141,8 +103,6 @@ public class ScriptsTest {
         assertTrue(Files.exists(config.getMastersDir().resolve("preserve/arc3/012/12345/ps-ar2-12345-20170101-1234.tgz")));
         assertTrue(Files.exists(config.getMastersDir().resolve("preserve/arc3/012/12345/ps-ar2-12345-20170101-1234.sz")));
         assertTrue(Files.exists(config.getMastersDir().resolve("preserve/arc3/012/12345/ps-ar2-12345-20170101-1234.lst")));
-
-        find();
     }
 
     private void populateTestInstance(Path instanceDir) throws IOException {

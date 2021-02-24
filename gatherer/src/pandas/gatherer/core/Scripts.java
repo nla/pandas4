@@ -9,16 +9,12 @@ import java.util.*;
 @Component
 public class Scripts {
     private final Map<String, String> environment;
-    private final Path postGatherScript;
     private final Path globalReplaceScript;
-    private final Path uploadProcessScript;
 
     public Scripts(Config config) {
         this.environment = buildEnvMap(config);
         Path scriptsDir = config.getScriptsDir();
-        postGatherScript = checkExists(scriptsDir.resolve("post_gather"));
         globalReplaceScript = checkExists(scriptsDir.resolve("global_replace"));
-        uploadProcessScript = checkExists(scriptsDir.resolve("upload_process"));
     }
 
     private Path checkExists(Path path) {
@@ -28,16 +24,8 @@ public class Scripts {
         return path;
     }
 
-    public void postGather(long pi, String dateString) throws IOException, InterruptedException {
-        runScript(postGatherScript, pi, dateString);
-    }
-
     public void globalReplace(long pi, String dateString, String... args) throws IOException, InterruptedException {
         runScript(globalReplaceScript, pi, dateString, args);
-    }
-
-    public void uploadProcess(long pi, String dateString) throws IOException, InterruptedException {
-        runScript(uploadProcessScript, pi, dateString);
     }
 
     private void runScript(Path script, long pi, String dateString, String... args) throws IOException, InterruptedException {

@@ -22,6 +22,7 @@ public class Config {
     private Path repo1Dir;
     private Path repo2Dir;
     private Path mastersDir;
+    private Path uploadDir;
     private Path pywbDir;
     private Path pywbDataDir;
     private String gathererBindAddress = "0.0.0.0";
@@ -53,6 +54,7 @@ public class Config {
         setRepo2Dir(pandasHome.resolve("repo2"));
         setPywbDir(pandasHome.resolve("pywb"));
         setPywbDataDir(getPywbDir().resolve("data"));
+        setUploadDir(pandasHome.resolve("upload"));
 
         // to allow running from a source checkout with no options
         if (!Files.exists(getScriptsDir()) && Files.exists(Paths.get("PandasPerlScripts"))) {
@@ -286,7 +288,11 @@ public class Config {
     }
 
     public Path getUploadDir() {
-        return getWorkingDir().getParent().resolve("upload");
+        return uploadDir;
+    }
+
+    public void setUploadDir(Path uploadDir) {
+        this.uploadDir = uploadDir;
     }
 
     public Path getMimeDir() {

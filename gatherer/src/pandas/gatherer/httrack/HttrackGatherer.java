@@ -66,6 +66,8 @@ public class HttrackGatherer implements Backend {
 		instance.setGatherCommand(command);
 		instanceRepository.save(instance);
 
+		if (!Files.exists(instanceDir)) Files.createDirectories(instanceDir);
+
 		File logFile = File.createTempFile("pandas-gatherer-" + instance.getHumanId(), ".log");
 		try {
 			HTTrackProcess httrack = new HTTrackProcess(instance, instanceDir, command, logFile);
@@ -174,7 +176,7 @@ public class HttrackGatherer implements Backend {
 
 		HTTrackProcess(Instance instance, Path instanceDir, String command, File logFile) throws IOException {
 			this.instance = instance;
-			process = new ProcessBuilder("sh", "-c", "exec " + command)
+			process = new ProcessBuilder("/bin/sh", "-c", "exec " + command)
 					.directory(instanceDir.toFile())
 					.redirectErrorStream(true)
 					.redirectOutput(logFile)

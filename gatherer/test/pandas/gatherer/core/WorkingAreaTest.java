@@ -21,14 +21,19 @@ public class WorkingAreaTest {
     WorkingArea workingArea;
 
     long pi = 12345;
-    String date = "20120202-1234";
+    String date = "20210223-0954";
+    private Config config;
 
     @Before
     public void setUp() throws IOException {
         workingDir = temp.newFolder("working").toPath();
         instanceDir = workingDir.resolve(Long.toString(pi)).resolve(date);
-        Config config = new Config();
+        config = new Config();
         config.setWorkingDir(workingDir);
+        config.setMastersDir(temp.newFolder("master").toPath());
+        config.setRepo1Dir(temp.newFolder("repo1").toPath());
+        config.setRepo2Dir(temp.newFolder("repo2").toPath());
+        config.setUploadDir(temp.newFolder("upload").toPath());
         workingArea = new WorkingArea(config);
     }
 
@@ -37,6 +42,25 @@ public class WorkingAreaTest {
         workingArea.createInstance(pi, date);
         assertTrue(Files.isDirectory(instanceDir));
     }
+
+    @Test
+    public void testArchiveInstance() throws IOException, InterruptedException {
+        TestUtils.unzip(workingDir, "/pandas/gatherer/httrack/testcrawl.zip");
+
+        workingArea.archiveInstance(pi, date);
+
+        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20210223-0954.md5")));
+        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20210223-0954.tgz")));
+        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20210223-0954.lst")));
+        assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20210223-0954.sz")));
+//        if (!System.getenv().containsKey("PANDORA2WARC_JAR")) {
+//            assertTrue(Files.exists(config.getMastersDir().resolve("warc/012/12345/nla.arc-12345-20170101-1234.cdx")));
+//            assertTrue(Files.exists(config.getMastersDir().resolve("warc/012/12345/nla.arc-12345-20170101-1234-0.warc.gz")));
+//            assertTrue(Files.exists(config.getRepo1Dir().resolve("012/12345/nla.arc-12345-20170101-1234.cdx")));
+//            assertTrue(Files.exists(config.getRepo1Dir().resolve("012/12345/nla.arc-12345-20170101-1234-0.warc.gz")));
+//        }
+    }
+
 
     @Test
     public void testDeleteInstance() throws IOException {
