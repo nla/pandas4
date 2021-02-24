@@ -16,6 +16,8 @@ public class Instance {
 
     @Id
     @Column(name = "INSTANCE_ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "INSTANCE_SEQ")
+    @SequenceGenerator(name = "INSTANCE_SEQ", sequenceName = "INSTANCE_SEQ", allocationSize = 1)
     private Long id;
 
     @ManyToOne
@@ -250,5 +252,12 @@ public class Instance {
 
     public InstanceGather getGather() {
         return gather;
+    }
+
+    /**
+     * Shorthand for instance.getTitle().getPi() because we use this a lot.
+     */
+    public Long getPi() {
+        return getTitle() == null ? null : getTitle().getPi();
     }
 }
