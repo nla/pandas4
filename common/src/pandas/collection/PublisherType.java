@@ -3,16 +3,15 @@ package pandas.collection;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "PUBLISHER_TYPE")
 public class PublisherType {
     @Id
     @Column(name = "PUBLISHER_TYPE_ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PUBLISHER_TYPE_SEQ")
+    @SequenceGenerator(name = "PUBLISHER_TYPE_SEQ", sequenceName = "PUBLISHER_TYPE_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
     private Long id;
 

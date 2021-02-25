@@ -10,6 +10,12 @@ import java.time.Instant;
 @Table(name = "ROLE")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role {
+    @Id
+    @Column(name = "ROLE_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "ROLE_SEQ")
+    @SequenceGenerator(name = "ROLE_SEQ", sequenceName = "ROLE_SEQ", allocationSize = 1)
+    private Long id;
+
     @Column(name = "AUDIT_CREATE_DATE")
     private Instant auditCreateDate;
 
@@ -21,10 +27,6 @@ public class Role {
 
     @Column(name = "COMMENTS")
     private String comments;
-
-    @Id
-    @Column(name = "ROLE_ID")
-    private Long id;
 
     @Column(name = "ROLE_TITLE")
     private String title;

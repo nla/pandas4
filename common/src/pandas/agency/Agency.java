@@ -15,6 +15,8 @@ import java.util.Collection;
 public class Agency {
     @Id
     @Column(name = "AGENCY_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "AGENCY_SEQ")
+    @SequenceGenerator(name = "AGENCY_SEQ", sequenceName = "AGENCY_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
     private Long id;
 

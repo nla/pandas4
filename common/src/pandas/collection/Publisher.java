@@ -15,6 +15,8 @@ import java.util.Collection;
 public class Publisher {
     @Id
     @Column(name="PUBLISHER_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "PUBLISHER_SEQ")
+    @SequenceGenerator(name = "PUBLISHER_SEQ", sequenceName = "PUBLISHER_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
     private Long id;
     private String localReference;

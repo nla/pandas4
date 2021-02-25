@@ -3,10 +3,7 @@ package pandas.collection;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "STATUS")
@@ -15,6 +12,8 @@ public class Status {
 
     @Id
     @Column(name = "STATUS_ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STATUS_SEQ")
+    @SequenceGenerator(name = "STATUS_SEQ", sequenceName = "STATUS_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
     private Long id;
 

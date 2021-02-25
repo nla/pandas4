@@ -13,6 +13,13 @@ import javax.persistence.*;
 @Table(name = "INDIVIDUAL")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Individual {
+    @Id
+    @Column(name = "INDIVIDUAL_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "INDIVIDUAL_SEQ")
+    @SequenceGenerator(name = "INDIVIDUAL_SEQ", sequenceName = "INDIVIDUAL_SEQ", allocationSize = 1)
+    @GenericField(aggregable = Aggregable.YES)
+    private Long id;
+
     @Column(name = "AUDIT_CREATE_DATE")
     private java.sql.Timestamp auditCreateDate;
 
@@ -36,11 +43,6 @@ public class Individual {
 
     @Column(name = "FUNCTION")
     private String function;
-
-    @Id
-    @Column(name = "INDIVIDUAL_ID")
-    @GenericField(aggregable = Aggregable.YES)
-    private Long id;
 
     @Column(name = "IS_ACTIVE")
     private Boolean active;
@@ -69,7 +71,7 @@ public class Individual {
     @Column(name = "URL")
     private String url;
 
-    @Column(name = "USERID")
+    @Column(name = "USERID", unique = true)
     @GenericField
     private String userid;
 
