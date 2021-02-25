@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 
 @Entity
 @Table(name = "INSTANCE")
@@ -259,5 +260,13 @@ public class Instance {
      */
     public Long getPi() {
         return getTitle() == null ? null : getTitle().getPi();
+    }
+
+    public boolean canArchive() {
+        return State.GATHERED.equals(getState().getName());
+    }
+
+    public boolean canDelete() {
+        return Set.of(State.GATHERING, State.GATHERED, State.CREATION).contains(getState().getName());
     }
 }

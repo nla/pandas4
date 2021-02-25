@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
+import pandas.core.Individual;
 
 import java.time.Instant;
 
@@ -48,7 +49,7 @@ public class InstanceService {
         instance.setTransportable(1L); // unused?
         instanceRepository.save(instance);
 
-        insertStateHistory(instance, instance.getState(), now);
+        insertStateHistory(instance, instance.getState(), now, null);
 
         InstanceGather instanceGather = new InstanceGather();
         instanceGather.setInstance(instance);
@@ -64,11 +65,12 @@ public class InstanceService {
         return instance;
     }
 
-    private void insertStateHistory(Instance instance, State state, Instant now) {
+    private void insertStateHistory(Instance instance, State state, Instant now, Individual user) {
         StateHistory stateHistory = new StateHistory();
         stateHistory.setInstance(instance);
         stateHistory.setState(state);
         stateHistory.setStartDate(now);
+        stateHistory.setIndividual(user);
         stateHistoryReposistory.save(stateHistory);
     }
 
@@ -92,14 +94,18 @@ public class InstanceService {
         titleRepository.save(title);
     }
 
-    @Transactional
     public void updateState(Instance instance, String stateName) {
+        updateState(instance, stateName, null);
+    }
+
+    @Transactional
+    public void updateState(Instance instance, String stateName, Individual user) {
         Instant now = Instant.now();
         State state = stateRepository.findByName(stateName).orElseThrow();
         instance.setState(state);
         instanceRepository.updateState(instance.getId(), stateName);
         stateHistoryReposistory.markPreviousStateEnd(instance.getId(), now);
-        insertStateHistory(instance, state, now);
+        insertStateHistory(instance, state, now, user);
     }
 
     public Instance refresh(Instance instance) {

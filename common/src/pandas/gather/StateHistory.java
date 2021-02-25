@@ -1,5 +1,7 @@
 package pandas.gather;
 
+import pandas.core.Individual;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -21,8 +23,9 @@ public class StateHistory {
     @Column(name = "END_DATE")
     private Instant endDate;
 
-    @Column(name = "INDIVIDUAL_ID")
-    private Long individualId;
+    @ManyToOne
+    @JoinColumn(name = "INDIVIDUAL_ID")
+    private Individual individual;
 
     @Column(name = "START_DATE")
     @NotNull
@@ -41,12 +44,12 @@ public class StateHistory {
         this.endDate = endDate;
     }
 
-    public Long getIndividualId() {
-        return this.individualId;
+    public Individual getIndividual() {
+        return individual;
     }
 
-    public void setIndividualId(Long individualId) {
-        this.individualId = individualId;
+    public void setIndividual(Individual individual) {
+        this.individual = individual;
     }
 
     public Instant getStartDate() {

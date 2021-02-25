@@ -81,12 +81,12 @@
         </thead>
         <tbody>
         <tr th:each="instance: ${title.instances}">
-            <td th:text="${instance.date}"></td>
+            <td><a href="InstanceView.html" th:href="@{|/instances/${instance.id}|}" th:text="${instance.dateString}">20200420-0945</a></td>
             <td th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></td>
             <td th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></td>
             <td th:text="${instance?.gather?.timeHuman}"></td>
             <td th:text="${instance.gatherMethodName}"></td>
-            <td th:text="${instance.state.name}"></td>
+            <td><span th:text="${instance.state.name}"></span><a th:href="@{|/instances/${instance.id}#state-history|}"><i class="icon history"></i></a></td>
             <td><a th:href="${config.bambooUrl + '/instances/' + instance.id}">View in Bamboo</a></td>
         </tr>
         </tbody>

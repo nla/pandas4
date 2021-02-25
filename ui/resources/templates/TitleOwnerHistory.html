@@ -5,22 +5,6 @@
     <title th:text="${'Ownership History - ' + title.name + ' - PANDAS'}">Ownership History - Example Title - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
-
-    <style>
-        table.history-table {
-            border-collapse: collapse;
-        }
-
-        .history-table td:first-child, .history-table th:first-child {
-            text-align: right;
-        }
-
-        .history-table td, .history-table th {
-            border: solid 1px #ddd;
-            padding: 6px;
-            text-align: left;
-        }
-    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>

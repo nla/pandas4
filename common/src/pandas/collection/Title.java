@@ -28,18 +28,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Entity
 @Indexed
-@NamedEntityGraph(name = "Title.subjects",
-        attributeNodes = @NamedAttributeNode("subjects"))
+@NamedEntityGraph(name = "Title.subjects", attributeNodes = @NamedAttributeNode("subjects"))
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TITLE_SEQ")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "TITLE_SEQ")
     @SequenceGenerator(name = "TITLE_SEQ", sequenceName = "TITLE_SEQ", allocationSize = 1)
+// TODO: native generator for mysql support, but this breaks existing h2 schema
+//  @GeneratedValue(strategy = GenerationType.AUTO, generator = "TITLE_SEQ")
+//  @GenericGenerator(name = "TITLE_SEQ", strategy = "native")
     private Long id;
 
     @GenericField

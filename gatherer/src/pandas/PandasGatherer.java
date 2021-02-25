@@ -3,7 +3,7 @@ package pandas;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = "pandas")
+@SpringBootApplication
 public class PandasGatherer {
     public static void main(String[] args) {
         SpringApplication.run(PandasGatherer.class, args);
