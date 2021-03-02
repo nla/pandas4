@@ -12,25 +12,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 public class DbTool {
     public static void main(String args[]) throws SQLException, IOException, JsonParserException {
-        if (args.length < 2 || System.getenv("PANDAS_DB_URL") == null) {
+        String dbUrl = System.getenv("PANDAS_DB_URL");
+        if (args.length < 2 || dbUrl == null) {
             usage();
         }
         Properties properties = new Properties();
         properties.put("user", System.getenv("PANDAS_DB_USER"));
         properties.put("password", System.getenv("PANDAS_DB_PASSWORD"));
         properties.put("defaultRowPrefetch", 500);
-        try (Connection connection = DriverManager.getConnection(System.getenv("PANDAS_DB_URL"), properties)) {
+        try (Connection connection = DriverManager.getConnection(dbUrl, properties)) {
             switch (args[0]) {
                 case "dump":
                     dump(connection, Paths.get(args[1]));
                     break;
                 case "load":
-                    if (!System.getenv("PANDAS_DB_URL").startsWith("jdbc:h2:")) {
-                        System.err.println("Only loading into h2 allowed to prevent mishaps");
+                    if (!dbUrl.startsWith("jdbc:h2:") && !dbUrl.startsWith("jdbc:postgresql:")) {
+                        System.err.println("Only loading into h2 or postgresql allowed to prevent mishaps");
                         System.exit(1);
                     }
                     load(connection, Paths.get(args[1]));
@@ -49,7 +52,11 @@ public class DbTool {
     }
 
     private static void load(Connection connection, Path infile) throws IOException, JsonParserException, SQLException {
+        boolean lowercase = connection.getMetaData().getURL().startsWith("jdbc:postgresql:");
         int batchSize = 5000;
+        connection.setAutoCommit(false);
+        connection.prepareStatement("SET session_replication_role = replica").execute();
+
         try (InputStream stream = Files.newInputStream(infile)) {
             JsonReader json = JsonReader.from(stream);
             json.array();
@@ -62,19 +69,20 @@ public class DbTool {
                     switch (json.key()) {
                         case "table":
                             table = json.string();
+                            if (lowercase) {
+                                table = table.toLowerCase(Locale.ROOT);
+                            }
                             break;
                         case "columns":
                             json.array();
                             while (json.next()) {
-                                columns.add(json.string());
+                                columns.add(lowercase ? json.string().toLowerCase(Locale.ROOT) : json.string());
                             }
                             break;
                         case "rows":
-                            System.out.println(table);
                             String columnsWithCommas = String.join(", ", columns);
                             String placeholders = String.join(",", Collections.nCopies(columns.size(), "?"));
                             String sql = "INSERT INTO " + table + " (" + columnsWithCommas + ") VALUES (" + placeholders + ")";
-                            System.out.println(sql);
 
                             int[] columnTypes = lookupColumnTypes(connection, table, columns);
                             if (columnTypes == null) {
@@ -88,10 +96,11 @@ public class DbTool {
                                 break;
                             }
 
-                            System.out.println(columnsWithCommas);
+                            System.out.println(table);
 
                             try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM " + table)) {
-                                stmt.executeLargeUpdate();
+                                long rows = stmt.executeLargeUpdate();
+                                System.out.println("deleted " + rows);
                             }
 
                             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -100,22 +109,72 @@ public class DbTool {
                                 for (row = 1; json.next(); row++) {
                                     json.array();
                                     for (int col = 1; json.next(); col++) {
-                                        if (columnTypes[col - 1] == Types.BLOB) {
-                                            stmt.setBytes(col, Base64.getDecoder().decode(json.string()));
-                                        } else if (columnTypes[col - 1] == Types.DATE) {
-                                            String value = json.string();
-                                            if (value != null && value.contains(" ")) { // strip times from date fields
-                                                value = value.replaceFirst(" .*", "");
+                                        switch (columnTypes[col - 1]) {
+                                            case Types.BLOB:
+                                            case Types.BINARY:
+                                                stmt.setBytes(col, Base64.getDecoder().decode(json.string()));
+                                                break;
+                                            case Types.DATE: {
+                                                String value = json.string();
+                                                if (value != null && value.contains(" ")) { // strip times from date fields
+                                                    value = value.replaceFirst(" .*", "");
+                                                }
+                                                stmt.setString(col, value);
+                                                break;
                                             }
-                                            stmt.setString(col, value);
-                                        } else if (columnTypes[col - 1] == Types.TIMESTAMP) {
-                                            String value = json.string();
-                                            if (value != null && value.startsWith("-")) { // workaround for crazy negative timestamps
-                                                value = "1987-01-01 00:00:00";
+                                            case Types.TIMESTAMP: {
+                                                String value = json.string();
+                                                if (value != null && value.startsWith("-")) { // workaround for crazy negative timestamps
+                                                    value = "1987-01-01 00:00:00";
+                                                }
+                                                if (value == null) {
+                                                    stmt.setNull(col, columnTypes[col - 1]);
+                                                } else {
+                                                    try {
+                                                        stmt.setObject(col, LocalDateTime.parse(value.replace(' ', 'T')));
+                                                    } catch (DateTimeParseException e) {
+                                                        System.err.println("Bogus date: " + value);
+                                                        stmt.setNull(col, columnTypes[col - 1]);
+                                                    }
+                                                }
+                                                //stmt.setString(col, value);
+                                                break;
                                             }
-                                            stmt.setString(col, value);
-                                        } else {
-                                            stmt.setString(col, json.string());
+                                            case Types.BIT:
+                                            case Types.BOOLEAN: {
+                                                Object value = json.value();
+                                                if (value == null) {
+                                                    stmt.setNull(col, columnTypes[col - 1]);
+                                                } else {
+                                                    stmt.setBoolean(col, value.equals("1") || value.equals((Long) 1L));
+                                                }
+                                                break;
+                                            }
+                                            case Types.INTEGER: {
+                                                Object value = json.value();
+                                                if (value == null) {
+                                                    stmt.setNull(col, columnTypes[col - 1]);
+                                                } else if (value instanceof String) {
+                                                    stmt.setInt(col, Integer.parseInt((String) value));
+                                                } else {
+                                                    stmt.setInt(col, (Integer) value);
+                                                }
+                                                break;
+                                            }
+                                            case Types.BIGINT: {
+                                                Object value = json.value();
+                                                if (value == null) {
+                                                    stmt.setNull(col, columnTypes[col - 1]);
+                                                } else if (value instanceof String) {
+                                                    stmt.setLong(col, Long.parseLong((String) value));
+                                                } else {
+                                                    stmt.setLong(col, (Long) value);
+                                                }
+                                                break;
+                                            }
+                                            default:
+                                                stmt.setObject(col, json.value());
+                                                break;
                                         }
                                     }
                                     stmt.addBatch();
@@ -135,6 +194,7 @@ public class DbTool {
                 }
             }
         }
+        connection.commit();
     }
 
     private static int[] lookupColumnTypes(Connection connection, String table, List<String> columns) throws SQLException {

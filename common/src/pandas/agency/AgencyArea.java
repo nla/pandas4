@@ -6,6 +6,10 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 
+/**
+ * A location associated with an agency. It can be used when restricting titles so that they can only be viewed from
+ * particular areas. Each area is a label given to a set of IP addresses. Eg."National Library Reading Room".
+ */
 @Entity
 @Table(name = "AGENCY_AREA")
 public class AgencyArea implements Serializable {

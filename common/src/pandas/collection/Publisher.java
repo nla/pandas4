@@ -4,12 +4,14 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
-import org.springframework.stereotype.Indexed;
 import pandas.core.Organisation;
 
 import javax.persistence.*;
 import java.util.Collection;
 
+/**
+ * An organisation (which may consist of a single person) that holds the copyright to one or more titles.
+ */
 @Entity
 @Indexed
 public class Publisher {
@@ -19,7 +21,14 @@ public class Publisher {
     @SequenceGenerator(name = "PUBLISHER_SEQ", sequenceName = "PUBLISHER_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
     private Long id;
+
+    /**
+     * The local reference number for this publisher. For the NLA, this will be a TRIM file number.
+     */
+    @Column(length = 256)
     private String localReference;
+
+    @Column(length = 4000)
     private String notes;
 
     @OneToOne

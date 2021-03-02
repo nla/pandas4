@@ -1,6 +1,7 @@
 package pandas.gather;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Type;
 import pandas.collection.Title;
 
 import javax.persistence.*;
@@ -10,7 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 @Entity
-@Table(name = "INSTANCE")
+@Table(name = "INSTANCE",
+        indexes = @Index(name = "instance_title_id_instance_date_index", columnList = "title_id, instance_date"))
 @DynamicUpdate
 public class Instance {
     static final DateTimeFormatter instanceDateFormat = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
@@ -32,13 +34,13 @@ public class Instance {
     @JoinColumn(name = "CURRENT_STATE_ID")
     private State state;
 
-    @Column(name = "DISPLAY_NOTE")
+    @Column(name = "DISPLAY_NOTE", length = 4000)
     private String displayNote;
 
     @Column(name = "GATHER_METHOD_NAME")
     private String gatherMethodName;
 
-    @Column(name = "GATHERED_URL")
+    @Column(name = "GATHERED_URL", length = 1024)
     private String gatheredUrl;
 
     @Column(name = "INSTANCE_STATE_ID")
@@ -69,6 +71,8 @@ public class Instance {
     private Long restrictionEnabledT;
 
     @Column(name = "TEP_URL")
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String tepUrl;
 
     @Column(name = "TRANSPORTABLE")
@@ -78,6 +82,8 @@ public class Instance {
     private String typeName;
 
     @Column(name = "GATHER_COMMAND")
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String gatherCommand;
 
     @OneToOne(mappedBy = "instance")

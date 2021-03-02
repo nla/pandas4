@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "ROLE")
+@Table(name = "ROLE", indexes = @Index(name = "role_individual_id_index", columnList = "individual_id"))
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role {
     @Id

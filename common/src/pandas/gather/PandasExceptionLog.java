@@ -1,5 +1,7 @@
 package pandas.gather;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.time.Instant;
 
@@ -19,13 +21,13 @@ public class PandasExceptionLog {
     @JoinColumn(name = "INSTANCE_ID")
     private Instance instance;
 
-    @Column(name = "EXCEPTION_ORIGINATOR")
+    @Column(name = "EXCEPTION_ORIGINATOR", length = 100)
     private String originator;
 
     @Column(name = "PI")
     private Long pi;
 
-    @Column(name = "EXCEPTION_SUMMARY")
+    @Column(name = "EXCEPTION_SUMMARY", length = 4000)
     private String summary;
 
     @Column(name = "TITLE_ID")
@@ -35,6 +37,8 @@ public class PandasExceptionLog {
     private Long viewed;
 
     @Column(name = "EXCEPTION_DETAIL")
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String detail;
 
     public Instant getDate() {

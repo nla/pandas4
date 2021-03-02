@@ -9,6 +9,9 @@ import pandas.core.Organisation;
 import javax.persistence.*;
 import java.util.Collection;
 
+/**
+ * A partner agency who is involved in selecting and archiving titles.
+ */
 @Entity
 @Table(name = "AGENCY")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -20,9 +23,16 @@ public class Agency {
     @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
+    /**
+     * Email address for this agency, to be displayed to the public.
+     */
     @Column(name = "EXTERNAL_EMAIL")
     private String externalEmail;
 
+    /**
+     * The URL this agency uses to access any form letters they wish to use to communicate with publisher and title
+     * contacts.
+     */
     @Column(name = "FORM_LETTER_URL")
     private String formLetterUrl;
 
@@ -38,9 +48,19 @@ public class Agency {
     @OneToMany(mappedBy = "agency")
     private Collection<AgencyArea> areas;
 
+    /**
+     * The organisation which corresponds to this agency.
+     */
     @OneToOne
     @JoinColumn(name = "ORGANISATION_ID")
     private Organisation organisation;
+
+    /**
+     * This agency's logo image file.
+     */
+    @Column(name = "LOGO")
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] logo;
 
     public String getName() {
         return getOrganisation().getName();
@@ -108,5 +128,13 @@ public class Agency {
 
     public void setOrganisation(Organisation organisation) {
         this.organisation = organisation;
+    }
+
+    public byte[] getLogo() {
+        return logo;
+    }
+
+    public void setLogo(byte[] logo) {
+        this.logo = logo;
     }
 }

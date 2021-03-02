@@ -48,7 +48,7 @@ public class OwnerHistory {
     /**
      * Note written by the user who was transferring the title to another user.
      */
-    @Column(name = "NOTE")
+    @Column(name = "NOTE", length = 4000)
     private String note;
 
     /**

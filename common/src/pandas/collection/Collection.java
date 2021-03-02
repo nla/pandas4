@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
@@ -28,6 +29,8 @@ public class Collection {
     @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String displayComment;
     private Integer displayOrder;
     private boolean isDisplayed;
@@ -51,7 +54,9 @@ public class Collection {
     @ManyToMany
     @JoinTable(name = "COL_SUBS",
             joinColumns = @JoinColumn(name = "COL_ID"),
-            inverseJoinColumns = @JoinColumn(name = "SUBJECT_ID"))
+            inverseJoinColumns = @JoinColumn(name = "SUBJECT_ID"),
+            indexes = { @Index(name = "col_subs_col_id_index", columnList = "col_id"),
+                        @Index(name = "col_subs_subject_id_index", columnList = "subject_id") })
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name"})
     private List<Subject> subjects = new ArrayList<>();

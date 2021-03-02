@@ -2,6 +2,9 @@ package pandas.agency;
 
 import javax.persistence.*;
 
+/**
+ * An IP address range that is located in a listed agency area. This is used to restrict access to a title.
+ */
 @Entity
 @Table(name = "AGENCY_AREA_IP")
 public class AgencyAreaIp {

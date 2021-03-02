@@ -5,10 +5,10 @@ import javax.persistence.*;
 @Entity
 @Table(name = "INS_RESOURCE")
 public class InstanceResource {
-    @Column(name = "DISPLAY_URL")
+    @Column(name = "DISPLAY_URL", length = 1024)
     private String displayUrl;
 
-    @Column(name = "GATHERED_URL")
+    @Column(name = "GATHERED_URL", length = 1024)
     private String gatheredUrl;
 
     @Id
@@ -20,7 +20,7 @@ public class InstanceResource {
     @MapsId
     private Instance instance;
 
-    @Column(name = "LOCAL_URL")
+    @Column(name = "LOCAL_URL", length = 1024)
     private String localUrl;
 
     public String getDisplayUrl() {

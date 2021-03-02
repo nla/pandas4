@@ -50,7 +50,10 @@ public class Subject {
     @ManyToMany
     @JoinTable(name = "SUBJECT_TITLES",
             joinColumns = @JoinColumn(name = "SUBJECT_ID"),
-            inverseJoinColumns = @JoinColumn(name = "TITLE_ID"))
+            inverseJoinColumns = @JoinColumn(name = "TITLE_ID"),
+            indexes = {
+                @Index(name = "subject_titles_subject_id_index", columnList = "SUBJECT_ID"),
+                @Index(name = "subject_titles_title_id_index", columnList = "TITLE_ID")})
     @OrderBy("name")
     @JsonIgnore
     private List<Title> titles;

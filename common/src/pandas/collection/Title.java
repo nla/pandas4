@@ -26,12 +26,16 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * An online resource selected for archiving.
+ */
 @Entity
 @Indexed
 @NamedEntityGraph(name = "Title.subjects", attributeNodes = @NamedAttributeNode("subjects"))
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@Table(indexes = @Index(name="title_last_modified_date_title_id_index", columnList = "lastModifiedDate, title_id"))
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
@@ -42,31 +46,56 @@ public class Title {
 //  @GenericGenerator(name = "TITLE_SEQ", strategy = "native")
     private Long id;
 
+    /**
+     * Persistant Identifier used for referencing archived copies of this online resource.
+     * TODO: Unify this with id by changing the id of existing titles to their pi.
+     */
     @GenericField
     private Long pi;
 
+    /**
+     * The name or heading of this title
+     */
+    @Column(name = "NAME", nullable = false, length = 256)
     @FullTextField(analyzer = "english")
     @KeywordField(name = "name_sort", sortable = Sortable.YES)
     @NotNull
     private String name;
 
+    /**
+     * URL for this resource on the live web.
+     */
+    @Column(name = "TITLE_URL", nullable = true, length = 1024)
     @FullTextField(analyzer = "url")
     private String titleUrl;
 
+    /**
+     * The URL which will be used to gather this title.
+     */
+    @Column(name = "SEED_URL", nullable = true, length = 1024)
     @FullTextField(analyzer = "url")
     private String seedUrl;
 
+    /**
+     * The date this title was created.
+     */
     @GenericField(sortable = Sortable.YES)
     @CreatedDate
     @NotNull
     private Instant regDate;
 
+    /**
+     * Format this title is in eg. integrating, serial, monograph.
+     */
     @ManyToOne
     @JoinColumn(name = "FORMAT_ID")
     @IndexedEmbedded(includePaths = {"id"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Format format;
 
+    /**
+     * The corresponding Title Entry Page used by the display system.
+     */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEP_ID")
     private Tep tep;
@@ -77,6 +106,9 @@ public class Title {
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Agency agency;
 
+    /**
+     * The publishing agency who hold the copyright for this title.
+     */
     @ManyToOne
     @JoinColumn(name = "PUBLISHER_ID", referencedColumnName = "PUBLISHER_ID")
     @IndexedEmbedded(includePaths = {"id", "type.id", "organisation.name"})
@@ -103,7 +135,9 @@ public class Title {
     @ManyToMany
     @JoinTable(name = "TITLE_COL",
             joinColumns = @JoinColumn(name = "TITLE_ID"),
-            inverseJoinColumns = @JoinColumn(name = "COLLECTION_ID"))
+            inverseJoinColumns = @JoinColumn(name = "COLLECTION_ID"),
+            indexes = { @Index(name = "title_col_title_id_index", columnList = "title_id"),
+                        @Index(name = "title_col_collection_id_index", columnList = "collection_id") })
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Collection> collections;
@@ -119,32 +153,123 @@ public class Title {
     @Formula("(select MIN(i.INSTANCE_DATE) from INSTANCE i where i.TITLE_ID = TITLE_ID)")
     private Instant firstInstanceDate;
 
+    /**
+     * Internal notes about this title.
+     */
+    @Column(name = "NOTES", nullable = true, length = 4000)
     private String notes;
 
     @GenericField(sortable = Sortable.YES)
     @LastModifiedDate
     private Instant lastModifiedDate;
 
+    /**
+     * Notes about any offensive content within this title
+     */
+    @Column(name = "CONTENT_WARNING", nullable = true, length = 256)
     private String contentWarning;
+
+    /**
+     * Australian National Bibliographic Database catalogue record identifier for this archived resource
+     */
+    @Column(name = "ANBD_NUMBER", nullable = true, length = 22)
     private String anbdNumber;
+
+    /**
+     * An agency specific database number for this title. At the NLA, this is a Voyager database number.
+     */
+    @Column(name = "LOCAL_DATABASE_NO", nullable = true, length = 25)
     private String localDatabaseNo;
+
+    /**
+     * An agency specific reference number for this title. At the NLA, this is a TRIM number.
+     */
+    @Column(name = "LOCAL_REFERENCE", nullable = true, length = 25)
     private String localReference;
+
+    /**
+     * Flags whether cataloguing is required for this title or not.
+     */
     @Column(name = "IS_CATALOGUING_NOT_REQ")
     @NotNull
     private boolean cataloguingNotRequired;
+
+    /**
+     * Indicates whether this title must be subscribed to before it can be accessesd.
+     */
     @Column(name = "IS_SUBSCRIPTION")
     @NotNull
     private boolean subscription;
+
     @NotNull
     private boolean legalDeposit;
+
     @NotNull
     private boolean unableToArchive;
+
     @NotNull
     private boolean disappeared;
+
+    /**
+     * Flags whether this title is waiting to be acknowledged after a transfer of ownership.
+     */
+    @NotNull
+    private boolean awaitingConfirmation;
+
+    /**
+     * PURLs which were stored for titles in a previous version of the system, no longer added or edited but need to
+     * be stored to maintain their persistence.
+     */
+    @Column(name = "LEGACY_PURL", nullable = true, length = 1024)
+    private String legacyPurl;
+
+    /**
+     * Shortened name used for display in worktrays.
+     */
+    @Column(name = "SHORT_DISPLAY_NAME", nullable = true, length = 256)
+    private String shortDisplayName;
+
+    /**
+     * Unused. TODO: remove this column.
+     */
+    @Deprecated
+    private Long titleResourceId;
 
     @OneToMany(mappedBy = "title")
     @OrderBy("date desc")
     private List<Instance> instances;
+
+    /**
+     * Foreign key to the old Pv2 standing for this title
+     */
+    @Deprecated
+    private Long standingId;
+
+    /**
+     * Foreign key to the old Pv2 status of this title
+     */
+    @Deprecated
+    private Long statusId;
+
+    /**
+     * Foreign key to the indexing agency which asked for this title to be nominated.
+     */
+    private Long indexerId;
+
+    /**
+     * The active permission for this title. The active permission may be a title level permission or a publisher
+     * blanket permission
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PERMISSION_ID")
+    private Permission permission;
+
+    /**
+     * The title level permission for this title. (May or may not be the active permission for this title.)
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFAULT_PERMISSION_ID")
+    private Permission defaultPermission;
 
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
@@ -240,7 +365,7 @@ public class Title {
     }
 
     public boolean isVisible() {
-        return getTep() != null && getTep().isDoCollection();
+        return getTep() != null && getTep().getDoCollection() != null && getTep().getDoCollection();
     }
 
     public Individual getOwner() {
@@ -402,5 +527,83 @@ public class Title {
 
     public List<Instance> getInstances() {
         return instances;
+    }
+
+    public boolean isAwaitingConfirmation() {
+        return awaitingConfirmation;
+    }
+
+    public void setAwaitingConfirmation(boolean awaitingConfirmation) {
+        this.awaitingConfirmation = awaitingConfirmation;
+    }
+
+    public String getLegacyPurl() {
+        return legacyPurl;
+    }
+
+    public void setLegacyPurl(String legacyPurl) {
+        this.legacyPurl = legacyPurl;
+    }
+
+    public String getShortDisplayName() {
+        return shortDisplayName;
+    }
+
+    public void setShortDisplayName(String shortDisplayName) {
+        this.shortDisplayName = shortDisplayName;
+    }
+
+    @Deprecated
+    public Long getTitleResourceId() {
+        return titleResourceId;
+    }
+
+    @Deprecated
+    public void setTitleResourceId(Long titleResourceId) {
+        this.titleResourceId = titleResourceId;
+    }
+
+    @Deprecated
+    public Long getStandingId() {
+        return standingId;
+    }
+
+    @Deprecated
+    public void setStandingId(Long standingId) {
+        this.standingId = standingId;
+    }
+
+    @Deprecated
+    public Long getStatusId() {
+        return statusId;
+    }
+
+    @Deprecated
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
+    }
+
+    public Long getIndexerId() {
+        return indexerId;
+    }
+
+    public void setIndexerId(Long indexerId) {
+        this.indexerId = indexerId;
+    }
+
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
+    }
+
+    public Permission getDefaultPermission() {
+        return defaultPermission;
+    }
+
+    public void setDefaultPermission(Permission defaultPermission) {
+        this.defaultPermission = defaultPermission;
     }
 }

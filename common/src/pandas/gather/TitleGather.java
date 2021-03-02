@@ -2,6 +2,7 @@ package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
@@ -13,6 +14,9 @@ import pandas.collection.Title;
 import javax.persistence.*;
 import java.time.Instant;
 
+/**
+ * Information about the gather settings and options for a title.
+ */
 @Entity
 @Table(name = "TITLE_GATHER")
 @DynamicUpdate
@@ -25,7 +29,7 @@ public class TitleGather {
     @JoinColumn(name = "ACTIVE_PROFILE_ID")
     private Profile activeProfile;
 
-    @Column(name = "ADDITIONAL_URLS")
+    @Column(name = "ADDITIONAL_URLS", length = 4000)
     private String additionalUrls;
 
     @Column(name = "AUTHENTICATE_IP")
@@ -53,7 +57,7 @@ public class TitleGather {
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private GatherSchedule schedule;
 
-    @Column(name = "GATHER_URL")
+    @Column(name = "GATHER_URL", length = 1024)
     private String gatherUrl;
 
     @Column(name = "LAST_GATHER_DATE")
@@ -64,11 +68,11 @@ public class TitleGather {
     @GenericField(sortable = Sortable.YES)
     private Instant nextGatherDate;
 
-    @Column(name = "NOTES")
+    @Column(name = "NOTES", length = 4000)
     @FullTextField(analyzer = "english")
     private String notes;
 
-    @Column(name = "PASSWORD")
+    @Column(name = "PASSWORD", length = 128)
     private String password;
 
     @Column(name = "QUEUED")
@@ -80,10 +84,12 @@ public class TitleGather {
     @Column(name = "SCHEDULED_DATE")
     private Instant scheduledDate;
 
-    @Column(name = "USERNAME")
+    @Column(name = "USERNAME", length = 128)
     private String username;
 
     @Column(name = "GATHER_COMMAND")
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String gatherCommand;
 
     @OneToOne
