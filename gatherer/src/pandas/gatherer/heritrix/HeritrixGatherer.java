@@ -27,14 +27,16 @@ public class HeritrixGatherer implements Backend {
     private final InstanceService instanceService;
     private final Config config;
     private final HeritrixConfig heritrixConfig;
+    private final BambooClient bamboo;
     private boolean shutdown;
 
-    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService) {
+    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, BambooClient bamboo) {
         this.workingArea = workingArea;
         this.config = config;
         this.heritrixConfig = heritrixConfig;
         heritrix = new HeritrixClient(heritrixConfig.getUrl(), heritrixConfig.getUser(), heritrixConfig.getPassword());
         this.instanceService = instanceService;
+        this.bamboo = bamboo;
     }
 
     @Override
@@ -124,45 +126,28 @@ public class HeritrixGatherer implements Backend {
 
         Path jobDir = jobDir(instance);
 
-// TODO: switch to Bamboo upload API
+        String crawlName = instance.getTitle().getName() + " [" + instance.getHumanId() + "]";
 
-//        try (BlobTx tx = blobStore.begin()) {
-//            List<Warc> warcs = new ArrayList<>();
-//            List<Artifact> artifacts = new ArrayList<>();
-//
-//            for (Path file : Files.walk(jobDir).collect(toList())) {
-//                Path path = jobDir.relativize(file);
-//                ArtifactType type = artifactType(path);
-//                if (type == null) {
-//                    continue;
-//                }
-//
-//                String sha256 = Digests.sha256(file);
-//
-//                Blob blob = tx.put(file);
-//
-//                if (!sha256.equals(blob.digest("SHA-256"))) {
-//                    tx.rollback();
-//                    throw new IllegalStateException("digest mismatch ingesting " + file);
-//                }
-//
-//                if (type == ArtifactType.WARC) {
-//                    warcs.add(new Warc(BambooDB.WARC_STATE_IMPORTED, file.getFileName().toString(),
-//                            blob.id(), blob.size(), sha256));
-//                } else {
-//                    Instant lastModified = Files.getLastModifiedTime(file).toInstant();
-//                    artifacts.add(new Artifact(blob.id(), blob.size(), sha256, null, path.toString(),
-//                            lastModified, type));
-//                }
-//                log.debug("{} {} blobId={} sha256={}", type, path, blob.id(), sha256);
+        long crawlId = bamboo.getOrCreateCrawl(crawlName, instance.getId());
+
+
+
+//        for (Path file : Files.walk(jobDir).collect(toList())) {
+//            Path path = jobDir.relativize(file);
+//            ArtifactType type = artifactType(path);
+//            if (type == null) {
+//                continue;
 //            }
 //
-//            String crawlName = gatherDetails.getTitleName() + " [" + instance.getHumanId() + "]";
-//            long crawlId = bambooDB.insertCrawl(config.bambooSeriesId, crawlName, instance.getId(), warcs, artifacts);
-//            tx.commit();
-//            log.info("Ingested {} to Bamboo as crawl {}", instance.getHumanId(), crawlId);
-//        } catch (NoSuchAlgorithmException e) {
-//            throw new RuntimeException(e);
+//            if (type == ArtifactType.WARC) {
+////                warcs.add(new Warc(BambooDB.WARC_STATE_IMPORTED, file.getFileName().toString(),
+////                        blob.id(), blob.size(), sha256));
+//            } else {
+////                Instant lastModified = Files.getLastModifiedTime(file).toInstant();
+////                artifacts.add(new Artifact(blob.id(), blob.size(), sha256, null, path.toString(),
+////                        lastModified, type));
+//            }
+//            log.debug("{} {} blobId={} sha256={}", type, path, blob.id(), sha256);
 //        }
 
         delete(instance);

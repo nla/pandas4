@@ -275,4 +275,8 @@ public class Instance {
     public boolean canDelete() {
         return Set.of(State.GATHERING, State.GATHERED, State.CREATION).contains(getState().getName());
     }
+
+    public boolean canStop() {
+        return getState().getName().equals(State.GATHERING);
+    }
 }

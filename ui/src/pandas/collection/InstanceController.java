@@ -48,4 +48,12 @@ public class InstanceController {
         instanceService.updateState(instance, State.ARCHIVING, userService.getCurrentUser());
         return "redirect:/instances/" + instance.getId();
     }
+
+    @PostMapping("/instances/{id}/stop")
+    public String stop(@PathVariable("id") Instance instance) {
+        if (instance.canStop()) {
+            instanceService.updateState(instance, State.GATHERED, userService.getCurrentUser());
+        }
+        return "redirect:/instances/" + instance.getId();
+    }
 }

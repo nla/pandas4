@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Gather Queue - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <h1>Gather Queue</h1>
+    <header></header>
 
     <h2 id="queued">Queued</h2>
     <table class="table">
@@ -35,6 +35,7 @@
 
     <h2>Gathering</h2>
 
+    <form method=post>
     <table class="table">
         <thead>
         <tr>
@@ -43,6 +44,7 @@
             <th>Title</th>
             <th>Method</th>
             <th>State</th>
+            <th>Action</th>
         </tr>
         </thead>
         <tbody>
@@ -52,9 +54,11 @@
             <td><a th:href="@{|/titles/${instance.title.id}|}" th:text="${instance.title.name}" href="#">Fishes of Australia</a></td>
             <td th:text="${instance.gatherMethodName}">Heritrix</td>
             <td th:text="${instance.state.name}">Heritrix</td>
+            <td><button th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i class="icon stop"></i> Stop</button></td>
         </tr>
         </tbody>
     </table>
+    </form>
 
 
 </main>

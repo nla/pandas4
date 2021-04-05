@@ -23,4 +23,5 @@ public class GatherQueueController {
         model.addAttribute("gatheringInstances", instanceRepository.findGathering());
         return "gather/GatherQueue";
     }
+
 }

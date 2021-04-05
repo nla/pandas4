@@ -47,7 +47,7 @@
 
     <ul>
         <li><a th:href="@{/marcexport}">MARC Export</a>
-        <li><a th:href="@{/queue}">Gather Queue</a>
+        <li><a th:href="@{/queue}" th:classappend="${#request.servletPath.matches('/queue')}? 'active'">Gather Queue</a>
     </ul>
     <ul>
         <li sec:authorize="hasRole('panadmin')"><a th:href="@{/profiles}">Gather Profiles</a>

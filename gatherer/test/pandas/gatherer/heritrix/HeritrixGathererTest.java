@@ -25,6 +25,14 @@ package pandas.gatherer.heritrix;
 //
 //import static org.junit.Assert.assertEquals;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import pandas.gatherer.core.Config;
+import pandas.gatherer.core.WorkingArea;
+
+import java.io.IOException;
+
 public class HeritrixGathererTest {
 //    private static Map<String, ArtifactType> artifacts = new TreeMap<>();
 //
@@ -68,37 +76,32 @@ public class HeritrixGathererTest {
 //        artifacts.put("scratch/tt5http.ris", null);
 //    }
 //
-//    @Rule
-//    public TemporaryFolder temp = new TemporaryFolder();
-//
-//    @Test
-//    public void archive() throws IOException {
-//        Jdbi bambooDbi = Jdbi.create("jdbc:h2:mem:bamboo;DB_CLOSE_DELAY=-1", "bamboo", "bamboo");
-//        bambooDbi.installPlugin(new SqlObjectPlugin());
-//        try (Handle h = bambooDbi.open()) {
-//            h.createScript(new Scanner(HeritrixGathererTest.class.getResourceAsStream("bamboo-schema.sql"),
-//                    "UTF-8").useDelimiter("\\A").next()).executeAsSeparateStatements();
-//        }
-//
-//
-//        Path blobStorePath = temp.newFolder("doss").toPath();
-//        LocalBlobStore.init(blobStorePath);
-//        BlobStore blobStore = LocalBlobStore.open(blobStorePath);
-//        WorkingArea workingArea = new WorkingArea(temp.newFolder("working").toPath());
-//        Config config = new Config();
+    @Rule
+    public TemporaryFolder temp = new TemporaryFolder();
+
+    @Test
+    public void archive() throws IOException {
+        Config config = new Config();
 //        config.heritrixUrl = "http://localhost:1234";
 //        config.heritrixUser = "dummy";
 //        config.heritrixPassword = "dummy";
 //        config.bambooSeriesId = 1L;
 //        config.pywbDataDir = temp.newFolder("pywbData").toPath();
-//
+
+        WorkingArea workingArea = new WorkingArea(config);
+
 //        Instance instance = new Instance(123, (long) 12345, Instant.parse("2018-06-25T03:19:56.294Z"), "Heritrix");
 //
 //        PandasDB mockPandasDB = Mockito.mock(PandasDB.class);
 //        Mockito.when(mockPandasDB.getGatherDetailsForInstance(instance.getId()))
 //                .thenReturn(new GatherDetails("Test title", "http://example.org", ""));
-//
-//        HeritrixGatherer gatherer = new HeritrixGatherer(config, mockPandasDB, bambooDbi.onDemand(BambooDB.class), workingArea, blobStore);
+
+        HeritrixConfig heritrixConfig = new HeritrixConfig();
+
+        HeritrixGatherer gatherer = new HeritrixGatherer(config, heritrixConfig, workingArea, null, null);
+
+        gatherer.archive(null);
+
 //        Path jobDir = workingArea.getInstanceDir(instance.getPi(), instance.getDateString()).resolve(instance.getHumanId());
 //        Files.createDirectories(jobDir);
 //
@@ -108,7 +111,7 @@ public class HeritrixGathererTest {
 //            Files.write(path, "Hello".getBytes(StandardCharsets.UTF_8));
 //        }
 //        gatherer.archive(instance);
-//    }
+    }
 //
 //    @Test
 //    public void artifactType() {
