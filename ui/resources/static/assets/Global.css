@@ -106,7 +106,7 @@ body > main {
     padding: 0 15px;
     padding-left: 196px;
     margin-top: 58px;
-    max-width: 1200px;
+    /*max-width: 1200px;*/
 }
 
 body > main > header, main > form > header {
@@ -125,7 +125,7 @@ body > main > header, main > form > header {
     height: 50px;
     padding: 0px 15px;
     padding-left: 196px;
-    max-width: 1200px;
+    /*max-width: 1200px;*/
 }
 
 /*

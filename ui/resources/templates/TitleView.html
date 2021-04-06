@@ -5,6 +5,51 @@
     <title th:text="${title.name + ' - PANDAS'}">Example Title - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        h1 {
+            margin-bottom: 8px;
+            margin-top: 8px;
+        }
+
+        h4 {
+            margin-bottom: 16px;
+        }
+
+        .panel-title-details {
+            float: left;
+            width: 450px
+        }
+
+        .panel-instance-list .instance-year {
+            font-size: 200%;
+            font-weight: lighter;
+            color: #666;
+            padding-right: 40px;
+            text-align: left;
+            vertical-align: top
+        }
+
+        .panel-instance-list .instance-list {
+            padding-bottom: 32px;
+        }
+
+        .panel-instance-list .instance-list > a {
+            display: inline-block;
+            text-align: center;
+            margin-bottom: 16px;
+            margin-right: 8px;
+            color: #000;
+        }
+
+        .panel-instance-list .instance-list > a img {
+            width: 100px;
+            height: 75px;
+        }
+        .panel-instance-list .instance-list > a .size {
+            color: #666;
+            font-size: 75%;
+        }
+    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
@@ -16,80 +61,85 @@
         </nav>
     </header>
 
-    <h1 th:text="${title.name}">Example Title</h1>
+    <div class="panel-title-details">
+        <h1 th:text="${title.name}">Example Title</h1>
+        <a th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span th:text="${title.pi}"></span></a><br>
+        <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green"></a>
 
-    <table>
-        <tr><th>PI</th><td th:text="${title.pi}"></td></tr>
-        <tr><th>Title URL</th><td th:text="${title.titleUrl}"></td></tr>
-        <tr><th>Seed URL</th><td th:text="${title.seedUrl}"></td></tr>
-        <tr><th>Registered</th><td th:text="${title.regDate}"></td></tr>
-        <tr><th>Owner</th><td>
-            <span th:text="${title.owner.fullName}"></span>
-            <a th:href="@{|/titles/${title.id}/ownerhistory|}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
-        </td></tr>
-        <tr><th>Agency</th><td th:text="${title.agency.name}"></td></tr>
-        <tr><th>Status</th><td th:text="${title.status.name}"></td></tr>
-        <tr><th>&nbsp;</th></tr>
-        <tr><th>Format</th><td th:text="${title.format.name}"></td></tr>
-        <tr><th>ANBD No.</th><td th:text="${title.anbdNumber}"></td></tr>
-        <tr><th>Local DB No.</th><td th:text="${title.localDatabaseNo}"></td></tr>
-        <tr><th>Local Ref.</th><td th:text="${title.localReference}"></td></tr>
-        <tr><th>&nbsp;</th></tr>
-        <tr th:if="${title.publisher != null}"><th>Publisher</th><td><a th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a> [<span th:text="${title.publisher.type.name}"></span>] </td></tr>
-        <tr>
-            <th>Collections<th>
-            <td>
-                <ul class="collection-list">
-                    <li th:each="collection: ${title.collections}">
-                        <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
-                           href="CollectionView.html">Nice Sites</a>
-                    </li>
-                </ul>
+        <div>
+            <h4>Status</h4>
+            <div th:text="${title.status.name}" style="text-transform: capitalize"></div>
+            <div><span th:text="${title?.gather?.schedule?.name}"></span> <span
+                    th:text="${title?.gather?.method?.name}"></span> gather
+            </div>
+        </div>
+
+        <div th:if="${title.publisher != null}">
+            <h4>Publisher</h4>
+            <a th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a>
+            [<span th:text="${title.publisher.type.name}"></span>]
+        </div>
+
+        <div>
+            <h4>Collections</h4>
+            <ul class="collection-list" style="padding-left: 16px; list-style-type: '- '">
+                <li th:each="collection: ${title.collections}">
+                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
+                       href="CollectionView.html">Nice Sites</a>
+                </li>
+            </ul>
+        </div>
+
+        <div>
+            <h4>Subjects</h4>
+            <ul class="subject-list" style="padding-left: 16px; list-style-type: '- '">
+                <li th:each="subject: ${title.subjects}">
+                    <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
+                       href="SubjectView.html">Sport</a>
+                </li>
+            </ul>
+        </div>
+
+        <div>
+            <h4>Cataloguing</h4>
+            <div>Format: <span th:text="${title.format.name}"></span></div>
+            <div th:if="${title.anbdNumber != null}">ANBD No: <a
+                    th:href="@{|https://nla.gov.au/anbd.bib-an${title.anbdNumber}|}" th:text="${title.anbdNumber}"></a>
+            </div>
+            <div th:if="${title.localDatabaseNo != null}">Local DB No: <span th:text="${title.localDatabaseNo}"></span>
+            </div>
+            <div th:if="${title.localReference != null}">Local Ref: <span th:text="${title.localReference}"></span>
+            </div>
+        </div>
+
+        <div>
+            <h4>Owner</h4>
+            <div>Owner: <span th:text="${title.owner.fullName}"></span> <a
+                    th:href="@{|/titles/${title.id}/ownerhistory|}" href="TitleOwnerHistory.html"><i
+                    class="icon history"></i></a></div>
+            <div>Agency: <span th:text="${title.agency.name}"></span></div>
+            <div>Registered: <span th:text="${dateFormat.format(title.regDate)}"></span></div>
+        </div>
+
+        <div>
+            <h4>Notes</h4>
+            <div th:text="${title.notes}" style="white-space: pre-wrap"></div>
+        </div>
+    </div>
+
+    <table class="panel-instance-list">
+        <tr th:each="year : ${instancesByYear}">
+            <td class="instance-year" th:text="${year.key}">2021</td>
+            <td class="instance-list">
+                <a th:each="instance : ${year.value}"
+                   th:href="@{|/instances/${instance.id}|}">
+                    <img>
+                    <div th:text="${instanceDateFormat.format(instance.date)}"></div>
+                    <div class="size" th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
+                </a>
             </td>
         </tr>
-        <tr>
-            <th>Subjects</th>
-            <td>
-                <ul class="subject-list">
-                    <li th:each="subject: ${title.subjects}">
-                        <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
-                           href="SubjectView.html">Sport</a>
-                    </li>
-                </ul>
-            </td>
-        </tr>
-        <tr><th>Notes</th><td th:text="${title.notes}" style="white-space: pre-wrap"></td></tr>
-        <tr><th>&nbsp;</th></tr>
-        <tr><th>Gather Method</th><td th:text="${title?.gather?.method?.name}"></td></tr>
-        <tr><th>First Gathered</th><td th:text="${title?.gather.firstGatherDate}"></td></tr>
-        <tr><th>Last Gathered</th><td th:text="${title?.gather.lastGatherDate}"></td></tr>
-        <tr><th>Next Gather</th><td th:text="${title?.gather.nextGatherDate}"></td></tr>
-        <tr><th>Schedule</th><td th:text="${title?.gather?.schedule?.name}"></td></tr>
     </table>
 
-    <h2>Instances (<span th:text="${title.instances.size()}"></span>)</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Files</th>
-            <th>Size</th>
-            <th>Duration</th>
-            <th>Method</th>
-            <th>State</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="instance: ${title.instances}">
-            <td><a href="InstanceView.html" th:href="@{|/instances/${instance.id}|}" th:text="${instance.dateString}">20200420-0945</a></td>
-            <td th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></td>
-            <td th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></td>
-            <td th:text="${instance?.gather?.timeHuman}"></td>
-            <td th:text="${instance.gatherMethodName}"></td>
-            <td><span th:text="${instance.state.name}"></span><a th:href="@{|/instances/${instance.id}#state-history|}"><i class="icon history"></i></a></td>
-            <td><a th:href="${config.bambooUrl + '/instances/' + instance.id}">View in Bamboo</a></td>
-        </tr>
-        </tbody>
-    </table>
 
 </main>

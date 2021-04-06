@@ -7,6 +7,7 @@ import pandas.collection.Title;
 import javax.persistence.*;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
@@ -126,7 +127,11 @@ public class Instance {
     }
 
     public String getDateString() {
-        return getDate().atZone(ZoneId.systemDefault()).format(instanceDateFormat);
+        return getDateZoned().format(instanceDateFormat);
+    }
+
+    private ZonedDateTime getDateZoned() {
+        return getDate().atZone(ZoneId.systemDefault());
     }
 
     public void setDate(Instant instanceDate) {

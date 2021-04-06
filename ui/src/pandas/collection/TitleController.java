@@ -32,12 +32,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.*;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
 @Controller
@@ -70,8 +68,13 @@ public class TitleController {
 
     @GetMapping("/titles/{id}")
     public String get(@PathVariable("id") Title title, Model model) {
-        model.addAttribute("config", config);
+        model.addAttribute("instanceDateFormat", DateTimeFormatter.ofPattern("MMM d").withZone(ZoneId.systemDefault()));
+        model.addAttribute("dateFormat", DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));
         model.addAttribute("title", title);
+        Comparator<Integer> comparator = Comparator.naturalOrder();
+        model.addAttribute("instancesByYear", title.getInstances().stream().collect(
+                groupingBy(i -> i.getDate().atZone(ZoneId.systemDefault()).getYear(),
+                () -> new TreeMap<>(comparator.reversed()), toList())));
         return "TitleView";
     }
 
@@ -205,9 +208,9 @@ public class TitleController {
     }
 
     @GetMapping("/titles/new")
-    public String newForm(@RequestParam(value = "collection", required = false) List<Collection> collections,
-                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
-                          Model model) {
+    public String update(@RequestParam(value = "collection", required = false) List<Collection> collections,
+                         @RequestParam(value = "subject", required = false) List<Subject> subjects,
+                         Model model) {
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         model.addAttribute("form", form);
         model.addAttribute("allCollections", classificationService.allCollections());
@@ -219,8 +222,7 @@ public class TitleController {
     }
 
     @PostMapping(value = "/titles", produces = "application/json")
-    @ResponseBody
-    public Title newForm(@Valid TitleEditForm form) {
-        return titleService.update(form);
+    public String update(@Valid TitleEditForm form) {
+        return "redirect:/titles/" + form.getId();
     }
 }

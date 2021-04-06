@@ -13,6 +13,7 @@
     <header>
         <nav>
             <a th:href="@{|/titles/${instance.title.id}|}" class="btn"><i class="icon back"></i> Back to title</a>
+            <a th:href="${bambooUrl}" class="btn btn-secondary">View in Bamboo</a>
             <button th:if="${instance.canArchive()}" th:formaction="@{|/instances/${instance.id}/archive|}" type=submit form=actionForm class="btn btn-secondary"><i class="icon archive"></i> Archive</button>
         </nav>
         <button th:if="${instance.canDelete()}" th:formaction="@{|/instances/${instance.id}/delete|}" type=submit form=actionForm class="btn btn-danger"><i class="icon delete"></i> Delete</button>

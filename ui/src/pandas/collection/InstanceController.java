@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import pandas.core.Config;
 import pandas.core.UserService;
 import pandas.gather.Instance;
 import pandas.gather.InstanceService;
@@ -17,11 +18,13 @@ import java.time.format.FormatStyle;
 
 @Controller
 public class InstanceController {
+    private final Config config;
     private final UserService userService;
     private final InstanceService instanceService;
     private final StateHistoryRepository stateHistoryRepository;
 
-    public InstanceController(UserService userService, InstanceService instanceService, StateHistoryRepository stateHistoryRepository) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, StateHistoryRepository stateHistoryRepository) {
+        this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
         this.stateHistoryRepository = stateHistoryRepository;
@@ -29,6 +32,7 @@ public class InstanceController {
 
     @GetMapping("/instances/{id}")
     public String get(@PathVariable("id") Instance instance, Model model) {
+        model.addAttribute("bambooUrl", config.getBambooUrl() + "/instances/" + instance.getId());
         model.addAttribute("instance", instance);
         model.addAttribute("stateHistory", stateHistoryRepository.findByInstanceOrderByStartDate(instance));
         model.addAttribute("dateFormat", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));

@@ -236,7 +236,7 @@ public class Title {
     private Long titleResourceId;
 
     @OneToMany(mappedBy = "title")
-    @OrderBy("date desc")
+    @OrderBy("date")
     private List<Instance> instances;
 
     /**
