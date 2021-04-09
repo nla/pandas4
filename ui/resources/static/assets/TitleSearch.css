@@ -1,23 +1,4 @@
 
-ul.subject-list {
-    display: inline;
-    list-style: none;
-    padding: 0;
-}
-
-ul.subject-list li {
-    display: inline;
-}
-
-ul.subject-list a {
-    color: teal;
-}
-
-ul.subject-list li + li:before {
-    content: " · ";
-}
-
-
 .search {
     display: grid;
     grid-template-areas: "header header" "results facets";

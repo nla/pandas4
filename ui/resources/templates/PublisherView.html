@@ -5,6 +5,22 @@
     <title th:text="|${publisher.name} (Publisher) - PANDAS|">Somebody (Publisher) - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .titles-list img {
+            width: 100px;
+            height: 75px;
+            margin-right: 12px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+            transition: width 0.25s, height 0.25s;
+        }
+
+        .titles-list img:hover {
+            width: 200px;
+            height: 150px;
+            transition: width 0.25s, height 0.25s;
+        }
+    </style>
 </head>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
@@ -36,10 +52,16 @@
 
     <section>
         <strong>Titles</strong>
-        <table>
+        <table class="titles-list">
             <tr th:each="title: ${publisher.titles}">
-                <td><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></td>
-                <td><a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="TitleView.html">Australian story</a>
+                <td><a th:href="@{/titles/{id}(id=${title.id})}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a></td>
+                <td>
+                    <strong><a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="TitleView.html">Australian story</a></strong><br>
+                    <ul class="subject-list">
+                        <li th:each="subject: ${title.subjects}">
+                            <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}">Sport</a>
+                        </li>
+                    </ul>
                 </td>
             </tr>
         </table>

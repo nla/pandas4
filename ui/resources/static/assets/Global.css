@@ -309,3 +309,25 @@ table.history-table {
     padding: 6px;
     text-align: left;
 }
+
+/**
+ * Subject list
+ */
+
+ul.subject-list {
+    display: inline;
+    list-style: none;
+    padding: 0;
+}
+
+ul.subject-list li {
+    display: inline;
+}
+
+ul.subject-list a {
+    color: teal;
+}
+
+ul.subject-list li + li:before {
+    content: " · ";
+}
