@@ -126,6 +126,7 @@ body > main > header, main > form > header {
     padding: 0px 15px;
     padding-left: 196px;
     /*max-width: 1200px;*/
+    box-sizing: border-box;
 }
 
 /*
