@@ -106,10 +106,10 @@
                             <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
                             <span class="method" th:text="${title.gather.method.name}">HTTrack</span> ·
                         </th:block>
-                        <span th:if="${title.publisher != null}"
+                        <a th:if="${title.publisher != null}" th:href="@{|/publishers/${title.publisher.id}|}"
                               th:text="|${title.publisher.organisation.name}, |">
                             International Olympic Committee
-                        </span>
+                        </a>
                         <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
                         <span class="owner"><a th:href="@{|/users/${title?.owner?.id}|}" th:text="${title?.owner?.userid}">aosborne</a></span>
                         <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
