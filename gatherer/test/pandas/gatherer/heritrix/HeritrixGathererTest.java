@@ -98,9 +98,9 @@ public class HeritrixGathererTest {
 
         HeritrixConfig heritrixConfig = new HeritrixConfig();
 
-        HeritrixGatherer gatherer = new HeritrixGatherer(config, heritrixConfig, workingArea, null, null);
-
-        gatherer.archive(null);
+//        HeritrixGatherer gatherer = new HeritrixGatherer(config, heritrixConfig, workingArea, null, null);
+//
+//        gatherer.archive(null);
 
 //        Path jobDir = workingArea.getInstanceDir(instance.getPi(), instance.getDateString()).resolve(instance.getHumanId());
 //        Files.createDirectories(jobDir);
