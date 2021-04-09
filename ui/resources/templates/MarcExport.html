@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit Filter Preset - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <h1>Export MARC Records</h1>
     </header>
 
-<link rel="stylesheet" th:href="@{/webjars/datatables/1.10.21/css/dataTables.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/datatables/1.10.21/css/dataTables.bootstrap4.min.css}">
 <script th:src="@{/webjars/jquery/1.11.1/jquery.min.js}" defer></script>
 <script th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}" defer></script>
 <script th:src="@{/webjars/webshim/1.15.8/dev/polyfiller.js}" defer></script>
