@@ -335,6 +335,9 @@ public class TitleGather {
             }
         }
 
+        if (url == null) url = getTitle().getSeedUrl();
+        if (url == null) url = getTitle().getTitleUrl();
+
         sb.append("'").append(url.replace("'", "'\"'\"'")).append("'");
 
         for (String extra: getAdditionalUrlList()) {

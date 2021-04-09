@@ -6,9 +6,9 @@
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
-        h1 {
-            margin-bottom: 8px;
-            margin-top: 8px;
+        h1, h2, h3 {
+            margin-bottom: 4px;
+            margin-top: 4px;
         }
 
         h4 {
@@ -66,9 +66,31 @@
     </header>
 
     <div class="panel-title-details">
-        <h1 th:text="${title.name}">Example Title</h1>
-        <a th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span th:text="${title.pi}"></span></a><br>
-        <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green"></a>
+        <h3 th:text="${title.name}">Example Title</h3>
+        <span th:text="${title.getYearRange()}"></span>, <a th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a><br>
+        <br>
+        <a style="color: #000" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span th:text="${title.pi}"></span></a> </span> <br>
+        <br>
+        <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green"></a><br><br>
+
+        <div th:if="${!title.subjects.isEmpty()}">
+            Subjects:
+            <ul class="subject-list">
+                <li th:each="subject: ${title.subjects}">
+                    <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}">Sport</a>
+                </li>
+            </ul>
+        </div>
+
+        <p>
+        <div>
+            Collections:
+            <ul class="collection-list">
+                <li th:each="collection: ${title.collections}">
+                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}" href="CollectionView.html">Nice Sites</a>
+                </li>
+            </ul>
+        </div>
 
         <div>
             <h4>Status</h4>
@@ -83,31 +105,6 @@
             </details>
         </div>
 
-        <div th:if="${title.publisher != null}">
-            <h4>Publisher</h4>
-            <a th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a>
-            [<span th:text="${title.publisher.type.name}"></span>]
-        </div>
-
-        <div>
-            <h4>Collections</h4>
-            <ul class="collection-list" style="padding-left: 16px; list-style-type: '- '">
-                <li th:each="collection: ${title.collections}">
-                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
-                       href="CollectionView.html">Nice Sites</a>
-                </li>
-            </ul>
-        </div>
-
-        <div>
-            <h4>Subjects</h4>
-            <ul class="subject-list" style="padding-left: 16px; list-style-type: '- '">
-                <li th:each="subject: ${title.subjects}">
-                    <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
-                       href="SubjectView.html">Sport</a>
-                </li>
-            </ul>
-        </div>
 
         <div>
             <h4>Cataloguing</h4>

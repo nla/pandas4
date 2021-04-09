@@ -76,44 +76,46 @@
         </header>
         <ol start="${results.pageable.offset + 1}">
             <li th:each="title: ${results}">
-                <a th:href="@{|/titles/${title.id}|}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
-                <div>
-                    <header>
-                        <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
-                            2000</a></strong>
-                        <nav>
-                            <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
-                               th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
-                               href="http://www.olympics.com/">olympics.com</a>
-                            <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
-                               href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
-                            <a th:if="${title.titleUrl != null}"
-                               th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
-                               href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
-                        </nav>
-                    </header>
+                <div class="title-card" th:fragment="title-card">
+                    <a th:href="@{|/titles/${title.id}|}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
                     <div>
-                        <ul class="subject-list">
-                            <li th:each="subject: ${title.subjects}">
-                                <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
-                                   href="SubjectView.html">Sport</a>
-                            </li>
-                        </ul>
+                        <header>
+                            <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
+                                2000</a></strong>
+                            <nav>
+                                <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
+                                   th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
+                                   href="http://www.olympics.com/">olympics.com</a>
+                                <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
+                                   href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
+                                <a th:if="${title.titleUrl != null}"
+                                   th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
+                                   href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
+                            </nav>
+                        </header>
+                        <div>
+                            <ul class="subject-list">
+                                <li th:each="subject: ${title.subjects}">
+                                    <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
+                                       href="SubjectView.html">Sport</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <footer>
+                            <span class="status" th:text="${title.status.name}" th:classappend="${'status-' + title.status.name.replace(' ','-')}">ceased</span> ·
+                            <th:block th:if="${title.gather != null && title.gather.schedule != null && title.gather.schedule.name != 'None'}">
+                                <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
+                                <span class="method" th:text="${title.gather.method.name}">HTTrack</span> ·
+                            </th:block>
+                            <a th:if="${title.publisher != null}" th:href="@{|/publishers/${title.publisher.id}|}"
+                                  th:text="|${title.publisher.organisation.name}, |">
+                                International Olympic Committee
+                            </a>
+                            <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
+                            <span class="owner"><a th:href="@{|/users/${title?.owner?.id}|}" th:text="${title?.owner?.userid}">aosborne</a></span>
+                            <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
+                        </footer>
                     </div>
-                    <footer>
-                        <span class="status" th:text="${title.status.name}" th:classappend="${'status-' + title.status.name.replace(' ','-')}">ceased</span> ·
-                        <th:block th:if="${title.gather != null && title.gather.schedule != null && title.gather.schedule.name != 'None'}">
-                            <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
-                            <span class="method" th:text="${title.gather.method.name}">HTTrack</span> ·
-                        </th:block>
-                        <a th:if="${title.publisher != null}" th:href="@{|/publishers/${title.publisher.id}|}"
-                              th:text="|${title.publisher.organisation.name}, |">
-                            International Olympic Committee
-                        </a>
-                        <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
-                        <span class="owner"><a th:href="@{|/users/${title?.owner?.id}|}" th:text="${title?.owner?.userid}">aosborne</a></span>
-                        <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
-                    </footer>
                 </div>
             </li>
             <li th:remove="all">

@@ -23,55 +23,6 @@
     padding: 0;
 }
 
-.results > ol > li {
-    margin: 1rem 0;
-    display: flex;
-}
-
-.results > ol > li > a > img {
-    width: 100px;
-    height: 75px;
-    margin-right: 12px;
-    flex-shrink: 0;
-    transition: width 0.25s, height 0.25s;
-}
-
-.results > ol > li > a > img:hover {
-    width: 200px;
-    height: 150px;
-    transition: width 0.25s, height 0.25s;
-}
-
-.results > ol > li > div > header > nav {
-    display: inline;
-    font-size: 60%;
-}
-
-.results > ol > li > div > div {
-    font-size: 80%;
-}
-
-.results > ol > li > div > footer {
-    font-size: 80%;
-    color: #888;
-}
-
-.live-url {
-    color: darkgreen;
-}
-
-.regdate {
-    font-weight: bold;
-}
-
-.status, .schedule, .method {
-    font-variant: small-caps;
-}
-
-.status-selected, .status-permission-granted { color: #1c7430; }
-.status-rejected { color: darkred; }
-.status-permission-impossible, .status-permission-denied { color: midnightblue; }
-
 /*
  * Filters
  */

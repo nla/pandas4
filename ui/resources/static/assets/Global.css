@@ -17,6 +17,7 @@ a {
 
 a:hover {
     color: #2248a1;
+    text-decoration: underline;
 }
 
 h1, h2 {
@@ -57,17 +58,20 @@ body > nav {
 /* brand link */
 body > nav > header a { 
     background-color: #011f85;
-    width: 164px;
+    width: 180px;
     height: 40px;
     display: block;
     color: #fff;
     padding-top: 10px;
-    padding-left: 16px;
+    padding-left: 0px;
     font-size: 1.5rem;
+    text-shadow: 0 0 16px #fff;
+    text-align: center;
 }
 
 body > nav > header a:hover {
-    background-color: #313096;
+    text-decoration: none;
+    color: #fff;
 }
 
 /* nav menu */
@@ -91,6 +95,7 @@ body > nav > ul > li > a.active {
 
 body > nav > ul > li > a:hover {
     background: #eee;
+    text-decoration: none;
 }
 
 body > nav > ul > li > a > .icon {
@@ -171,6 +176,7 @@ button:disabled .icon {
 a.btn:hover, button:hover:enabled {
     background-image: linear-gradient(#6f97e1, #6f97e1);
     color: #fff;
+    text-decoration: none;
 }
 
 .btn-secondary {
@@ -257,21 +263,25 @@ button.btn-danger:hover, a.btn-danger:hover {
  */
 
 .breadcrumb {
-    border-bottom: 1px solid #ccc;
-    padding-bottom: .25rem;
-    margin-top: -4px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-top: 0px;
+    margin-bottom: 8px;
 }
 
 .breadcrumb ol {
     margin: 0;
     padding-left: 0;
     list-style: none;
-    display: flex;
-    align-items: center;
+    display: inline;
+}
+
+.breadcrumb li {
+    display: inline;
 }
 
 .breadcrumb li + li::before {
-    content: '/';
+    content: '/ ';
     padding: 0 0.3rem; 
     color: #888;
     font-size: 120%;
@@ -311,7 +321,33 @@ table.history-table {
 }
 
 /**
- * Subject list
+ * Subject and Collection lisst
+ */
+
+ul.subject-list, ul.collection-list {
+    display: inline;
+    list-style: none;
+    padding: 0;
+}
+
+ul.subject-list li, ul.collection-list li {
+    display: inline;
+}
+
+ul.subject-list a {
+    color: teal;
+}
+
+ul.collection-list a {
+    color: saddlebrown;
+}
+
+ul.subject-list li + li:before, ul.collection-list li + li:before {
+    content: " · ";
+}
+
+/**
+ * Collection list
  */
 
 ul.subject-list {
@@ -331,3 +367,56 @@ ul.subject-list a {
 ul.subject-list li + li:before {
     content: " · ";
 }
+
+/**
+ * Title Card
+ */
+
+.title-card {
+    margin: 1rem 0;
+    display: flex;
+}
+
+.title-card > a > img {
+    width: 100px;
+    height: 75px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    transition: width 0.25s, height 0.25s;
+}
+
+.title-card > a > img:hover {
+    width: 200px;
+    height: 150px;
+    transition: width 0.25s, height 0.25s;
+}
+
+.title-card > div > header > nav {
+    display: inline;
+    font-size: 60%;
+}
+
+.title-card > div > div {
+    font-size: 80%;
+}
+
+.title-card > div > footer {
+    font-size: 80%;
+    color: #888;
+}
+
+.live-url {
+    color: darkgreen;
+}
+
+.regdate {
+    font-weight: bold;
+}
+
+.status, .schedule, .method {
+    font-variant: small-caps;
+}
+
+.status-selected, .status-permission-granted { color: #1c7430; }
+.status-rejected { color: darkred; }
+.status-permission-impossible, .status-permission-denied { color: midnightblue; }

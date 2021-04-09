@@ -22,6 +22,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -605,5 +607,18 @@ public class Title {
 
     public void setDefaultPermission(Permission defaultPermission) {
         this.defaultPermission = defaultPermission;
+    }
+
+    public String getYearRange() {
+        int start = getRegDateLocal().getYear();
+        int end = start;
+        if (!getInstances().isEmpty()) {
+            end = Collections.max(getInstances(), Comparator.comparing(Instance::getDate)).getDate().atZone(ZoneId.systemDefault()).getYear();
+        }
+        if (start == end) {
+            return Integer.toString(start);
+        } else {
+            return start + "-" + end;
+        }
     }
 }
