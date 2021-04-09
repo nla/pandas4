@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|${publisher.name} (Publisher) - PANDAS|">Somebody (Publisher) - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <a th:href="@{/publishers/{id}/edit(id=${publisher.id})}" href="PublisherEdit.html" class="btn btn-primary"
+               data-keybind="e"><i class="icon edit"></i> Edit</a>
+        </nav>
+    </header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/publishers}" href="PublisherSearch.html">Publishers</a></li>
+            <li class="active" th:text="${publisher.name}">Somebody</li>
+        </ol>
+    </nav>
+
+    <section style="float: left; width: 450px; margin-right: 64px;">
+        <table>
+            <tr><td>Publisher Type:</td><td th:text="${publisher.type.name}"></td></tr>
+            <tr><td>Homepage:</td><td><a th:href="${publisher.organisation.url}" th:text="${publisher.organisation.url}"></a></td></tr>
+            <tr th:if="${publisher.localReference}"><td>Local Reference No:</td><td th:text="${publisher.localReference}"></td></tr>
+        </table>
+        <div th:if="${publisher.notes}">
+            <strong>Notes:</strong><br>
+            <div th:text="${publisher.notes}"></div>
+        </div>
+    </section>
+
+    <section>
+        <strong>Titles</strong>
+        <table>
+            <tr th:each="title: ${publisher.titles}">
+                <td><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></td>
+                <td><a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="TitleView.html">Australian story</a>
+                </td>
+            </tr>
+        </table>
+    </section>
+</main>

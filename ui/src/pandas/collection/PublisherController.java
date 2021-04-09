@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.search.SearchResults;
@@ -19,6 +20,12 @@ public class PublisherController {
 
     public PublisherController(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    @GetMapping("/publishers/{id}")
+    public String get(@PathVariable("id") Publisher publisher, Model model) {
+        model.addAttribute("publisher", publisher);
+        return "PublisherView";
     }
 
     @GetMapping("/publishers")

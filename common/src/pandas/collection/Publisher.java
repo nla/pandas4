@@ -38,6 +38,7 @@ public class Publisher {
     private Organisation organisation;
 
     @OneToMany(mappedBy = "publisher")
+    @OrderBy("name")
     private Collection<Title> titles;
 
     @ManyToOne
