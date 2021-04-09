@@ -32,6 +32,7 @@ public class InstanceService {
 
     @Transactional
     public Instance createInstance(String gatherMethod, Title title) {
+        title = titleRepository.findById(title.getId()).orElseThrow();
         Instant now = Instant.now();
 
         Instance instance = new Instance();
@@ -60,7 +61,9 @@ public class InstanceService {
         instanceResourceRepository.save(instanceResource);
 
         gatherDateRepository.deleteIfNextForTitle(title);
-    	updateTitleGatherDates(title, instance.getDate());
+        title.getGather().setLastGatherDate(instance.getDate());
+        title.getGather().calculateNextGatherDate();
+        titleRepository.save(title); // FIXME: this doesn't seem right...
 
         return instance;
     }
@@ -74,26 +77,7 @@ public class InstanceService {
         stateHistoryReposistory.save(stateHistory);
     }
 
-    public void updateTitleGatherDates(Title title, Instant prev) {
-        Instant nextOneOff = gatherDateRepository.findNextOneOffDateForTitle(title);
-        GatherSchedule schedule = title.getGather().getSchedule();
-        Instant nextScheduled;
-        if (schedule == null) {
-            nextScheduled = null;
-        } else {
-            nextScheduled = schedule.calculateNextTime(prev);
-        }
-        Instant next;
-        if (nextScheduled == null || (nextOneOff != null && nextOneOff.isBefore(nextScheduled))) {
-            next = nextOneOff;
-        } else {
-            next = nextScheduled;
-        }
-        title.getGather().setLastGatherDate(prev);
-        title.getGather().setNextGatherDate(next);
-        titleRepository.save(title);
-    }
-
+    @Transactional
     public void updateState(Instance instance, String stateName) {
         updateState(instance, stateName, null);
     }
@@ -130,7 +114,7 @@ public class InstanceService {
     }
 
     public void publishInstanceImmediatelyIfNecessary(Instance instance) {
-        if (instance.getTitle().getTep().isPublishImmediately()) {
+        if (instance.getTitle().getTep() != null && instance.getTitle().getTep().isPublishImmediately()) {
             instance.setIsDisplayed(1L);
             instanceRepository.save(instance);
         }

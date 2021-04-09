@@ -100,17 +100,18 @@ public class WorkingArea {
         Path lst = uploadDir.resolve("ac-ar2-" + pi + "-" + date + ".lst");
         Path sz = uploadDir.resolve("ac-ar2-" + pi + "-" + date + ".sz");
         Path md5 = uploadDir.resolve("ac-ar2-" + pi + "-" + date + ".md5");
-        exec(workingdir, "chmod", "-R", "gu=rwX,o=rX", pwd.toString());
-        exec(workingdir, "tar", "-zcf", tgz.toString(), pi + "/" + date);
-        execRedir(workingdir, lst,"find", pi + "/" + date, "-type", "f", "-exec", "ls", "-l", "{}", ";");
-        execRedir(workingdir, sz,"du", "-c", pi + "/" + date);
+        String relpath = pi + "/" + date;
+        exec(workingdir, "chmod", "-R", "gu=rwX,o=rX", relpath);
+        exec(workingdir, "tar", "-zcf", tgz.toString(), relpath);
+        execRedir(workingdir, lst,"find", relpath, "-type", "f", "-exec", "ls", "-l", "{}", ";");
+        execRedir(workingdir, sz,"du", "-c", relpath);
         execRedir(workingdir, md5, "md5sum", tgz.toString());
 
         // create mime tarball
         Path mimeTgz = uploadDir.resolve("mi-ar2-" + pi + "-" + date + ".tgz");
         Path insMime = config.getMimeDir().resolve(Long.toString(pi)).resolve(date);
         if (!Files.exists(insMime)) Files.createDirectories(insMime);
-        exec(config.getMimeDir(), "tar", "-zcf", mimeTgz.toString(), pi + "/" + date);
+        exec(config.getMimeDir(), "tar", "-zcf", mimeTgz.toString(), relpath);
 
         // construct warc
         List<Path> warcs = Pandora2Warc.convertInstance(pwd, uploadDir);

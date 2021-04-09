@@ -26,6 +26,7 @@ import javax.persistence.PersistenceContext;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 import static pandas.Utils.getIfSame;
@@ -43,11 +44,12 @@ public class TitleService {
     private final UserService userService;
     private final GatherService gatherService;
     private final OwnerHistoryRepository ownerHistoryRepository;
+    private final GatherDateRepository gatherDateRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService, OwnerHistoryRepository ownerHistoryRepository) {
+    public TitleService(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService, OwnerHistoryRepository ownerHistoryRepository, GatherDateRepository gatherDateRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
@@ -55,6 +57,7 @@ public class TitleService {
         this.userService = userService;
         this.gatherService = gatherService;
         this.ownerHistoryRepository = ownerHistoryRepository;
+        this.gatherDateRepository = gatherDateRepository;
         facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
                 new EntityFacet<>("Collection", "collection", "collections.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
@@ -190,6 +193,7 @@ public class TitleService {
         form.setGatherMethod(gatherService.defaultMethod());
         form.setGatherSchedule(gatherService.defaultSchedule());
         form.setSubjects(subjects);
+        form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
 
         // prefill subjects based on the collections
         if ((subjects == null || subjects.isEmpty()) && (collections != null && !collections.isEmpty())) {
@@ -217,6 +221,10 @@ public class TitleService {
         title.setNotes(form.getNotes());
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
+        if (!Objects.equals(title.getStatus(), form.getStatus())) {
+            title.setStatus(form.getStatus());
+            // TODO: status history entries
+        }
         if (title.getStatus() == null) {
             title.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
         }
@@ -254,6 +262,17 @@ public class TitleService {
             ownerHistoryRepository.save(ownerHistory);
         }
 
+
+        //
+        // update gather dates
+        //
+
+        gatherDateRepository.deleteForTitle(title);
+        var gatherDates = form.getOneoffDates().stream()
+                .map(date -> new GatherDate(title, date))
+                .collect(Collectors.toList());
+        gatherDateRepository.saveAll(gatherDates);
+
         // create or update the corresponding TitleGather record
         TitleGather titleGather = title.getGather();
         if (titleGather == null) {
@@ -267,6 +286,9 @@ public class TitleService {
         } else {
             titleGather.setAdditionalUrls(null);
         }
+        titleGather.setOneoffDates(gatherDates);
+        titleGather.calculateNextGatherDate();
+        titleGather.setGatherCommand(titleGather.buildHttrackCommand());
         titleGatherRepository.save(titleGather);
 
         return title;

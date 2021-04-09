@@ -13,6 +13,11 @@ import pandas.collection.Title;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Comparator.comparing;
 
 /**
  * Information about the gather settings and options for a title.
@@ -98,11 +103,28 @@ public class TitleGather {
     @JsonIgnore
     private Title title;
 
+    @OneToMany
+    @JoinColumn(name = "TITLE_GATHER_ID")
+    private List<GatherDate> oneoffDates;
+
+    @ManyToMany
+    @JoinTable(name = "T_GATHER_ARG",
+            joinColumns = @JoinColumn(name = "TITLE_GATHER_ID"),
+            inverseJoinColumns = @JoinColumn(name = "OPTION_ARGUMENT_ID"),
+            indexes = { @Index(name = "t_gather_arg_title_gather_id_index", columnList = "TITLE_GATHER_ID"),
+                    @Index(name = "t_gather_arg_option_argument_id_index", columnList = "OPTION_ARGUMENT_ID") })
+    private List<OptionArgument> arguments;
+
     public TitleGather() {
     }
 
     public String getAdditionalUrls() {
         return this.additionalUrls;
+    }
+
+    public List<String> getAdditionalUrlList() {
+        if (getAdditionalUrls() == null || getAdditionalUrls().isBlank()) return Collections.emptyList();
+        return Arrays.asList(getAdditionalUrls().split("\\s+"));
     }
 
     public void setAdditionalUrls(String additionalUrls) {
@@ -259,5 +281,66 @@ public class TitleGather {
 
     public void setTitle(Title title) {
         this.title = title;
+    }
+
+    public List<GatherDate> getOneoffDates() {
+        return oneoffDates;
+    }
+
+    public void setOneoffDates(List<GatherDate> oneoffDates) {
+        this.oneoffDates = oneoffDates;
+    }
+
+    public void calculateNextGatherDate() {
+        Instant nextOneOff = getOneoffDates().isEmpty() ? null : Collections.min(getOneoffDates(), comparing(GatherDate::getDate)).getDate();
+        GatherSchedule schedule = getSchedule();
+        Instant nextScheduled;
+        if (schedule == null) {
+            nextScheduled = null;
+        } else {
+            nextScheduled = schedule.calculateNextTime(getLastGatherDate());
+        }
+        Instant next;
+        if (nextScheduled == null || (nextOneOff != null && nextOneOff.isBefore(nextScheduled))) {
+            next = nextOneOff;
+        } else {
+            next = nextScheduled;
+        }
+        setNextGatherDate(next);
+    }
+
+    public List<OptionArgument> getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(List<OptionArgument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Constructs the HTTrack gather command line.
+     */
+    public String buildHttrackCommand() {
+        StringBuilder sb = new StringBuilder();
+        for (OptionArgument argument: arguments) {
+            argument.toCommandLine(sb);
+        }
+
+        String url = getGatherUrl();
+        if (getAuthenticateUser() != null && getAuthenticateUser() == 1 && getUsername() != null && getPassword() != null) {
+            if (url.startsWith("http://")) {
+                url = "http://" + getUsername() + ":" + getPassword() + "@" + url.substring("http://".length());
+            } else if (url.startsWith("https://")) {
+                url = "https://" + getUsername() + ":" + getPassword() + "@" + url.substring("https://".length());
+            }
+        }
+
+        sb.append("'").append(url.replace("'", "'\"'\"'")).append("'");
+
+        for (String extra: getAdditionalUrlList()) {
+            sb.append(" '").append(extra.replace("'", "'\"'\"'")).append("'");
+        }
+
+        return sb.toString();
     }
 }

@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -89,6 +90,9 @@ public class Instance {
 
     @OneToOne(mappedBy = "instance")
     private InstanceGather gather;
+
+    @OneToMany(mappedBy = "instance")
+    private List<PandasExceptionLog> exceptions;
 
     public State getState() {
         return this.state;
@@ -283,5 +287,13 @@ public class Instance {
 
     public boolean canStop() {
         return getState().getName().equals(State.GATHERING);
+    }
+
+    public List<PandasExceptionLog> getExceptions() {
+        return exceptions;
+    }
+
+    public void setExceptions(List<PandasExceptionLog> exceptions) {
+        this.exceptions = exceptions;
     }
 }

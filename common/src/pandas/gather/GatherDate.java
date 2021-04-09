@@ -21,6 +21,15 @@ public class GatherDate {
     @JoinColumn(name = "TITLE_GATHER_ID")
     private Title title;
 
+    public GatherDate() {
+
+    }
+
+    public GatherDate(Title title, Instant date) {
+        setTitle(title);
+        setDate(date);
+    }
+
     public Instant getDate() {
         return this.date;
     }

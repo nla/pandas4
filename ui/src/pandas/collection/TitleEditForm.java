@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import com.google.common.base.Strings;
+import pandas.gather.GatherDate;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
 import pandas.gather.TitleGather;
@@ -8,7 +9,11 @@ import pandas.gather.TitleGather;
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 public class TitleEditForm {
     private Long id;
@@ -18,6 +23,11 @@ public class TitleEditForm {
     private String name;
     @NotNull
     private GatherSchedule gatherSchedule;
+
+    private GatherMethod gatherMethod;
+
+    private List<Instant> oneoffDates = new ArrayList<>();
+
     @NotNull
     private Format format;
     private String anbdNumber;
@@ -28,8 +38,8 @@ public class TitleEditForm {
     @Column(name = "IS_CATALOGUING_NOT_REQ")
     private boolean cataloguingNotRequired;
     private String notes;
-    private GatherMethod gatherMethod;
     private String seedUrls;
+    private Status status;
 
     public TitleEditForm() {}
 
@@ -43,6 +53,8 @@ public class TitleEditForm {
         setLocalReference(title.getLocalReference());
         setName(title.getName());
         setNotes(title.getNotes());
+        setOneoffDates(title.getGather().getOneoffDates().stream().map(GatherDate::getDate).collect(toList()));
+        setStatus(title.getStatus());
         setSubjects(title.getSubjects());
         setTitleUrl(title.getTitleUrl());
         if (title.getSeedUrl() != null) {
@@ -171,5 +183,21 @@ public class TitleEditForm {
 
     public void setSeedUrls(String seedUrls) {
         this.seedUrls = seedUrls;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public List<Instant> getOneoffDates() {
+        return oneoffDates;
+    }
+
+    public void setOneoffDates(List<Instant> oneoffDates) {
+        this.oneoffDates = oneoffDates;
     }
 }

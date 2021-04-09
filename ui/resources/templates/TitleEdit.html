@@ -34,6 +34,11 @@
             <label>URL: <input th:field="*{titleUrl}" required class="form-control"></label>
             <div id="urlInfo"></div>
             <label>Name: <input th:field="*{name}" required class="form-control"></label>
+            <label>Status:
+                <select th:field="*{status}">
+                    <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
+                </select>
+            </label>
         </fieldset>
 
         <fieldset>
@@ -48,7 +53,47 @@
                         th:text="${schedule.name}">Weekly
                 </option>
             </select></label>
-            <label><input type="checkbox">Gather immediately</label>
+
+            <fieldset>
+                <legend>One-off</legend>
+
+                <ul id="oneoffDatesList">
+                    <li th:each="date: *{oneoffDates}">
+                        <time th:datetime="${date}" th:text="${date}"></time>
+                        <button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>
+                        <input type=hidden name="oneoffDates" th:value="${date}">
+                    </li>
+                </ul>
+
+                <div>
+                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
+                    <button onclick="addOneoffDate()" type=button>Add</button>
+                </div>
+
+                <script>
+                    document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
+
+                    function addOneoffDate() {
+                        var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
+                        var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
+                        var date = new Date();
+                        if (dateInput) {
+                            date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
+                        }
+                        if (timeInput) {
+                            date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
+                        } else {
+                            date.setHours(0, 0, 0);
+                        }
+                        document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
+                            '<li><time datetime="' + date.toISOString() + '">' + date.toLocaleString() + '</time> ' +
+                            '<button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>' +
+                            '<input type=hidden name=oneoffDates value="' + date.toISOString() + '"></li>');
+                    }
+                </script>
+            </fieldset>
+
+
             <details th:open="${form.seedUrls != form.titleUrl}">
                 <summary>Options</summary>
                 <label>

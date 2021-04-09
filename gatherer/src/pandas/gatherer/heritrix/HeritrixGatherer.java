@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static java.util.stream.Collectors.toList;
 import static pandas.gatherer.heritrix.HeritrixClient.State.*;
 
 @Component
@@ -130,63 +131,28 @@ public class HeritrixGatherer implements Backend {
 
         long crawlId = bamboo.getOrCreateCrawl(crawlName, instance.getId());
 
+        for (Path file : Files.walk(jobDir).collect(toList())) {
+            Path relpath = jobDir.relativize(file);
+            if (Files.isDirectory(file)) continue;
 
+            String filename = relpath.getFileName().toString();
+            if (filename.endsWith(".lck")) continue;
 
-//        for (Path file : Files.walk(jobDir).collect(toList())) {
-//            Path path = jobDir.relativize(file);
-//            ArtifactType type = artifactType(path);
-//            if (type == null) {
-//                continue;
-//            }
-//
-//            if (type == ArtifactType.WARC) {
-////                warcs.add(new Warc(BambooDB.WARC_STATE_IMPORTED, file.getFileName().toString(),
-////                        blob.id(), blob.size(), sha256));
-//            } else {
-////                Instant lastModified = Files.getLastModifiedTime(file).toInstant();
-////                artifacts.add(new Artifact(blob.id(), blob.size(), sha256, null, path.toString(),
-////                        lastModified, type));
-//            }
-//            log.debug("{} {} blobId={} sha256={}", type, path, blob.id(), sha256);
-//        }
+            String dirname = relpath.getParent().getFileName().toString();
+            if (dirname.equals("scratch") || dirname.equals("state") || dirname.equals("action") || dirname.equals("actions-done")) {
+                continue;
+            }
+
+            log.debug("Artifact {}", filename);
+            if (filename.endsWith(".warc.gz")) {
+                bamboo.putWarcIfNotExists(crawlId, filename, file);
+            } else {
+                bamboo.putArtifactIfNotExists(crawlId, relpath.toString(), file);
+            }
+        }
 
         delete(instance);
     }
-
-//    static ArtifactType artifactType(Path path) {
-//        String filename = path.getFileName().toString();
-//        if (filename.endsWith(".lck")) {
-//            return null;
-//        } else if (filename.endsWith(".log")) {
-//            return ArtifactType.LOG;
-//        } else if (filename.endsWith(".cxml")) {
-//            return ArtifactType.CONFIG;
-//        } else if (filename.endsWith(".recover.gz")) {
-//            return ArtifactType.RECOVER;
-//        } else if (filename.endsWith(".dump")) {
-//            return ArtifactType.DUMP;
-//        } else if (Files.isDirectory(path)) {
-//            return null;
-//        }
-//        Path parent = path.getParent();
-//        if (parent != null) {
-//            switch (parent.getFileName().toString()) {
-//                case "reports":
-//                    return ArtifactType.REPORT;
-//                case "logs":
-//                    return ArtifactType.LOG;
-//                case "warcs":
-//                    return ArtifactType.WARC;
-//                case "scratch":
-//                case "state":
-//                case "action":
-//                case "actions-done":
-//                default:
-//                    return null;
-//            }
-//        }
-//        return null;
-//    }
 
     @Override
     public void delete(Instance instance) throws IOException {

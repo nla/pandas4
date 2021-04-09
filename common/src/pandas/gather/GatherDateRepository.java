@@ -16,4 +16,8 @@ public interface GatherDateRepository extends CrudRepository<GatherDate, Long> {
 
     @Query("select min(gd.date) from GatherDate gd where gd.title = ?1")
     Instant findNextOneOffDateForTitle(Title title);
+
+    @Modifying
+    @Query("delete from GatherDate gd where gd.title = ?1")
+    void deleteForTitle(Title title);
 }

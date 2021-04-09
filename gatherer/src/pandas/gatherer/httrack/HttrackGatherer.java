@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pandas.gather.*;
-import pandas.gatherer.core.*;
+import pandas.gatherer.core.Backend;
+import pandas.gatherer.core.GatherException;
+import pandas.gatherer.core.WorkingArea;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,20 +25,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Component
 public class HttrackGatherer implements Backend {
 	private static final Logger log = LoggerFactory.getLogger(HttrackGatherer.class);
-	private final Config config;
 	private final HttrackConfig httrackConfig;
-	private final Scripts scripts;
 	private final WorkingArea workingArea;
 	private final Set<HTTrackProcess> running = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private boolean shutdown = false;
 	private final InstanceService instanceService;
 	private final InstanceRepository instanceRepository;
 
-	public HttrackGatherer(Config config, HttrackConfig httrackConfig, Scripts scripts, WorkingArea workingArea, InstanceService instanceService, InstanceRepository instanceRepository) {
+	public HttrackGatherer(HttrackConfig httrackConfig, WorkingArea workingArea, InstanceService instanceService, InstanceRepository instanceRepository) {
 		this.httrackConfig = httrackConfig;
-		this.scripts = scripts;
 		this.workingArea = workingArea;
-		this.config = config;
 		this.instanceService = instanceService;
 		this.instanceRepository = instanceRepository;
 	}

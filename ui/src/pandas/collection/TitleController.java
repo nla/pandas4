@@ -51,8 +51,9 @@ public class TitleController {
     private final GatherService gatherService;
     private final ClassificationService classificationService;
     private final OwnerHistoryRepository ownerHistoryRepository;
+    private final StatusRepository statusRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -64,6 +65,7 @@ public class TitleController {
         this.gatherService = gatherService;
         this.classificationService = classificationService;
         this.ownerHistoryRepository = ownerHistoryRepository;
+        this.statusRepository = statusRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -198,12 +200,21 @@ public class TitleController {
 
     @GetMapping("/titles/{id}/edit")
     public String edit(@PathVariable("id") Optional<Title> title, Model model) {
-        model.addAttribute("form", new TitleEditForm(title.orElseThrow(NotFoundException::new)));
+        TitleEditForm form = new TitleEditForm(title.orElseThrow(NotFoundException::new));
+        model.addAttribute("form", form);
         model.addAttribute("allCollections", classificationService.allCollections());
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
         model.addAttribute("allSubjects", classificationService.allSubjects());
+
+        var statusList = new ArrayList<Status>();
+        statusList.add(form.getStatus());
+        List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatus().getId(), Collections.emptyList());
+        statusRepository.findAllById(statusIds).forEach(statusList::add);
+        statusList.sort(Comparator.comparing(Status::getId));
+        model.addAttribute("statusList", statusList);
+
         return "TitleEdit";
     }
 
@@ -223,6 +234,7 @@ public class TitleController {
 
     @PostMapping(value = "/titles", produces = "application/json")
     public String update(@Valid TitleEditForm form) {
+        titleService.update(form);
         return "redirect:/titles/" + form.getId();
     }
 }

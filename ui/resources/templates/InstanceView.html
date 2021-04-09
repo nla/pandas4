@@ -51,4 +51,15 @@
         </tr>
     </table>
 
+    <div th:if="${!instance.exceptions.isEmpty()}">
+        <h2>Exceptions</h2>
+        <table class="history-table">
+            <tr th:each="exception : ${instance.exceptions}">
+                <td th:text="${dateFormat.format(exception.date)}"></td>
+                <td th:text="${exception.summary}"></td>
+                <td th:text="${exception.detail}"></td>
+            </tr>
+        </table>
+    </div>
+
 </main>

@@ -194,6 +194,9 @@ public class DbTool {
                 }
             }
         }
+        try (PreparedStatement stmt = connection.prepareStatement("update TITLE_GATHER set NEXT_GATHER_DATE = null")) {
+            stmt.execute();
+        }
         connection.commit();
     }
 

@@ -49,6 +49,10 @@
             color: #666;
             font-size: 75%;
         }
+        .panel-instance-list .instance-list > a .state {
+            color: #666;
+            font-size: 75%;
+        }
     </style>
 </head>
 <body>
@@ -69,9 +73,14 @@
         <div>
             <h4>Status</h4>
             <div th:text="${title.status.name}" style="text-transform: capitalize"></div>
-            <div><span th:text="${title?.gather?.schedule?.name}"></span> <span
-                    th:text="${title?.gather?.method?.name}"></span> gather
+            <div></span>
             </div>
+            <details>
+                <summary><span th:text="${title?.gather?.schedule?.name}"></span> <span
+                        th:text="${title?.gather?.method?.name}"></span> gather</summary>
+                <div th:if="${title?.gather?.nextGatherDate != null}">Next gather date: <time th:text="${dateFormat.format(title.gather.nextGatherDate)}"></time></div>
+                <div>Command: <tt th:text="${title?.gather?.buildHttrackCommand()}"></tt></div>
+            </details>
         </div>
 
         <div th:if="${title.publisher != null}">
@@ -114,7 +123,7 @@
 
         <div>
             <h4>Owner</h4>
-            <div>Owner: <span th:text="${title.owner.fullName}"></span> <a
+            <div>Owner: <span th:text="${title?.owner?.fullName}"></span> <a
                     th:href="@{|/titles/${title.id}/ownerhistory|}" href="TitleOwnerHistory.html"><i
                     class="icon history"></i></a></div>
             <div>Agency: <span th:text="${title.agency.name}"></span></div>
@@ -136,10 +145,9 @@
                     <img>
                     <div th:text="${instanceDateFormat.format(instance.date)}"></div>
                     <div class="size" th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
+                    <div class="state" th:if="${instance.state.name != 'archived'}" th:text="${instance.state.name}"></div>
                 </a>
             </td>
         </tr>
     </table>
-
-
 </main>
