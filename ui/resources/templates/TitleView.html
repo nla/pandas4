@@ -39,7 +39,7 @@
             text-align: center;
             margin-bottom: 16px;
             margin-right: 8px;
-            color: #000;
+            color: var(--color-black);
         }
 
         .panel-instance-list .instance-list > a img {
@@ -70,7 +70,7 @@
         <h3 th:text="${title.name}">Example Title</h3>
         <span th:text="${title.getYearRange()}"></span>, <a th:if="${title.publisher}" th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a><br>
         <br>
-        <a style="color: #000" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span th:text="${title.pi}"></span></a> </span> <br>
+        <a style="color: var(--color-black)" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span th:text="${title.pi}"></span></a> </span> <br>
         <br>
         <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green"></a><br><br>
 

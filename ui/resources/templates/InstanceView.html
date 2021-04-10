@@ -31,7 +31,7 @@
     <h1 th:text="${'Instance ' + instance.dateString}">Instance 20120402-0944</h1>
 
     <a th:href="${'https://webarchive.nla.gov.au/awa/' + arcDateFormat.format(instance.date) + '/' + instance.getTepUrlAbsolute()}">
-        <img th:src="@{|/instances/${instance.id}/thumbnail|}" style="float:left; margin-right: 8px; margin-bottom: 16px">
+        <img th:src="@{|/instances/${instance.id}/thumbnail|}" style="float:left; margin-right: 8px; margin-bottom: 16px; width: 200px; height: 150px">
     </a>
 
     <table>
