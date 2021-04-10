@@ -13,6 +13,7 @@ import pandas.collection.Title;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -113,7 +114,7 @@ public class TitleGather {
             inverseJoinColumns = @JoinColumn(name = "OPTION_ARGUMENT_ID"),
             indexes = { @Index(name = "t_gather_arg_title_gather_id_index", columnList = "TITLE_GATHER_ID"),
                     @Index(name = "t_gather_arg_option_argument_id_index", columnList = "OPTION_ARGUMENT_ID") })
-    private List<OptionArgument> arguments;
+    private List<OptionArgument> arguments = new ArrayList<>();
 
     public TitleGather() {
     }
@@ -322,7 +323,7 @@ public class TitleGather {
      */
     public String buildHttrackCommand() {
         StringBuilder sb = new StringBuilder();
-        for (OptionArgument argument: arguments) {
+        for (OptionArgument argument: getArguments()) {
             argument.toCommandLine(sb);
         }
 

@@ -1,6 +1,5 @@
 package pandas.collection;
 
-import com.google.common.base.Strings;
 import pandas.gather.GatherDate;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
@@ -67,7 +66,7 @@ public class TitleEditForm {
         if (gather != null) {
             setGatherMethod(gather.getMethod());
             setGatherSchedule(gather.getSchedule());
-            if (!Strings.isNullOrEmpty(gather.getAdditionalUrls())) {
+            if (gather.getAdditionalUrls() != null && !gather.getAdditionalUrls().isBlank()) {
                 setSeedUrls(getSeedUrls() + "\n" + gather.getAdditionalUrls());
             }
         }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import pandas.collection.Title;
 
 import java.util.List;
 
@@ -25,4 +26,6 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
 
     @Query("select i from Instance i where i.thumbnail is null and i.state.name = 'archived'")
     List<Instance> findWithoutThumbnails(Pageable pageable);
+
+    List<Instance> findByTitle(Title title);
 }

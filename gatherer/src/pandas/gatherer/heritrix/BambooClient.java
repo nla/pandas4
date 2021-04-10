@@ -1,5 +1,6 @@
 package pandas.gatherer.heritrix;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,15 +22,20 @@ public class BambooClient {
     private final BambooConfig config;
     private final WebClient webClient;
 
-    public BambooClient(BambooConfig config, ReactiveClientRegistrationRepository clientRegistrations) {
+    public BambooClient(BambooConfig config, @Autowired(required = false) ReactiveClientRegistrationRepository clientRegistrations) {
         this.config = config;
-        var clientService = new InMemoryReactiveOAuth2AuthorizedClientService(clientRegistrations);
-        var clientManager = new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(clientRegistrations, clientService);
-        var oauth = new ServerOAuth2AuthorizedClientExchangeFilterFunction(clientManager);
-        oauth.setDefaultClientRegistrationId("oidc");
-        webClient = WebClient.builder()
-                .baseUrl(config.getUrl())
-                .filter(oauth)
+
+        WebClient.Builder builder = WebClient.builder()
+                .baseUrl(config.getUrl());
+
+        if (clientRegistrations != null) {
+            var clientService = new InMemoryReactiveOAuth2AuthorizedClientService(clientRegistrations);
+            var clientManager = new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(clientRegistrations, clientService);
+            var oauth = new ServerOAuth2AuthorizedClientExchangeFilterFunction(clientManager);
+            oauth.setDefaultClientRegistrationId("oidc");
+            builder.filter(oauth);
+        }
+        webClient = builder
                 .filter(ExchangeFilterFunction.ofRequestProcessor(req -> {
                     System.err.println(req.headers());
                     return Mono.just(req);

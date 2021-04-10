@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static pandas.Utils.sortBy;
+import static pandas.core.Utils.sortBy;
 
 @Service
 public class ClassificationService {

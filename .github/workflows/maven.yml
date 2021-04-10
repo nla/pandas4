@@ -20,5 +20,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Install httrack
+      run: sudo apt-get install -y httrack
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B verify package --file pom.xml

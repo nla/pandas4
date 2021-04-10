@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pandas.collection.TitleService;
+import pandas.collection.TitleSearcher;
 import pandas.core.NotFoundException;
 
 import java.time.ZonedDateTime;
@@ -22,21 +22,21 @@ public class GatherScheduleController {
 
     private final GatherScheduleRepository gatherScheduleRepository;
     private final TitleGatherRepository titleGatherRepository;
-    private final TitleService titleService;
     private final GatherService gatherService;
+    private final TitleSearcher titleSearcher;
 
-    public GatherScheduleController(GatherScheduleRepository gatherScheduleRepository, TitleGatherRepository titleGatherRepository, TitleService titleService, GatherService gatherService) {
+    public GatherScheduleController(GatherScheduleRepository gatherScheduleRepository, TitleGatherRepository titleGatherRepository, GatherService gatherService, TitleSearcher titleSearcher) {
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.titleGatherRepository = titleGatherRepository;
-        this.titleService = titleService;
         this.gatherService = gatherService;
+        this.titleSearcher = titleSearcher;
     }
 
     @GetMapping("/schedules")
     public String list(Model model) {
         model.addAttribute("schedules", gatherService.allGatherSchedules());
         try {
-            model.addAttribute("titleCounts", titleService.countTitlesBySchedule());
+            model.addAttribute("titleCounts", titleSearcher.countTitlesBySchedule());
         } catch (Exception e) {
             log.warn("Title count search failed", e);
             model.addAttribute("titleCounts", Collections.emptyMap());

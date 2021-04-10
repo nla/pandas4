@@ -132,6 +132,7 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
     }
 
     public Instant calculateNextTime(Instant prev) {
+        if (prev == null) prev = Instant.now();
         return calculateNextTime(prev.atZone(ZoneId.systemDefault())).toInstant();
     }
 

@@ -25,9 +25,7 @@ package pandas.gatherer.heritrix;
 //
 //import static org.junit.Assert.assertEquals;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 import pandas.gatherer.core.Config;
 import pandas.gatherer.core.WorkingArea;
 
@@ -76,9 +74,6 @@ public class HeritrixGathererTest {
 //        artifacts.put("scratch/tt5http.ris", null);
 //    }
 //
-    @Rule
-    public TemporaryFolder temp = new TemporaryFolder();
-
     @Test
     public void archive() throws IOException {
         Config config = new Config();

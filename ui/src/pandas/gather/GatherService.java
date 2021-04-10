@@ -22,12 +22,4 @@ public class GatherService {
         schedules.sort(Comparator.naturalOrder());
         return schedules;
     }
-
-    public GatherMethod defaultMethod() {
-        return gatherMethodRepository.findByName("Heritrix");
-    }
-
-    public GatherSchedule defaultSchedule() {
-        return gatherScheduleRepository.findByName("Quarterly");
-    }
 }

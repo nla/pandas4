@@ -14,10 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-import pandas.core.Config;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
-import pandas.core.NotFoundException;
+import pandas.core.*;
 import pandas.gather.GatherMethodRepository;
 import pandas.gather.GatherScheduleRepository;
 import pandas.gather.GatherService;
@@ -45,6 +42,7 @@ public class TitleController {
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
     private final TitleService titleService;
+    private final TitleSearcher titleSearcher;
     private final Config config;
     private final EntityManager entityManager;
     private final FormatRepository formatRepository;
@@ -52,13 +50,15 @@ public class TitleController {
     private final ClassificationService classificationService;
     private final OwnerHistoryRepository ownerHistoryRepository;
     private final StatusRepository statusRepository;
+    private final UserService userService;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.titleService = titleService;
+        this.titleSearcher = titleSearcher;
         this.config = config;
         this.entityManager = entityManager;
         this.formatRepository = formatRepository;
@@ -66,6 +66,7 @@ public class TitleController {
         this.classificationService = classificationService;
         this.ownerHistoryRepository = ownerHistoryRepository;
         this.statusRepository = statusRepository;
+        this.userService = userService;
     }
 
     @GetMapping("/titles/{id}")
@@ -98,18 +99,18 @@ public class TitleController {
     public String search(@RequestParam MultiValueMap<String, String> params,
                          @PageableDefault(20) Pageable pageable,
                          Model model) {
-        var results = titleService.search(params, pageable);
+        var results = titleSearcher.search(params, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", params.getFirst("q"));
         model.addAttribute("sort", params.getFirst("sort"));
-        model.addAttribute("orderings", titleService.getOrderings().keySet());
+        model.addAttribute("orderings", titleSearcher.getOrderings().keySet());
         model.addAttribute("facets", results.getFacets());
         return "TitleSearch";
     }
 
     @GetMapping("/titles/bulkchange")
     public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model) {
-        var results = titleService.search(params, PageRequest.of(0, 10000));
+        var results = titleSearcher.search(params, PageRequest.of(0, 10000));
         var form = titleService.newBulkEditForm(results.getContent());
         model.addAttribute("form", form);
         model.addAttribute("allUsers", individualRepository.findByUseridIsNotNull());
@@ -131,7 +132,7 @@ public class TitleController {
     public void exportCsv(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
         response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
                 .filename("titles.csv").build().toString());
-        try (SearchScroll<Title> scroll = titleService.scroll(params);
+        try (SearchScroll<Title> scroll = titleSearcher.scroll(params);
              CSVPrinter csv = CSVFormat.DEFAULT.withHeader(
                      "PI", "Name", "Date Registered", "Agency", "Owner", "Format",
                      "Gather Method", "Gather Schedule", "Next Gather Date", "Title URL", "Seed URL",
@@ -161,7 +162,7 @@ public class TitleController {
 
     @GetMapping(value = "/titles.mrc", produces = "application/marc")
     public void exportMarc(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
-        try (SearchScroll<Title> scroll = titleService.scroll(params)) {
+        try (SearchScroll<Title> scroll = titleSearcher.scroll(params)) {
             response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("attachment")
                     .filename("titles.mrc").build().toString());
             MarcStreamWriter marc = new MarcStreamWriter(response.getOutputStream(), "UTF-8");
@@ -177,7 +178,7 @@ public class TitleController {
 
     @GetMapping(value = "/titles.mrc.txt", produces = "text/plain")
     public void exportMarcText(@RequestParam MultiValueMap<String, String> params, HttpServletResponse response) throws IOException {
-        try (SearchScroll<Title> scroll = titleService.scroll(params)) {
+        try (SearchScroll<Title> scroll = titleSearcher.scroll(params)) {
             response.setHeader(CONTENT_DISPOSITION, ContentDisposition.builder("inline")
                     .filename("titles.mrc.txt").build().toString());
             OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), UTF_8);
@@ -234,7 +235,7 @@ public class TitleController {
 
     @PostMapping(value = "/titles", produces = "application/json")
     public String update(@Valid TitleEditForm form) {
-        titleService.update(form);
+        titleService.save(form, userService.getCurrentUser());
         return "redirect:/titles/" + form.getId();
     }
 }

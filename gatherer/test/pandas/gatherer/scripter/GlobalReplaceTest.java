@@ -1,23 +1,18 @@
 package pandas.gatherer.scripter;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GlobalReplaceTest {
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Test
-    public void test() throws IOException {
-        Path root = folder.newFolder().toPath();
+    public void test(@TempDir Path root) throws IOException {
         Files.writeString(root.resolve("foo.html"), "foofod");
         Files.writeString(root.resolve("foo.txt"), "foofoo");
         Files.writeString(root.resolve("baz.html"), "bazbaz");

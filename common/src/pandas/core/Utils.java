@@ -1,4 +1,4 @@
-package pandas;
+package pandas.core;
 
 import java.util.ArrayList;
 import java.util.Comparator;

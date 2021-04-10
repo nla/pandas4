@@ -32,11 +32,22 @@ public class HttrackGatherer implements Backend {
 	private final InstanceService instanceService;
 	private final InstanceRepository instanceRepository;
 
+	private static final Set<HttrackGatherer> gatherers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+	static {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			for (HttrackGatherer gatherer: gatherers) {
+				gatherer.shutdown();
+			}
+		}));
+	}
+
 	public HttrackGatherer(HttrackConfig httrackConfig, WorkingArea workingArea, InstanceService instanceService, InstanceRepository instanceRepository) {
 		this.httrackConfig = httrackConfig;
 		this.workingArea = workingArea;
 		this.instanceService = instanceService;
 		this.instanceRepository = instanceRepository;
+		gatherers.add(this);
 	}
 
 	@Override
@@ -134,13 +145,16 @@ public class HttrackGatherer implements Backend {
 	}
 
 	@Override
-	public void shutdown() {
-		shutdown = true;
-		for (HTTrackProcess httrack: running) {
-			httrack.stop();
-		}
-		for (HTTrackProcess httrack: running) {
-			httrack.waitKill(10);
+	public synchronized void shutdown() {
+		if (!shutdown) {
+			shutdown = true;
+			for (HTTrackProcess httrack : running) {
+				httrack.stop();
+			}
+			for (HTTrackProcess httrack : running) {
+				httrack.waitKill(10);
+			}
+			gatherers.remove(this);
 		}
 	}
 

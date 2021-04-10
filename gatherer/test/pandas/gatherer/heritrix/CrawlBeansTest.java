@@ -1,8 +1,7 @@
 package pandas.gatherer.heritrix;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import pandas.collection.Title;
 import pandas.gather.Instance;
 import pandas.gather.TitleGather;
@@ -13,15 +12,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CrawlBeansTest {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Test
-    public void test() throws IOException {
+    public void test(@TempDir Path jobDir) throws IOException {
         TitleGather gather = new TitleGather();
         gather.setGatherUrl("http://example.org/");
         gather.setAdditionalUrls("http://example.org/two");
@@ -36,8 +32,6 @@ public class CrawlBeansTest {
         instance.setId(1L);
         instance.setDate(Instant.now());
         instance.setGatherMethodName("Heritrix");
-
-        Path jobDir = folder.newFolder().toPath();
 
         Config config = new Config();
         CrawlBeans.writeConfig(config, instance, jobDir);

@@ -1,8 +1,7 @@
 package pandas.gatherer.httrack;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.netpreserve.jwarc.WarcReader;
 import org.netpreserve.jwarc.WarcRecord;
 import org.netpreserve.jwarc.WarcResource;
@@ -15,17 +14,12 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Pandora2WarcTest {
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Test
-    public void test() throws IOException {
-        Path destDir = folder.newFolder().toPath();
-        Path srcDir = folder.newFolder().toPath();
+    public void test(@TempDir Path destDir, @TempDir Path srcDir) throws IOException {
         Path root = srcDir.resolve("12345").resolve("20210223-0954");
         TestUtils.unzip(srcDir, "/pandas/gatherer/httrack/testcrawl.zip");
         Pandora2Warc.convertInstance(root, destDir);

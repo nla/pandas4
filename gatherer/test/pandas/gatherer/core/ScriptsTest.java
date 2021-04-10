@@ -1,10 +1,10 @@
 package pandas.gatherer.core;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import pandas.gatherer.httrack.HttrackUtils;
 
 import java.io.IOException;
@@ -15,29 +15,28 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Ignore
+@Disabled
 public class ScriptsTest {
-    @Rule
-    public TemporaryFolder tmp = new TemporaryFolder();
-
     static final int pi = 12345;
     static final String dateString = "20170101-1234";
 
+    @TempDir Path master;
+    @TempDir Path workingDir;
+    @TempDir Path derivative;
+
     private Config buildTestConfig() throws IOException {
-        Path master = tmp.newFolder("master").toPath();
         Path warcDir = master.resolve("warc");
         Files.createDirectory(warcDir);
 
         Config config = new Config();
         config.setScriptsDir(Paths.get("../PandasPerlScripts"));
-        Path workingDir = tmp.newFolder("working").toPath();
         Files.createDirectory(workingDir.resolve("mime"));
         config.setWorkingDir(workingDir);
         config.setMastersDir(master);
-        config.setRepo1Dir(tmp.newFolder("derivative").toPath());
+        config.setRepo1Dir(derivative);
         config.setRepo2Dir(warcDir);
 
         Files.createDirectory(workingDir.resolve("../upload"));
@@ -53,7 +52,7 @@ public class ScriptsTest {
     Config config;
     Scripts scripts;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         config = buildTestConfig();
         scripts = new Scripts(config);

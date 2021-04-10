@@ -1,9 +1,8 @@
 package pandas.gatherer.core;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,29 +10,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class WorkingAreaTest {
-    @Rule
-    public TemporaryFolder temp = new TemporaryFolder();
-
-    Path workingDir, instanceDir;
+    Path workingDir;
+    Path instanceDir;
     WorkingArea workingArea;
 
     long pi = 12345;
     String date = "20210223-0954";
     private Config config;
 
-    @Before
-    public void setUp() throws IOException {
-        workingDir = temp.newFolder("working").toPath();
+    @BeforeEach
+    public void setUp(@TempDir Path temp) throws IOException {
+        workingDir = Files.createDirectories(temp.resolve("working"));
         instanceDir = workingDir.resolve(Long.toString(pi)).resolve(date);
         config = new Config();
         config.setWorkingDir(workingDir);
-        config.setMastersDir(temp.newFolder("master").toPath());
-        config.setRepo1Dir(temp.newFolder("repo1").toPath());
-        config.setRepo2Dir(temp.newFolder("repo2").toPath());
-        config.setUploadDir(temp.newFolder("upload").toPath());
+        config.setMastersDir(Files.createDirectories(temp.resolve("master")));
+        config.setRepo1Dir(Files.createDirectories(temp.resolve("repo1")));
+        config.setRepo2Dir(Files.createDirectories(temp.resolve("repo2")));
+        config.setUploadDir(Files.createDirectories(temp.resolve("upload")));
         workingArea = new WorkingArea(config);
     }
 

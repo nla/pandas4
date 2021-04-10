@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
-import static pandas.Utils.sortBy;
+import static pandas.core.Utils.sortBy;
 import static pandas.search.SearchUtils.mustMatchAny;
 
 @Controller
