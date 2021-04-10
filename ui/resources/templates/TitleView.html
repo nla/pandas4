@@ -68,7 +68,7 @@
 
     <div class="panel-title-details">
         <h3 th:text="${title.name}">Example Title</h3>
-        <span th:text="${title.getYearRange()}"></span>, <a th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a><br>
+        <span th:text="${title.getYearRange()}"></span>, <a th:if="${title.publisher}" th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a><br>
         <br>
         <a style="color: #000" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span th:text="${title.pi}"></span></a> </span> <br>
         <br>
