@@ -34,7 +34,8 @@
         }
 
         .panel-instance-list .instance-list > a {
-            display: inline-block;
+            display: block;
+            float: left;
             text-align: center;
             margin-bottom: 16px;
             margin-right: 8px;
@@ -139,7 +140,7 @@
             <td class="instance-list">
                 <a th:each="instance : ${year.value}"
                    th:href="@{|/instances/${instance.id}|}">
-                    <img>
+                    <img th:src="@{|/instances/${instance.id}/thumbnail|}">
                     <div th:text="${instanceDateFormat.format(instance.date)}"></div>
                     <div class="size" th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
                     <div class="state" th:if="${instance.state.name != 'archived'}" th:text="${instance.state.name}"></div>

@@ -94,6 +94,9 @@ public class Instance {
     @OneToMany(mappedBy = "instance")
     private List<PandasExceptionLog> exceptions;
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "instance", fetch = FetchType.LAZY)
+    private InstanceThumbnail thumbnail;
+
     public State getState() {
         return this.state;
     }
@@ -230,6 +233,14 @@ public class Instance {
         return this.tepUrl;
     }
 
+    public String getTepUrlAbsolute() {
+        if (tepUrl.startsWith("/pan/")) {
+            return "http://pandora.nla.gov.au" + tepUrl;
+        } else {
+            return tepUrl;
+        }
+    }
+
     public void setTepUrl(String tepUrl) {
         this.tepUrl = tepUrl;
     }
@@ -295,5 +306,13 @@ public class Instance {
 
     public void setExceptions(List<PandasExceptionLog> exceptions) {
         this.exceptions = exceptions;
+    }
+
+    public InstanceThumbnail getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(InstanceThumbnail thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

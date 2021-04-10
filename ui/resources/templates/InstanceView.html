@@ -24,11 +24,15 @@
             <li><a th:href="@{/titles}" href="TitleSearch.html" style="font-weight: bold">Titles</a></li>
             <li><a th:href="@{|/titles/${instance.title.id}|}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
-            <li class="active" th:text="${instance.dateString}"></li>
+            <li class="active">Instance <span th:text="${instance.dateString}"></span></li>
         </ol>
     </nav>
 
     <h1 th:text="${'Instance ' + instance.dateString}">Instance 20120402-0944</h1>
+
+    <a th:href="${'https://webarchive.nla.gov.au/awa/' + arcDateFormat.format(instance.date) + '/' + instance.getTepUrlAbsolute()}">
+        <img th:src="@{|/instances/${instance.id}/thumbnail|}" style="float:left; margin-right: 8px; margin-bottom: 16px">
+    </a>
 
     <table>
         <tr><th>State:</th><td th:text="${instance.state.name}">gathered</td></tr>
@@ -36,13 +40,14 @@
         <tr><th>Size:</th><td th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></td></tr>
         <tr><th>Files:</th><td th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></td></tr>
         <tr><th>Time:</th><td th:text="${instance?.gather?.timeHuman}"></td></tr>
+        <tr><th>TEP URL:</th><td th:text="${instance.tepUrl}"></td></tr>
     </table>
 
     <style>
         table th { text-align: right; }
     </style>
 
-    <h2 id="state-history">History</h2>
+    <h2 id="state-history" style="clear: left">History</h2>
     <table class="history-table">
         <tr th:each="event : ${stateHistory}">
             <td style="text-align: right" th:text="${dateFormat.format(event.startDate)}"></td>
