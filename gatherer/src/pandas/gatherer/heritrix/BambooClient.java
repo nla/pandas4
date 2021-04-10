@@ -41,9 +41,6 @@ public class BambooClient {
                     return Mono.just(req);
                 }))
                 .build();
-
-
-        System.out.println(webClient.get().uri(b -> b.path("crawls").build()).retrieve().bodyToMono(String.class).block());
     }
 
     public Long getCrawlIdForInstance(long instanceId) {
