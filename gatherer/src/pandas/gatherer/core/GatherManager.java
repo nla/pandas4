@@ -7,6 +7,7 @@ import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.gather.*;
 
+import javax.annotation.PreDestroy;
 import java.io.File;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -168,8 +169,10 @@ public class GatherManager implements AutoCloseable {
 		return version;
 	}
 
+	@PreDestroy
 	@Override
 	public void close() {
+		log.info("Shutting down");
 		synchronized (this) {
 			systemShutDown = true;
 			scheduler.shutdown();

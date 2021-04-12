@@ -14,6 +14,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <failsafe.useModulePath>false</failsafe.useModulePath>
     </properties>
 
 
@@ -94,7 +95,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <useModulePath>false</useModulePath>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${basedir}/target/classes</additionalClasspathElement>
                     </additionalClasspathElements>
@@ -102,6 +102,31 @@
                         <include>GathererIT.java</include>
                     </includes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>unpack-heritrix</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.archive.heritrix</groupId>
+                                    <artifactId>heritrix</artifactId>
+                                    <version>3.4.0-20200518</version>
+                                    <classifier>dist</classifier>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

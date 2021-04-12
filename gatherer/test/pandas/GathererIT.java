@@ -17,6 +17,7 @@ import pandas.collection.TitleRepository;
 import pandas.collection.TitleService;
 import pandas.gather.*;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
@@ -29,9 +30,13 @@ import static org.mockserver.model.HttpResponse.response;
 /**
  * Integration tests for PANDAS Gatherer
  */
-@SpringBootTest(classes = PandasGatherer.class, properties = { "spring.datasource.url = jdbc:h2:mem:it;DB_CLOSE_DELAY=-1" })
+@SpringBootTest(classes = PandasGatherer.class, properties = {
+        "spring.datasource.url = jdbc:h2:mem:it;DB_CLOSE_DELAY=-1",
+        "heritrix.url = https://localhost:8444/engine",
+        "heritrix.password = admin",
+        "bamboo.crawlSeriesId = 1"})
 @ContextConfiguration(initializers = GathererIT.Initializer.class)
-@MockServerTest
+@MockServerTest("bamboo.url = http://127.0.0.1:${mockServerPort}/bamboo")
 public class GathererIT {
     @TempDir static Path tempDir;
     @Autowired TitleService titleService;
@@ -46,12 +51,62 @@ public class GathererIT {
     MockServerClient mockServer;
 
     @Test
+    public void testHeritrixCrawl() throws IOException, InterruptedException {
+        mockServer.when(request().withPath("/bamboo/instances/1")).respond(response().withStatusCode(404));
+        mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
+        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
+        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
+
+        Process process = new ProcessBuilder("java", "-cp", "target/dependency/heritrix-3.4.0-20200518/lib/*",
+                "org.archive.crawler.Heritrix", "-a", "password", "-p", "18443")
+                .inheritIO()
+                .start();
+        try {
+
+            TitleEditForm form = titleService.newTitleForm(List.of(), List.of());
+            form.setName("Heritrix title");
+            form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
+            form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
+            form.setOneoffDates(List.of(Instant.now()));
+            Title title = titleService.save(form, null);
+
+            // wait for instance to be created
+            List<Instance> instances = instanceRepository.findByTitle(title);
+            while (instances.isEmpty()) {
+                Thread.sleep(100);
+                instances = instanceRepository.findByTitle(title);
+            }
+            Instance instance = instances.get(0);
+
+            // wait until gathering finishes
+            while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState().getName())) {
+                Thread.sleep(100);
+                instance = instanceRepository.findById(instance.getId()).orElseThrow();
+            }
+
+            assertEquals(State.GATHERED, instance.getState().getName());
+
+            // archive the instance
+            instanceService.updateState(instance, State.ARCHIVING);
+
+            // wait until archiving finishes
+            while (instance.getState().getName().equals(State.ARCHIVING)) {
+                Thread.sleep(100);
+                instance = instanceRepository.findById(instance.getId()).orElseThrow();
+            }
+            assertEquals(State.ARCHIVED, instance.getState().getName());
+        } finally {
+            process.destroyForcibly();
+        }
+    }
+
+    @Test
     @Timeout(value = 10)
     public void testHttrackCrawl() throws InterruptedException {
         mockServer.when(request().withMethod("GET").withPath("/target/")).respond(response().withBody("test page"));
 
         TitleEditForm form = titleService.newTitleForm(List.of(), List.of());
-        form.setName("Test title");
+        form.setName("HTTrack title");
         form.setGatherMethod(gatherMethodRepository.findByName("HTTrack").orElseThrow());
         form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
         form.setOneoffDates(List.of(Instant.now()));

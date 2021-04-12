@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CrawlBeansTest {
 
@@ -39,6 +40,8 @@ public class CrawlBeansTest {
         assertEquals("http://example.org/\nhttp://example.org/two\n",
                 Files.readString(jobDir.resolve("seeds.txt")));
 
+        // ensure the xmlns attribute isn't clobbered
+        assertTrue(Files.readString(jobDir.resolve("crawler-beans.cxml")).contains("<beans xmlns="));
     }
 
 }

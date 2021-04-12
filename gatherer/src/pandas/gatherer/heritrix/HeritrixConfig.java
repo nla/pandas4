@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "heritrix")
 public class HeritrixConfig {
     private String url;
-    private String user;
+    private String user = "admin";
     private String password;
     private int workers = 8;
 

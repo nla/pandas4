@@ -32,7 +32,6 @@ public class Config {
     private Integer webPort = null;
     private String webBindAddress = "0.0.0.0";
     private String contextPath = "/";
-    private Long bambooSeriesId;
     private String bambooDbUrl;
     private String bambooDbUser;
     private String bambooDbPassword;
@@ -79,9 +78,6 @@ public class Config {
         setUploadWorkers(Integer.parseInt(env.getOrDefault("UPLOAD_WORKERS", Integer.toString(getUploadWorkers()))));
         setScriptWorkers(Integer.parseInt(env.getOrDefault("SCRIPT_WORKERS", Integer.toString(getScriptWorkers()))));
 
-        if (env.containsKey("BAMBOO_SERIES_ID")) {
-            setBambooSeriesId(Long.parseLong(env.get("BAMBOO_SERIES_ID")));
-        }
         setBambooDbUrl(env.get("BAMBOO_DB_URL"));
         setBambooDbUser(env.get("BAMBOO_DB_USER"));
         setBambooDbPassword(env.get("BAMBOO_DB_PASSWORD"));
@@ -221,14 +217,6 @@ public class Config {
 
     public void setContextPath(String contextPath) {
         this.contextPath = contextPath;
-    }
-
-    public Long getBambooSeriesId() {
-        return bambooSeriesId;
-    }
-
-    public void setBambooSeriesId(Long bambooSeriesId) {
-        this.bambooSeriesId = bambooSeriesId;
     }
 
     public String getBambooDbUrl() {

@@ -99,9 +99,9 @@ public class HeritrixGatherer implements Backend {
     }
 
     public void pywbReindex(Instance instance) throws IOException {
-        String wbManager = config.getPywbDir().resolve("bin/wb-manager").toString();
+//        String wbManager = config.getPywbDir().resolve("bin/wb-manager").toString();
         try {
-            new ProcessBuilder(wbManager, "reindex", pywbColl(instance))
+            new ProcessBuilder("wb-manager", "reindex", pywbColl(instance))
                     .directory(config.getPywbDataDir().toFile())
                     .inheritIO()
                     .start()
@@ -121,10 +121,6 @@ public class HeritrixGatherer implements Backend {
 
     @Override
     public void archive(Instance instance) throws IOException {
-        if (config.getBambooSeriesId() == null) {
-            throw new IllegalStateException("BAMBOO_SERIES_ID is not configured");
-        }
-
         Path jobDir = jobDir(instance);
 
         String crawlName = instance.getTitle().getName() + " [" + instance.getHumanId() + "]";
@@ -138,7 +134,7 @@ public class HeritrixGatherer implements Backend {
             String filename = relpath.getFileName().toString();
             if (filename.endsWith(".lck")) continue;
 
-            String dirname = relpath.getParent().getFileName().toString();
+            String dirname = file.getParent().getFileName().toString();
             if (dirname.equals("scratch") || dirname.equals("state") || dirname.equals("action") || dirname.equals("actions-done")) {
                 continue;
             }
