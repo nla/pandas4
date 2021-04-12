@@ -36,7 +36,7 @@ import static org.mockserver.model.HttpResponse.response;
  */
 @SpringBootTest(classes = PandasGatherer.class, properties = {
         "spring.datasource.url = jdbc:h2:mem:it;DB_CLOSE_DELAY=-1",
-        "heritrix.url = https://localhost:8444/engine",
+        "heritrix.url = https://localhost:18443/engine",
         "heritrix.password = admin",
         "bamboo.crawlSeriesId = 1"})
 @ContextConfiguration(initializers = GathererIT.Initializer.class)
