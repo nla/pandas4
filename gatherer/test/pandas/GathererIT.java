@@ -17,6 +17,7 @@ import pandas.collection.TitleRepository;
 import pandas.collection.TitleService;
 import pandas.gather.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
@@ -65,10 +66,12 @@ public class GathererIT {
         int heritrixPort = 18443;
 
         String javaExe = Paths.get(System.getProperty("java.home")).resolve("bin").resolve("java").toString();
+        Path heritrixWorking = Files.createDirectories(tempDir.resolve("heritrix"));
         Process process = new ProcessBuilder(javaExe, "-cp", Paths.get("target/dependency/heritrix-3.4.0-20200518/lib/*").toAbsolutePath().toString(),
                 "org.archive.crawler.Heritrix", "-a", "password", "-p", Integer.toString(heritrixPort))
-                .inheritIO()
-                .directory(Files.createDirectories(tempDir.resolve("heritrix")).toFile())
+                .directory(heritrixWorking.toFile())
+                .redirectOutput(new File("/dev/stderr"))
+                .redirectErrorStream(true)
                 .start();
 
         try {
