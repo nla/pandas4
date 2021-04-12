@@ -18,7 +18,6 @@ import pandas.collection.TitleService;
 import pandas.gather.*;
 import pandas.gatherer.heritrix.HeritrixClient;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.nio.file.Files;
@@ -67,10 +66,12 @@ public class GathererIT {
 
         String javaExe = Paths.get(System.getProperty("java.home")).resolve("bin").resolve("java").toString();
         Path heritrixWorking = Files.createDirectories(tempDir.resolve("heritrix"));
+        Path heritrixStdio = heritrixWorking.resolve("stdio");
         Process process = new ProcessBuilder(javaExe, "-cp", Paths.get("target/dependency/heritrix-3.4.0-20200518/lib/*").toAbsolutePath().toString(),
+                "-Xmx512m",
                 "org.archive.crawler.Heritrix", "-a", "password", "-p", Integer.toString(heritrixPort))
                 .directory(heritrixWorking.toFile())
-                .redirectOutput(new File("/dev/stderr"))
+                .redirectOutput(heritrixStdio.toFile())
                 .redirectErrorStream(true)
                 .start();
 
@@ -123,6 +124,9 @@ public class GathererIT {
         } finally {
             System.err.println("Killing Heritrix");
             process.destroyForcibly();
+            if (Files.exists(heritrixStdio)) {
+                System.err.println("Heritrix stdio: \n" + Files.readString(heritrixStdio));
+            }
         }
     }
 
