@@ -101,8 +101,7 @@
                     <includes>
                         <include>GathererIT.java</include>
                     </includes>
-                    <!-- Activate the use of TCP to transmit events to the plugin so we can use stdout -->
-                    <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
+                    <forkCount>0</forkCount>
                 </configuration>
             </plugin>
             <plugin>
