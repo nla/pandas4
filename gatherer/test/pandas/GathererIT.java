@@ -55,7 +55,7 @@ public class GathererIT {
     MockServerClient mockServer;
 
     @Test
-    @Timeout(15)
+    @Timeout(30)
     public void testHeritrixCrawl() throws IOException, InterruptedException {
         mockServer.when(request().withPath("/bamboo/instances/1")).respond(response().withStatusCode(404));
         mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
