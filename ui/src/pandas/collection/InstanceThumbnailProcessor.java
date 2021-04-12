@@ -11,10 +11,7 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
-import pandas.gather.Instance;
-import pandas.gather.InstanceRepository;
-import pandas.gather.InstanceThumbnail;
-import pandas.gather.InstanceThumbnailRepository;
+import pandas.gather.*;
 import pandas.render.Browser;
 import pandas.render.BrowserPool;
 
@@ -33,11 +30,13 @@ public class InstanceThumbnailProcessor {
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
     private static final Logger log = LoggerFactory.getLogger(InstanceThumbnailProcessor.class);
     private static final OkHttpClient httpClient = new OkHttpClient.Builder().followRedirects(true).build();
+    private final InstanceService instanceService;
     private final InstanceRepository instanceRepository;
     private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final BrowserPool browserPool;
 
-    public InstanceThumbnailProcessor(ThumbnailRepository thumbnailRepository, InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+    public InstanceThumbnailProcessor(ThumbnailRepository thumbnailRepository, InstanceService instanceService, InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+        this.instanceService = instanceService;
         this.instanceRepository = instanceRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
         this.browserPool = new BrowserPool();
@@ -52,21 +51,27 @@ public class InstanceThumbnailProcessor {
             while (true) {
                 List<Instance> instances = instanceRepository.findWithoutThumbnails(PageRequest.of(0, 100));
                 if (instances.isEmpty()) break;
+
                 threadPool.invokeAll(instances.stream().map(t -> (Callable<InstanceThumbnail>)(() -> processAndSave(t)))
                         .collect(Collectors.toList()));
             }
             log.info("Done");
         } catch (InterruptedException e) {
-            log.warn("ThumbnailProcessor interrupted", e);
+            e.printStackTrace();
         } finally {
             threadPool.shutdown();
         }
     }
 
     public InstanceThumbnail processAndSave(Instance instance) {
-        InstanceThumbnail thumbnail = process(instance);
-        instanceThumbnailRepository.save(thumbnail);
-        return thumbnail;
+        try {
+            InstanceThumbnail thumbnail = process(instance);
+            instanceService.saveThumbnail(instance, thumbnail);
+            return thumbnail;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public InstanceThumbnail process(Instance instance) {
@@ -98,7 +103,6 @@ public class InstanceThumbnailProcessor {
         Instant now = Instant.now();
 
         InstanceThumbnail thumbnail = new InstanceThumbnail();
-        thumbnail.setInstance(instance);
 
         int width = 200;
         int cropWidth = 800;

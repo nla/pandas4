@@ -18,8 +18,9 @@ public class InstanceService {
     private final InstanceGatherRepository instanceGatherRepository;
     private final InstanceResourceRepository instanceResourceRepository;
     private final PandasExceptionLogRepository pandasExceptionLogRepository;
+    private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, GatherDateRepository gatherDateRepository, StateRepository stateRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository) {
+    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, GatherDateRepository gatherDateRepository, StateRepository stateRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.instanceRepository = instanceRepository;
         this.titleRepository = titleRepository;
         this.gatherDateRepository = gatherDateRepository;
@@ -28,6 +29,7 @@ public class InstanceService {
         this.instanceGatherRepository = instanceGatherRepository;
         this.instanceResourceRepository = instanceResourceRepository;
         this.pandasExceptionLogRepository = pandasExceptionLogRepository;
+        this.instanceThumbnailRepository = instanceThumbnailRepository;
     }
 
     @Transactional
@@ -125,5 +127,11 @@ public class InstanceService {
         gather.setFiles(fileCount);
         gather.setSize(size);
         instanceGatherRepository.save(gather);
+    }
+
+    @Transactional
+    public void saveThumbnail(Instance instance, InstanceThumbnail thumbnail) {
+        thumbnail.setInstance(instanceRepository.findById(instance.getId()).orElseThrow());
+        instanceThumbnailRepository.save(thumbnail);
     }
 }
