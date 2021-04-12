@@ -37,6 +37,7 @@ body {
     font-family: sans-serif;
     min-height: 100%;
     color: var(--color-black);
+    background: var(--color-white);
 }
 
 a {
