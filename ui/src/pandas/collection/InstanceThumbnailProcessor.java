@@ -45,6 +45,7 @@ public class InstanceThumbnailProcessor {
 
     @Scheduled(fixedDelayString = "${pandas.thumbnailProcessor.delay:86400000}", initialDelayString = "${pandas.thumbnailProcessor.initialDelay:0}")
     public synchronized void run() {
+        log.info("Starting scheduled thumbnail processor");
         ThreadPoolExecutor threadPool = new ThreadPoolExecutor(8,8,1, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));
         try {
             threadPool.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
@@ -54,6 +55,7 @@ public class InstanceThumbnailProcessor {
                 threadPool.invokeAll(instances.stream().map(t -> (Callable<InstanceThumbnail>)(() -> processAndSave(t)))
                         .collect(Collectors.toList()));
             }
+            log.info("Done");
         } catch (InterruptedException e) {
             log.warn("ThumbnailProcessor interrupted", e);
         } finally {

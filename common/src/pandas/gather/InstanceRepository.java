@@ -24,7 +24,8 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
     @Query("update Instance i set i.state = (select s from State s where s.name = ?2) where i.id = ?1")
     void updateState(Long id, String stateName);
 
-    @Query("select i from Instance i where i.thumbnail is null and i.state.name = 'archived'")
+    @Query("select i from Instance i where not exists (select it from InstanceThumbnail it where it.id = i.id) " +
+            "and i.state.name = 'archived'")
     List<Instance> findWithoutThumbnails(Pageable pageable);
 
     List<Instance> findByTitle(Title title);
