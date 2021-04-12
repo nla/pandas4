@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.client.web.reactive.function.client.S
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -47,10 +46,10 @@ public class BambooClient {
             builder.filter(oauth);
         }
         webClient = builder
-                .filter(ExchangeFilterFunction.ofRequestProcessor(req -> {
-                    System.err.println(req.headers());
-                    return Mono.just(req);
-                }))
+//                .filter(ExchangeFilterFunction.ofRequestProcessor(req -> {
+//                    System.err.println(req.headers());
+//                    return Mono.just(req);
+//                }))
                 .build();
     }
 

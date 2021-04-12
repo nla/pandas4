@@ -18,6 +18,8 @@ import pandas.collection.TitleService;
 import pandas.gather.*;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
@@ -51,17 +53,30 @@ public class GathererIT {
     MockServerClient mockServer;
 
     @Test
+    @Timeout(15)
     public void testHeritrixCrawl() throws IOException, InterruptedException {
         mockServer.when(request().withPath("/bamboo/instances/1")).respond(response().withStatusCode(404));
         mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
         mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
         mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
 
+        int heritrixPort = 18443;
+
         Process process = new ProcessBuilder("java", "-cp", "target/dependency/heritrix-3.4.0-20200518/lib/*",
-                "org.archive.crawler.Heritrix", "-a", "password", "-p", "18443")
+                "org.archive.crawler.Heritrix", "-a", "password", "-p", Integer.toString(heritrixPort))
                 .inheritIO()
                 .start();
+
         try {
+            // wait for Heritrix to start
+            for (int i = 0; i < 100; i++) {
+                try {
+                    SocketChannel.open(new InetSocketAddress("127.0.0.1", heritrixPort)).close();
+                    break;
+                } catch (IOException e) {
+                    Thread.sleep(100);
+                }
+            }
 
             TitleEditForm form = titleService.newTitleForm(List.of(), List.of());
             form.setName("Heritrix title");
