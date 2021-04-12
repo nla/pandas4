@@ -1,5 +1,7 @@
 package pandas.collection;
 
+import org.springframework.http.HttpStatus;
+
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -50,6 +52,11 @@ public class Capture {
 
     public Integer getStatus() {
         return status;
+    }
+
+    public String getStatusPhrase() {
+        HttpStatus httpStatus = HttpStatus.resolve(getStatus());
+        return httpStatus == null ? null : httpStatus.getReasonPhrase();
     }
 
     public String getStatusClass() {

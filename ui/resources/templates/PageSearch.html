@@ -53,7 +53,7 @@
         <tbody>
         <tr th:each="capture : ${captures}">
             <td><a th:href="${capture.replayUrl}" th:text="${dateTimeFormat.format(capture.date)}"></a></td>
-            <td><span th:text="${capture.status}" th:class="${capture.statusClass}"></span>
+            <td><span th:text="${capture.status}" th:class="${capture.statusClass}" th:title="${capture.statusPhrase}"></span>
             <a th:if="${capture.redirectUrl}" th:href="@{/pages(url=${capture.redirectUrl})}">redirect</a> </td>
             <td th:text="${capture.contentType}">text/html</td>
             <td><span th:title="${capture.digest}" th:text="${capture.digest.substring(0,8)}" style="font-family: monospace">EF7YLJG</span></td>
