@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-class HeritrixClient {
+public class HeritrixClient {
     private final static Logger log = LoggerFactory.getLogger(HeritrixClient.class);
     private final URI uri;
     private final XmlMapper xmlMapper = new XmlMapper();
@@ -32,7 +32,7 @@ class HeritrixClient {
     private final String username;
     private final String password;
 
-    HeritrixClient(String url, String username, String password) {
+    public HeritrixClient(String url, String username, String password) {
         if (!url.endsWith("/")) {
             url += "/";
         }
@@ -168,7 +168,7 @@ class HeritrixClient {
         return sendGet(uri.resolve("job/" + jobName), Job.class);
     }
 
-    Engine getEngine() throws IOException {
+    public Engine getEngine() throws IOException {
         return sendGet(uri, Engine.class);
     }
 

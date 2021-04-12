@@ -16,12 +16,11 @@ import pandas.collection.TitleEditForm;
 import pandas.collection.TitleRepository;
 import pandas.collection.TitleService;
 import pandas.gather.*;
+import pandas.gatherer.heritrix.HeritrixClient;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ConnectException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -77,12 +76,11 @@ public class GathererIT {
 
         try {
             // wait for Heritrix to start
-            URL heritrixUrl = new URL("http://127.0.0.1:" + heritrixPort);
+
+            HeritrixClient heritrixClient = new HeritrixClient("http://127.0.0.1:" + heritrixPort, "admin", "password");
             for (int i = 0; i < 100; i++) {
-                try (InputStream stream = heritrixUrl.openStream()) {
-                    stream.read();
-                    System.err.println("Heritrix started");
-                    break;
+                try {
+                    heritrixClient.getEngine();
                 } catch (ConnectException e) {
                     System.err.println("Waiting for Heritrix...");
                     Thread.sleep(100);
