@@ -43,6 +43,11 @@
                href=PublisherSearch.html>
             <i class="icon publisher"></i>
             Publishers</a></li>
+        <li><a th:href="@{/pages}" data-keybind=5
+               th:classappend="${#request.servletPath.matches('/pages($|/.*)')}? 'active'"
+               href=PageSearch.html>
+            <i class="icon http"></i>
+            Pages</a></li>
     </ul>
 
     <ul>
