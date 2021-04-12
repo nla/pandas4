@@ -76,11 +76,12 @@ public class GathererIT {
 
         try {
             // wait for Heritrix to start
-
-            HeritrixClient heritrixClient = new HeritrixClient("http://127.0.0.1:" + heritrixPort, "admin", "password");
+            HeritrixClient heritrixClient = new HeritrixClient("https://127.0.0.1:" + heritrixPort + "/engine", "admin", "password");
             for (int i = 0; i < 100; i++) {
                 try {
                     heritrixClient.getEngine();
+                    System.err.println("Heritrix started");
+                    break;
                 } catch (ConnectException e) {
                     System.err.println("Waiting for Heritrix...");
                     Thread.sleep(100);
