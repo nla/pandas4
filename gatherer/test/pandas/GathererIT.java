@@ -64,7 +64,8 @@ public class GathererIT {
 
         int heritrixPort = 18443;
 
-        Process process = new ProcessBuilder("java", "-cp", Paths.get("target/dependency/heritrix-3.4.0-20200518/lib/*").toAbsolutePath().toString(),
+        String javaExe = Paths.get(System.getProperty("java.home")).resolve("bin").resolve("java").toString();
+        Process process = new ProcessBuilder(javaExe, "-cp", Paths.get("target/dependency/heritrix-3.4.0-20200518/lib/*").toAbsolutePath().toString(),
                 "org.archive.crawler.Heritrix", "-a", "password", "-p", Integer.toString(heritrixPort))
                 .inheritIO()
                 .directory(Files.createDirectories(tempDir.resolve("heritrix")).toFile())
