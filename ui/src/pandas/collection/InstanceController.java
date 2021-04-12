@@ -86,7 +86,7 @@ public class InstanceController {
         }
 
         var thumbnail = instance.getThumbnail();
-        if (thumbnail == null && instance.getState().getName().equals(State.ARCHIVED)) {
+        if (thumbnail == null && System.getProperty("thumbnailOnDemand") != null && instance.getState().getName().equals(State.ARCHIVED)) {
             thumbnail = thumbnailProcessor.processAndSave(instance);
         }
         if (thumbnail == null) {
