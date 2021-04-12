@@ -47,7 +47,6 @@ class Worker implements Runnable {
 					gatherManager.gathererFinished(Thread.currentThread().getName());
 				}
 			}
-			log.info("### [" + Thread.currentThread().getName() + "] System shutdown in progress.");
 		} catch (Exception e2) {
 			log.info(Thread.currentThread().getName() + " " + e2 + " in Gatherer " + Thread.currentThread().getName());
 			e2.printStackTrace();
