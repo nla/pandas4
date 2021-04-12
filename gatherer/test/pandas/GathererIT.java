@@ -19,8 +19,9 @@ import pandas.gather.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.channels.SocketChannel;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,12 +77,14 @@ public class GathererIT {
 
         try {
             // wait for Heritrix to start
+            URL heritrixUrl = new URL("http://127.0.0.1:" + heritrixPort);
             for (int i = 0; i < 100; i++) {
-                try {
-                    SocketChannel.open(new InetSocketAddress("127.0.0.1", heritrixPort)).close();
-                    System.out.println("Connected to Heritrix ok");
+                try (InputStream stream = heritrixUrl.openStream()) {
+                    stream.read();
+                    System.err.println("Heritrix started");
                     break;
-                } catch (IOException e) {
+                } catch (ConnectException e) {
+                    System.err.println("Waiting for Heritrix...");
                     Thread.sleep(100);
                 }
             }
@@ -119,6 +122,7 @@ public class GathererIT {
             }
             assertEquals(State.ARCHIVED, instance.getState().getName());
         } finally {
+            System.err.println("Killing Heritrix");
             process.destroyForcibly();
         }
     }
