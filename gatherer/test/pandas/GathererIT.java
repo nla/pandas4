@@ -76,6 +76,7 @@ public class GathererIT {
             for (int i = 0; i < 100; i++) {
                 try {
                     SocketChannel.open(new InetSocketAddress("127.0.0.1", heritrixPort)).close();
+                    System.out.println("Connected to Heritrix ok");
                     break;
                 } catch (IOException e) {
                     Thread.sleep(100);
