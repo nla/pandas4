@@ -22,6 +22,8 @@ jobs:
         java-version: 11
     - name: Install httrack
       run: sudo apt-get install -y httrack
+    - name: Install pywb 2.5.0
+      run: sudo pip install pywb==2.5.0
     - name: Cache local Maven repository
       uses: actions/cache@v2
       with:
