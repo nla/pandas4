@@ -30,6 +30,7 @@ public class GatherManager implements AutoCloseable {
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private boolean systemShutDown;
 	private final List<Backend> backends = new ArrayList<>();
+	private final List<Thread> workerThreads = new ArrayList<>();
 	private final WorkingArea workingArea;
 	private final InstanceRepository instanceRepository;
 	private final TitleRepository titleRepository;
@@ -56,7 +57,9 @@ public class GatherManager implements AutoCloseable {
 	    log.info("Starting {} {} workers", count, backend.getGatherMethod());
 		for (int i = 0; i < count; i++) {
 			Worker worker = new Worker(this, instanceService, instanceGatherRepository, workingArea, backend);
-			new Thread(worker, backend.getGatherMethod() + i).start();
+			Thread thread = new Thread(worker, backend.getGatherMethod() + i);
+			workerThreads.add(thread);
+			thread.start();
 		}
 		backends.add(backend);
 	}
@@ -178,6 +181,13 @@ public class GatherManager implements AutoCloseable {
 			scheduler.shutdown();
 			for (Backend backend: backends) {
 				backend.shutdown();
+			}
+		}
+		for (Thread thread: workerThreads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				// just exit
 			}
 		}
 	}
