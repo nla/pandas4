@@ -1,6 +1,8 @@
 package pandas.gatherer.heritrix;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,7 @@ import java.util.Objects;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
 @Component
-public class BambooClient {
+public class BambooClient implements HealthIndicator {
     public static final MediaType APPLICATION_WARC = MediaType.parseMediaType("application/warc");
     private final BambooConfig config;
     private final WebClient webClient;
@@ -125,5 +127,18 @@ public class BambooClient {
             return BodyInserters.empty();
         }
         return BodyInserters.fromResource(new FileSystemResource(file));
+    }
+
+    private void checkSeries() {
+        webClient.get()
+                .uri(b -> b.path("series/{id}").build(config.getCrawlSeriesId()))
+                .retrieve().toBodilessEntity().block();
+    }
+
+    @Override
+    public Health health() {
+        long start = System.currentTimeMillis();
+        checkSeries();
+        return Health.up().withDetail("latencyMillis", System.currentTimeMillis() - start).build();
     }
 }
