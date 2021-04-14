@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "INSTANCE",
@@ -233,11 +234,31 @@ public class Instance {
         return this.tepUrl;
     }
 
+
+    private static final Pattern NPH_REGEX = Pattern.compile("/nph-arch(/\\d{4})?/[a-zA-Z]\\d{4}-[a-zA-Z]{3}-\\d{1,2}/(.*)$");
+    private static final Pattern OLYMPICS_SPECIAL_CASE = Pattern.compile("^/parchive/2000/(?:olympics|paralympic.org)/");
+    private static final Pattern PARCHIVE_REGEX = Pattern.compile("^/parchive/(.*)$");
+
     public String getTepUrlAbsolute() {
-        if (tepUrl.startsWith("/pan/")) {
-            return "http://pandora.nla.gov.au" + tepUrl;
+        return tepUrlToAbsolute(getTepUrl());
+    }
+
+    public static String tepUrlToAbsolute(String url) {
+        if (url.startsWith("/pan/")) {
+            return "http://pandora.nla.gov.au" + url;
+        }
+        if (url.startsWith("/parchive/")) {
+            url = OLYMPICS_SPECIAL_CASE.matcher(url).replaceFirst("/parchive/");
+            url = PARCHIVE_REGEX.matcher(url).replaceFirst("/nph-arch/$1");
+        }
+        if (url.startsWith("/nph-arch/")) {
+            url = NPH_REGEX.matcher(url).replaceFirst("$2");
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "http://" + url;
+            }
+            return url;
         } else {
-            return tepUrl;
+            return url;
         }
     }
 
