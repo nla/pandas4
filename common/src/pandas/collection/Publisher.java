@@ -16,7 +16,7 @@ import java.util.Collection;
 @Indexed
 public class Publisher {
     @Id
-    @Column(name="PUBLISHER_ID")
+    @Column(name = "PUBLISHER_ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "PUBLISHER_SEQ")
     @SequenceGenerator(name = "PUBLISHER_SEQ", sequenceName = "PUBLISHER_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
@@ -25,10 +25,10 @@ public class Publisher {
     /**
      * The local reference number for this publisher. For the NLA, this will be a TRIM file number.
      */
-    @Column(length = 256)
+    @Column(name = "LOCAL_REFERENCE", length = 256)
     private String localReference;
 
-    @Column(length = 4000)
+    @Column(name = "NOTES", length = 4000)
     private String notes;
 
     @OneToOne

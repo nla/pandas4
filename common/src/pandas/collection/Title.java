@@ -37,7 +37,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@Table(indexes = @Index(name="title_last_modified_date_title_id_index", columnList = "lastModifiedDate, title_id"))
+@Table(indexes = @Index(name="title_last_modified_date_title_id_index", columnList = "last_modified_date, title_id"))
 public class Title {
     @Id
     @Column(name = "TITLE_ID")
@@ -84,6 +84,7 @@ public class Title {
     @GenericField(sortable = Sortable.YES)
     @CreatedDate
     @NotNull
+    @Column(name = "REG_DATE")
     private Instant regDate;
 
     /**
@@ -163,6 +164,7 @@ public class Title {
 
     @GenericField(sortable = Sortable.YES)
     @LastModifiedDate
+    @Column(name = "LAST_MODIFIED_DATE")
     private Instant lastModifiedDate;
 
     /**
@@ -204,18 +206,22 @@ public class Title {
     private boolean subscription;
 
     @NotNull
+    @Column(name = "LEGAL_DEPOSIT")
     private boolean legalDeposit;
 
     @NotNull
+    @Column(name = "UNABLE_TO_ARCHIVE")
     private boolean unableToArchive;
 
     @NotNull
+    @Column(name = "DISAPPEARED")
     private boolean disappeared;
 
     /**
      * Flags whether this title is waiting to be acknowledged after a transfer of ownership.
      */
     @NotNull
+    @Column(name = "AWAITING_CONFIRMATION")
     private boolean awaitingConfirmation;
 
     /**
@@ -235,6 +241,7 @@ public class Title {
      * Unused. TODO: remove this column.
      */
     @Deprecated
+    @Column(name = "TITLE_RESOURCE_ID")
     private Long titleResourceId;
 
     @OneToMany(mappedBy = "title")
@@ -245,17 +252,20 @@ public class Title {
      * Foreign key to the old Pv2 standing for this title
      */
     @Deprecated
+    @Column(name="STANDING_ID")
     private Long standingId;
 
     /**
      * Foreign key to the old Pv2 status of this title
      */
     @Deprecated
+    @Column(name = "STATUS_ID")
     private Long statusId;
 
     /**
      * Foreign key to the indexing agency which asked for this title to be nominated.
      */
+    @Column(name = "INDEXER_ID")
     private Long indexerId;
 
     /**

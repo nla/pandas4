@@ -32,10 +32,19 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
     @Column(name = "SCHEDULE_NAME")
     private String name;
 
+    @Column(name = "YEARS")
     private int years;
+
+    @Column(name = "MONTHS")
     private int months;
+
+    @Column(name = "DAYS")
     private int days;
+
+    @Column(name = "DAYS_OF_WEEK")
     private int daysOfWeek;
+
+    @Column(name = "HOURS_OF_DAY")
     private int hoursOfDay;
 
     public Long getId() {

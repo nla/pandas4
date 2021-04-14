@@ -8,6 +8,7 @@ import pandas.agency.Agency;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.Instant;
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -19,27 +20,61 @@ public class Organisation implements Serializable {
     @GenericField
     private Long id;
 
+    @Column(name = "ALIAS")
     private String alias;
-    private java.sql.Timestamp auditDate;
+
+    @Column(name = "AUDIT_DATE")
+    private Instant auditDate;
+
+    @Column(name = "AUDIT_USERID")
     private Long auditUserid;
+
+    @Column(name = "COMMENTS")
     private String comments;
+
+    @Column(name = "LONGCOUNTRY")
     private String longcountry;
+
+    @Column(name = "EMAIL")
     private String email;
+
+    @Column(name = "FAX")
     private String fax;
+
+    @Column(name = "INDEXER_ID")
     private Long indexerId;
+
+    @Column(name = "LINE1")
     private String line1;
+
+    @Column(name = "LINE2")
     private String line2;
+
+    @Column(name = "LOCALITY")
     private String locality;
+
+    @Column(name = "MOBILE_PHONE")
     private String mobilePhone;
 
     @FullTextField(analyzer = "english")
     private String name;
 
+    @Column(name = "PHONE")
     private String phone;
+
+    @Column(name = "POSTCODE")
     private String postcode;
+
+    @Column(name = "PUBLISHER_ID")
     private Long publisherId;
+
+    @Column(name = "SERVICE_ID")
     private Long serviceId;
+
+    @Column(name = "LONGSTATE")
     private String longstate;
+
+    @Column(name = "URL")
     private String url;
 
     @OneToOne
@@ -54,11 +89,11 @@ public class Organisation implements Serializable {
         this.alias = alias;
     }
 
-    public java.sql.Timestamp getAuditDate() {
+    public Instant getAuditDate() {
         return this.auditDate;
     }
 
-    public void setAuditDate(java.sql.Timestamp auditDate) {
+    public void setAuditDate(Instant auditDate) {
         this.auditDate = auditDate;
     }
 
