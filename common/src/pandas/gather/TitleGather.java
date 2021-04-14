@@ -103,7 +103,7 @@ public class TitleGather {
     private Title title;
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "gather")
-    private List<GatherDate> oneoffDates;
+    private List<GatherDate> oneoffDates = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "T_GATHER_ARG",
