@@ -10,7 +10,6 @@ import pandas.gather.*;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TitleService {
@@ -134,16 +133,9 @@ public class TitleService {
         // update gather dates
         //
 
-        gatherDateRepository.deleteForTitle(title);
-        var gatherDates = form.getOneoffDates().stream()
-                .map(date -> new GatherDate(title, date))
-                .collect(Collectors.toList());
-        gatherDateRepository.saveAll(gatherDates);
-
         // create or update the corresponding TitleGather record
-        TitleGather titleGather = title.getGather();
-        if (titleGather == null) {
-            titleGather = new TitleGather();
+        TitleGather titleGather = title.getGather() == null ? new TitleGather() : title.getGather();
+        if (titleGather.getTitle() == null) {
             titleGather.setTitle(title);
         }
         if (titleGather.getGatherUrl() == null) {
@@ -156,7 +148,9 @@ public class TitleService {
         } else {
             titleGather.setAdditionalUrls(null);
         }
-        titleGather.setOneoffDates(gatherDates);
+
+        titleGather.replaceOneoffDates(form.getOneoffDates());
+
         titleGather.calculateNextGatherDate();
         titleGather.setGatherCommand(titleGather.buildHttrackCommand());
         titleGatherRepository.save(titleGather);

@@ -13,12 +13,10 @@ import pandas.collection.Title;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Information about the gather settings and options for a title.
@@ -104,8 +102,7 @@ public class TitleGather {
     @JsonIgnore
     private Title title;
 
-    @OneToMany
-    @JoinColumn(name = "TITLE_GATHER_ID")
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "gather")
     private List<GatherDate> oneoffDates;
 
     @ManyToMany
@@ -288,8 +285,19 @@ public class TitleGather {
         return oneoffDates;
     }
 
-    public void setOneoffDates(List<GatherDate> oneoffDates) {
-        this.oneoffDates = oneoffDates;
+    public void replaceOneoffDates(List<Instant> instants) {
+        var oldInstants = oneoffDates.stream().map(GatherDate::getDate).collect(toSet());
+        var newInstants = new HashSet<>(instants);
+
+        // remove any dates no longer present
+        oneoffDates.removeIf(d -> !newInstants.contains(d.getDate()));
+
+        // add any novel dates
+        for (var instant: newInstants) {
+            if (!oldInstants.contains(instant)) {
+                oneoffDates.add(new GatherDate(this, instant));
+            }
+        }
     }
 
     public void calculateNextGatherDate() {

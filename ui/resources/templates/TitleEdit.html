@@ -77,6 +77,7 @@
                         var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
                         var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
                         var date = new Date();
+                        date.setMilliseconds(0);
                         if (dateInput) {
                             date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
                         }
@@ -85,10 +86,14 @@
                         } else {
                             date.setHours(0, 0, 0);
                         }
+                        const iso = date.toISOString().replace(".000Z", "Z");
+                        if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
+                            return; // don't allow duplicates
+                        }
                         document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
-                            '<li><time datetime="' + date.toISOString() + '">' + date.toLocaleString() + '</time> ' +
+                            '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
                             '<button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>' +
-                            '<input type=hidden name=oneoffDates value="' + date.toISOString() + '"></li>');
+                            '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
                     }
                 </script>
             </fieldset>

@@ -1,13 +1,13 @@
 package pandas.gather;
 
-import pandas.collection.Title;
-
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "GATHER_DATE")
-public class GatherDate {
+public class GatherDate implements Comparable<GatherDate> {
     @Id
     @Column(name = "GATHER_DATE_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GATHER_DATE_SEQ")
@@ -15,18 +15,20 @@ public class GatherDate {
     private Long id;
 
     @Column(name = "GATHER_DATE")
+    @NotNull
     private Instant date;
 
     @ManyToOne
     @JoinColumn(name = "TITLE_GATHER_ID")
-    private Title title;
+    @NotNull
+    private TitleGather gather;
 
     public GatherDate() {
 
     }
 
-    public GatherDate(Title title, Instant date) {
-        setTitle(title);
+    public GatherDate(TitleGather gather, Instant date) {
+        setGather(gather);
         setDate(date);
     }
 
@@ -46,11 +48,29 @@ public class GatherDate {
         this.id = gatherDateId;
     }
 
-    public Title getTitle() {
-        return title;
+    public TitleGather getGather() {
+        return gather;
     }
 
-    public void setTitle(Title title) {
-        this.title = title;
+    public void setGather(TitleGather gather) {
+        this.gather = gather;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GatherDate that = (GatherDate) o;
+        return date.equals(that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(date);
+    }
+
+    @Override
+    public int compareTo(GatherDate o) {
+        return date.compareTo(o.date);
     }
 }

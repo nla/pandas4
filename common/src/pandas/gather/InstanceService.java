@@ -62,7 +62,7 @@ public class InstanceService {
         instanceResource.setInstance(instance);
         instanceResourceRepository.save(instanceResource);
 
-        gatherDateRepository.deleteIfNextForTitle(title);
+        gatherDateRepository.deleteIfNextForTitle(title.getGather());
         title.getGather().setLastGatherDate(instance.getDate());
         title.getGather().calculateNextGatherDate();
         titleRepository.save(title); // FIXME: this doesn't seem right...
