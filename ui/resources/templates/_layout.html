@@ -21,11 +21,15 @@
         <li><a href="/"><i class="icon back"></i> To PANDAS 3</a></li>
     </ul>
     <ul>
-        <li><a th:href="@{/titles}" data-keybind=1 th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
+        <li><a th:href="@{/}" data-keybind=1 th:classappend="${#request.servletPath.matches('/$')}? 'active'"
+               href=Worktrays.html>
+            <i class="icon worktrays"></i>
+            Worktrays</a>
+        <li><a th:href="@{/titles}" data-keybind=2 th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
                href=TitleSearch.html>
             <i class="icon title"></i>
             Titles</a>
-        <li><a th:href="@{/collections}" data-keybind=2
+        <li><a th:href="@{/collections}" data-keybind=3
                th:class="''"
                th:classappend="${#request.servletPath.matches('/collections($|/.*)')}? 'active'"
                class="active"
@@ -33,17 +37,17 @@
         <i class="icon collection"></i>
 <!--            <i class="icon collection"></i>-->
             Collections</a>
-        <li><a th:href="@{/subjects}" data-keybind=3
+        <li><a th:href="@{/subjects}" data-keybind=4
                th:classappend="${#request.servletPath.matches('/subjects($|/.*)')}? 'active'"
                href=SubjectList.html>
             <i class="icon subject"></i>
             Subjects</a>
-        <li><a th:href="@{/publishers}" data-keybind=4
+        <li><a th:href="@{/publishers}" data-keybind=5
                th:classappend="${#request.servletPath.matches('/publishers($|/.*)')}? 'active'"
                href=PublisherSearch.html>
             <i class="icon publisher"></i>
             Publishers</a></li>
-        <li><a th:href="@{/pages}" data-keybind=5
+        <li><a th:href="@{/pages}" data-keybind=6
                th:classappend="${#request.servletPath.matches('/pages($|/.*)')}? 'active'"
                href=PageSearch.html>
             <i class="icon http"></i>

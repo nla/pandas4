@@ -128,6 +128,10 @@ public class Title {
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Individual owner;
 
+    @OneToMany(mappedBy = "title")
+    @OrderBy("date")
+    private List<OwnerHistory> ownerHistories;
+
     @ManyToOne
     @JoinColumn(name = "CURRENT_STATUS_ID")
     @IndexedEmbedded(includePaths = {"id"})
@@ -630,5 +634,16 @@ public class Title {
         } else {
             return start + "-" + end;
         }
+    }
+
+    public List<OwnerHistory> getOwnerHistories() {
+        return ownerHistories;
+    }
+
+    public Individual getNominator() {
+        if (getOwnerHistories().isEmpty()) {
+            return null;
+        }
+        return getOwnerHistories().get(0).getIndividual();
     }
 }

@@ -1,9 +1,11 @@
 package pandas.gather;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.collection.Title;
 
@@ -29,4 +31,20 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
     List<Instance> findWithoutThumbnails(Pageable pageable);
 
     List<Instance> findByTitle(Title title);
+
+    @Query("select i from Instance i\n" +
+            "where i.state.name in ('gathering', 'gatherPause', 'gatherProcess')\n" +
+            "and i.title.awaitingConfirmation = false\n" +
+            "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +
+            "and (:ownerId is null or i.title.owner.id = :ownerId)\n" +
+            "order by i.date desc")
+    Page<Instance> worktrayGathering(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+
+    @Query("select i from Instance i\n" +
+            "where i.state.name = 'gathered'\n" +
+            "and i.title.awaitingConfirmation = false\n" +
+            "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +
+            "and (:ownerId is null or i.title.owner.id = :ownerId)\n" +
+            "order by i.date desc")
+    Page<Instance> worktrayGathered(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 }

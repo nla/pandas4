@@ -8,11 +8,6 @@ import java.security.Principal;
 
 @Controller
 public class HomeController {
-    @GetMapping("/")
-    public String home() {
-        return "redirect:/titles";
-    }
-
     @GetMapping("/whoami")
     @ResponseBody
     public Principal whoami(Principal principal) {

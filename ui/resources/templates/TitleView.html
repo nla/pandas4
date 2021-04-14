@@ -134,18 +134,32 @@
         </div>
     </div>
 
-    <table class="panel-instance-list">
-        <tr th:each="year : ${instancesByYear}">
-            <td class="instance-year" th:text="${year.key}">2021</td>
-            <td class="instance-list">
-                <a th:each="instance : ${year.value}"
-                   th:href="@{|/instances/${instance.id}|}">
-                    <img th:src="@{|/instances/${instance.id}/thumbnail|}">
-                    <div th:text="${instanceDateFormat.format(instance.date)}"></div>
-                    <div class="size" th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
-                    <div class="state" th:if="${instance.state.name != 'archived'}" th:text="${instance.state.name}"></div>
-                </a>
-            </td>
-        </tr>
-    </table>
+    <div class="panel-instance-list">
+        <table>
+            <tr>
+                <td></td>
+                <td style="padding-bottom: 32px"><label><input id="showDeletedCheckbox" type="checkbox"> Show deleted</label></td>
+            </tr>
+            <tr th:each="year : ${instancesByYear}">
+                <td class="instance-year" th:text="${year.key}">2021</td>
+                <td class="instance-list">
+                    <a th:each="instance : ${year.value}"
+                       th:href="@{|/instances/${instance.id}|}" th:class="${'instance-' + instance.state.name}">
+                        <img th:src="@{|/instances/${instance.id}/thumbnail|}">
+                        <div th:text="${instanceDateFormat.format(instance.date)}"></div>
+                        <div class="size" th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
+                        <div class="state" th:if="${instance.state.name != 'archived'}" th:text="${instance.state.name}"></div>
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        function showHideDeleted() {
+            const value = document.getElementById("showDeletedCheckbox").checked ? 'block' : 'none';
+            document.querySelectorAll('.instance-deleted').forEach(el => el.style.display = value);
+        }
+        document.getElementById("showDeletedCheckbox").addEventListener('change', showHideDeleted);
+        showHideDeleted();
+    </script>
 </main>
