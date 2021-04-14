@@ -19,6 +19,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static org.springframework.http.CacheControl.maxAge;
 
 @Controller
 public class InstanceController {
@@ -93,6 +95,7 @@ public class InstanceController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok()
+                .cacheControl(maxAge(1, DAYS))
                 .header("Content-Type", thumbnail.getContentType())
                 .body(thumbnail.getData());
     }
