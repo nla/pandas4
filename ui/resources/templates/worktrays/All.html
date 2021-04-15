@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Worktrays - PANDAS</title>
+    <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+    <form id="sf" th:action="@{/titles}">
+        <!-- hidden default submit button (otherwise the export buttons will be the default!) -->
+        <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+    </form>
+
+    <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}')">
+    </header>
+
+    <h4>Selection</h4>
+
+    <details class="worktray" th:unless="${nominatedTitles.isEmpty()}">
+        <summary>Nominated titles [<span th:text="${nominatedTitles.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Nominated.html :: table"></table>
+        <a th:href="@{/worktrays/{alias}/nominated(alias=${alias})}">Show all</a>
+    </details>
+
+    <details class="worktray" th:unless="${monitoredTitles.isEmpty()}">
+        <summary>Monitored titles [<span th:text="${monitoredTitles.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Monitored :: table"></table>
+        <a th:href="@{/worktrays/{alias}/monitored(alias=${alias})}">Show all</a>
+    </details>
+
+    <h4>Permission</h4>
+
+    <details class="worktray" th:unless="${requestPermissionTitles.isEmpty()}">
+        <summary>Titles awaiting permission request [<span th:text="${requestPermissionTitles.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/RequestPermission :: table"></table>
+        <a th:href="@{/worktrays/{alias}/request-permission(alias=${alias})}">Show all</a>
+    </details>
+
+    <details class="worktray" th:unless="${permissionRequestedTitles.isEmpty()}">
+        <summary>Permission requested titles [<span th:text="${permissionRequestedTitles.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/PermissionRequested :: table"></table>
+        <a th:href="@{/worktrays/{alias}/permission-requested(alias=${alias})}">Show all</a>
+    </details>
+
+    <h4>Gather</h4>
+
+    <details class="worktray" th:unless="${awaitingSchedulingTitles.isEmpty()}">
+        <summary>Titles awaiting scheduling [<span th:text="${awaitingSchedulingTitles.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Scheduling :: table"></table>
+        <a th:href="@{/worktrays/{alias}/scheduling(alias=${alias})}">Show all</a>
+    </details>
+
+    <details class="worktray" th:unless="${scheduledTitles.isEmpty()}">
+        <summary>Scheduled titles [<span th:text="${scheduledTitles.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Scheduled :: table"></table>
+        <a th:href="@{/worktrays/{alias}/scheduled(alias=${alias})}">Show all</a>
+    </details>
+
+    <details class="worktray" th:unless="${gatheringInstances.isEmpty()}">
+        <summary>Instances gathering [<span th:text="${gatheringInstances.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Gathering :: table"></table>
+        <a th:href="@{/worktrays/{alias}/gathering(alias=${alias})}">Show all</a>
+    </details>
+
+    <h4>Preserve</h4>
+
+    <details class="worktray" th:unless="${instancesForUpload.isEmpty()}">
+        <summary>Instances for upload [<span th:text="${instancesForUpload.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Upload :: table"></table>
+        <a th:href="@{/worktrays/{alias}/upload(alias=${alias})}">Show all</a>
+    </details>
+
+    <details class="worktray" th:unless="${gatheredInstances.isEmpty()}">
+        <summary>Instances in QA [<span th:text="${gatheredInstances.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Gathered :: table"></table>
+        <a th:href="@{/worktrays/{alias}/gathered(alias=${alias})}">Show all</a>
+    </details>
+
+    <h4>Publish</h4>
+
+    <details class="worktray" th:unless="${archivedTitles.isEmpty()}">
+        <summary>Archived titles [<span th:text="${archivedTitles.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Archived :: table"></table>
+        <a th:href="@{/worktrays/{alias}/archived(alias=${alias})}">Show all</a>
+    </details>
+
+    <h4>Catalogue</h4>
+
+    <details class="worktray" th:unless="${titlesAwaitingCataloguing.isEmpty()}">
+        <summary>Titles awaiting cataloguing [<span th:text="${titlesAwaitingCataloguing.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/Cataloguing :: table"></table>
+        <a th:href="@{/worktrays/{alias}/cataloguing(alias=${alias})}">Show all</a>
+    </details>
+
+    <h4>Reports</h4>
+
+    <details class="worktray" th:unless="${requestedReports.isEmpty()}">
+        <summary>Requested Reports [<span th:text="${requestedReports.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/ReportsRequested :: table"></table>
+        <a th:href="@{/worktrays/{alias}/reports-requested(alias=${alias})}">Show all</a>
+    </details>
+
+    <details class="worktray" th:unless="${generatedReports.isEmpty()}">
+        <summary>Generated Reports [<span th:text="${generatedReports.totalElements}"></span>]</summary>
+        <table th:replace="worktrays/ReportsGenerated :: table"></table>
+        <a th:href="@{/worktrays/{alias}/reports-generated(alias=${alias})}">Show all</a>
+    </details>
+
+</main>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Generated Reports - PANDAS</title>
+    <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}/reports-generated')">
+    </header>
+
+    <nav class="breadcrumb">
+        <ol>
+             <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
+            <li class="active">Generated Reports (<span th:text="${generatedReports.totalElements}"></span>)</li>
+        </ol>
+    </nav>
+
+    <table th:fragment="table">
+        <thead>
+        <tr>
+            <th>Generated</th>
+            <th>Report Type</th>
+            <th>Agency</th>
+            <th>Owner</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="report: ${generatedReports}">
+            <td align="center"><time th:text="${dateFormat.format(report.nextGenerationDate)}">04/02/2021</time></td>
+            <td th:text="${report.type.name}">Nifty report</td>
+            <td><th:block th:if="${report.agency}" th:text="${report.agency.organisation.alias}">NLA</th:block></td>
+            <td><a th:if="${report.owner}" th:text="${report.owner.userid}" th:href="@{|/users/${report.owner.id}|}">jsmith</a></td>
+            <td>TODO: All | HTML | CSV | XML | PDF | Remove</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="worktrays/_worktrays :: pagination(${generatedReports})">
+    </div>
+</main>

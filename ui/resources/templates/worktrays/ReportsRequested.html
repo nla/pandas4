@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Requested Reports - PANDAS</title>
+    <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}/reports-requested')">
+    </header>
+
+    <nav class="breadcrumb">
+        <ol>
+             <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
+            <li class="active">Requested Reports (<span th:text="${requestedReports.totalElements}"></span>)</li>
+        </ol>
+    </nav>
+
+    <table th:fragment="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Report Type</th>
+            <th>Owner</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="report: ${requestedReports}">
+            <td align="center"><time th:text="${dateFormat.format(report.nextGenerationDate)}">04/02/2021</time></td>
+            <td align="right" th:text="${report.type.name}">Nifty report</td>
+            <td><a th:if="${report.owner}" th:text="${report.owner}" th:href="@{|/users/${report.owner.id}|}">jsmith</a></td>
+            <td>TODO: Cancel</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="worktrays/_worktrays :: pagination(${requestedReports})">
+    </div>
+</main>

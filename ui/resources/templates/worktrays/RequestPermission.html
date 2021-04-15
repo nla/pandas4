@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Titles requiring permission request - PANDAS</title>
+    <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}/request-permission')">
+    </header>
+
+    <nav class="breadcrumb">
+        <ol>
+             <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
+            <li class="active">Titles requiring permission request  (<span th:text="${requestPermissionTitles.totalElements}"></span>)</li>
+        </ol>
+    </nav>
+
+    <table th:fragment="table">
+        <thead>
+        <tr>
+            <th>Site</th>
+            <th>Registered</th>
+            <th>PI</th>
+            <th align=left>Title</th>
+            <th>Owner</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="title: ${requestPermissionTitles}">
+            <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
+            <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
+            <td align="right" th:text="${title.pi ?: title.id}">12345</td>
+            <td><a th:text="${title.name}" th:href="@{|/titles/${title.id}|}">Example title</a></td>
+            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="@{|/users/${title.owner.id}|}">jsmith</a></td>
+            <td>TODO: Request Permission | Transfer</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="worktrays/_worktrays :: pagination(${requestPermissionTitles})">
+    </div>
+</main>

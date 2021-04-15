@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+
+<header th:fragment="header(url)">
+    <select name="agency" onchange="window.location.href = this.value">
+        <option th:value="@{${url}(alias=${currentUser.userid})}">- Personal Worktray -</option>
+        <option th:if="${ownerId != null && ownerId != currentUser.id}" th:value="@{${url}(alias=${alias})}" th:text="|${alias}'s Worktray|" selected>jsmith</option>
+        <option th:each="agency: ${agencies}" th:value="@{${url}(alias=${agency.organisation.alias})}" th:text="${agency.name}"
+                th:selected="${agency.organisation.alias == alias}">
+            My Agency
+        </option>
+    </select>
+</header>
+
+<div th:fragment="pagination(page)">
+    <a th:if="${page.hasPrevious()}" th:href="@{''(page=${page.previousPageable().pageNumber})}">Prev</a>
+    <a th:each="n : ${#numbers.sequence(T(java.lang.Math).max(0, page.number - 5),
+                                        T(java.lang.Math).min(page.totalPages, page.number + 5))}"
+       th:text="${n + 1}" th:href="@{''(page=${n})}"></a>
+    <a th:if="${page.hasNext()}" th:href="@{''(page=${page.nextPageable().pageNumber})}">Next</a>
+</div>
+
+</html>

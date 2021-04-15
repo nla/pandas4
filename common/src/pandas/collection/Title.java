@@ -287,6 +287,10 @@ public class Title {
     @JoinColumn(name = "DEFAULT_PERMISSION_ID")
     private Permission defaultPermission;
 
+    @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OrderBy("date")
+    private List<Contact> contactEvents;
+
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
         if (getGather() != null && getGather().getGatherUrl() != null) {
@@ -645,5 +649,19 @@ public class Title {
             return null;
         }
         return getOwnerHistories().get(0).getIndividual();
+    }
+
+    public List<Contact> getContactEvents() {
+        return contactEvents;
+    }
+
+    public void setContactEvents(List<Contact> contactEvents) {
+        this.contactEvents = contactEvents;
+    }
+
+    public Instant getLastContactDate() {
+        List<Contact> events = getContactEvents();
+        if (events.isEmpty()) return null;
+        return events.get(events.size() - 1).getDate();
     }
 }

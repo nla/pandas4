@@ -21,8 +21,8 @@
         <li><a href="/"><i class="icon back"></i> To PANDAS 3</a></li>
     </ul>
     <ul>
-        <li><a th:href="@{/}" data-keybind=1 th:classappend="${#request.servletPath.matches('/$')}? 'active'"
-               href=Worktrays.html>
+        <li><a th:href="@{/}" data-keybind=1 th:classappend="${#request.servletPath.matches('/$|/worktrays/.*')}? 'active'"
+               href=worktrays/Worktrays.html>
             <i class="icon worktrays"></i>
             Worktrays</a>
         <li><a th:href="@{/titles}" data-keybind=2 th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
