@@ -70,4 +70,22 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     Page<Title> worktrayScheduled(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId,
                                   @Param("endDate") Instant endDate, Pageable pageable);
 
+    @Query("select t from Title t\n" +
+            "where exists (select i.id from Instance i where i.title = t and i.state.name = 'archived' and i.isDisplayed is null)\n" +
+            "and t.awaitingConfirmation = false\n" +
+            "and (:agencyId is null or t.agency.id = :agencyId)\n" +
+            "and (:ownerId is null or t.owner.id = :ownerId)\n" +
+            "order by t.gather.lastGatherDate")
+    Page<Title> worktrayArchivedTitles(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+
+    @Query("select t from Title t\n" +
+            "where exists (select i.id from Instance i where i.title = t and i.state.name <> 'deleted')\n" +
+            "and t.anbdNumber is null\n" +
+            "and t.awaitingConfirmation = false\n" +
+            "and (t.legalDeposit = true or t.status.name not in ('permission impossible', 'permission denied'))\n" +
+            "and t.cataloguingNotRequired <> true\n" +
+            "and (:agencyId is null or t.agency.id = :agencyId)\n" +
+            "and (:ownerId is null or t.owner.id = :ownerId)\n" +
+            "order by t.gather.lastGatherDate")
+    Page<Title> worktrayAwaitingCataloguing(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 }

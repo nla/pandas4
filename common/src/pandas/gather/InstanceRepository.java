@@ -41,6 +41,15 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
     Page<Instance> worktrayGathering(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select i from Instance i\n" +
+            "where i.state.name = 'creation'\n" +
+            "and i.gatherMethodName = 'Upload'\n" +
+            "and i.title.awaitingConfirmation = false\n" +
+            "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +
+            "and (:ownerId is null or i.title.owner.id = :ownerId)\n" +
+            "order by i.date desc")
+    Page<Instance> worktrayInstancesForUpload(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+
+    @Query("select i from Instance i\n" +
             "where i.state.name = 'gathered'\n" +
             "and i.title.awaitingConfirmation = false\n" +
             "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +

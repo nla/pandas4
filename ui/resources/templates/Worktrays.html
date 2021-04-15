@@ -28,7 +28,7 @@
 
     <h4>Selection</h4>
 
-    <details class="worktray" open th:unless="${nominatedTitles.isEmpty()}">
+    <details class="worktray" th:unless="${nominatedTitles.isEmpty()}">
         <summary>Nominated Titles [<span th:text="${nominatedTitles.totalElements}"></span>]</summary>
         <table>
             <thead>
@@ -55,7 +55,7 @@
         </table>
     </details>
 
-    <details class="worktray" open th:unless="${monitoredTitles.isEmpty()}">
+    <details class="worktray" th:unless="${monitoredTitles.isEmpty()}">
         <summary>Monitored Titles [<span th:text="${monitoredTitles.totalElements}"></span>]</summary>
         <table>
             <thead>
@@ -85,7 +85,7 @@
 
     <h4>Gather</h4>
 
-    <details class="worktray" open th:unless="${awaitingSchedulingTitles.isEmpty()}">
+    <details class="worktray" th:unless="${awaitingSchedulingTitles.isEmpty()}">
         <summary>Titles Awaiting Scheduling [<span th:text="${awaitingSchedulingTitles.totalElements}"></span>]</summary>
         <table>
             <thead>
@@ -110,7 +110,7 @@
         </table>
     </details>
 
-    <details class="worktray" open th:unless="${scheduledTitles.isEmpty()}">
+    <details class="worktray" th:unless="${scheduledTitles.isEmpty()}">
         <summary>Scheduled Titles [<span th:text="${scheduledTitles.totalElements}"></span>]</summary>
         <table>
             <thead>
@@ -137,7 +137,7 @@
         </table>
     </details>
 
-    <details class="worktray" open th:unless="${gatheringInstances.isEmpty()}">
+    <details class="worktray" th:unless="${gatheringInstances.isEmpty()}">
         <summary>Instances Gathering [<span th:text="${gatheringInstances.totalElements}"></span>]</summary>
         <table>
             <thead>
@@ -168,7 +168,36 @@
         </table>
     </details>
 
-    <details class="worktray" open th:unless="${gatheredInstances.isEmpty()}">
+    <h4>Preserve</h4>
+
+    <details class="worktray" th:unless="${instancesForUpload.isEmpty()}">
+        <summary>Instances For Upload [<span th:text="${instancesForUpload.totalElements}"></span>]</summary>
+        <table>
+            <thead>
+            <tr>
+                <th>Site</th>
+                <th>To Upload</th>
+                <th>PI</th>
+                <th align=left>Title</th>
+                <th>Archived Site</th>
+                <th>Owner</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="instance: ${instancesForUpload}">
+                <td align="center"><a th:href="${instance.title.titleUrl}"><i class="icon globe"></i></a></td>
+                <td align="center"><time th:text="${dateTimeFormat.format(instance.date)}">12:43:00</time></td>
+                <td align="right" th:text="${instance.title.pi ?: instance.title.id}">12345</td>
+                <td><a th:text="${instance.title.name}" th:href="@{|/titles/${instance.title.id}|}">Example title</a></td>
+                <td><a href="#workingAreaUrl"><i class="icon globe"></i></a></td>
+                <td><a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="@{|/users/${instance.title.owner.id}|}">jsmith</a></td>
+                <td>TODO: Upload</td>
+            </tr>
+            </tbody>
+        </table>
+    </details>
+
+    <details class="worktray" th:unless="${gatheredInstances.isEmpty()}">
         <summary>Instances in QA [<span th:text="${gatheredInstances.totalElements}"></span>]</summary>
         <table>
             <thead>
@@ -198,5 +227,64 @@
             </tbody>
         </table>
     </details>
+
+    <h4>Publish</h4>
+
+    <details class="worktray" th:unless="${archivedTitles.isEmpty()}">
+        <summary>Archived Titles [<span th:text="${archivedTitles.totalElements}"></span>]</summary>
+        <table>
+            <thead>
+            <tr>
+                <th>Site</th>
+                <th>Last Gathered</th>
+                <th>PI</th>
+                <th align=left>Title</th>
+                <th>Owner</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="title: ${archivedTitles}">
+                <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
+                <td align="center"><time th:if="${title.gather?.lastGatherDate}" th:text="${dateFormat.format(title.gather.lastGatherDate)}">04/02/2021</time></td>
+                <td align="right" th:text="${title.pi ?: title.id}">12345</td>
+                <td><a th:text="${title.name}" th:href="@{|/titles/${title.id}|}">Example title</a></td>
+                <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="@{|/users/${title.owner.id}|}">jsmith</a></td>
+                <td>TODO: Publish</td>
+            </tr>
+            </tbody>
+        </table>
+    </details>
+
+    <h4>Catalogue</h4>
+
+    <details class="worktray" th:unless="${titlesAwaitingCataloguing.isEmpty()}">
+        <summary>Titles Awaiting Cataloguing [<span th:text="${titlesAwaitingCataloguing.totalElements}"></span>]</summary>
+        <table>
+            <thead>
+            <tr>
+                <th>Site</th>
+                <th>Registered</th>
+                <th>PI</th>
+                <th align=left>Title</th>
+                <th>Status</th>
+                <th>Owner</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="title: ${titlesAwaitingCataloguing}">
+                <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
+                <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
+                <td align="right" th:text="${title.pi ?: title.id}">12345</td>
+                <td><a th:text="${title.name}" th:href="@{|/titles/${title.id}|}">Example title</a></td>
+                <td th:text="${title.status.name}"></td>
+                <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="@{|/users/${title.owner.id}|}">jsmith</a></td>
+                <td>TODO: Catalogue</td>
+            </tr>
+            </tbody>
+        </table>
+    </details>
+
+    <h4>Reports</h4>
+    Not yet implemented
 
 </main>
