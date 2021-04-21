@@ -2,6 +2,7 @@ package pandas.collection;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,6 +50,7 @@ public class InstanceController {
     }
 
     @PostMapping("/instances/{id}/delete")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
     public String delete(@PathVariable("id") Instance instance) {
         if (!instance.canDelete()) throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
         instanceService.updateState(instance, State.DELETING, userService.getCurrentUser());
@@ -56,6 +58,7 @@ public class InstanceController {
     }
 
     @PostMapping("/instances/{id}/archive")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
     public String archive(@PathVariable("id") Instance instance) {
         if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
         instanceService.updateState(instance, State.ARCHIVING, userService.getCurrentUser());
@@ -63,6 +66,7 @@ public class InstanceController {
     }
 
     @PostMapping("/instances/{id}/stop")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
     public String stop(@PathVariable("id") Instance instance) {
         if (instance.canStop()) {
             instanceService.updateState(instance, State.GATHERED, userService.getCurrentUser());

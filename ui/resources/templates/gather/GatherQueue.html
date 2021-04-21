@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Gather Queue - PANDAS</title>
@@ -54,7 +54,7 @@
             <td><a th:href="@{|/titles/${instance.title.id}|}" th:text="${instance.title.name}" href="#">Fishes of Australia</a></td>
             <td th:text="${instance.gatherMethodName}">Heritrix</td>
             <td th:text="${instance.state.name}">Heritrix</td>
-            <td><button th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i class="icon stop"></i> Stop</button></td>
+            <td><button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i class="icon stop"></i> Stop</button></td>
         </tr>
         </tbody>
     </table>
