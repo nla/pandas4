@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${title.name + ' - PANDAS'}">Example Title - PANDAS</title>
@@ -46,10 +47,12 @@
             width: 100px;
             height: 75px;
         }
+
         .panel-instance-list .instance-list > a .size {
             color: #666;
             font-size: 75%;
         }
+
         .panel-instance-list .instance-list > a .state {
             color: #666;
             font-size: 75%;
@@ -61,16 +64,19 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{|/titles/${title.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
+            <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
             <a th:href="@{|/titles/${title.id}/p3|}" class="btn btn-secondary">View in PANDAS 3</a>
         </nav>
     </header>
 
     <div class="panel-title-details">
         <h3 th:text="${title.name}">Example Title</h3>
-        <span th:text="${title.getYearRange()}"></span>, <a th:if="${title.publisher}" th:href="@{|/publishers/${title.publisher.id}|}" th:text="${title.publisher.name}"></a><br>
+        <span th:text="${title.getYearRange()}"></span>, <a th:if="${title.publisher}"
+                                                            th:href="@{|/publishers/${title.publisher.id}|}"
+                                                            th:text="${title.publisher.name}"></a><br>
         <br>
-        <a style="color: var(--color-black)" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span th:text="${title.pi}"></span></a> </span> <br>
+        <a style="color: var(--color-black)" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span
+                th:text="${title.pi}"></span></a> </span> <br>
         <br>
         <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green"></a><br><br>
 
@@ -88,7 +94,8 @@
             Collections:
             <ul class="collection-list">
                 <li th:each="collection: ${title.collections}">
-                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}" href="CollectionView.html">Nice Sites</a>
+                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
+                       href="CollectionView.html">Nice Sites</a>
                 </li>
             </ul>
         </div>
@@ -100,8 +107,11 @@
             </div>
             <details>
                 <summary><span th:text="${title?.gather?.schedule?.name}"></span> <span
-                        th:text="${title?.gather?.method?.name}"></span> gather</summary>
-                <div th:if="${title?.gather?.nextGatherDate != null}">Next gather date: <time th:text="${dateFormat.format(title.gather.nextGatherDate)}"></time></div>
+                        th:text="${title?.gather?.method?.name}"></span> gather
+                </summary>
+                <div th:if="${title?.gather?.nextGatherDate != null}">Next gather date:
+                    <time th:text="${dateFormat.format(title.gather.nextGatherDate)}"></time>
+                </div>
                 <div>Command: <tt th:text="${title?.gather?.buildHttrackCommand()}"></tt></div>
             </details>
         </div>
@@ -138,7 +148,8 @@
         <table>
             <tr>
                 <td></td>
-                <td style="padding-bottom: 32px"><label><input id="showDeletedCheckbox" type="checkbox"> Show deleted</label></td>
+                <td style="padding-bottom: 32px"><label><input id="showDeletedCheckbox" type="checkbox"> Show
+                    deleted</label></td>
             </tr>
             <tr th:each="year : ${instancesByYear}">
                 <td class="instance-year" th:text="${year.key}">2021</td>
@@ -147,8 +158,10 @@
                        th:href="@{|/instances/${instance.id}|}" th:class="${'instance-' + instance.state.name}">
                         <img th:src="@{|/instances/${instance.id}/thumbnail|}">
                         <div th:text="${instanceDateFormat.format(instance.date)}"></div>
-                        <div class="size" th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
-                        <div class="state" th:if="${instance.state.name != 'archived'}" th:text="${instance.state.name}"></div>
+                        <div class="size"
+                             th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
+                        <div class="state" th:if="${instance.state.name != 'archived'}"
+                             th:text="${instance.state.name}"></div>
                     </a>
                 </td>
             </tr>
@@ -159,6 +172,7 @@
             const value = document.getElementById("showDeletedCheckbox").checked ? 'block' : 'none';
             document.querySelectorAll('.instance-deleted').forEach(el => el.style.display = value);
         }
+
         document.getElementById("showDeletedCheckbox").addEventListener('change', showHideDeleted);
         showHideDeleted();
     </script>

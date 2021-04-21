@@ -14,7 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-import pandas.core.*;
+import pandas.core.Config;
+import pandas.core.Individual;
+import pandas.core.IndividualRepository;
+import pandas.core.UserService;
 import pandas.gather.GatherMethodRepository;
 import pandas.gather.GatherScheduleRepository;
 import pandas.gather.GatherService;
@@ -200,8 +203,8 @@ public class TitleController {
     }
 
     @GetMapping("/titles/{id}/edit")
-    public String edit(@PathVariable("id") Optional<Title> title, Model model) {
-        TitleEditForm form = new TitleEditForm(title.orElseThrow(NotFoundException::new));
+    public String edit(@PathVariable("id") Title title, Model model) {
+        TitleEditForm form = titleService.editForm(title);
         model.addAttribute("form", form);
         model.addAttribute("allCollections", classificationService.allCollections());
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());

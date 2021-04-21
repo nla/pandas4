@@ -667,4 +667,24 @@ public class Title {
         if (events.isEmpty()) return null;
         return events.get(events.size() - 1).getDate();
     }
+
+    /**
+     * Returns true if the given user is the owner of this title.
+     */
+    public boolean isOwnedBy(Individual user) {
+        if (getOwner() == null || user == null) return false;
+        if (user == getOwner()) return true;
+        return user.getId() != null && user.getId().equals(getOwner().getId());
+    }
+
+    /**
+     * Returns true if the given agency is the assigned agency of this title or if the owner of this title is a member
+     * of the given agency.
+     */
+    public boolean isOwnedBy(Agency agency) {
+        if (getAgency() == null || agency == null) return false;
+        if (getAgency() == agency) return true;
+        if (agency.getId() != null && agency.getId().equals(getAgency().getId())) return true;
+        return getOwner() != null && getOwner().getAgency() != agency && isOwnedBy(getOwner().getAgency());
+    }
 }

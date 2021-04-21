@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import pandas.agency.Agency;
 
 import javax.persistence.*;
 
@@ -266,5 +267,11 @@ public class Individual {
 
     public Role getRole() {
         return role;
+    }
+
+    public Agency getAgency() {
+        if (getRole() == null) return null;
+        if (getRole().getOrganisation() == null) return null;
+        return getRole().getOrganisation().getAgency();
     }
 }

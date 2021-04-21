@@ -49,21 +49,27 @@ public class PandasUserDetailsService implements UserDetailsService, Authenticat
             switch (individual.getRole().getType()) {
                 case "SysAdmin":
                     authorities.add(new SimpleGrantedAuthority("ROLE_sysadmin"));
+                    authorities.addAll(Privileges.byRole.get("sysadmin"));
                     // fallthrough
                 case "PanAdmin":
                     authorities.add(new SimpleGrantedAuthority("ROLE_panadmin"));
+                    authorities.addAll(Privileges.byRole.get("panadmin"));
                     // fallthrough
                 case "AgAdmin":
                     authorities.add(new SimpleGrantedAuthority("ROLE_agadmin"));
+                    authorities.addAll(Privileges.byRole.get("agadmin"));
                     // fallthrough
                 case "StdUser":
                     authorities.add(new SimpleGrantedAuthority("ROLE_stduser"));
+                    authorities.addAll(Privileges.byRole.get("stduser"));
                     // fallthrough
                 case "SuppUser":
                     authorities.add(new SimpleGrantedAuthority("ROLE_suppuser"));
+                    authorities.addAll(Privileges.byRole.get("suppuser"));
                     // fallthrough
                 case "InfoUser":
                     authorities.add(new SimpleGrantedAuthority("ROLE_infouser"));
+                    authorities.addAll(Privileges.byRole.get("infouser"));
                     break;
                 default:
                     throw new IllegalStateException("Unknown role type: " + individual.getRole().getType());

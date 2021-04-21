@@ -107,6 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         Set<GrantedAuthority> authorities = new HashSet<>();
         for (String role : (List<String>)((Map<String,Object>)claims.get("realm_access")).get("roles")) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+            authorities.addAll(Privileges.byRole.getOrDefault(role, Set.of()));
         }
         return authorities;
     }

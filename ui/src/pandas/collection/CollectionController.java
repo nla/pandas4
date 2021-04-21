@@ -2,6 +2,7 @@ package pandas.collection;
 
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -58,15 +59,16 @@ public class CollectionController {
     }
 
     @GetMapping("/collections/{id}/edit")
-    public String edit(@PathVariable("id") long id, Model model) {
-        model.addAttribute("collection", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
+    public String edit(@PathVariable("id") Collection collection, Model model) {
+        model.addAttribute("collection", collection);
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         return "CollectionEdit";
     }
 
     @PostMapping("/collections/{id}/delete")
-    public String delete(@PathVariable long id) {
-        collectionRepository.deleteById(id);
+    @PreAuthorize("hasPermission(#collection, 'edit')")
+    public String delete(@PathVariable Collection collection) {
+        collectionRepository.delete(collection);
         return "redirect:/collections";
     }
 

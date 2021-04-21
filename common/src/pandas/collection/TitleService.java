@@ -2,6 +2,7 @@ package pandas.collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.core.Individual;
@@ -40,6 +41,7 @@ public class TitleService {
         this.gatherScheduleRepository = gatherScheduleRepository;
     }
 
+    @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
     public TitleBulkEditForm newBulkEditForm(List<Title> titles) {
         var form = new TitleBulkEditForm();
         form.setTitles(titles);
@@ -50,6 +52,7 @@ public class TitleService {
         return form;
     }
 
+    @PreAuthorize("hasPermission(null, 'Title', 'edit')")
     public TitleEditForm newTitleForm(List<Collection> collections, List<Subject> subjects) {
         TitleEditForm form = new TitleEditForm();
         form.setCollections(collections);
@@ -71,7 +74,12 @@ public class TitleService {
         return form;
     }
 
+    private static String emptyToNull(String s) {
+        return s != null && s.isEmpty() ? null : s;
+    }
+
     @Transactional
+    @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
     public Title save(TitleEditForm form, Individual user) {
         Instant now = Instant.now();
         Title title = form.getId() == null ? new Title() : titleRepository.findById(form.getId()).orElseThrow();
@@ -158,11 +166,8 @@ public class TitleService {
         return title;
     }
 
-    private static String emptyToNull(String s) {
-        return s != null && s.isEmpty() ? null : s;
-    }
-
     @Transactional
+    @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
     public void bulkEdit(TitleBulkEditForm form, Individual currentUser) {
         log.info("Applying bulk change {}", form.toString());
         Instant now = Instant.now();
@@ -201,5 +206,10 @@ public class TitleService {
         }
         titleRepository.saveAll(form.getTitles());
         titleGatherRepository.saveAll(gathers);
+    }
+
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public TitleEditForm editForm(Title title) {
+        return new TitleEditForm(title);
     }
 }
