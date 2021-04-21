@@ -1,5 +1,6 @@
 package pandas.gather;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import javax.validation.Valid;
 
 @Controller
+@PreAuthorize("hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')")
 public class ProfileController {
     private final ProfileRepository profileRepository;
 

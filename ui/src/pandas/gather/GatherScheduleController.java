@@ -2,6 +2,7 @@ package pandas.gather;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 
 @Controller
+@PreAuthorize("hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')")
 public class GatherScheduleController {
     private static final Logger log = LoggerFactory.getLogger(GatherScheduleController.class);
 
