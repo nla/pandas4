@@ -55,16 +55,20 @@
     </ul>
 
     <ul>
+        <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${#request.servletPath.matches('/queue')}? 'active'">Gather Queue</a>
         <li><a th:href="@{/marcexport}">MARC Export</a>
-        <li><a th:href="@{/queue}" th:classappend="${#request.servletPath.matches('/queue')}? 'active'">Gather Queue</a>
     </ul>
-    <ul>
-        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/profiles}">Gather Profiles</a>
-        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/schedules}">Gather Schedules</a>
+
+    <!-- Gather option administration -->
+    <ul sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')">
+        <li><a th:href="@{/profiles}">Gather Profiles</a>
+        <li><a th:href="@{/schedules}">Gather Schedules</a>
         <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
     </ul>
-    <div style="padding-left: 1rem; color: #999">User: <span sec:authentication="name">jsmith</span></div>
-
+    <ul>
+        <li style="padding-left: 1rem; color: #999">User: <span sec:authentication="name">jsmith</span></li>
+        <li><a th:href="@{/logout}">Sign Out</a></li>
+    </ul>
 </nav>
 
 <main>

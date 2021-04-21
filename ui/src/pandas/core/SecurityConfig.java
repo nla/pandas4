@@ -3,6 +3,7 @@ package pandas.core;
 import com.nimbusds.jwt.SignedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,12 +17,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
@@ -41,9 +45,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final PandasUserDetailsService pandasUserDetailsService;
     private final Config config;
 
-    public SecurityConfig(PandasUserDetailsService pandasUserDetailsService, Config config) {
+    private final ClientRegistrationRepository clientRegistrationRepository;
+
+    public SecurityConfig(PandasUserDetailsService pandasUserDetailsService, Config config,
+                          @Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository) {
         this.pandasUserDetailsService = pandasUserDetailsService;
         this.config = config;
+        this.clientRegistrationRepository = clientRegistrationRepository;
         if (config.getAutologin() != null) {
             log.warn("DANGER! Running with auto-login as user '{}'. This should never be used in production.", config.getAutologin());
         }
@@ -96,6 +104,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/pageinfo").hasRole("stduser")
                 .antMatchers("/crawls/**").hasRole("panadmin")
                 .anyRequest().hasRole("stduser");
+        if (oidcIssuerUri != null && clientRegistrationRepository != null) {
+            auth.and().logout().logoutSuccessHandler((request, response, authentication) -> {
+                OidcClientInitiatedLogoutSuccessHandler handler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+                handler.setPostLogoutRedirectUri(ServletUriComponentsBuilder.fromRequestUri(request).replacePath(null).build().toUriString());
+                handler.onLogoutSuccess(request, response, authentication);
+            });
+        }
         if (oidcIssuerUri == null && config.getAutologin() == null) {
                 auth.and().formLogin().defaultSuccessUrl("/test")
                     .and().httpBasic().realmName("PANDAS");
