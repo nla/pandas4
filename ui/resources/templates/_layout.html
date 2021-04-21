@@ -68,6 +68,8 @@
     <ul>
         <li style="padding-left: 1rem; color: #999">User: <span sec:authentication="name">jsmith</span></li>
         <li><a th:href="@{/logout}">Sign Out</a></li>
+        <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=stduser}">Become stduser</a></li>
+        <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=agadmin}">Become agadmin</a></li>
     </ul>
 </nav>
 

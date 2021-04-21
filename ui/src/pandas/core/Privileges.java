@@ -19,12 +19,13 @@ public class Privileges {
 
     public static final SimpleGrantedAuthority VIEW_GATHER_QUEUE = new SimpleGrantedAuthority("PRIV_VIEW_GATHER_QUEUE");
     public static final SimpleGrantedAuthority ADMIN_GATHER_OPTIONS = new SimpleGrantedAuthority("PRIV_ADMIN_GATHER_OPTIONS");
+    public static final SimpleGrantedAuthority SUDO = new SimpleGrantedAuthority("PRIV_SUDO");
 
     public static final Map<String, Set<GrantedAuthority>> byRole = Map.of(
             "infouser", Set.of(),
             "suppuser", Set.of(),
             "stduser", Set.of(CREATE_TITLES, EDIT_OWN_TITLES, EDIT_COLLECTIONS, EDIT_PUBLISHERS, VIEW_GATHER_QUEUE),
             "agadmin", Set.of(EDIT_AGENCY_TITLES),
-            "panadmin", Set.of(EDIT_ALL_TITLES, BULK_EDIT_TITLES, EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS),
+            "panadmin", Set.of(EDIT_ALL_TITLES, BULK_EDIT_TITLES, EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO),
             "sysadmin", Set.of());
 }
