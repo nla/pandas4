@@ -59,6 +59,7 @@ public class CollectionController {
     }
 
     @GetMapping("/collections/{id}/edit")
+    @PreAuthorize("hasPermission(#collection, 'edit')")
     public String edit(@PathVariable("id") Collection collection, Model model) {
         model.addAttribute("collection", collection);
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
@@ -73,6 +74,7 @@ public class CollectionController {
     }
 
     @GetMapping("/collections/new")
+    @PreAuthorize("hasAuthority('PRIV_EDIT_COLLECTIONS')")
     public String newForm(@RequestParam(value = "parent", required = false) Long parentId,
                           @RequestParam(value = "subject", required = false) List<Subject> subjects,
                           Model model) {
@@ -85,6 +87,7 @@ public class CollectionController {
     }
 
     @PostMapping("/collections")
+    @PreAuthorize("hasPermission(#collection, 'edit')")
     public String update(@Valid Collection collection) {
         if (collection.getId() == null) {
             collectionRepository.save(collection);
@@ -100,6 +103,7 @@ public class CollectionController {
 
     @GetMapping("/collections/reindex")
     @ResponseBody
+    @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
     public String reindex() throws InterruptedException {
         Search.session(entityManager).massIndexer(Collection.class).startAndWait();
         return "OK";

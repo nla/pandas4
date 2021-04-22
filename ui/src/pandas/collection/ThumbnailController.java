@@ -3,6 +3,7 @@ package pandas.collection;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ public class ThumbnailController {
     }
 
     @GetMapping("/thumbnails/{id}/edit")
+    @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
     public String edit(@PathVariable("id") long id, Model model) {
         Thumbnail thumbnail = thumbnailRepository.findById(id).orElseThrow(NotFoundException::new);
         model.addAttribute("thumbnail", thumbnail);
@@ -29,6 +31,7 @@ public class ThumbnailController {
     }
 
     @GetMapping("/thumbnails/generate")
+    @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
     @ResponseBody
     public String generate() {
         thumbnailProcessor.run();

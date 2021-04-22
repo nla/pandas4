@@ -2,6 +2,7 @@ package pandas.collection;
 
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +46,7 @@ public class PublisherController {
 
     @GetMapping("/publishers/reindex")
     @ResponseBody
+    @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
     public String reindex() throws InterruptedException {
         Search.session(entityManager).massIndexer(Publisher.class).startAndWait();
         return "ok";

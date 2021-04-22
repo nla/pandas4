@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ContentDisposition;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
@@ -197,6 +198,7 @@ public class TitleController {
 
     @GetMapping("/titles/reindex")
     @ResponseBody
+    @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
     public String reindex() throws InterruptedException {
         Search.session(entityManager).massIndexer(Title.class).startAndWait();
         return "ok";
