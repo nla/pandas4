@@ -76,7 +76,7 @@
                                                             th:text="${title.publisher.name}"></a><br>
         <br>
         <a style="color: var(--color-black)" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span
-                th:text="${title.pi}"></span></a> </span> <br>
+                th:text="${title.pi}"></span></a><br>
         <br>
         <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green"></a><br><br>
 
@@ -103,7 +103,7 @@
         <div>
             <h4>Status</h4>
             <div th:text="${title.status.name}" style="text-transform: capitalize"></div>
-            <div></span>
+            <div>
             </div>
             <details>
                 <summary><span th:text="${title?.gather?.schedule?.name}"></span> <span
@@ -112,7 +112,7 @@
                 <div th:if="${title?.gather?.nextGatherDate != null}">Next gather date:
                     <time th:text="${dateFormat.format(title.gather.nextGatherDate)}"></time>
                 </div>
-                <div>Command: <tt th:text="${title?.gather?.buildHttrackCommand()}"></tt></div>
+                <div>Command: <span th:text="${title?.gather?.buildHttrackCommand()}"></span></div>
             </details>
         </div>
 
@@ -149,14 +149,15 @@
             <tr>
                 <td></td>
                 <td th:if="${deletedInstancesCount > 0}" style="padding-bottom: 32px"><label><input id="showDeletedCheckbox" type="checkbox"> Show
-                    deleted (<th:block th:text="${deletedInstancesCount}"></th:block>) </label></td>
+                    deleted (<th:block th:text="${deletedInstancesCount}"/>) </label></td>
             </tr>
             <tr th:each="year : ${instancesByYear}">
                 <td class="instance-year" th:text="${year.key}">2021</td>
                 <td class="instance-list">
                     <a th:each="instance : ${year.value}"
                        th:href="@{|/instances/${instance.id}|}" th:class="${'instance-' + instance.state.name}">
-                        <img th:src="@{|/instances/${instance.id}/thumbnail|}">
+                        <!--suppress HtmlRequiredAltAttribute -->
+                        <img src="#" th:src="@{|/instances/${instance.id}/thumbnail|}" alt="">
                         <div th:text="${instanceDateFormat.format(instance.date)}"></div>
                         <div class="size"
                              th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></div>
