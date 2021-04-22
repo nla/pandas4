@@ -148,8 +148,8 @@
         <table>
             <tr>
                 <td></td>
-                <td style="padding-bottom: 32px"><label><input id="showDeletedCheckbox" type="checkbox"> Show
-                    deleted</label></td>
+                <td th:if="${deletedInstancesCount > 0}" style="padding-bottom: 32px"><label><input id="showDeletedCheckbox" type="checkbox"> Show
+                    deleted (<th:block th:text="${deletedInstancesCount}"></th:block>) </label></td>
             </tr>
             <tr th:each="year : ${instancesByYear}">
                 <td class="instance-year" th:text="${year.key}">2021</td>

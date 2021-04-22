@@ -22,6 +22,7 @@ import pandas.core.UserService;
 import pandas.gather.GatherMethodRepository;
 import pandas.gather.GatherScheduleRepository;
 import pandas.gather.GatherService;
+import pandas.gather.State;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
@@ -82,6 +83,7 @@ public class TitleController {
         model.addAttribute("instancesByYear", title.getInstances().stream().collect(
                 groupingBy(i -> i.getDate().atZone(ZoneId.systemDefault()).getYear(),
                 () -> new TreeMap<>(comparator.reversed()), toList())));
+        model.addAttribute("deletedInstancesCount", title.getInstances().stream().filter(instance -> State.DELETED.equals(instance.getState().getName())).count());
         return "TitleView";
     }
 
