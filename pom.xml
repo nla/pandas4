@@ -13,10 +13,9 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.release>11</maven.compiler.release>
-        <hibernate.search.version>6.0.0.Final</hibernate.search.version>
+        <hibernate.search.version>6.0.3.Final</hibernate.search.version>
         <jackson.version>2.11.1</jackson.version>
-        <spring.version>2.4.2</spring.version>
-        <spring.security.version>5.3.3.RELEASE</spring.security.version>
+        <spring.version>2.4.5</spring.version>
     </properties>
 
     <dependencyManagement>
