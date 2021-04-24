@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -24,5 +25,12 @@ public class PagesController {
         model.addAttribute("url", url);
         model.addAttribute("dateTimeFormat", DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").withZone(ZoneId.systemDefault()));
         return "PageSearch";
+    }
+
+    @GetMapping("/replay")
+    public String replay(@RequestParam String url, @RequestParam Instant date, Model model) {
+        model.addAttribute("url", url);
+        model.addAttribute("arcdate", Capture.ARC_DATE.format(date));
+        return "PageView";
     }
 }

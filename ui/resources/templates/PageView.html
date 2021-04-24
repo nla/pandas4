@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pages - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .cdx-results {
+            white-space: nowrap;
+        }
+
+        .cdx-results thead td {
+            font-weight: bold;
+        }
+        .cdx-results td {
+            margin-right: 16px;
+        }
+
+        .cdx-results .url {
+            color: darkgreen;
+        }
+
+        .status-unknown { color: dimgray; }
+        .status-2xx { color: darkgreen; }
+        .status-3xx { color: darkblue; }
+        .status-4xx { color: darkorange; }
+        .status-5xx { color: darkred; }
+    </style>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+    <form id="sf" th:action="@{/pages}">
+    </form>
+
+    <header>
+        <nav></nav>
+        <input type=search name="url" th:value="${url}" placeholder="URL" data-keybind="f" form=sf style="width: 100%">
+    </header>
+
+    <iframe th:src="@{|https://web.archive.org.au/awa/${arcdate}mp_/${url}|}" style="width: 100%; height: 800px"></iframe>
+</main>

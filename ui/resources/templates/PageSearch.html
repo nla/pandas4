@@ -42,6 +42,7 @@
     <table class="cdx-results">
         <thead>
         <tr>
+            <td>View</td>
             <td>Date</td>
             <td>Status</td>
             <td>Type</td>
@@ -52,6 +53,7 @@
         </thead>
         <tbody>
         <tr th:each="capture : ${captures}">
+            <td><a th:href="@{/replay(url=${capture.url},date=${capture.date})}">View</a></td>
             <td><a th:href="${capture.replayUrl}" th:text="${dateTimeFormat.format(capture.date)}"></a></td>
             <td><span th:text="${capture.status}" th:class="${capture.statusClass}" th:title="${capture.statusPhrase}"></span>
             <a th:if="${capture.redirectUrl}" th:href="@{/pages(url=${capture.redirectUrl})}">redirect</a> </td>
