@@ -237,6 +237,8 @@ public class TitleController {
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
         model.addAttribute("allSubjects", classificationService.allSubjects());
+        model.addAttribute("statusList", statusRepository.findAllById(
+                List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
         return "TitleEdit";
     }
 
