@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head th:replace="_delivery.html :: head(${letter} + ' - PANDORA')"></head>
+
+<body>
+
+<th:block th:replace="_delivery.html :: body"></th:block>
+
+<div id="content">
+    <div id="contentBreadcrumbs">
+        <a th:href="@{/}">Home</a>
+        &lt;
+        <span class="selectedTitle">
+            <th:block th:text="${letter}"/>
+        </span>
+        (<em th:text="${titles.totalElements + collections.size()} + ' items'"></em>)
+    </div>
+
+    <th:block th:unless="${collections.isEmpty()}">
+        <div class="itemnavigation">
+            <h2>Collections</h2>
+        </div>
+
+        <div class="itemlist">
+            <ul>
+                <li th:each="collection : ${collections}">
+                    <a th:href="@{/col/{id}(id=${collection.id})}" th:text="${collection.name}"></a>
+                    (<th:block th:text="${collection.titleCount}"></th:block>)
+                </li>
+            </ul>
+        </div>
+    </th:block>
+
+    <th:block th:replace="_delivery :: pagination(${titles}, '/alpha/' + ${letter} + '/{page}')" />
+
+    <div class="itemlist" th:unless="${titles.isEmpty()}">
+        <ul>
+            <li th:each="title : ${titles}">
+                <a th:href="@{/tep/{pi}(pi=${title.pi})}" th:text="${title.displayName}">Title</a>
+            </li>
+        </ul>
+    </div>
+
+    <th:block th:replace="_delivery :: pagination(${titles}, '/alpha/' + ${letter} + '/{page}')" />
+
+    <table id="alphaFooter">
+        <tbody>
+        <tr>
+            <td class="alphaCell">
+        <span id="alphabetical2">
+          <ul id="alphalinks">
+            <li th:each="letter : ${alphabet}"><a th:href="@{/alpha/{letter}(letter=${letter})}" th:text="${letter}" style="color:white">A</a></li>
+          </ul>
+        </span>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="_delivery :: credits"></div>
+
+</div>
+</body>

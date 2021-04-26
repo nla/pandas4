@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head th:replace="_delivery.html :: head(${subject.name} + ' - PANDORA')"></head>
+
+<body>
+
+<th:block th:replace="_delivery.html :: body"></th:block>
+
+<div id="content">
+    <div id="contentBreadcrumbs">
+        <a th:href="@{|${prefix}/|}">Home</a>
+        <th:block th:each="crumb : ${subject.subjectBreadcrumbs}">
+            <strong>&lt;</strong>
+            <span class="selectedTitle">
+                <a th:unless="${subject.id == crumb.id}" th:href="@{|${prefix}/subject/${crumb.id}|}" th:text="${crumb.name}"></a>
+                <th:block th:if="${subject.id == crumb.id}" th:text="${crumb.name}"></th:block>
+            </span>
+        </th:block>
+        (<em th:text="${titles.totalElements + collections.size()}"></em>)
+    </div>
+
+    <div class="subcategories" th:unless="${subject.children.isEmpty()}">
+        <h2><span>Subcategories</span></h2>
+        <ul>
+            <li th:each="child : ${subject.children}"><a th:href="@{|${prefix}/subject/${child.id}|}" th:text="${child.name}">Child</a>
+                (<em th:text="${child.titleCount}">0</em>)
+            </li>
+        </ul>
+    </div>
+
+    <th:block th:unless="${subject.collections.isEmpty()}">
+        <div class="itemnavigation">
+            <h2>Collections</h2>
+        </div>
+
+        <div class="itemlist">
+            <ul>
+                <li th:each="collection : ${collections}">
+                    <a th:href="@{|${prefix}/col/${collection.id}|}" th:text="${collection.name}"></a>
+                    (<th:block th:text="${collection.titleCount}"></th:block>)
+                </li>
+            </ul>
+        </div>
+    </th:block>
+
+    <th:block th:replace="_delivery :: pagination(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')" />
+
+    <div class="itemlist" th:unless="${titles.isEmpty()}">
+        <ul>
+            <li th:each="title : ${titles}">
+                <a th:href="@{/tep/{pi}(pi=${title.pi})}" th:text="${title.displayName}">Title</a>
+            </li>
+        </ul>
+    </div>
+
+    <th:block th:replace="_delivery :: pagination(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')" />
+
+    <div th:replace="_delivery :: credits"></div>
+
+</div>
+</body>

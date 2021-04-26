@@ -1,0 +1,44 @@
+#banner #homeLink {
+  width: 500px;
+  height: 90px;
+  display: block;
+}
+
+#previewFrame {
+  width: 100%;
+  height: 45%;
+}
+
+#editbox {
+  width: 100%;
+  height: 45%;
+}
+
+#editable {
+  text-align: left;
+}
+
+.browseSubjects {
+  column-count: 3;
+}
+
+.credits {
+  margin-top: 12px;
+  text-align: center;
+}
+.credits > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#alphaFooter {
+  border: 0;
+  width: 100%;
+  margin-top: 32px;
+}
+
+#alphaFooter .alphaCell {
+  background: #24428b;
+}

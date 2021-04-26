@@ -7,7 +7,7 @@
         <artifactId>pandas4-parent</artifactId>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>pandas4-ui</artifactId>
+    <artifactId>pandas4-delivery</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +18,7 @@
     </properties>
 
     <build>
-        <finalName>pandas-admin</finalName>
+        <finalName>pandas4-delivery</finalName>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <testSourceDirectory>${basedir}/test</testSourceDirectory>
         <resources>
@@ -43,25 +43,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.gitlab.haynes</groupId>
-                <artifactId>libsass-maven-plugin</artifactId>
-                <version>0.2.24</version>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <inputPath>${basedir}/sass/</inputPath>
-                    <outputPath>${basedir}/target/classes/static/</outputPath>
-                    <sourceMapOutputPath>${basedir}/target/classes/static/</sourceMapOutputPath>
-                    <enableClasspathAwareImporter>true</enableClasspathAwareImporter>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.version}</version>
@@ -75,7 +56,7 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <mainClass>pandas.Pandas</mainClass>
+                            <mainClass>pandas.PandasDelivery</mainClass>
                         </configuration>
                     </execution>
                 </executions>
@@ -98,32 +79,16 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -142,21 +107,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>info.freelibrary</groupId>
-            <artifactId>freelib-marc4j</artifactId>
-            <version>2.6.11</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.search</groupId>
-            <artifactId>hibernate-search-backend-lucene</artifactId>
-            <version>${hibernate.search.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.search</groupId>
-            <artifactId>hibernate-search-mapper-orm</artifactId>
-            <version>${hibernate.search.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.oracle.ojdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>19.3.0.0</version>
@@ -171,83 +121,13 @@
             <version>42.2.19</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>webshim</artifactId>
-            <version>1.15.8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>datatables</artifactId>
-            <version>1.10.21</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>cropperjs</artifactId>
-            <version>1.5.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>4.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>pdf-js</artifactId>
-            <version>2.5.207</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>slim-select</artifactId>
-            <version>1.24.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
             <artifactId>owasp-java-html-sanitizer</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.imgscalr</groupId>
-            <artifactId>imgscalr-lib</artifactId>
-            <version>4.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-            <version>2.8.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.grack</groupId>
-            <artifactId>nanojson</artifactId>
-            <version>1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netpreserve</groupId>
-            <artifactId>jwarc</artifactId>
-            <version>0.13.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-            <version>1.8</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.8.0</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <!-- seems to be needed by spring on servers -->
         <dependency>

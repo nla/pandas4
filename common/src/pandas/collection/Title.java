@@ -294,6 +294,18 @@ public class Title {
     @OrderBy("date")
     private List<Contact> contactEvents;
 
+    @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OrderBy("date desc")
+    private List<TitlePreviousName> previousNames;
+
+    @OneToMany(mappedBy = "ceased")
+    @OrderBy("date")
+    private List<TitleHistory> continuedBy;
+
+    @OneToMany(mappedBy = "continues")
+    @OrderBy("date")
+    private List<TitleHistory> continues;
+
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
         if (getGather() != null && getGather().getGatherUrl() != null) {
@@ -568,6 +580,13 @@ public class Title {
         this.legacyPurl = legacyPurl;
     }
 
+    public String getDisplayName() {
+        if (getTep() != null && getTep().getDisplayTitle() != null) {
+            return getTep().getDisplayTitle();
+        }
+        return getName();
+    }
+
     public String getShortDisplayName() {
         return shortDisplayName;
     }
@@ -686,5 +705,24 @@ public class Title {
         if (getAgency() == agency) return true;
         if (agency.getId() != null && agency.getId().equals(getAgency().getId())) return true;
         return getOwner() != null && getOwner().getAgency() != agency && isOwnedBy(getOwner().getAgency());
+    }
+
+    public List<TitlePreviousName> getPreviousNames() {
+        return previousNames;
+    }
+
+    public List<TitleHistory> getContinuedBy() {
+        return continuedBy;
+    }
+
+    public List<TitleHistory> getContinues() {
+        return continues;
+    }
+
+    public boolean isScheduled() {
+        if (getGather() == null) return false;
+        if (getGather().getSchedule() == null) return false;
+        if ("None".equals(getGather().getSchedule().getName())) return false;
+        return true;
     }
 }

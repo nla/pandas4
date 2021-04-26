@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset=utf-8>
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" href="//pandora.nla.gov.au/new_styles/main.css">
+    <link rel="stylesheet" th:href="@{/assets/delivery.css}">
+    <script>
+        // (function (i, s, o, g, r, a, m) {
+        //     i['GoogleAnalyticsObject'] = r;
+        //     i[r] = i[r] || function () {
+        //         (i[r].q = i[r].q || []).push(arguments)
+        //     }, i[r].l = 1 * new Date();
+        //     a = s.createElement(o),
+        //         m = s.getElementsByTagName(o)[0];
+        //     a.async = 1;
+        //     a.src = g;
+        //     m.parentNode.insertBefore(a, m)
+        // })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+        // ga('create', 'UA-807909-23', 'nla.gov.au');
+        // ga('send', 'pageview');
+    </script>
+</head>
+
+<th:block th:fragment="body">
+<div class="access">
+    <p>Skip to <a href="#content">content</a></p>
+    <p>Skip to <a href="#menu">menu</a></p>
+    <strong>Pandora : Australia's Web Archive</strong>
+    <strong>National Library of Australia and Partners</strong>
+</div>
+
+<div id="header">
+    <div id="banner">
+        <a id=homeLink th:href="@{/}" title="PANDORA Home"></a>
+    </div>
+</div>
+
+<div id="search">
+    <div class="searchForm">
+        <form name="searchForm" method="get" action="http://trove.nla.gov.au/search/category/websites"
+              onsubmit="return validate_form();" target="_blank">
+            <table border="0">
+                <tr>
+                    <td nowrap="nowrap">
+                        <input type="text" name="keyword" size="31" maxlength="255" value=""/>
+                        <input type="submit"
+                               style="background:url(http://pandora.nla.gov.au/images/search.gif); width:118px; height:23px; border:0"
+                               value=""/>
+                    </td>
+                    <td>
+                        <table border="0">
+                            <tr>
+                                <td nowrap="nowrap"><a href="/searchhelp.html" style="font-size:80%">Search Help</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div class="searchFormRight">
+        <span>Subjects Menu:</span>
+        <select onchange="javascript:window.location.href=this.options[this.selectedIndex].value" id="subjectDD">
+            <option>Browse Subjects</option>
+            <option th:each="subject : ${allSubjects}" th:value="@{|${prefix}/subject/${subject.id}|}" th:text="${subject.name}">Arts</option>
+        </select>
+    </div>
+</div>
+
+<div id="menu">
+    <ul>
+        <li><a th:href="@{/}">Home</a></li>
+        <li><a href="//pandora.nla.gov.au/about.html">About PANDORA</a></li>
+        <li><a href="//pandora.nla.gov.au/pandoranews.html">Blog</a></li>
+        <li><a href="//pandora.nla.gov.au/partners.html">Partners</a></li>
+        <li><a href="//pandora.nla.gov.au/registration_form.html">Notification form</a></li>
+
+        <li><a href="//pandora.nla.gov.au/statistics.html">Statistics</a></li>
+        <li><a href="//pandora.nla.gov.au/contact.html">Contact us</a></li>
+        <li><a href="//pandora.nla.gov.au/disclaimer.html">Disclaimer</a></li>
+        <li><a href="http://www.nla.gov.au/">NLA home page</a></li>
+    </ul>
+</div>
+<!--<div id="content">-->
+<!--</div>-->
+</th:block>
+
+<div class="itemnavigation" th:fragment="pagination(page, url)">
+    <table><tbody><tr>
+        <td>
+            <h2 style="white-space: nowrap">
+                Titles
+                <em th:unless="${page.totalElements == 0}">
+                    <th:block th:text="${page.number * page.size + 1}">1</th:block> -
+                    <th:block th:text="${page.number * page.size + page.numberOfElements}">10</th:block>
+                    of
+                    <th:block th:text="${page.totalElements}">100</th:block>
+                </em>
+                <em th:if="${page.totalElements == 0}">
+                    (none)
+                </em>
+            </h2>
+        </td>
+        <td id="alignright">
+            <a th:if="${page.hasPrevious()}" th:href="@{${url}(page=${page.previousPageable().pageNumber + 1})}"><img th:src="@{/images/leftarrow.gif}"></a>
+            <th:block th:each="n : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:unless="${n == page.number}" th:text="${n + 1}" th:href="@{${url}(page=${n + 1})}" class="alphabetical">1</a>
+                <span th:if="${n == page.number}" class="alphabeticalSelected" th:text="${n + 1}">2</span>
+            </th:block>
+            <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.nextPageable().pageNumber + 1})}"><img th:src="@{/images/rightarrow.gif}"></a>
+        </td></tr></tbody></table>
+</div>
+
+<div class="credits" th:fragment="credits" th:unless="${agencies.isEmpty()}">
+    These webpages were selected for preservation by:
+    <div>
+        <a th:each="agency : ${agencies}" th:href="${agency.organisation.url}"><img th:src="@{/agency/{alias}/logo(alias=${agency.organisation.alias})}" th:alt-title="${agency.name}" style="margin: 16px"></a>
+    </div>
+</div>
+</html>

@@ -24,11 +24,16 @@ public class IssueGroup {
     private Long order;
 
     @OneToMany(mappedBy = "group")
+    @OrderBy("order")
     private Collection<Issue> issues;
 
     @ManyToOne
     @JoinColumn(name = "TEP_ID", referencedColumnName = "TEP_ID")
     private Tep tep;
+
+    public boolean isNone() {
+        return "-None-".equals(getName());
+    }
 
     public Long getId() {
         return id;

@@ -13,20 +13,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 import pandas.render.Browser;
 import pandas.render.BrowserPool;
+import pandas.util.Dates;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static java.time.ZoneOffset.UTC;
-
 @Service
 public class ThumbnailProcessor {
-    public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
     private static final OkHttpClient httpClient = new OkHttpClient.Builder().followRedirects(true).build();
     private final TitleRepository titleRepository;
@@ -130,7 +126,7 @@ public class ThumbnailProcessor {
             tab.hideScrollbars();
             String timestamp = tab.eval("if (typeof wbinfo === 'undefined') { return null; } else { return wbinfo.timestamp; }").getString("result");
             if (timestamp != null) {
-                thumbnail.setDate(ARC_DATE.parse(timestamp, Instant::from));
+                thumbnail.setDate(Dates.ARC_DATE.parse(timestamp, Instant::from));
             } else {
                 thumbnail.setDate(now);
             }

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head th:replace="_delivery.html :: head(${collection.name} + ' - Australian Internet Sites - PANDORA')"></head>
+
+<body>
+
+<th:block th:replace="_delivery.html :: body"/>
+
+<div id="content">
+    <div id="contentBreadcrumbs">
+        <a th:href="@{/}">Home</a>
+        <strong>&lt;</strong>
+        <span class="selectedTitle" th:text="${collection.name}"></span>
+    </div>
+
+    <br>
+
+    <th:block th:utext="${@htmlSanitizer.sanitize(collection.displayComment)}"/>
+
+    <div class="itemlist" th:unless="${titles.isEmpty()}">
+        <ul>
+            <li th:each="title : ${titles}">
+                <a th:href="@{/tep/{pi}(pi=${title.pi})}" th:text="${title.displayName}">Title</a>
+            </li>
+        </ul>
+    </div>
+
+    <th:block th:each="child : ${collection.children}" th:if="${child.displayed}">
+        <h1><a th:name="${child.id}" th:text="${child.name}"></a></h1>
+        <div class="itemlist">
+            <ul>
+                <li th:each="title : ${titlesOfChildren.get(child.id)}">
+                    <a th:href="@{/tep/{pi}(pi=${title.pi})}" th:text="${title.displayName}">Title</a>
+                </li>
+            </ul>
+        </div>
+    </th:block>
+
+    <table align="center" bgcolor="#9c9ace" border="0" cellspacing="0" width="90%">
+        <tbody>
+        <tr>
+            <td align="center"><span class="bodyWhite">To cite this page use: <strong>https://nla.gov.au/nla.arc-c<th:block
+                    th:text="${collection.id}"/></strong></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="_delivery :: credits"></div>
+</div>
+</body>

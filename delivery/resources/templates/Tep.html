@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head th:replace="_delivery.html :: head(${title.displayName} + ' (Archived Website) - PANDORA')"></head>
+<body>
+
+<th:block th:replace="_delivery.html :: body"></th:block>
+
+<div id="content">
+
+<!--    <link rel="alternate" type="application/rss+xml" title="<%= @title.display_name %>" href="<%= url_for :only_path => false, :controller => 'browse', :action => 'tepfeed', :id => @title.pi %>" />-->
+
+    <div class="contentBreadcrumbs">&nbsp;</div>
+
+    <h1>
+        <th:block th:text="${title.displayName}" />
+        <th:block th:each="prev : ${title.previousNames}">
+            (<em>formerly</em> <th:block th:text="${prev.name}"/>)
+        </th:block>
+    </h1>
+
+    <!-- Content warning -->
+    <div th:if="${title.contentWarning != null}" class="contentWarning" style="margin-bottom:20px">
+        <strong th:text="${title.contentWarning}"></strong>
+    </div>
+
+    <!-- Collections -->
+    <p th:each="col: ${title.collections}">
+        This title is part of the "<a th:href="@{|/col/${col.parent?.id ?: col.id}|}" th:text="${col.fullName}">Cool sites</a>" collection.
+    </p>
+
+    <!-- Continuations -->
+    <p th:each="history : ${title.continuedBy}">
+        This title has ceased.  It is continued by <a th:href="@{|/tep/${history.continues.pi}|}">New Title</a>
+    </p>
+    <p th:each="history : ${title.continues}">
+        This title continues <a th:href="@{|/tep/${history.ceased.pi}|}">Old Title</a>
+    </p>
+
+    <!-- Selecting agency -->
+    <th:block th:if="${title.agency != null}">
+        <th:block th:text="${title.displayName}">Example Title</th:block> was selected for preservation by the
+        <a th:href="${title.agency.organisation.url}" target="_blank" th:text="${title.agency.name}">National Library of Australia</a>.
+    </th:block>
+
+    <!-- Schedule -->
+    <th:block th:if="${title.scheduled}">
+        This title is scheduled to be re-archived regularly.
+    </th:block>
+    <th:block th:if="${!title.scheduled}">
+        This title is not scheduled for re-archiving.
+    </th:block>
+
+    <!-- Disappeared status -->
+    <th:block th:if="${title.disappeared}">
+        The original publisher's version may no longer be available.
+    </th:block>
+    <th:block th:if="${!title.disappeared && !#strings.isEmpty(title.titleUrl)}">
+        The <a th:href="${title.titleUrl}" target="_blank">live website</a> may provide more current information.
+    </th:block>
+
+    <!-- Display note -->
+    <p th:if="${title.tep.generalNote}" class="generalNote" style="text-align: left"><em th:utext="${@htmlSanitizer.sanitize(title.tep.generalNote)}"></em></p>
+
+    <!-- Instances -->
+    <table th:unless="${instances.isEmpty()}" cellspacing="0" border="0" cellpadding="0" style="margin-bottom: 20px; margin-top: 20px">
+        <tbody>
+        <tr th:each="instance : ${instances}" th:if="${instance.isDisplayed == 1}">
+            <td width="20px">
+                <img th:unless="${restrictions.get(instance).allowed ?: true}" th:src="@{/images/lock.png}" tile="Restricted">
+            </td>
+            <td>Archived <a th:href="${instance.getTepUrlAbsolute()}" th:text="${dateTimeFormat.format(instance.date)}"></a>
+                <!-- TODO: <%= render :partial => "hovernotes", :locals => { :instance =>instance } %> -->
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Issues -->
+    <table cellspacing="0" border="0" cellpadding="0" style="margin-bottom: 20px; margin-top: 20px">
+        <tbody>
+        <th:block th:each="group : ${title.tep.issueGroups}">
+            <th:block th:unless="${group.isNone()}">
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <strong th:text="${group.name}">A group</strong><br/><br/>
+                        <th:block th:text="${group.notes}"/>
+                    </td>
+                </tr>
+            </th:block>
+
+            <tr th:each="issue : ${group.issues}">
+                <td width="20px">
+                    <img th:unless="${restrictions.get(issue.instance).allowed ?: true}" th:src="@{/images/lock.png}" tile="Issue restricted">
+                </td>
+                <td>
+                    <a th:text="${issue.name}" th:href="${issue.url}" target="_blank">An issue</a></li> archived
+                    <time th:text="${dateTimeFormat.format(issue.instance.date)}"></time>
+
+<!--                    TODO: <%= render :partial => "hovernotes",-->
+<!--                    :locals => { :instance => issue.instance } %>-->
+                </td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+
+    <!-- Copyright statement -->
+    <div th:if="${title.tep.copyrightUrl}" class="copyright_url" style="margin-bottom: 20px">
+        <a th:text="'Publisher\'s ' + ${title.tep.copyrightType?.name ?: ''} + ' statement'" th:href="${title.tep.copyrightUrl}" target="_blank" >Publisher's copyright statement</a>
+    </div>
+
+    <div th:if="${title.tep.copyrightNote}" class="copyright_note" style="font-style: italic; margin-bottom: 20px;" th:text="${title.tep.copyrightNote}">Copyright note</div>
+
+    <div class="citation">
+        <form method="post" action="/cgi-bin/cite.pl">
+            <p>To cite this page use: <strong>https://nla.gov.au/nla.arc-<th:block th:text="${title.pi}">12345</th:block></strong></p>
+            <p>Create Persistent Identifier for URL: <input name="purl" type="text">
+                <input value="Go" type="submit">
+            </p>
+        </form>
+    </div>
+
+    <div class="navcontainer">
+        <table align="center" border="0" cellpadding="0" cellspacing="0">
+            <tbody><tr>
+                <td>
+                    <a class="linkback" href="/pandcpyr.html">Copyright Warning</a> <strong>|</strong>
+                    <a class="linkback" href="/icons.html">About Icons</a> <strong>|</strong>&nbsp;
+
+                    <a class="linkback" href="/help.html">Help</a> <strong>|</strong>
+                    <a class="linkback" href="/browser.html">Browser issues</a>&nbsp; <strong>|</strong>
+                    <a class="linkback" href="/catalogues.html">Library Catalogues</a>
+                </td>
+            </tr>
+            </tbody></table>
+    </div>
+
+    <table th:if="${title.agency != null}" style="margin-top: 20px;" align="center" bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0"
+           width="90%">
+        <tbody>
+        <tr>
+            <td width="540"><span style="font-family: Arial; font-size: 9pt;">Please send your comments and suggestions about sites archived by the
+                <a th:href="${title.agency.organisation.url}" th:text="${title.agency.name}">National Library of Australia</a> to
+          <a th:href="'mailto:' + ${title.agency.externalEmail}" th:text="${title.agency.externalEmail}">feedback@example.org</a>
+
+      </span></td>
+            <td align="center" valign="middle" width="170">
+                <a th:href="${title.agency.organisation.url}"><img th:src="@{/agency/{alias}/logo(alias=${title.agency.organisation.alias})}" th:alt-title="${title.agency.name}"></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>

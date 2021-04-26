@@ -1,15 +1,11 @@
 package pandas.collection;
 
 import org.springframework.http.HttpStatus;
+import pandas.util.Dates;
 
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-
-import static java.time.ZoneOffset.UTC;
 
 public class Capture {
-    public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
 
     private final String url;
     private final Instant date;
@@ -23,7 +19,7 @@ public class Capture {
 
     public Capture(String cdxLine) {
         String[] fields = cdxLine.split(" ");
-        this.date = ARC_DATE.parse(fields[1], Instant::from);
+        this.date = Dates.ARC_DATE.parse(fields[1], Instant::from);
         this.url = fields[2];
         this.contentType = fields[3];
         this.status = fields[4].equals("-") ? null : Integer.parseInt(fields[4]);
@@ -43,7 +39,7 @@ public class Capture {
     }
 
     public String getReplayUrl() {
-        return "https://webarchive.nla.gov.au/awa/" + ARC_DATE.format(getDate()) + "/" + getUrl();
+        return "https://webarchive.nla.gov.au/awa/" + Dates.ARC_DATE.format(getDate()) + "/" + getUrl();
     }
 
     public String getContentType() {

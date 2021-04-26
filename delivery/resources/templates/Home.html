@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head th:replace="_delivery.html :: head('PANDORA Web Archive')"></head>
+
+<body>
+
+<th:block th:replace="_delivery.html :: body"></th:block>
+<div id="content">
+<div class="contentBreadcrumbs">&nbsp;</div>
+
+
+<div id="editable"></div>
+
+<div id="frontpage"></div>
+
+<th:block th:utext="${frontpageData}"></th:block>
+
+    <h1 class="browseSubjectsHeading">
+    <span>Browse Subjects</span>
+</h1>
+<div class="browseSubjects">
+    <ul>
+        <li th:each="subject: ${topLevelSubjects}"><a th:href="@{|${prefix}/subject/${subject.id}|}" th:text="${subject.name}"></a> </li>
+    </ul>
+</div>
+
+<p>View the <a th:href="@{|${prefix}/alpha/ALL|}">complete listing of titles</a> available within the PANDORA Archive or search titles alphabetically</p>
+<ul id="alphalinks">
+    <li th:each="letter : ${alphabet}"><a th:href="@{|${prefix}/alpha/${letter}|}" th:text="${letter}">A</a></li>
+</ul>
+
+<center>
+    <img th:src="@{|/agency/${partner}/logo|}" th:if="${partner != null}">
+    <img th:src="@{|/agency/NLA/logo|}" th:if="${partner == null}">
+</center>
+<!--<p><%= agency_logo %></p>-->
+
+</div>
+</body>

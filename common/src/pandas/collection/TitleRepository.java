@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pandas.agency.Agency;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TitleRepository extends CrudRepository<Title,Long> {
@@ -25,6 +27,40 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select t from Title t where t.gather.method.name = ?1 and t.gather.nextGatherDate < ?2 and " +
             "(t.gather.lastGatherDate is null or t.gather.lastGatherDate < ?3)")
     List<Title> fetchNewGathers(String gatherMethod, Instant now, Instant startOfThisMinute);
+
+    String PUBLISH_CONDITIONS = "t.agency.id <> 3\n" +
+            "and t.status.name not in ('nominated', 'monitored', 'rejeceted')\n" +
+            "and (t.legalDeposit = true or t.permission.stateName not in ('Denied', 'Unknown'))\n";
+
+    String SUBJECT_CONDITIONS = PUBLISH_CONDITIONS + "AND t.tep.doSubject = true\n";
+
+    @Query("select t from Subject s\n" +
+            "join s.titles t\n" +
+            "where s = :subject\n" +
+            "and (:agency is null or t.agency = :agency)\n" +
+            "and " + SUBJECT_CONDITIONS +
+            "order by coalesce(t.tep.displayTitle, t.name)")
+    Page<Title> findPublishedTitlesInSubject(@Param("subject") Subject subject, @Param("agency") Agency agency, Pageable pageable);
+
+    @Query("select t from Collection c\n" +
+            "join c.titles t\n" +
+            "where c = :collection\n" +
+            "and " + SUBJECT_CONDITIONS +
+            "order by coalesce(t.tep.displayTitle, t.name)")
+    List<Title> findPublishedTitlesInCollection(@Param("collection") Collection collection);
+
+    @Query("select t from Title t\n" +
+            "where upper(coalesce(t.tep.displayTitle, t.name)) like :pattern\n" +
+            "and " + SUBJECT_CONDITIONS +
+            "order by coalesce(t.tep.displayTitle, t.name)")
+    Page<Title> findDisplayableTitlesNamedLike(@Param("pattern") String pattern, Pageable page);
+
+    @Query("select t from Title t\n" +
+            "where coalesce(t.tep.displayTitle, t.name) < 'A'\n" +
+            "and " + SUBJECT_CONDITIONS +
+            "order by coalesce(t.tep.displayTitle, t.name)")
+    Page<Title> findDisplayableTitlesWithNumberNames(Pageable page);
+
 
     List<Title> findByStatusId(long statusId);
 
@@ -102,4 +138,6 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
             "order by t.gather.lastGatherDate")
     Page<Title> worktrayAwaitingCataloguing(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+
+    Optional<Title> findByPi(long pi);
 }

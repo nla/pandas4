@@ -32,6 +32,9 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
 
     List<Instance> findByTitle(Title title);
 
+    @Query("select i from Instance i where i.title = :title and i.state.name = 'archived' and i.isDisplayed = 1 order by i.date desc")
+    List<Instance> findDisplayedByTitle(@Param("title") Title title);
+
     @Query("select i from Instance i\n" +
             "where i.state.name in ('gathering', 'gatherPause', 'gatherProcess')\n" +
             "and i.title.awaitingConfirmation = false\n" +

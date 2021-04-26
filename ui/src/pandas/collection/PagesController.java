@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import pandas.util.Dates;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -30,7 +31,7 @@ public class PagesController {
     @GetMapping("/replay")
     public String replay(@RequestParam String url, @RequestParam Instant date, Model model) {
         model.addAttribute("url", url);
-        model.addAttribute("arcdate", Capture.ARC_DATE.format(date));
+        model.addAttribute("arcdate", Dates.ARC_DATE.format(date));
         return "PageView";
     }
 }

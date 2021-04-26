@@ -4,6 +4,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Information about, or to be displayed on, a Title Entry Page (TEP)
@@ -108,6 +109,10 @@ public class Tep {
     @ManyToOne
     @JoinColumn(name = "COPYRIGHT_TYPE_ID")
     private CopyrightType copyrightType;
+
+    @OneToMany(mappedBy = "tep")
+    @OrderBy("order, id desc")
+    private List<IssueGroup> issueGroups;
 
     public Long getId() {
         return id;
@@ -243,5 +248,9 @@ public class Tep {
 
     public void setCopyrightType(CopyrightType copyrightType) {
         this.copyrightType = copyrightType;
+    }
+
+    public List<IssueGroup> getIssueGroups() {
+        return issueGroups;
     }
 }

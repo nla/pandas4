@@ -8,6 +8,7 @@ import pandas.core.Organisation;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * A partner agency who is involved in selecting and archiving titles.
@@ -136,5 +137,18 @@ public class Agency {
 
     public void setLogo(byte[] logo) {
         this.logo = logo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Agency agency = (Agency) o;
+        return Objects.equals(id, agency.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

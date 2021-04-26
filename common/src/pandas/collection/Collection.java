@@ -65,7 +65,8 @@ public class Collection {
     @JoinColumn(name = "THUMBNAIL_ID")
     private Thumbnail thumbnail;
 
-    @Formula("(select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID)")
+    @Formula("((select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID) +" +
+            "  (select count(*) from TITLE_COL tc left join COL c on c.COL_ID = tc.COLLECTION_ID where c.COL_PARENT_ID = COL_ID))")
     private long titleCount;
 
     public Long getId() {
