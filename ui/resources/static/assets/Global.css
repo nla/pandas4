@@ -35,7 +35,7 @@ html {
 body {
     margin: 0;
     font-family: sans-serif;
-    min-height: 100%;
+    height: 100%;
     color: var(--color-black);
     background: var(--color-white);
 }
@@ -66,6 +66,14 @@ input[type=search][name=q] {
 
 details > summary {
     cursor: pointer;
+}
+
+input:not([type]), input[type=text] {
+    height: 32px;
+    border-radius: .2rem;
+    border: 1px solid #333;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 /*
@@ -138,10 +146,14 @@ body > nav > ul > li > a > .icon {
 
 body > main {
     flex-grow: 1;
-    padding: 0 15px;
-    padding-left: 196px;
-    margin-top: 58px;
-    /*max-width: 1200px;*/
+    padding: 58px 15px 14px 196px;
+    box-sizing: border-box;
+}
+
+body > main.full-height {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 body > main > header, main > form > header {
@@ -190,6 +202,14 @@ body > main > header, main > form > header {
     margin-left: -4px;
     margin-right: 4px;
     filter: invert(100%);
+}
+
+.btn.btn-compact {
+    min-width: 40px;
+}
+
+.btn.btn-compact .icon {
+    margin: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -248,6 +268,29 @@ button.btn-danger:hover, a.btn-danger:hover {
 }
 
 /*
+ * Button groups
+ */
+
+.btn-group {
+    display: inline-flex;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+    border-right: none;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: .2rem;
+    border-bottom-left-radius: .2rem;
+}
+.btn-group .btn:last-child {
+    border-top-right-radius: .2rem;
+    border-bottom-right-radius: .2rem;
+    border-right: 1px solid #333;
+}
+
+/*
  * Badges
  */
 
@@ -289,6 +332,7 @@ button.btn-danger:hover, a.btn-danger:hover {
 .icon.collection { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4C3 2 2 2.9 2 4v3C2 7.7 2.4 8.4 3 8.7V20c0 1.1 1.1 2 2 2h14c0.9 0 2-0.9 2-2V8.7c0.6-0.3 1-1 1-1.7V4C22 2.9 21 2 20 2zM19 20H5V9h14V20zM20 7H4V4h16V7z"/></svg>'); }
 .icon.delete     { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>'); }
 .icon.edit       { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM5.92 19H5v-.92l9.06-9.06.92.92L5.92 19zM20.71 5.63l-2.34-2.34c-.2-.2-.45-.29-.71-.29s-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41z"/></svg>'); }
+.icon.home       { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>'); }
 .icon.history    { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>'); }
 .icon.globe      { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>'); }
 .icon.http       { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.5 11h-2V9H1v6h1.5v-2.5h2V15H6V9H4.5v2zm2.5-.5h1.5V15H10v-4.5h1.5V9H7v1.5zm5.5 0H14V15h1.5v-4.5H17V9h-4.5v1.5zm9-1.5H18v6h1.5v-2h2c.8 0 1.5-.7 1.5-1.5v-1c0-.8-.7-1.5-1.5-1.5zm0 2.5h-2v-1h2v1z"/></svg>'); }
@@ -296,6 +340,7 @@ button.btn-danger:hover, a.btn-danger:hover {
 .icon.next       { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>'); }
 .icon.previous   { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>'); }
 .icon.publisher  { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c1.65 0 3-1.35 3-3s-1.35-3-3-3-3 1.35-3 3 1.35 3 3 3zm0-4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm6 8.58c0-2.5-3.97-3.58-6-3.58s-6 1.08-6 3.58V18h12v-1.42zM8.48 16c.74-.51 2.23-1 3.52-1s2.78.49 3.52 1H8.48zM19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>'); }
+.icon.robot      { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect fill="none" height="24" width="24" y="0"/><path d="M20,9V7c0-1.1-0.9-2-2-2h-3c0-1.66-1.34-3-3-3S9,3.34,9,5H6C4.9,5,4,5.9,4,7v2c-1.66,0-3,1.34-3,3c0,1.66,1.34,3,3,3v4 c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2v-4c1.66,0,3-1.34,3-3C23,10.34,21.66,9,20,9z M7.5,11.5C7.5,10.67,8.17,10,9,10 s1.5,0.67,1.5,1.5S9.83,13,9,13S7.5,12.33,7.5,11.5z M16,17H8v-2h8V17z M15,13c-0.83,0-1.5-0.67-1.5-1.5S14.17,10,15,10 s1.5,0.67,1.5,1.5S15.83,13,15,13z"/></svg>'); }
 .icon.save       { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>'); }
 .icon.stop       { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>'); }
 .icon.subject    { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.41,11.41l-8.83-8.83C12.21,2.21,11.7,2,11.17,2H4C2.9,2,2,2.9,2,4v7.17c0,0.53,0.21,1.04,0.59,1.41l8.83,8.83 c0.78,0.78,2.05,0.78,2.83,0l7.17-7.17C22.2,13.46,22.2,12.2,21.41,11.41z M12.83,20L4,11.17V4h7.17L20,12.83L12.83,20z"/><circle cx="6.5" cy="6.5" r="1.5"/></svg>'); }

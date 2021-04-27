@@ -41,7 +41,7 @@ public class InstanceController {
         model.addAttribute("bambooUrl", config.getBambooUrl() + "/instances/" + instance.getId());
         model.addAttribute("instance", instance);
         model.addAttribute("stateHistory", stateHistoryRepository.findByInstanceOrderByStartDate(instance));
-        model.addAttribute("dateFormat", DateFormats.MEDIUM_DATE_TIME);
+        model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);
         model.addAttribute("arcDateFormat", InstanceThumbnailProcessor.ARC_DATE);
         return "InstanceView";
     }
@@ -49,7 +49,7 @@ public class InstanceController {
     @GetMapping("/instances/{id}/process")
     public String process(@PathVariable("id") Instance instance, Model model) {
         model.addAttribute("instance", instance);
-        model.addAttribute("dateFormat", DateFormats.MEDIUM_DATE_TIME);
+        model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);
         return "InstanceProcess";
     }
 

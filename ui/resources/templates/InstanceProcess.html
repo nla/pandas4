@@ -8,14 +8,13 @@
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
-<main class="search">
+<main class="full-height">
     <form method=post>
         <header>
-            <nav>
             <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
-                    th:formaction="@{|/instances/${instance.id}/archive|}" type=submit class="btn btn-primary"><i class="icon archive"></i> Archive</button>
-                <a class="btn btn-secondary" th:href="@{|http://pandas.nla.gov.au/dav/${instance.pi}/${instance.dateString}/nla.arc-${instance.pi}-${instance.dateString}/latest/logs/crawl.log|}"><i class="icon log"></i>Crawl Log</a>
-            </nav>
+                    th:formaction="@{|/instances/${instance.id}/archive|}" type=submit class="btn btn-primary"><i
+                    class="icon archive"></i> Archive
+            </button>
             <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
                     class="btn btn-danger float-right" onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"><i class="icon delete"></i>Delete</button>
         </header>
@@ -23,17 +22,35 @@
 
     <nav class="breadcrumb">
         <ol>
-            <li><a th:href="@{/titles}" href="TitleSearch.html" style="font-weight: bold">Titles</a></li>
             <li><a th:href="@{|/titles/${instance.title.id}|}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
-            <li><a th:href="@{|/instances/${instance.id}|}"><span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></a></li>
-            <li class="active">Process Instance</li>
+            <li><span th:text="${instance.gatherMethodName}"></span> gather from <strong th:text="${@dateFormats.dayDate.format(instance.date)}"></strong> at <strong th:text="${@dateFormats.time.format(instance.date)}"></strong></li>
         </ol>
+        <span style="float: right">
+            <span th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></span> files,
+            <span th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></span>,
+            <span th:text="${instance?.gather?.timeHuman}"></span>
+        </span>
     </nav>
 
-    <div>
+    <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center">
+        <nav class="btn-group">
+            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance)}" target=replay-frame title="Homepage">
+                <i class="icon home"></i></a>
+            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.crawlLog(instance)}" target=replay-frame  title="Crawl Log">
+                <i class="icon log"></i></a>
+            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance, '/robots.txt')}" target=replay-frame title="Robots.txt">
+                <i class="icon robot"></i></a>
+        </nav>
+        <input style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
     </div>
 
-    <iframe th:src="@{|https://pwb.archive.org.au/${instance.pi}-${instance.dateString}/mp_/${instance.gatheredUrl}|}"
-            style="width: 100%; height: 800px"></iframe>
+    <script>
+        window.addEventListener("message", (event) => {
+            console.log(event)
+        }, false);
+    </script>
+
+    <iframe th:src="${@instanceUrls.qa(instance)}" name="replay-frame"
+            style="width: 100%; flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"></iframe>
 </main>
