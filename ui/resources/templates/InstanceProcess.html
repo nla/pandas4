@@ -42,12 +42,13 @@
             <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance, '/robots.txt')}" target=replay-frame title="Robots.txt">
                 <i class="icon robot"></i></a>
         </nav>
-        <input style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
+        <input id="url-bar" style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
     </div>
 
     <script>
         window.addEventListener("message", (event) => {
-            console.log(event)
+            if (event.data.wb_type !== "load") return;
+            document.getElementById("url-bar").value = event.data.url;
         }, false);
     </script>
 
