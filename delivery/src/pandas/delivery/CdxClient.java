@@ -4,7 +4,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import pandas.gather.Instance;
-import pandas.util.Dates;
+import pandas.util.DateFormats;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class CdxClient {
 
         public Snapshot(Instance instance) {
             url = instance.getTepUrlAbsolute();
-            timestamp = Dates.ARC_DATE.format(instance.getDate());
+            timestamp = DateFormats.ARC_DATE.format(instance.getDate());
         }
 
         public Snapshot(String url, String timestamp) {

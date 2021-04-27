@@ -1,7 +1,7 @@
 package pandas.collection;
 
 import org.springframework.http.HttpStatus;
-import pandas.util.Dates;
+import pandas.util.DateFormats;
 
 import java.time.Instant;
 
@@ -19,7 +19,7 @@ public class Capture {
 
     public Capture(String cdxLine) {
         String[] fields = cdxLine.split(" ");
-        this.date = Dates.ARC_DATE.parse(fields[1], Instant::from);
+        this.date = DateFormats.ARC_DATE.parse(fields[1], Instant::from);
         this.url = fields[2];
         this.contentType = fields[3];
         this.status = fields[4].equals("-") ? null : Integer.parseInt(fields[4]);
@@ -39,7 +39,7 @@ public class Capture {
     }
 
     public String getReplayUrl() {
-        return "https://webarchive.nla.gov.au/awa/" + Dates.ARC_DATE.format(getDate()) + "/" + getUrl();
+        return "https://webarchive.nla.gov.au/awa/" + DateFormats.ARC_DATE.format(getDate()) + "/" + getUrl();
     }
 
     public String getContentType() {

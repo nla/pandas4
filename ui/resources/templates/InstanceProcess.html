@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${instance.title.name + ' - ' + @dateFormats.dayDateTime.format(instance.date) + ' - PANDAS'}">QA: Some site - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+    <form method=post>
+        <header>
+            <nav>
+            <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
+                    th:formaction="@{|/instances/${instance.id}/archive|}" type=submit class="btn btn-primary"><i class="icon archive"></i> Archive</button>
+                <a class="btn btn-secondary" th:href="@{|http://pandas.nla.gov.au/dav/${instance.pi}/${instance.dateString}/nla.arc-${instance.pi}-${instance.dateString}/latest/logs/crawl.log|}"><i class="icon log"></i>Crawl Log</a>
+            </nav>
+            <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
+                    class="btn btn-danger float-right" onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"><i class="icon delete"></i>Delete</button>
+        </header>
+    </form>
+
+    <nav class="breadcrumb">
+        <ol>
+            <li><a th:href="@{/titles}" href="TitleSearch.html" style="font-weight: bold">Titles</a></li>
+            <li><a th:href="@{|/titles/${instance.title.id}|}" href="TitleView.html"
+                   th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
+            <li><a th:href="@{|/instances/${instance.id}|}"><span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></a></li>
+            <li class="active">Process Instance</li>
+        </ol>
+    </nav>
+
+    <div>
+    </div>
+
+    <iframe th:src="@{|http://pwb.archive.org.au/${instance.pi}-${instance.dateString}/mp_/${instance.tepUrlAbsolute}|}"
+            style="width: 100%; height: 800px"></iframe>
+</main>

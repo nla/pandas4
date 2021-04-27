@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 import pandas.render.Browser;
 import pandas.render.BrowserPool;
-import pandas.util.Dates;
+import pandas.util.DateFormats;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -126,7 +126,7 @@ public class ThumbnailProcessor {
             tab.hideScrollbars();
             String timestamp = tab.eval("if (typeof wbinfo === 'undefined') { return null; } else { return wbinfo.timestamp; }").getString("result");
             if (timestamp != null) {
-                thumbnail.setDate(Dates.ARC_DATE.parse(timestamp, Instant::from));
+                thumbnail.setDate(DateFormats.ARC_DATE.parse(timestamp, Instant::from));
             } else {
                 thumbnail.setDate(now);
             }

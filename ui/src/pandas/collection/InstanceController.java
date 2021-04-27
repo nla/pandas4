@@ -14,10 +14,7 @@ import pandas.gather.Instance;
 import pandas.gather.InstanceService;
 import pandas.gather.State;
 import pandas.gather.StateHistoryRepository;
-
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
+import pandas.util.DateFormats;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -44,9 +41,16 @@ public class InstanceController {
         model.addAttribute("bambooUrl", config.getBambooUrl() + "/instances/" + instance.getId());
         model.addAttribute("instance", instance);
         model.addAttribute("stateHistory", stateHistoryRepository.findByInstanceOrderByStartDate(instance));
-        model.addAttribute("dateFormat", DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));
+        model.addAttribute("dateFormat", DateFormats.MEDIUM_DATE_TIME);
         model.addAttribute("arcDateFormat", InstanceThumbnailProcessor.ARC_DATE);
         return "InstanceView";
+    }
+
+    @GetMapping("/instances/{id}/process")
+    public String process(@PathVariable("id") Instance instance, Model model) {
+        model.addAttribute("instance", instance);
+        model.addAttribute("dateFormat", DateFormats.MEDIUM_DATE_TIME);
+        return "InstanceProcess";
     }
 
     @PostMapping("/instances/{id}/delete")
