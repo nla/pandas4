@@ -7,8 +7,8 @@ import java.net.URI;
 @Service
 public class InstanceUrls {
     public String crawlLog(Instance instance) {
-        return "https://pandas.nla.gov.au/dav/" + instance.getPi() + "-" + instance.getDateString() + "/nla.arc-" +
-                instance.getPi() + "-" + instance.getDateString() + "/latest/logs/crawl.log";
+        return "https://pandas.nla.gov.au/view/" + instance.getPi() + "-" + instance.getDateString() + "/nla.arc-" +
+                instance.getPi() + "/" + instance.getDateString() + "/latest/logs/crawl.log";
     }
 
     public String qa(Instance instance) {
