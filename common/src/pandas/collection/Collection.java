@@ -193,4 +193,10 @@ public class Collection {
     public void setThumbnail(Thumbnail thumbnail) {
         this.thumbnail = thumbnail;
     }
+
+    public interface Ref {
+        Long getId();
+        String getName();
+        List<Subject.Ref> getSubjects();
+    }
 }

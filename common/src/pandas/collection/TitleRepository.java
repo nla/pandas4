@@ -140,4 +140,6 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     Page<Title> worktrayAwaitingCataloguing(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     Optional<Title> findByPi(long pi);
+
+    List<Title.Ref> findByTitleUrlIn(List<String> urls);
 }

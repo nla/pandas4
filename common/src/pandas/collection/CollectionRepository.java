@@ -12,7 +12,8 @@ import java.util.List;
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsIsEmpty();
 
-    List<Collection> findByParentIsNullAndSubjectsContainsOrderByName(Subject subject);
+    @Query("select distinct c from Collection c join c.subjects s where s in (:subjects) order by name")
+    List<Collection.Ref> findRefBySubjects(@Param("subjects") List<Subject> subject);
 
     @Query("select c from Collection c\n" +
             "where upper(c.name) like :pattern\n" +
@@ -28,4 +29,5 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
             "order by c.name")
     List<Collection> findTopLevelDisplayableCollectionsWithNumberNames(Pageable pageable);
 
+    Object findByParentIsNullAndSubjectsContainsOrderByName(Subject subject);
 }
