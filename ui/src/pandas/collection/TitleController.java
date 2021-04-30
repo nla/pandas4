@@ -226,6 +226,13 @@ public class TitleController {
         return "TitleEdit";
     }
 
+    @PostMapping("/titles/{id}/delete")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String delete(@PathVariable("id") Title title) {
+        titleRepository.delete(title);
+        return "redirect:/titles";
+    }
+
     @GetMapping("/titles/new")
     public String update(@RequestParam(value = "collection", required = false) List<Collection> collections,
                          @RequestParam(value = "subject", required = false) List<Subject> subjects,

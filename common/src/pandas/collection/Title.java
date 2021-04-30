@@ -131,7 +131,7 @@ public class Title {
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Individual owner;
 
-    @OneToMany(mappedBy = "title")
+    @OneToMany(mappedBy = "title", cascade = CascadeType.ALL)
     @OrderBy("date")
     private List<OwnerHistory> ownerHistories;
 
