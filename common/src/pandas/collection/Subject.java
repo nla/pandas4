@@ -199,9 +199,4 @@ public class Subject {
     public int hashCode() {
         return Objects.hash(getId());
     }
-
-    public interface Ref {
-        Long getId();
-        String getName();
-    }
 }

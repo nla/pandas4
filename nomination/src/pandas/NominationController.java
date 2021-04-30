@@ -7,10 +7,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pandas.collection.Collection;
 import pandas.collection.*;
 
 import java.io.IOException;
 import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 @Controller
 public class NominationController {
@@ -45,7 +48,7 @@ public class NominationController {
         for (var subject : subjects) {
             map.put(subject.getId(), new ArrayList<>());
         }
-        for (var collection : collectionRepository.findRefBySubjects(subjects)) {
+        for (var collection : collectionRepository.findByAnyOfSubjects(subjects)) {
             for (var subject : collection.getSubjects()) {
                 var options = map.get(subject.getId());
                 if (options == null) continue;
@@ -61,7 +64,7 @@ public class NominationController {
 
     @GetMapping(value = "/saveasite/check.json", produces = "application/json")
     @ResponseBody
-    public Optional<Title.Ref> checkJson(@RequestParam(value = "url") String url) {
+    public Optional<TitleInfo> checkJson(@RequestParam(value = "url") String url) {
         // FIXME: put canonicalised urls into the database so we don't have to try lots of variants
         var variants = new ArrayList<String>();
         variants.add(url);
@@ -73,7 +76,23 @@ public class NominationController {
         }
         var titles = titleRepository.findByTitleUrlIn(variants);
         if (titles.isEmpty()) return Optional.empty();
-        return Optional.of(titles.get(0));
+        return Optional.of(new TitleInfo(titles.get(0)));
+    }
+
+    /**
+     * Subset of the title information we want to return.
+     */
+    public static class TitleInfo {
+        private final Title title;
+
+        public TitleInfo(Title title) {
+            this.title = title;
+        }
+
+        public Long getPi() { return title.getPi(); }
+        public String getName() { return title.getName(); }
+        public List<Long> getSubjectIds() { return title.getSubjects().stream().map(Subject::getId).collect(toList());}
+        public List<Long> getCollectionIds() { return title.getCollections().stream().map(Collection::getId).collect(toList());}
     }
 
     @GetMapping(value = "/saveasite/check2.json", produces = "application/json")

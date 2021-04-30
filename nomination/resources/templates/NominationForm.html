@@ -173,14 +173,14 @@
         }
         fetch("saveasite/check.json?" + new URLSearchParams({"url": url}))
             .then(response => response.json())
-            .then(title => {
-                if (title !== null) {
-                    console.log(title)
-                    checkStatus.innerHTML = "Found existing record: " + "<a href='https://nla.gov.au/nla.arc-" + title.pi
-                        + "' target=_blank>nla.arc-" + title.pi + "</a>";
-                    nameField.value = title.name;
-                    subjectsSelect.set(title.subjects.map(s => s.id));
-                    collectionsSelect.set(title.collections.map(c => c.id));
+            .then(titleInfo => {
+                if (titleInfo !== null) {
+                    console.log(titleInfo)
+                    checkStatus.innerHTML = "Found existing record: " + "<a href='https://nla.gov.au/nla.arc-" + titleInfo.pi
+                        + "' target=_blank>nla.arc-" + titleInfo.pi + "</a>";
+                    nameField.value = titleInfo.name;
+                    subjectsSelect.set(titleInfo.subjectIds);
+                    collectionsSelect.set(titleInfo.collectionIds);
                     return;
                 }
                 checkStatus.innerText = "New website. Fetching title...";

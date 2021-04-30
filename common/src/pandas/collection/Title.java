@@ -725,14 +725,4 @@ public class Title {
         if ("None".equals(getGather().getSchedule().getName())) return false;
         return true;
     }
-
-    public interface Ref {
-        Long getId();
-        Long getPi();
-        String getName();
-        String getTitleUrl();
-
-        List<Collection.Ref> getCollections();
-        List<Subject.Ref> getSubjects();
-    }
 }

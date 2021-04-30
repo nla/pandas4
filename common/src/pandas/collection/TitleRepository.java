@@ -141,5 +141,5 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     Optional<Title> findByPi(long pi);
 
-    List<Title.Ref> findByTitleUrlIn(List<String> urls);
+    List<Title> findByTitleUrlIn(List<String> urls);
 }
