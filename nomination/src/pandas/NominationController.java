@@ -50,7 +50,7 @@ public class NominationController {
         for (var subject : subjects) {
             ArrayList<Option> options = new ArrayList<>();
             for (var collection : subject.getCollections()) {
-                options.add(new Option(collection.getName(), Long.toString(collection.getId())));
+                options.add(new Option(collection.getFullName(), Long.toString(collection.getId())));
             }
             groups.add(new OptionGroup(subject.getName(), options));
         }
