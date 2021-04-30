@@ -93,6 +93,7 @@ public class TitleService {
         title.setLocalDatabaseNo(emptyToNull(form.getLocalDatabaseNo()));
         title.setLocalReference(emptyToNull(form.getLocalReference()));
         title.setName(form.getName());
+        title.setShortDisplayName(form.getName().length() > 60 ? (form.getName().substring(0, 60) + "...") : form.getName());
         title.setNotes(form.getNotes());
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
