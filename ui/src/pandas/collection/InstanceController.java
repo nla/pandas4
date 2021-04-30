@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import pandas.core.Config;
 import pandas.core.UserService;
 import pandas.gather.Instance;
@@ -63,9 +64,8 @@ public class InstanceController {
 
     @PostMapping("/instances/{id}/archive")
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
-    public String archive(@PathVariable("id") Instance instance) {
-        if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
-        instanceService.updateState(instance, State.ARCHIVING, userService.getCurrentUser());
+    public String archive(@PathVariable("id") Instance instance, @RequestParam(value = "publish", defaultValue = "false") boolean publish) {
+        instanceService.archive(instance, userService.getCurrentUser(), publish);
         return "redirect:/instances/" + instance.getId();
     }
 

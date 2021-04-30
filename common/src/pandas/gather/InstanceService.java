@@ -134,4 +134,14 @@ public class InstanceService {
         thumbnail.setInstance(instanceRepository.findById(instance.getId()).orElseThrow());
         instanceThumbnailRepository.save(thumbnail);
     }
+
+    @Transactional
+    public void archive(Instance instance, Individual user, boolean publish) {
+        if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
+        updateState(instance, State.ARCHIVING, user);
+        if (publish) {
+            instance.setIsDisplayed(1L);
+        }
+        instanceRepository.save(instance);
+    }
 }
