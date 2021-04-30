@@ -7,11 +7,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pandas.collection.Collection;
 import pandas.collection.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -44,20 +46,13 @@ public class NominationController {
     @GetMapping(value = "/saveasite/collections.json", produces = "application/json")
     @ResponseBody
     public List<OptionGroup> collectionsJson(@RequestParam(value = "subject", required = false) List<Subject> subjects) {
-        var map = new HashMap<Long,List<Option>>();
-        for (var subject : subjects) {
-            map.put(subject.getId(), new ArrayList<>());
-        }
-        for (var collection : collectionRepository.findByAnyOfSubjects(subjects)) {
-            for (var subject : collection.getSubjects()) {
-                var options = map.get(subject.getId());
-                if (options == null) continue;
-                options.add(new Option(collection.getName(), Long.toString(collection.getId())));
-            }
-        }
         var groups = new ArrayList<OptionGroup>();
         for (var subject : subjects) {
-            groups.add(new OptionGroup(subject.getName(), map.get(subject.getId())));
+            ArrayList<Option> options = new ArrayList<>();
+            for (var collection : subject.getCollections()) {
+                options.add(new Option(collection.getName(), Long.toString(collection.getId())));
+            }
+            groups.add(new OptionGroup(subject.getName(), options));
         }
         return groups;
     }
