@@ -182,6 +182,13 @@ public class Collection {
         return titles;
     }
 
+    @PreRemove
+    public void removeFromAllTitles() {
+        for (var title : getTitles()) {
+            title.getCollections().remove(this);
+        }
+    }
+
     public long getTitleCount() {
         return titleCount;
     }

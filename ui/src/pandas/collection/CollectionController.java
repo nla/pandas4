@@ -68,7 +68,7 @@ public class CollectionController {
 
     @PostMapping("/collections/{id}/delete")
     @PreAuthorize("hasPermission(#collection, 'edit')")
-    public String delete(@PathVariable Collection collection) {
+    public String delete(@PathVariable("id") Collection collection) {
         collectionRepository.delete(collection);
         return "redirect:/collections";
     }
