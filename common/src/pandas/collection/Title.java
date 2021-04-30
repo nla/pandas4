@@ -286,7 +286,7 @@ public class Title {
     /**
      * The title level permission for this title. (May or may not be the active permission for this title.)
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "DEFAULT_PERMISSION_ID")
     private Permission defaultPermission;
 

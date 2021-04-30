@@ -244,7 +244,7 @@ public class TitleController {
 
     @PostMapping(value = "/titles", produces = "application/json")
     public String update(@Valid TitleEditForm form) {
-        titleService.save(form, userService.getCurrentUser());
-        return "redirect:/titles/" + form.getId();
+        Title title = titleService.save(form, userService.getCurrentUser());
+        return "redirect:/titles/" + title.getId();
     }
 }

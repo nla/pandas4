@@ -12,14 +12,15 @@ import java.time.Instant;
 @Entity
 public class Permission {
     @Id
-    @GeneratedValue
-    @Column(name = "PERMISSION_ID", nullable = false, precision = 0)
+    @Column(name = "PERMISSION_ID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "PERMISSION_SEQ")
+    @SequenceGenerator(name = "PERMISSION_SEQ", sequenceName = "PERMISSION_SEQ", allocationSize = 1)
     private Long id;
 
     /**
      * The web domain a publisher blanket permission applies to. eg. www.act.com.au
      */
-    @Column(name = "DOMAIN", nullable = true, length = 4000)
+    @Column(name = "DOMAIN", length = 4000)
     private String domain;
 
     /**
@@ -29,23 +30,23 @@ public class Permission {
     @JoinColumn(name = "INDIVIDUAL_ID")
     private Individual individual;
 
-    @Column(name = "IS_BLANKET", nullable = true, precision = 0)
+    @Column(name = "IS_BLANKET")
     private Boolean isBlanket;
 
     /**
      * The local reference number for files or record pertaining to this permission (within the NLA, this will be a
      * trim file number)
      */
-    @Column(name = "LOCAL_REFERENCE", nullable = true, length = 16)
+    @Column(name = "LOCAL_REFERENCE", length = 16)
     private String localReference;
 
     /**
      * Any notes or extra conditions for this permission
      */
-    @Column(name = "NOTE", nullable = true, length = 4000)
+    @Column(name = "NOTE", length = 4000)
     private String note;
 
-    @Column(name = "PERMISSION_DESCRIPTION", nullable = true, length = 256)
+    @Column(name = "PERMISSION_DESCRIPTION", length = 256)
     private String description;
 
     @Column(name = "PERMISSION_STATE", nullable = true, length = 64)

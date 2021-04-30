@@ -118,6 +118,18 @@ public class TitleService {
                 title.setAgency(user.getRole().getOrganisation().getAgency());
             }
         }
+
+        // create default permission
+        if (title.getDefaultPermission() == null) {
+            Permission permission = new Permission();
+            permission.setStateName("Unknown");
+            permission.setTypeName("Title Permission");
+            permission.setBlanket(false);
+            permission.setDescription("Pandas4 Default Title Permission");
+            title.setDefaultPermission(permission);
+            title.setPermission(permission);
+        }
+
         titleRepository.save(title);
 
         // if there's no PI, populate it using the title id
