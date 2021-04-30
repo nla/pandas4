@@ -70,14 +70,14 @@ public class Title {
     /**
      * URL for this resource on the live web.
      */
-    @Column(name = "TITLE_URL", nullable = true, length = 1024)
+    @Column(name = "TITLE_URL", length = 1024)
     @FullTextField(analyzer = "url")
     private String titleUrl;
 
     /**
      * The URL which will be used to gather this title.
      */
-    @Column(name = "SEED_URL", nullable = true, length = 1024)
+    @Column(name = "SEED_URL", length = 1024)
     @FullTextField(analyzer = "url")
     private String seedUrl;
 
@@ -166,7 +166,7 @@ public class Title {
     /**
      * Internal notes about this title.
      */
-    @Column(name = "NOTES", nullable = true, length = 4000)
+    @Column(name = "NOTES", length = 4000)
     private String notes;
 
     @GenericField(sortable = Sortable.YES)
@@ -177,25 +177,25 @@ public class Title {
     /**
      * Notes about any offensive content within this title
      */
-    @Column(name = "CONTENT_WARNING", nullable = true, length = 256)
+    @Column(name = "CONTENT_WARNING", length = 256)
     private String contentWarning;
 
     /**
      * Australian National Bibliographic Database catalogue record identifier for this archived resource
      */
-    @Column(name = "ANBD_NUMBER", nullable = true, length = 22)
+    @Column(name = "ANBD_NUMBER", length = 22)
     private String anbdNumber;
 
     /**
      * An agency specific database number for this title. At the NLA, this is a Voyager database number.
      */
-    @Column(name = "LOCAL_DATABASE_NO", nullable = true, length = 25)
+    @Column(name = "LOCAL_DATABASE_NO", length = 25)
     private String localDatabaseNo;
 
     /**
      * An agency specific reference number for this title. At the NLA, this is a TRIM number.
      */
-    @Column(name = "LOCAL_REFERENCE", nullable = true, length = 25)
+    @Column(name = "LOCAL_REFERENCE", length = 25)
     private String localReference;
 
     /**
@@ -235,13 +235,13 @@ public class Title {
      * PURLs which were stored for titles in a previous version of the system, no longer added or edited but need to
      * be stored to maintain their persistence.
      */
-    @Column(name = "LEGACY_PURL", nullable = true, length = 1024)
+    @Column(name = "LEGACY_PURL", length = 1024)
     private String legacyPurl;
 
     /**
      * Shortened name used for display in worktrays.
      */
-    @Column(name = "SHORT_DISPLAY_NAME", nullable = true, length = 256)
+    @Column(name = "SHORT_DISPLAY_NAME", length = 256)
     private String shortDisplayName;
 
     /**
@@ -722,7 +722,6 @@ public class Title {
     public boolean isScheduled() {
         if (getGather() == null) return false;
         if (getGather().getSchedule() == null) return false;
-        if ("None".equals(getGather().getSchedule().getName())) return false;
-        return true;
+        return !"None".equals(getGather().getSchedule().getName());
     }
 }

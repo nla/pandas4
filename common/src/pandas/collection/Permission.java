@@ -49,10 +49,10 @@ public class Permission {
     @Column(name = "PERMISSION_DESCRIPTION", length = 256)
     private String description;
 
-    @Column(name = "PERMISSION_STATE", nullable = true, length = 64)
+    @Column(name = "PERMISSION_STATE", length = 64)
     private String stateName;
 
-    @Column(name = "PERMISSION_TYPE", nullable = true, length = 50)
+    @Column(name = "PERMISSION_TYPE", length = 50)
     private String typeName;
 
     /**
@@ -65,7 +65,7 @@ public class Permission {
     /**
      * The date on which this permission's status was determined.
      */
-    @Column(name = "STATUS_SET_DATE", nullable = true)
+    @Column(name = "STATUS_SET_DATE")
     private Instant statusSetDate;
 
     /**
