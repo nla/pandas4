@@ -350,4 +350,12 @@ public class Instance {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    /**
+     * Returns true if this instance used a gather method like HTTrack or Upload which consists of flat files in the
+     * working area (instead of a container format like WARC).
+     */
+    public boolean isFlatFiles() {
+        return "HTTrack".equals(getGatherMethodName()) || "Upload".equals(getGatherMethodName());
+    }
 }
