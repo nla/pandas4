@@ -13,12 +13,15 @@ public class InstanceUrls {
     }
 
     public String crawlLog(Instance instance) {
+        if (instance.isFlatFiles()) {
+            return workingAreaBase(instance) + "/hts-cache/new.txt";
+        }
         return workingAreaBase(instance) + "/nla.arc-" + instance.getPi() + "-" + instance.getDateString() + "/latest/logs/crawl.log";
     }
 
     public String qa(Instance instance) {
         if (instance.isFlatFiles()) {
-            return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9+]/[0-9-+]/", "/");
+            return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9]+/[0-9-]+/", "/");
         }
         return "https://pwb.archive.org.au/" + instance.getPi() + "-" + instance.getDateString() + "/mp_/" +
                 instance.getGatheredUrl();
