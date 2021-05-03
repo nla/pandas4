@@ -59,5 +59,8 @@
     </script>
 
     <iframe th:src="${@instanceUrls.qa(instance)}" name="replay-frame"
-            style="width: 100%; flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"></iframe>
+            style="width: 100%; flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"
+            sandbox="allow-forms allow-pointer-lock allow-popups allow-scripts allow-downloads
+            allow-downloads-without-user-activation allow-modals allow-orientation-lock allow-popups
+            allow-popups-to-escape-sandbox allow-presentation allow-same-origin"></iframe>
 </main>
