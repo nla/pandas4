@@ -151,7 +151,7 @@ public class TitleSearcher {
         private SortFinalStep sort(SearchSortFactory f) {
             String order = params.getFirst("sort");
             if (order == null || order.isBlank()) order = "Relevance";
-            if (order.equals("Relevance") && q == null) order = "Name (ascending)";
+            if (order.equals("Relevance") && q == null) order = "Newest";
             return orderings.getOrDefault(order, f2 -> f2.score()).apply(f);
         }
     }
