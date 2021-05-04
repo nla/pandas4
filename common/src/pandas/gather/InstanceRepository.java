@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pandas.agency.Agency;
 import pandas.collection.Title;
+import pandas.core.Individual;
 
 import java.util.List;
 
@@ -57,6 +59,26 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             "and i.title.awaitingConfirmation = false\n" +
             "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +
             "and (:ownerId is null or i.title.owner.id = :ownerId)\n" +
-            "order by i.date desc")
-    Page<Instance> worktrayGathered(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+            "order by i.id desc")
+    Page<Instance> listGatheredWorktray(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+
+    @Query("select i from Instance i\n" +
+            "where i.state.name = 'gathered'\n" +
+            "and i.title.awaitingConfirmation = false\n" +
+            "and (:agency is null or i.title.agency = :agency)\n" +
+            "and (:owner is null or i.title.owner = :owner)\n" +
+            "and i.id < :instanceId\n" +
+            "order by i.id desc")
+    Page<Instance> nextInGatheredWorktray(@Param("agency") Agency agency, @Param("owner") Individual owner,
+                                              @Param("instanceId") long instanceId, Pageable pageable);
+
+    @Query("select i from Instance i\n" +
+            "where i.state.name = 'gathered'\n" +
+            "and i.title.awaitingConfirmation = false\n" +
+            "and (:agency is null or i.title.agency = :agency)\n" +
+            "and (:owner is null or i.title.owner = :owner)\n" +
+            "and i.id > :instanceId\n" +
+            "order by i.id asc")
+    Page<Instance> prevInGatheredWorktray(@Param("agency") Agency agency, @Param("owner") Individual owner,
+                                              @Param("instanceId") long instanceId, Pageable pageable);
 }

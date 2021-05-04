@@ -10,6 +10,8 @@
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main class="full-height">
     <form method=post>
+        <input th:if="${nextInstance}" type=hidden name=nextInstance th:value="${nextInstance.id}">
+        <input th:if="${worktray}" type=hidden name=worktray th:value="${worktray}">
         <header>
             <nav>
                 <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
@@ -20,6 +22,16 @@
                         th:formaction="@{|/instances/${instance.id}/archive|}" type=submit class="btn btn-secondary"><i
                         class="icon archive"></i> Archive
                 </button>
+            </nav>
+            <nav>
+                <a th:if="${prevInstance}" th:href="@{/instances/{id}/process(id=${prevInstance.id},worktray=${worktray})}"
+                   class="btn btn-secondary" th:title="'Previous: ' + ${prevInstance.title.name}">❬</a>
+                <button th:unless="${prevInstance}" class="btn btn-secondary" disabled>❬</button>
+                <a th:href="@{/worktrays/{worktray}/gathered(worktray=${worktray})}" class="btn btn-secondary"
+                   th:text="${worktrayPosition} + ' of ' + ${worktrayLength}" title="Instances in QA Worktray">1 of 4</a>
+                <a th:if="${nextInstance}" th:href="@{/instances/{id}/process(id=${nextInstance.id},worktray=${worktray})}"
+                   class="btn btn-secondary" th:title="'Next: ' + ${nextInstance.title.name}">❭</a>
+                <button th:unless="${nextInstance}" class="btn btn-secondary" disabled>❭</button>
             </nav>
             <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
                     class="btn btn-danger float-right" onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"><i class="icon delete"></i>Delete</button>

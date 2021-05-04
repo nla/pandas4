@@ -145,7 +145,7 @@ public class WorktraysController {
 
     @GetMapping("/worktrays/{alias}/gathered")
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
-        model.addAttribute("gatheredInstances", instanceRepository.worktrayGathered(agencyId, ownerId, pageable));
+        model.addAttribute("gatheredInstances", instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable));
         return "worktrays/Gathered";
     }
 

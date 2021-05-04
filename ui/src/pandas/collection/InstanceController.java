@@ -1,5 +1,7 @@
 package pandas.collection;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,12 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import pandas.agency.Agency;
+import pandas.agency.AgencyRepository;
 import pandas.core.Config;
+import pandas.core.Individual;
+import pandas.core.IndividualRepository;
 import pandas.core.UserService;
-import pandas.gather.Instance;
-import pandas.gather.InstanceService;
-import pandas.gather.State;
-import pandas.gather.StateHistoryRepository;
+import pandas.gather.*;
 import pandas.util.DateFormats;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -26,15 +29,21 @@ public class InstanceController {
     private final Config config;
     private final UserService userService;
     private final InstanceService instanceService;
+    private final InstanceRepository instanceRepository;
     private final StateHistoryRepository stateHistoryRepository;
     private final InstanceThumbnailProcessor thumbnailProcessor;
+    private final AgencyRepository agencyRepository;
+    private final IndividualRepository individualRepository;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
+        this.instanceRepository = instanceRepository;
         this.stateHistoryRepository = stateHistoryRepository;
         this.thumbnailProcessor = thumbnailProcessor;
+        this.agencyRepository = agencyRepository;
+        this.individualRepository = individualRepository;
     }
 
     @GetMapping("/instances/{id}")
@@ -48,24 +57,46 @@ public class InstanceController {
     }
 
     @GetMapping("/instances/{id}/process")
-    public String process(@PathVariable("id") Instance instance, Model model) {
+    public String process(@PathVariable("id") Instance instance, @RequestParam("worktray") String worktray, Model model) {
         model.addAttribute("instance", instance);
         model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);
+
+        Agency agency = agencyRepository.findByAlias(worktray).orElse(null);
+        Individual individual = individualRepository.findByUserid(worktray).orElse(null);
+        model.addAttribute("worktray", worktray);
+        Page<Instance> prev = instanceRepository.prevInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
+        Page<Instance> next = instanceRepository.nextInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
+        model.addAttribute("worktrayPosition", prev.getTotalElements() + 1);
+        model.addAttribute("worktrayLength", prev.getTotalElements() + next.getTotalElements() + 1);
+        model.addAttribute("prevInstance", prev.isEmpty() ? null : prev.iterator().next());
+        model.addAttribute("nextInstance", next.isEmpty() ? null : next.iterator().next());
+
         return "InstanceProcess";
     }
 
     @PostMapping("/instances/{id}/delete")
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
-    public String delete(@PathVariable("id") Instance instance) {
+    public String delete(@PathVariable("id") Instance instance,
+                         @RequestParam(value = "nextInstance", required = false) Long nextInstance,
+                         @RequestParam(value = "worktray", required = false) String worktray) {
         if (!instance.canDelete()) throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
         instanceService.updateState(instance, State.DELETING, userService.getCurrentUser());
+        if (nextInstance != null) {
+            return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
+        }
         return "redirect:/titles/" + instance.getTitle().getId();
     }
 
     @PostMapping("/instances/{id}/archive")
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
-    public String archive(@PathVariable("id") Instance instance, @RequestParam(value = "publish", defaultValue = "false") boolean publish) {
+    public String archive(@PathVariable("id") Instance instance,
+                          @RequestParam(value = "publish", defaultValue = "false") boolean publish,
+                          @RequestParam(value = "nextInstance", required = false) Long nextInstance,
+                          @RequestParam(value = "worktray", required = false) String worktray) {
         instanceService.archive(instance, userService.getCurrentUser(), publish);
+        if (nextInstance != null) {
+            return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
+        }
         return "redirect:/instances/" + instance.getId();
     }
 
