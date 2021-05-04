@@ -31,7 +31,7 @@ public class SearchAnalysisConfig implements LuceneAnalysisConfigurer {
     }
 
     public static class UrlTokenizerFactory extends TokenizerFactory {
-        protected UrlTokenizerFactory(Map<String, String> args) {
+        public UrlTokenizerFactory(Map<String, String> args) {
             super(args);
         }
 
