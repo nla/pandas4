@@ -25,12 +25,12 @@
             </nav>
             <nav th:if="${worktray}">
                 <a th:if="${prevInstance}" th:href="@{/instances/{id}/process(id=${prevInstance.id},worktray=${worktray})}"
-                   class="btn btn-secondary" th:title="'Previous: ' + ${prevInstance.title.name}">❬</a>
+                   class="btn btn-secondary" th:title="'Previous: ' + ${prevInstance.title.name}" data-keybind="ArrowLeft">❬</a>
                 <button th:unless="${prevInstance}" class="btn btn-secondary" disabled>❬</button>
                 <a th:href="@{/worktrays/{worktray}/gathered(worktray=${worktray})}" class="btn btn-secondary"
                    th:text="${worktrayPosition} + ' of ' + ${worktrayLength}" title="Instances in QA Worktray">1 of 4</a>
                 <a th:if="${nextInstance}" th:href="@{/instances/{id}/process(id=${nextInstance.id},worktray=${worktray})}"
-                   class="btn btn-secondary" th:title="'Next: ' + ${nextInstance.title.name}">❭</a>
+                   class="btn btn-secondary" th:title="'Next: ' + ${nextInstance.title.name}" data-keybind="ArrowRight">❭</a>
                 <button th:unless="${nextInstance}" class="btn btn-secondary" disabled>❭</button>
             </nav>
             <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
