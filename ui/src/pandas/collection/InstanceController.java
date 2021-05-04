@@ -57,19 +57,21 @@ public class InstanceController {
     }
 
     @GetMapping("/instances/{id}/process")
-    public String process(@PathVariable("id") Instance instance, @RequestParam("worktray") String worktray, Model model) {
+    public String process(@PathVariable("id") Instance instance, @RequestParam(value = "worktray", required = false) String worktray, Model model) {
         model.addAttribute("instance", instance);
         model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);
-
-        Agency agency = agencyRepository.findByAlias(worktray).orElse(null);
-        Individual individual = individualRepository.findByUserid(worktray).orElse(null);
         model.addAttribute("worktray", worktray);
-        Page<Instance> prev = instanceRepository.prevInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
-        Page<Instance> next = instanceRepository.nextInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
-        model.addAttribute("worktrayPosition", prev.getTotalElements() + 1);
-        model.addAttribute("worktrayLength", prev.getTotalElements() + next.getTotalElements() + 1);
-        model.addAttribute("prevInstance", prev.isEmpty() ? null : prev.iterator().next());
-        model.addAttribute("nextInstance", next.isEmpty() ? null : next.iterator().next());
+        
+        if (worktray != null) {
+            Agency agency = agencyRepository.findByAlias(worktray).orElse(null);
+            Individual individual = individualRepository.findByUserid(worktray).orElse(null);
+            Page<Instance> prev = instanceRepository.prevInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
+            Page<Instance> next = instanceRepository.nextInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
+            model.addAttribute("worktrayPosition", prev.getTotalElements() + 1);
+            model.addAttribute("worktrayLength", prev.getTotalElements() + next.getTotalElements() + 1);
+            model.addAttribute("prevInstance", prev.isEmpty() ? null : prev.iterator().next());
+            model.addAttribute("nextInstance", next.isEmpty() ? null : next.iterator().next());
+        }
 
         return "InstanceProcess";
     }

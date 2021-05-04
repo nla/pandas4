@@ -23,7 +23,7 @@
                         class="icon archive"></i> Archive
                 </button>
             </nav>
-            <nav>
+            <nav th:if="${worktray}">
                 <a th:if="${prevInstance}" th:href="@{/instances/{id}/process(id=${prevInstance.id},worktray=${worktray})}"
                    class="btn btn-secondary" th:title="'Previous: ' + ${prevInstance.title.name}">❬</a>
                 <button th:unless="${prevInstance}" class="btn btn-secondary" disabled>❬</button>
