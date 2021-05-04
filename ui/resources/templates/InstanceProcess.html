@@ -55,10 +55,12 @@
         <nav class="btn-group">
             <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance)}" target=replay-frame title="Homepage">
                 <i class="icon home"></i></a>
-            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.crawlLog(instance)}" target=replay-frame  title="Crawl Log">
+            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.crawlLog(instance)}" target=replay-frame title="Crawl Log">
                 <i class="icon log"></i></a>
-            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance, '/robots.txt')}" target=replay-frame title="Robots.txt">
-                <i class="icon robot"></i></a>
+            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.reports(instance)}" target=replay-frame
+               title="Crawl Reports" th:unless="${instance.isFlatFiles()}"><i class="icon fact_check"></i></a>
+            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance, '/robots.txt')}"
+               target=replay-frame title="View robots.txt" th:unless="${instance.isFlatFiles()}"><i class="icon robot"></i></a>
         </nav>
         <input id="url-bar" style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
     </div>

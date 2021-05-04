@@ -12,11 +12,16 @@ public class InstanceUrls {
         return "https://pandas.nla.gov.au/view/" + instance.getPi() + "/" + instance.getDateString();
     }
 
+    @NotNull
+    private String jobDir(Instance instance) {
+        return workingAreaBase(instance) + "/nla.arc-" + instance.getPi() + "-" + instance.getDateString() + "/latest";
+    }
+
     public String crawlLog(Instance instance) {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + "/hts-cache/new.txt";
         }
-        return workingAreaBase(instance) + "/nla.arc-" + instance.getPi() + "-" + instance.getDateString() + "/latest/logs/crawl.log";
+        return jobDir(instance) + "/logs/crawl.log";
     }
 
     public String qa(Instance instance) {
@@ -33,5 +38,9 @@ public class InstanceUrls {
             return workingAreaBase(instance) + url.replaceFirst("^https?://", "/");
         }
         return "https://pwb.archive.org.au/" + instance.getPi() + "-" + instance.getDateString() + "/mp_/" + url;
+    }
+
+    public String reports(Instance instance) {
+        return jobDir(instance) + "/reports/";
     }
 }
