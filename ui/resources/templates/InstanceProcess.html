@@ -5,6 +5,27 @@
     <title th:text="${instance.title.name + ' - ' + @dateFormats.dayDateTime.format(instance.date) + ' - PANDAS'}">QA: Some site - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .prev-instances-container {
+            position: relative;
+        }
+
+        a:hover + .prev-instances-popup, .prev-instances-popup:hover {
+            display: block;
+        }
+
+        .prev-instances-popup {
+            display: none;
+            padding: 12px 16px;
+            position: absolute;
+            right: 0;
+            width: 420px;
+            background: var(--color-white);
+            color: var(--color-black);
+            border: 1px solid #777;
+            border-radius: .5rem;
+        }
+    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
@@ -46,7 +67,21 @@
         <ol>
             <li><a th:href="@{|/titles/${instance.title.id}|}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
-            <li><span th:text="${instance.gatherMethodName}"></span> gather from <strong th:text="${@dateFormats.dayDate.format(instance.date)}"></strong> at <strong th:text="${@dateFormats.time.format(instance.date)}"></strong></li>
+            <li><span th:text="${instance.gatherMethodName}"></span> gather from
+
+                <span class="prev-instances-container">
+                    <a href="#" th:href="@{|/titles/${instance.title.id}|}">
+                        <strong th:text="${@dateFormats.dayDate.format(instance.date)}">Wednesday, 5 May 2021</strong>
+                        at <strong th:text="${@dateFormats.time.format(instance.date)}">1:20 am</strong></a>
+                    <div class="prev-instances-popup">
+                        <strong>Recent gathers:</strong><br>
+                        <a th:each="instance : ${previousInstances}" th:href="@{|/instances/${instance.id}|}"
+                        th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)}">
+                            <img th:src="@{|/instances/${instance.id}/thumbnail|}" width="200" height="150">
+                        </a>
+                    </div>
+                </span>
+            </li>
         </ol>
         <span style="float: right">
             <span th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></span> files,

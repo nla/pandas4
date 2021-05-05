@@ -20,6 +20,8 @@ import pandas.core.UserService;
 import pandas.gather.*;
 import pandas.util.DateFormats;
 
+import java.util.List;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.springframework.http.CacheControl.maxAge;
@@ -35,7 +37,7 @@ public class InstanceController {
     private final AgencyRepository agencyRepository;
     private final IndividualRepository individualRepository;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
@@ -61,7 +63,9 @@ public class InstanceController {
         model.addAttribute("instance", instance);
         model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);
         model.addAttribute("worktray", worktray);
-        
+        List<Instance> recentGathers = instanceRepository.findRecentGathers(instance.getTitle(), PageRequest.of(0, 5));
+        model.addAttribute("previousInstances", recentGathers.isEmpty() ? recentGathers : recentGathers.subList(1, recentGathers.size()));
+
         if (worktray != null) {
             Agency agency = agencyRepository.findByAlias(worktray).orElse(null);
             Individual individual = individualRepository.findByUserid(worktray).orElse(null);
