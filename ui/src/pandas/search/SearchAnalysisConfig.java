@@ -1,5 +1,8 @@
 package pandas.search;
 
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilterFactory;
@@ -7,12 +10,14 @@ import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.apache.lucene.analysis.util.CharTokenizer;
+import org.apache.lucene.analysis.util.TokenFilterFactory;
 import org.apache.lucene.analysis.util.TokenizerFactory;
 import org.apache.lucene.util.AttributeFactory;
 import org.hibernate.search.backend.lucene.analysis.LuceneAnalysisConfigurationContext;
 import org.hibernate.search.backend.lucene.analysis.LuceneAnalysisConfigurer;
 
 import java.util.Map;
+import java.util.Set;
 
 public class SearchAnalysisConfig implements LuceneAnalysisConfigurer {
     @Override
@@ -20,6 +25,7 @@ public class SearchAnalysisConfig implements LuceneAnalysisConfigurer {
         context.analyzer("standard").instance(new StandardAnalyzer());
         context.analyzer("url").custom()
                 .tokenizer(UrlTokenizerFactory.class)
+                .tokenFilter(UrlStopWordsFilterFactory.class)
                 .tokenFilter(LowerCaseFilterFactory.class)
                 .tokenFilter(SnowballPorterFilterFactory.class).param("language", "English")
                 .tokenFilter(ASCIIFoldingFilterFactory.class);
@@ -28,6 +34,18 @@ public class SearchAnalysisConfig implements LuceneAnalysisConfigurer {
                 .tokenFilter(LowerCaseFilterFactory.class)
                 .tokenFilter(SnowballPorterFilterFactory.class).param("language", "English")
                 .tokenFilter(ASCIIFoldingFilterFactory.class);
+    }
+
+    public static class UrlStopWordsFilterFactory extends TokenFilterFactory {
+        private final CharArraySet stopWords = new CharArraySet(Set.of("https", "http", "www"), true);
+        public UrlStopWordsFilterFactory(Map<String, String> args) {
+            super(args);
+        }
+
+        @Override
+        public TokenStream create(TokenStream input) {
+            return new StopFilter(input, stopWords);
+        }
     }
 
     public static class UrlTokenizerFactory extends TokenizerFactory {
