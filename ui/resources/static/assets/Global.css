@@ -96,7 +96,8 @@ body > nav {
 /* brand link */
 body > nav > header a { 
     background-color: #011f85;
-    width: 180px;
+    width: 179px;
+    border-right: 1px solid darkblue;
     height: 40px;
     display: block;
     color: #fff;
@@ -161,7 +162,7 @@ body > main > header, main > form > header {
     z-index: 100;
     top: 0;
     left: 0;
-    width: 100%;
+    right: 0;
 
     background: #010066 url("https://pandas.nla.gov.au/images/galaxy90.jpg") no-repeat;
     background-position-x: -100px;
@@ -172,8 +173,7 @@ body > main > header, main > form > header {
     
     height: 50px;
     padding: 0px 15px;
-    padding-left: 196px;
-    /*max-width: 1200px;*/
+    margin-left: 180px;
     box-sizing: border-box;
 }
 
