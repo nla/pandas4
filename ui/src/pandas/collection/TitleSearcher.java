@@ -8,6 +8,8 @@ import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
 import org.hibernate.search.engine.search.sort.dsl.SortFinalStep;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -32,6 +34,8 @@ import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 
 @Service
 public class TitleSearcher {
+    private static final Logger log = LoggerFactory.getLogger(TitleSearcher.class);
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -90,20 +94,41 @@ public class TitleSearcher {
         private final MultiValueMap<String, String> params;
         private final Pageable pageable;
         private final String q;
+        private final String url;
 
         private Query(MultiValueMap<String, String> params, Pageable pageable) {
             this.session = Search.session(entityManager);
             this.params = params;
             this.pageable = pageable;
             String rawQ = params.getFirst("q");
-            this.q = rawQ == null || rawQ.isBlank() ? null : rawQ;
+
+            StringBuilder qTerms = new StringBuilder();
+            StringBuilder urlTerms = new StringBuilder();
+            if (rawQ != null) {
+                for (String term : rawQ.split(" ")) {
+                    if (term.startsWith("http://") || term.startsWith("https://")) {
+                        urlTerms.append(term).append(' ');
+                    } else {
+                        qTerms.append(term).append(' ');
+                    }
+                }
+                this.q = qTerms.toString();
+                this.url = urlTerms.toString();
+            } else {
+                this.q = null;
+                this.url = null;
+            }
         }
 
         private Function<SearchPredicateFactory, PredicateFinalStep> predicate(Facet exceptFacet) {
             return f -> f.bool(b -> {
                 b.must(f.matchAll());
-                if (q != null)
+                if (q != null && !q.isBlank()) {
                     b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes").matching(q).defaultOperator(AND));
+                }
+                if (url != null && !url.isBlank()) {
+                    b.must(f.phrase().fields("titleUrl", "seedUrl").matching(url));
+                }
                 for (Facet facet : facets) {
                     facet.search(f, b, params);
                     if (facet == exceptFacet) continue;
@@ -122,7 +147,9 @@ public class TitleSearcher {
                 if (params.containsKey(facet.param)) continue;
                 search.aggregation(((EntityFacet<?>) facet).key, f -> f.terms().field(facet.field, Long.class).maxTermCount(20));
             }
-            var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
+            var searchQuery = search.toQuery();
+            log.info("Query: {}", searchQuery.queryString());
+            var result = searchQuery.fetch((int) pageable.getOffset(), pageable.getPageSize());
 
             List<FacetResults> facetResults = new ArrayList<>();
             for (Facet facet : facets) {
