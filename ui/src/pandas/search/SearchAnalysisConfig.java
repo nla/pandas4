@@ -52,9 +52,9 @@ public class SearchAnalysisConfig implements LuceneAnalysisConfigurer {
                         case '+':
                         case '-':
                         case '_':
-                            return true;
+                            return false;
                         default:
-                            return Character.isWhitespace(c);
+                            return !Character.isWhitespace(c);
                     }
                 }
             };
