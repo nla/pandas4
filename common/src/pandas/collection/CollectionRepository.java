@@ -29,5 +29,5 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
             "order by c.name")
     List<Collection> findTopLevelDisplayableCollectionsWithNumberNames(Pageable pageable);
 
-    Object findByParentIsNullAndSubjectsContainsOrderByName(Subject subject);
+    List<Collection> findByParentIsNullAndSubjectsContainsOrderByName(Subject subject);
 }

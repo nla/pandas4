@@ -13,9 +13,11 @@ import java.util.Optional;
 @Controller
 public class SubjectController {
     private final SubjectRepository subjectRepository;
+    private final CollectionRepository collectionRepository;
 
-    public SubjectController(SubjectRepository subjectRepository) {
+    public SubjectController(SubjectRepository subjectRepository, CollectionRepository collectionRepository) {
         this.subjectRepository = subjectRepository;
+        this.collectionRepository = collectionRepository;
     }
 
     @GetMapping("/subjects")
@@ -25,8 +27,9 @@ public class SubjectController {
     }
 
     @GetMapping("/subjects/{id}")
-    public String list(@PathVariable("id") Optional<Subject> subject, Model model) {
-        model.addAttribute("subject", subject.orElseThrow(NotFoundException::new));
+    public String show(@PathVariable("id") Subject subject, Model model) {
+        model.addAttribute("subject", subject);
+        model.addAttribute("collections", collectionRepository.findByParentIsNullAndSubjectsContainsOrderByName(subject));
         return "SubjectView";
     }
 
