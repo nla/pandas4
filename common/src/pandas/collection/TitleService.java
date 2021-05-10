@@ -100,7 +100,7 @@ public class TitleService {
         title.setNotes(form.getNotes());
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
-        if (title.getSeedUrl() == null) {
+        if (title.getSeedUrl() == null || title.getSeedUrl().isBlank()) {
             title.setSeedUrl(form.getTitleUrl());
         }
         boolean statusChanged = false;
@@ -171,9 +171,7 @@ public class TitleService {
         if (titleGather.getTitle() == null) {
             titleGather.setTitle(title);
         }
-        if (titleGather.getGatherUrl() == null) {
-            titleGather.setGatherUrl(title.getSeedUrl() != null ? title.getSeedUrl() : title.getTitleUrl());
-        }
+        titleGather.setGatherUrl(title.getSeedUrl() != null && !title.getSeedUrl().isBlank() ? title.getSeedUrl() : title.getTitleUrl());
         titleGather.setSchedule(form.getGatherSchedule());
         titleGather.setMethod(form.getGatherMethod());
         if (seeds.length > 1) {
