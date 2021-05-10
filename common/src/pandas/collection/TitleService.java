@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.core.Individual;
 import pandas.core.Utils;
-import pandas.gather.*;
+import pandas.gather.GatherMethodRepository;
+import pandas.gather.GatherScheduleRepository;
+import pandas.gather.TitleGather;
+import pandas.gather.TitleGatherRepository;
 
 import java.time.Instant;
 import java.util.*;
@@ -20,23 +23,22 @@ public class TitleService {
     private final TitleGatherRepository titleGatherRepository;
     private final FormatRepository formatRepository;
     private final StatusRepository statusRepository;
+    private final StatusHistoryRepository statusHistoryRepository;
     private final OwnerHistoryRepository ownerHistoryRepository;
-    private final GatherDateRepository gatherDateRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
 
     public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
-                        OwnerHistoryRepository ownerHistoryRepository,
-                        GatherDateRepository gatherDateRepository,
+                        StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
                         GatherScheduleRepository gatherScheduleRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
         this.statusRepository = statusRepository;
+        this.statusHistoryRepository = statusHistoryRepository;
         this.ownerHistoryRepository = ownerHistoryRepository;
-        this.gatherDateRepository = gatherDateRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
     }
@@ -97,12 +99,14 @@ public class TitleService {
         title.setNotes(form.getNotes());
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
+        boolean statusChanged = false;
         if (!Objects.equals(title.getStatus(), form.getStatus())) {
             title.setStatus(form.getStatus());
-            // TODO: status history entries
+            statusChanged = true;
         }
         if (title.getStatus() == null) {
             title.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+            statusChanged = true;
         }
         String[] seeds = form.getSeedUrls() == null ? new String[0] : form.getSeedUrls().split("\n+");
         if (seeds.length > 0) {
@@ -149,6 +153,10 @@ public class TitleService {
             ownerHistoryRepository.save(ownerHistory);
         }
 
+        // create a status history record if we changed it
+        if (statusChanged) {
+            recordStatusChange(title, user, now);
+        }
 
         //
         // update gather dates
@@ -177,6 +185,19 @@ public class TitleService {
         titleGatherRepository.save(titleGather);
 
         return title;
+    }
+
+    /**
+     * Create a new status history record for this title. Assumes the status has already been updated.
+     */
+    private void recordStatusChange(Title title, Individual user, Instant now) {
+        statusHistoryRepository.markPreviousEnd(title, now);
+        var statusHistory = new StatusHistory();
+        statusHistory.setStartDate(now);
+        statusHistory.setStatus(title.getStatus());
+        statusHistory.setIndividual(user);
+        statusHistory.setTitle(title);
+        statusHistoryRepository.save(statusHistory);
     }
 
     @Transactional
