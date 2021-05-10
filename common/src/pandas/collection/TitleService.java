@@ -60,9 +60,10 @@ public class TitleService {
         form.setCollections(collections);
         form.setFormat(formatRepository.findById(Format.INTEGRATING_ID).orElseThrow());
         form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
-        form.setGatherSchedule(gatherScheduleRepository.findByName("Quarterly").orElseThrow());
+        form.setGatherSchedule(gatherScheduleRepository.findByName("Annual").orElseThrow());
         form.setSubjects(subjects);
         form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+        form.setCataloguingNotRequired(true);
 
         // prefill subjects based on the collections
         if ((subjects == null || subjects.isEmpty()) && (collections != null && !collections.isEmpty())) {
