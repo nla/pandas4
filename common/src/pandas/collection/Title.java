@@ -120,7 +120,12 @@ public class Title {
     @IndexedEmbedded(includePaths = {"id", "type.id", "organisation.name"})
     private Publisher publisher;
 
-    @ManyToMany(mappedBy = "titles")
+    @ManyToMany
+    @JoinTable(name = "SUBJECT_TITLES",
+            joinColumns = @JoinColumn(name = "TITLE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "SUBJECT_ID"),
+            indexes = {@Index(name = "subject_titles_title_id_index", columnList = "title_id"),
+                    @Index(name = "subject_titles_collection_id_index", columnList = "subject_id")})
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Subject> subjects;
