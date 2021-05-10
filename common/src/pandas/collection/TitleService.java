@@ -100,6 +100,9 @@ public class TitleService {
         title.setNotes(form.getNotes());
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
+        if (title.getSeedUrl() == null) {
+            title.setSeedUrl(form.getTitleUrl());
+        }
         boolean statusChanged = false;
         if (!Objects.equals(title.getStatus(), form.getStatus())) {
             title.setStatus(form.getStatus());
@@ -183,6 +186,10 @@ public class TitleService {
 
         titleGather.calculateNextGatherDate();
         titleGather.setGatherCommand(titleGather.buildHttrackCommand());
+
+        // FIXME: does it make sense to have both this and next_gather_date?
+        titleGather.setScheduledDate(titleGather.getNextGatherDate());
+
         titleGatherRepository.save(titleGather);
 
         return title;
