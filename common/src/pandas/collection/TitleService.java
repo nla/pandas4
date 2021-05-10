@@ -187,6 +187,9 @@ public class TitleService {
         titleGather.calculateNextGatherDate();
         titleGather.setGatherCommand(titleGather.buildHttrackCommand());
 
+        // FIXME: why both this and seed URL?
+        titleGather.setGatherUrl(title.getSeedUrl());
+
         // FIXME: does it make sense to have both this and next_gather_date?
         titleGather.setScheduledDate(titleGather.getNextGatherDate());
 
