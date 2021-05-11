@@ -421,7 +421,7 @@ ul.subject-list, ul.collection-list {
     padding: 0;
 }
 
-ul.subject-list li, ul.collection-list li {
+ul.subject-list li {
     display: inline;
 }
 
@@ -433,7 +433,7 @@ ul.collection-list a {
     color: saddlebrown;
 }
 
-ul.subject-list li + li:before, ul.collection-list li + li:before {
+ul.subject-list li + li:before {
     content: " · ";
 }
 
