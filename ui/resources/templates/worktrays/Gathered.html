@@ -30,6 +30,7 @@
             <th>Owner</th>
             <th>Size</th>
             <th>Files</th>
+            <th>Method</th>
         </tr>
         </thead>
         <tbody>
@@ -43,6 +44,7 @@
             <td><span th:if="${instance.gather?.size}" th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}">10 MB</span></td>
             <td><span th:if="${instance.gather?.files}" th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}">1,234</span></td>
             <td><a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}">Process</a></td>
+            <td th:text="${instance.gatherMethodName}"></td>
         </tr>
         </tbody>
     </table>
