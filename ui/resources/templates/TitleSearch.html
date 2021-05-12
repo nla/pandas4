@@ -104,7 +104,7 @@
                         <div>
                             <ul class="collection-list">
                                 <li th:each="collection: ${title.collections}">
-                                    <a th:href="@{/collection/{id}(id=${collection.id})}" th:text="${collection.fullName}"
+                                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}"
                                        href="CollectionView.html">National peak sporting bodies</a>
                                 </li>
                             </ul>
