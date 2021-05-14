@@ -91,10 +91,12 @@ public class Collection {
 
     @CreatedBy
     @ManyToOne
+    @JoinColumn(name = "CREATED_BY")
     private Individual createdBy;
 
     @LastModifiedBy
     @ManyToOne
+    @JoinColumn(name = "LAST_MODIFIED_BY")
     private Individual lastModifiedBy;
 
     public Long getId() {
