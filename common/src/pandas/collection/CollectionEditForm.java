@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
+
 public class CollectionEditForm {
     @NotBlank
     private final String name;
@@ -53,6 +55,7 @@ public class CollectionEditForm {
         }
         if (endYear != null) {
             collection.setEndDate(LocalDate.of(endYear, endMonth == null ? 12 : endMonth, 1)
+                    .with(lastDayOfMonth())
                     .atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
         }
     }
