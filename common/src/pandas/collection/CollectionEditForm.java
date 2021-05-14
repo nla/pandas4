@@ -14,7 +14,11 @@ public class CollectionEditForm {
     private final String name;
     private final List<Subject> subjects;
     private final String description;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private final LocalDate startDate;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private final LocalDate endDate;
 
     public CollectionEditForm(String name, List<Subject> subjects, String description,

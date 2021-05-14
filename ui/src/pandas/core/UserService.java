@@ -1,11 +1,14 @@
 package pandas.core;
 
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
-public class UserService {
+public class UserService implements AuditorAware<Individual> {
     private final IndividualRepository individualRepository;
 
     public UserService(IndividualRepository individualRepository) {
@@ -17,10 +20,11 @@ public class UserService {
         if (authentication == null) {
             return null;
         }
-        String username = authentication.getName();
-        if (username == null) {
-            return null;
-        }
-        return individualRepository.findByUserid(username).orElse(null);
+        return ((PandasUser)authentication.getPrincipal()).getIndividual();
+    }
+
+    @Override
+    public Optional<Individual> getCurrentAuditor() {
+        return Optional.ofNullable(getCurrentUser());
     }
 }

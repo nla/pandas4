@@ -20,7 +20,6 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -46,12 +45,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final Config config;
 
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final IndividualRepository individualRepository;
 
     public SecurityConfig(PandasUserDetailsService pandasUserDetailsService, Config config,
-                          @Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository) {
+                          @Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository, IndividualRepository individualRepository) {
         this.pandasUserDetailsService = pandasUserDetailsService;
         this.config = config;
         this.clientRegistrationRepository = clientRegistrationRepository;
+        this.individualRepository = individualRepository;
         if (config.getAutologin() != null) {
             log.warn("DANGER! Running with auto-login as user '{}'. This should never be used in production.", config.getAutologin());
         }
@@ -132,8 +133,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             } catch (ParseException e) {
                 log.error("Error parsing access token", e);
             }
-            String usernameAttribute = "preferred_username";
-            return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), usernameAttribute);
+            Individual individual = individualRepository.findByUserid(oidcUser.getPreferredUsername()).orElseThrow();
+            return new PandasUser(individual, oidcUser, mappedAuthorities);
         };
     }
 }

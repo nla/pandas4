@@ -41,7 +41,7 @@
             <label for="startDate">Time period (optional)</label>
             <div class="hint-text">For collections about events in time such as election campaigns or the Olympics.</div>
             <div>
-                <input type="date" name="startDate"> to <input type="date" name="endDate">
+                <input type="date" th:field="*{startDate}"> to <input type="date" th:field="*{endDate}">
             </div>
         </div>
     </form>

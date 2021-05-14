@@ -24,9 +24,40 @@
                 <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}" href="CollectionView.html">Australian
                     Broadcasting Corporation (ABC)</a>
             </li>
-            <li class="active" th:text="${collection.name}">Television shows</li>
+            <li class="active"><th:block th:text="${collection.name}">Television shows</th:block>
+                <span style="color: #666">
+                    <th:block th:if="${collection.coversOneMonth()}">
+                        (<time th:if="${collection.startDate != null}" th:text="${@dateFormats.monthYear.format(collection.startDate)}"></time>)
+                    </th:block>
+                    <th:block th:if="${collection.hasTimePeriod() && !collection.coversOneMonth()}">
+                        (<time th:if="${collection.startDate != null}" th:text="${@dateFormats.monthYear.format(collection.startDate)}"></time> -
+                        <time th:if="${collection.endDate != null}" th:text="${@dateFormats.monthYear.format(collection.endDate)}"></time>)
+                    </th:block>
+                </span>
+            </li>
         </ol>
     </nav>
+
+    <table th:if="${collection != null && collection.lastModifiedDate != null}" style="color: #666; font-size: 80%; float: right">
+        <tr th:if="${collection.createdDate != null}">
+            <td align=right>Created:</td>
+            <td>
+                <time th:datetime="${collection.createdDate}"
+                      th:text="${@dateFormats.shortDate.format(collection.createdDate)}">14/5/2021
+                </time>
+                (<span th:text="${collection.createdBy?.userid}"></span>)
+            </td>
+        </tr>
+        <tr th:if="${collection.lastModifiedDate != null && collection.lastModifiedDate != collection.createdDate}">
+            <td align=right>Modified:</td>
+            <td>
+                <time th:datetime="${collection.lastModifiedDate}"
+                      th:text="${@dateFormats.shortDate.format(collection.lastModifiedDate)}">14/5/2021
+                </time>
+                (<span th:text="${collection.lastModifiedBy?.userid}"></span>)
+            </td>
+        </tr>
+    </table>
 
     <section class="card card-body">
         <table th:unless="${collection.subjects.isEmpty()}" class="table table-responsive table-borderless table-sm">

@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 @SpringBootApplication
 @EnableScheduling
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "userService")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class Pandas {
     public static void main(String[] args) {

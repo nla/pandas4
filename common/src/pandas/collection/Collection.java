@@ -8,9 +8,17 @@ import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import pandas.core.Individual;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +30,7 @@ import java.util.List;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
+@EntityListeners(AuditingEntityListener.class)
 public class Collection {
     @Id
     @Column(name = "COL_ID")
@@ -73,6 +82,20 @@ public class Collection {
     private Instant startDate;
 
     private Instant endDate;
+
+    @CreatedDate
+    private Instant createdDate;
+
+    @LastModifiedDate
+    private Instant lastModifiedDate;
+
+    @CreatedBy
+    @ManyToOne
+    private Individual createdBy;
+
+    @LastModifiedBy
+    @ManyToOne
+    private Individual lastModifiedBy;
 
     public Long getId() {
         return id;
@@ -220,5 +243,48 @@ public class Collection {
 
     public void setEndDate(Instant endDate) {
         this.endDate = endDate;
+    }
+
+    public boolean hasTimePeriod() {
+        return startDate != null || endDate != null;
+    }
+
+    public boolean coversOneMonth() {
+        if (startDate == null) return false;
+        if (endDate == null) return false;
+        return startDate.atZone(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1)
+                .equals(endDate.atZone(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1));
+    }
+
+    public Instant getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Instant getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Instant lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public Individual getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Individual createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Individual getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(Individual lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 }
