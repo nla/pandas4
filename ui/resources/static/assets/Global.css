@@ -393,6 +393,22 @@ button.btn-danger:hover, a.btn-danger:hover {
     box-sizing: border-box;
 }
 
+.hint-text {
+    color: #6f777b;
+    line-height: 1.5;
+    font-size: 80%;
+}
+
+.form-group {
+    margin-bottom: .5rem;
+}
+
+input[type=date] {
+    line-height: 1.5;
+    margin-top: .25rem;
+    margin-bottom: .25rem;
+}
+
 /**
  * Tables
  */

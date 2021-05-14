@@ -62,8 +62,17 @@ public class CollectionController {
     @PreAuthorize("hasPermission(#collection, 'edit')")
     public String edit(@PathVariable("id") Collection collection, Model model) {
         model.addAttribute("collection", collection);
+        model.addAttribute("form", CollectionEditForm.of(collection));
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         return "CollectionEdit";
+    }
+
+    @PostMapping("/collections/{id}/edit")
+    @PreAuthorize("hasPermission(#collection, 'edit')")
+    public String update(@PathVariable("id") Collection collection, @Valid CollectionEditForm form) {
+        form.applyTo(collection);
+        collection = collectionRepository.save(collection);
+        return "redirect:/collections/" + collection.getId();
     }
 
     @PostMapping("/collections/{id}/delete")
@@ -80,24 +89,18 @@ public class CollectionController {
                           Model model) {
         Collection collection = new Collection();
         collection.setSubjects(subjects);
-        model.addAttribute("collection", collection);
+        model.addAttribute("form", CollectionEditForm.of(collection));
         model.addAttribute("parentId", parentId);
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         return "CollectionEdit";
     }
 
-    @PostMapping("/collections")
-    @PreAuthorize("hasPermission(#collection, 'edit')")
-    public String update(@Valid Collection collection) {
-        if (collection.getId() == null) {
-            collectionRepository.save(collection);
-        } else {
-            Collection existing = collectionRepository.findById(collection.getId()).orElseThrow(NotFoundException::new);
-            existing.setName(collection.getName());
-            existing.setSubjects(collection.getSubjects());
-            existing.setDescription(collection.getDescription());
-            collectionRepository.save(existing);
-        }
+    @PostMapping("/collections/new")
+    @PreAuthorize("hasAuthority('PRIV_EDIT_COLLECTIONS')")
+    public String create(@Valid CollectionEditForm form) {
+        Collection collection = new Collection();
+        form.applyTo(collection);
+        collection = collectionRepository.save(collection);
         return "redirect:/collections/" + collection.getId();
     }
 

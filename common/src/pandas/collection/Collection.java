@@ -10,6 +10,7 @@ import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,6 +69,10 @@ public class Collection {
     @Formula("((select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID) +" +
             "  (select count(*) from TITLE_COL tc left join COL c on c.COL_ID = tc.COLLECTION_ID where c.COL_PARENT_ID = COL_ID))")
     private long titleCount;
+
+    private Instant startDate;
+
+    private Instant endDate;
 
     public Long getId() {
         return id;
@@ -199,5 +204,21 @@ public class Collection {
 
     public void setThumbnail(Thumbnail thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public Instant getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
+    public Instant getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
 }
