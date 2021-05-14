@@ -11,7 +11,11 @@ import pandas.search.SearchResults;
 
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 import static pandas.core.Utils.sortBy;
@@ -61,6 +65,11 @@ public class CollectionController {
     @GetMapping("/collections/{id}/edit")
     @PreAuthorize("hasPermission(#collection, 'edit')")
     public String edit(@PathVariable("id") Collection collection, Model model) {
+        var monthNames = new LinkedHashMap<String,Integer>();
+        for (var month : Month.values()) {
+            monthNames.put(month.getDisplayName(TextStyle.FULL, Locale.getDefault()), month.getValue());
+        }
+        model.addAttribute("months", monthNames);
         model.addAttribute("collection", collection);
         model.addAttribute("form", CollectionEditForm.of(collection));
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));

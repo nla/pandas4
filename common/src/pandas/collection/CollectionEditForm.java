@@ -1,48 +1,60 @@
 package pandas.collection;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 public class CollectionEditForm {
     @NotBlank
     private final String name;
     private final List<Subject> subjects;
     private final String description;
+    private final Integer startMonth;
+    private final Integer startYear;
+    private final Integer endMonth;
+    private final Integer endYear;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private final LocalDate startDate;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private final LocalDate endDate;
-
-    public CollectionEditForm(String name, List<Subject> subjects, String description,
-                              @DateTimeFormat(iso = DATE) LocalDate startDate,
-                              @DateTimeFormat(iso = DATE) LocalDate endDate) {
+    public CollectionEditForm(String name, List<Subject> subjects, String description, Integer startMonth,
+                              Integer startYear, Integer endMonth, Integer endYear) {
         this.name = name;
         this.subjects = subjects;
         this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.startMonth = startMonth;
+        this.startYear = startYear;
+        this.endMonth = endMonth;
+        this.endYear = endYear;
     }
 
     public static CollectionEditForm of(Collection collection) {
+        Integer startMonth = null, startYear = null;
+        if (collection.getStartDate() != null) {
+            LocalDate startDate = collection.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate();
+            startMonth = startDate.getMonthValue();
+            startYear = startDate.getYear();
+        }
+        Integer endMonth = null, endYear = null;
+        if (collection.getEndDate() != null) {
+            LocalDate endDate = collection.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate();
+            endMonth = endDate.getMonthValue();
+            endYear = endDate.getYear();
+        }
         return new CollectionEditForm(collection.getName(), collection.getSubjects(), collection.getDescription(),
-                collection.getStartDate() == null ? null : collection.getStartDate().atZone(ZoneId.systemDefault()).toLocalDate(),
-                collection.getEndDate() == null ? null : collection.getEndDate().atZone(ZoneId.systemDefault()).toLocalDate());
+                startMonth, startYear, endMonth, endYear);
     }
 
     public void applyTo(Collection collection) {
         collection.setName(name.trim());
         collection.setSubjects(subjects);
         collection.setDescription(description != null && !description.isBlank() ? description.trim() : null);
-        collection.setStartDate(startDate == null ? null : startDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        collection.setEndDate(endDate == null ? null : endDate.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+        if (startYear != null) {
+            collection.setStartDate(LocalDate.of(startYear, startMonth == null ? 1 : startMonth, 1)
+                    .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
+        if (endYear != null) {
+            collection.setEndDate(LocalDate.of(endYear, endMonth == null ? 12 : endMonth, 1)
+                    .atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+        }
     }
 
     public String name() {
@@ -57,11 +69,19 @@ public class CollectionEditForm {
         return description;
     }
 
-    public LocalDate startDate() {
-        return startDate;
+    public Integer startMonth() {
+        return startMonth;
     }
 
-    public LocalDate endDate() {
-        return endDate;
+    public Integer startYear() {
+        return startYear;
+    }
+
+    public Integer endMonth() {
+        return endMonth;
+    }
+
+    public Integer endYear() {
+        return endYear;
     }
 }

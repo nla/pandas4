@@ -41,7 +41,17 @@
             <label for="startDate">Time period (optional)</label>
             <div class="hint-text">For collections about events in time such as election campaigns or the Olympics.</div>
             <div>
-                <input type="date" th:field="*{startDate}"> to <input type="date" th:field="*{endDate}">
+                <!-- unfortunately input[type=month] isn't well-supported by browsers -->
+                <select th:field="*{startMonth}" style="width: auto">
+                    <option value="" th:selected="${startMonth == null}"></option>
+                    <option th:each="month: ${months}" th:text="${month.key}" th:value="${month.value}" th:selected="${startMonth == month.value}">January</option>
+                </select>
+                <input type=number min=1000 max=2999 th:field="*{startYear}" placeholder=YYYY size=4> to
+                <select th:field="*{endMonth}" style="width: auto">
+                    <option value="" th:selected="${endMonth == null}"></option>
+                    <option th:each="month: ${months}" th:text="${month.key}" th:value="${month.value}" th:selected="${endMonth == month.value}">January</option>
+                </select>
+                <input type=number min=1000 max=2999 th:field="*{endYear}" placeholder=YYYY size=4>
             </div>
         </div>
     </form>
