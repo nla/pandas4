@@ -5,6 +5,10 @@
     <title th:text="${form.id == null ? 'New Title - PANDAS' : 'Edit Title - PANDAS'}">Edit Title - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+
+    <style>
+        fieldset { margin-bottom: 12px; }
+    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
@@ -21,117 +25,130 @@
 
         <input type=hidden th:field="*{id}">
 
-        <fieldset>
-            <legend>Details</legend>
-            <label>URL: <input th:field="*{titleUrl}" required class="form-control"></label>
-            <div id="urlInfo"></div>
-            <label>Name: <input th:field="*{name}" required class="form-control"></label>
-            <label>Status:
-                <select th:field="*{status}">
-                    <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
-                </select>
-            </label>
+        <fieldset style="display: flex; margin-top: 6px">
+            <legend>Basics</legend>
+            <div style="flex-grow: 1; margin-right: 12px">
+                <label>URL <input th:field="*{titleUrl}" required class="form-control"></label>
+                <div id="urlInfo"></div>
+                <label>Name <input th:field="*{name}" required class="form-control"></label>
+            </div>
+            <div style="width: 160px">
+                <label>Status
+                    <select th:field="*{status}">
+                        <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
+                    </select>
+                </label>
+                <div>Format
+                    <label>
+                        <select th:field="*{format}">w
+                            <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
+                                    th:selected="${fmt.id == format.id}">Integrating</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
         </fieldset>
 
-        <fieldset>
-            <legend>Gather</legend>
-            <label>Method: <select th:field="*{gatherMethod}">
-                <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
-                    Heritrix
-                </option>
-            </select></label>
-            <label>Schedule: <select th:field="*{gatherSchedule}">
-                <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
-                        th:text="${schedule.name}">Weekly
-                </option>
-            </select></label>
+        <div style="display: flex">
+            <fieldset style="margin-right: 12px">
+                <legend>Gather</legend>
+                <label>Method: <select th:field="*{gatherMethod}">
+                    <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
+                        Heritrix
+                    </option>
+                </select></label>
+                <label>Schedule: <select th:field="*{gatherSchedule}">
+                    <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
+                            th:text="${schedule.name}">Weekly
+                    </option>
+                </select></label>
 
-            <fieldset>
-                <legend>One-off</legend>
+                <fieldset>
+                    <legend>One-off</legend>
 
-                <ul id="oneoffDatesList">
-                    <li th:each="date: *{oneoffDates}">
-                        <time th:datetime="${date}" th:text="${date}"></time>
-                        <button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>
-                        <input type=hidden name="oneoffDates" th:value="${date}">
-                    </li>
-                </ul>
+                    <ul id="oneoffDatesList">
+                        <li th:each="date: *{oneoffDates}">
+                            <time th:datetime="${date}" th:text="${date}"></time>
+                            <button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>
+                            <input type=hidden name="oneoffDates" th:value="${date}">
+                        </li>
+                    </ul>
 
-                <div>
-                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
-                    <button onclick="addOneoffDate()" type=button>Add</button>
-                </div>
+                    <div>
+                        <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
+                        <button onclick="addOneoffDate()" type=button>Add</button>
+                    </div>
 
-                <script>
-                    document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
+                    <script>
+                        document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
 
-                    function addOneoffDate() {
-                        var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
-                        var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
-                        var date = new Date();
-                        date.setMilliseconds(0);
-                        if (dateInput) {
-                            date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
+                        function addOneoffDate() {
+                            var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
+                            var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
+                            var date = new Date();
+                            date.setMilliseconds(0);
+                            if (dateInput) {
+                                date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
+                            }
+                            if (timeInput) {
+                                date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
+                            } else {
+                                date.setHours(0, 0, 0);
+                            }
+                            const iso = date.toISOString().replace(".000Z", "Z");
+                            if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
+                                return; // don't allow duplicates
+                            }
+                            document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
+                                '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
+                                '<button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>' +
+                                '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
                         }
-                        if (timeInput) {
-                            date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
-                        } else {
-                            date.setHours(0, 0, 0);
-                        }
-                        const iso = date.toISOString().replace(".000Z", "Z");
-                        if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
-                            return; // don't allow duplicates
-                        }
-                        document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
-                            '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
-                            '<button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>' +
-                            '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
-                    }
-                </script>
+                    </script>
+                </fieldset>
+
+
+                <details th:open="${form.seedUrls != form.titleUrl}">
+                    <summary>Options</summary>
+                    <label>
+                        Seed URLs:
+                        <textarea th:field="*{seedUrls}"></textarea>
+                    </label>
+                </details>
             </fieldset>
 
-
-            <details th:open="${form.seedUrls != form.titleUrl}">
-                <summary>Options</summary>
+            <fieldset style="margin-right: 12px">
+                <legend>Cataloguing</legend>
                 <label>
-                    Seed URLs:
-                    <textarea th:field="*{seedUrls}"></textarea>
+                    Publisher:
+                    <select></select>
                 </label>
-            </details>
-        </fieldset>
-
-        <fieldset>
-            <legend>Cataloguing</legend>
-            <div>Format:
-                <label th:each="fmt: ${allFormats}"><input type=radio th:field="*{format}" th:value="${fmt.id}">
-                    <th:block th:text="${fmt.name}">Integrating</th:block>
+                <label>
+                    Collections:
+                    <select th:field="*{collections}" id="collections" multiple>
+                        <option th:each="collection: ${allCollections}" th:value="${collection.id}"
+                                th:text="${collection.fullName}">Arts
+                        </option>
+                    </select>
                 </label>
-            </div>
-            <label>
-                Collections:
-                <select th:field="*{collections}" id="collections" multiple>
-                    <option th:each="collection: ${allCollections}" th:value="${collection.id}"
-                            th:text="${collection.fullName}">Arts
-                    </option>
-                </select>
-            </label>
-            <label>
-                Subjects:
-                <select th:field="*{subjects}" id="subjects" multiple>
-                    <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
-                            th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
-                            th:data-fullname="${subject.fullName}">Arts
-                    </option>
-                </select>
-            </label>
-            <div>
-                <label>ABND No. <input th:field="*{anbdNumber}"></label>
-                <label>Local Reference No. <input th:field="*{localReference}"></label>
-                <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
-            </div>
-            <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
-            <label>Notes: <textarea th:field="*{notes}"></textarea></label>
-        </fieldset>
+                <label>
+                    Subjects:
+                    <select th:field="*{subjects}" id="subjects" multiple>
+                        <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
+                                th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                                th:data-fullname="${subject.fullName}">Arts
+                        </option>
+                    </select>
+                </label>
+                <div>
+                    <label>ANBD No. <input th:field="*{anbdNumber}"></label>
+                    <label>Local Reference No. <input th:field="*{localReference}"></label>
+                    <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
+                </div>
+                <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
+                <label>Notes: <textarea th:field="*{notes}"></textarea></label>
+            </fieldset>
+        </div>
     </form>
 </main>
 <link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.css">
