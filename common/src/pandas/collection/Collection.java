@@ -14,6 +14,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.core.Individual;
+import pandas.util.TimeFrame;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -247,8 +248,9 @@ public class Collection {
         this.endDate = endDate;
     }
 
-    public boolean hasTimePeriod() {
-        return startDate != null || endDate != null;
+    public TimeFrame getTimeFrame() {
+        if (startDate == null && endDate == null) return null;
+        return new TimeFrame(startDate, endDate);
     }
 
     public boolean coversOneMonth() {

@@ -25,15 +25,7 @@
                     Broadcasting Corporation (ABC)</a>
             </li>
             <li class="active"><th:block th:text="${collection.name}">Television shows</th:block>
-                <span style="color: #666">
-                    <th:block th:if="${collection.coversOneMonth()}">
-                        (<time th:if="${collection.startDate != null}" th:text="${@dateFormats.monthYear.format(collection.startDate)}"></time>)
-                    </th:block>
-                    <th:block th:if="${collection.hasTimePeriod() && !collection.coversOneMonth()}">
-                        (<time th:if="${collection.startDate != null}" th:text="${@dateFormats.monthYear.format(collection.startDate)}"></time> -
-                        <time th:if="${collection.endDate != null}" th:text="${@dateFormats.monthYear.format(collection.endDate)}"></time>)
-                    </th:block>
-                </span>
+                <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
             </li>
         </ol>
     </nav>
@@ -86,6 +78,7 @@
                 <li th:each="child: ${collection.children}">
                     <a th:href="@{/collections/{id}(id=${child.id})}" th:text="${child.name}"
                        href="CollectionView.html">Documentaries</a>
+                    <span th:if="${child.timeFrame != null}" th:text="'(' + ${child.timeFrame} + ')'" class="time-frame"/>
                     <a class="title-count" th:href="@{/titles(collection=${child.id})}"
                        th:text="${child.titleCount}"
                        href="TitleSearch.html">16</a>
