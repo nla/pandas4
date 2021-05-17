@@ -42,7 +42,7 @@
                     <label>
                         <select th:field="*{format}">w
                             <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
-                                    th:selected="${fmt.id == format.id}">Integrating</option>
+                                    th:selected="${fmt == format}">Integrating</option>
                         </select>
                     </label>
                 </div>
