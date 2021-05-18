@@ -63,6 +63,7 @@ public class TitleService {
         form.setGatherSchedule(gatherScheduleRepository.findByName("Annual").orElseThrow());
         form.setSubjects(subjects);
         form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+        form.setLegalDeposit(true);
         form.setCataloguingNotRequired(true);
 
         // prefill subjects based on the collections
@@ -93,6 +94,7 @@ public class TitleService {
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
         title.setCollections(form.getCollections());
         title.setFormat(form.getFormat());
+        title.setLegalDeposit(form.isLegalDeposit());
         title.setLocalDatabaseNo(emptyToNull(form.getLocalDatabaseNo()));
         title.setLocalReference(emptyToNull(form.getLocalReference()));
         title.setName(form.getName());

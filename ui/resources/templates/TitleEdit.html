@@ -118,11 +118,7 @@
             </fieldset>
 
             <fieldset style="margin-right: 12px">
-                <legend>Cataloguing</legend>
-                <label>
-                    Publisher:
-                    <select></select>
-                </label>
+                <legend>Metadata</legend>
                 <label>
                     Collections:
                     <select th:field="*{collections}" id="collections" multiple>
@@ -140,15 +136,27 @@
                         </option>
                     </select>
                 </label>
-                <div>
-                    <label>ANBD No. <input th:field="*{anbdNumber}"></label>
-                    <label>Local Reference No. <input th:field="*{localReference}"></label>
-                    <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
-                </div>
-                <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
-                <label>Notes: <textarea th:field="*{notes}"></textarea></label>
+                <label>
+                    Publisher:
+                    <select id="publisher">
+                        <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}"></option>
+                    </select>
+                </label>
+                <label><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
+                <details th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
+                    <summary>Cataloguing</summary>
+                    <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
+                    <div>
+                        <label>ANBD No. <input th:field="*{anbdNumber}"></label>
+                        <label>Local Reference No. <input th:field="*{localReference}"></label>
+                        <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
+                    </div>
+                </details>
             </fieldset>
         </div>
+        <label>Notes: <textarea th:field="*{notes}" rows=10></textarea></label>
+
+
     </form>
 </main>
 <link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.css">
@@ -163,6 +171,9 @@
     });
     new SlimSelect({
         select: '#collections'
+    });
+    new SlimSelect({
+        select: '#publisher',
     });
     document.getElementById("titleUrl").addEventListener("change", function () {
         document.getElementById("urlInfo").innerText = "Loading...";

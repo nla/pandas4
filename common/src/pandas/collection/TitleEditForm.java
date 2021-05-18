@@ -39,6 +39,9 @@ public class TitleEditForm {
     private String notes;
     private String seedUrls;
     private Status status;
+    private boolean legalDeposit;
+
+    private Publisher publisher;
 
     public TitleEditForm() {}
 
@@ -48,11 +51,13 @@ public class TitleEditForm {
         setCollections(title.getCollections());
         setFormat(title.getFormat());
         setId(title.getId());
+        setLegalDeposit(title.getLegalDeposit());
         setLocalDatabaseNo(title.getLocalDatabaseNo());
         setLocalReference(title.getLocalReference());
         setName(title.getName());
         setNotes(title.getNotes());
         setOneoffDates(title.getGather().getOneoffDates().stream().map(GatherDate::getDate).collect(toList()));
+        setPublisher(title.getPublisher());
         setStatus(title.getStatus());
         setSubjects(title.getSubjects());
         setTitleUrl(title.getTitleUrl());
@@ -198,5 +203,21 @@ public class TitleEditForm {
 
     public void setOneoffDates(List<Instant> oneoffDates) {
         this.oneoffDates = oneoffDates;
+    }
+
+    public boolean isLegalDeposit() {
+        return legalDeposit;
+    }
+
+    public void setLegalDeposit(boolean legalDeposit) {
+        this.legalDeposit = legalDeposit;
+    }
+
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 }
