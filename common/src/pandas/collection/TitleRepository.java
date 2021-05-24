@@ -84,9 +84,11 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select t from Title t\n" +
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "and t.status.name = 'monitored'\n" +
             "and t.awaitingConfirmation = false\n" +
-            " order by t.regDate desc")
+            "and t.permission.stateName = 'Unknown'\n" +
+            "and (t.legalDeposit is null or t.legalDeposit = false)\n" +
+            "and exists (select true from StatusHistory sh where sh.title = t and sh.endDate is null and sh.status.name = 'Unknown')\n" +
+            "order by t.name asc")
     Page<Title> worktrayPermissionRequesting(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select t from Title t\n" +
