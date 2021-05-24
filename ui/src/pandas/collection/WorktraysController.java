@@ -111,7 +111,7 @@ public class WorktraysController {
         return "worktrays/Monitored";
     }
 
-    @GetMapping("/worktrays/{alias}/reqeust-permission")
+    @GetMapping("/worktrays/{alias}/request-permission")
     public String requestPermission(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
         model.addAttribute("requestPermissionTitles", titleRepository.worktrayPermissionRequesting(agencyId, ownerId, pageable));
         return "worktrays/RequestPermission";
