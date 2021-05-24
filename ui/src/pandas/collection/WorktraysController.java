@@ -97,6 +97,10 @@ public class WorktraysController {
 
     @GetMapping("/worktrays/{alias}/nominated")
     public String nominated(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
+        // nominated worktray always displays all titles from their agency regardless of owner
+        if (agencyId == null && ownerId != null) {
+            agencyId = individualRepository.findById(ownerId).orElseThrow().getAgency().getId();
+        }
         model.addAttribute("nominatedTitles", titleRepository.worktrayNominated(agencyId, null, pageable));
         return "worktrays/Nominated";
     }
