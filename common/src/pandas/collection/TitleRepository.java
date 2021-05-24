@@ -93,6 +93,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
             "and t.status.name = 'permission requested'\n" +
+            "and (t.legalDeposit is null or t.legalDeposit = false)\n" +
             " order by t.regDate desc")
     Page<Title> worktrayPermissionRequested(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
