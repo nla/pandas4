@@ -87,7 +87,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "and t.status.name = 'selected'\n" +
             "and t.awaitingConfirmation = false\n" +
             "and t.permission.stateName = 'Unknown'\n" +
-            "and (t.legalDeposit is null or t.legalDeposit = false)\n" +
+            "and t.legalDeposit = false\n" +
             "order by t.name asc")
     Page<Title> worktrayPermissionRequesting(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
@@ -95,12 +95,13 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
             "and t.status.name = 'permission requested'\n" +
-            "and (t.legalDeposit is null or t.legalDeposit = false)\n" +
+            "and t.legalDeposit = false\n" +
             " order by t.regDate desc")
     Page<Title> worktrayPermissionRequested(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select t from Title t\n" +
-            "where t.status.name = 'selected'\n" +
+            "where (t.status.name = 'permission granted'\n" +
+            "       or (t.legalDeposit = true and (t.status.name in ('selected', 'permission requested', 'permission denied', 'permission impossible'))))\n" +
             "and t.permission.state.name = 'Unknown'\n" +
             "and t.gather.nextGatherDate is null\n" +
             "and t.unableToArchive = false\n" +
