@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pandas.core.View;
 import pandas.search.SearchResults;
 
 import javax.persistence.EntityManager;
@@ -42,6 +44,19 @@ public class PublisherController {
         model.addAttribute("results", results);
         model.addAttribute("q", q);
         return "PublisherSearch";
+    }
+
+    @GetMapping(value = "/publishers.json", produces = "application/json")
+    @ResponseBody
+    @JsonView(View.Summary.class)
+    public Object json(@RequestParam(value = "q", required = true) String q, Pageable pageable) {
+        var search = Search.session(entityManager).search(Publisher.class)
+                .where(f -> f.bool(b -> {
+                    b.must(f.matchAll());
+                    if (q != null) b.must(f.simpleQueryString().field("organisation.name").matching(q).defaultOperator(AND));
+                }));
+        var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
+        return result.hits();
     }
 
     @GetMapping("/publishers/reindex")

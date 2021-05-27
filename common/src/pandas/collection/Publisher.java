@@ -1,10 +1,12 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.core.Organisation;
+import pandas.core.View;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -20,6 +22,7 @@ public class Publisher {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "PUBLISHER_SEQ")
     @SequenceGenerator(name = "PUBLISHER_SEQ", sequenceName = "PUBLISHER_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
+    @JsonView(View.Summary.class)
     private Long id;
 
     /**
@@ -45,6 +48,7 @@ public class Publisher {
     @JoinColumn(name = "PUBLISHER_TYPE_ID")
     @IndexedEmbedded(includePaths = {"id"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @JsonView(View.Summary.class)
     private PublisherType type;
 
     public String getLocalReference() {
@@ -83,6 +87,7 @@ public class Publisher {
     @KeywordField(name = "name_sort", sortable = Sortable.YES)
     @IndexingDependency(derivedFrom = {
             @ObjectPath(@PropertyValue(propertyName = "organisation"))})
+    @JsonView(View.Summary.class)
     public String getName() {
         return getOrganisation().getName();
     }

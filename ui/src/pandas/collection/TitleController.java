@@ -56,8 +56,9 @@ public class TitleController {
     private final OwnerHistoryRepository ownerHistoryRepository;
     private final StatusRepository statusRepository;
     private final UserService userService;
+    private final PublisherTypeRepository publisherTypeRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -72,6 +73,7 @@ public class TitleController {
         this.ownerHistoryRepository = ownerHistoryRepository;
         this.statusRepository = statusRepository;
         this.userService = userService;
+        this.publisherTypeRepository = publisherTypeRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -214,6 +216,7 @@ public class TitleController {
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
+        model.addAttribute("allPublisherTypes", publisherTypeRepository.findAll());
         model.addAttribute("allSubjects", classificationService.allSubjects());
 
         var statusList = new ArrayList<Status>();

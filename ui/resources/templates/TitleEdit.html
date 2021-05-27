@@ -13,7 +13,7 @@
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <form method=post class=form th:object="${form}" th:action="@{/titles}">
+    <form method=post class=form th:object="${form}" th:action="@{/titles}" onsubmit="return !!window.loaded">
         <header>
             <div>
                 <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
@@ -107,7 +107,6 @@
                     </script>
                 </fieldset>
 
-
                 <details th:open="${form.seedUrls != form.titleUrl}">
                     <summary>Options</summary>
                     <label>
@@ -139,7 +138,14 @@
                 <label>
                     Publisher:
                     <select id="publisher">
-                        <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}"></option>
+                        <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}" th:value="${form.publisher.id}"></option>
+                    </select>
+                </label>
+                <label id="publisherTypeLabel" style="display:none">
+                    Publisher Type:
+                    <select id="publisherType" required>
+                        <option></option>
+                        <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}"></option>
                     </select>
                 </label>
                 <label><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
@@ -163,6 +169,7 @@
 <script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
 <script th:inline="javascript">
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
+    var publishersEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
     new SlimSelect({
         select: '#subjects',
         searchFilter: function (option, search) {
@@ -175,7 +182,38 @@
     new SlimSelect({
         select: '#publisher',
         addable: function (value) {
-            return value;
+            return {
+                text: value,
+                value: "new" // I'd prefer to use null/empty-string but slim-js then overrides it with the text
+            };
+        },
+        ajax: function (search, callback) {
+            if (!search) {
+                callback(false);
+                return;
+            }
+            fetch(publishersEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                .then(response => response.json())
+                .then(results => {
+                    callback(results.map(publisher => {
+                        return {
+                            value: publisher.id,
+                            text: publisher.name
+                        }
+                    }));
+                }).catch(error => {
+                    console.log("Publisher search failed: ", error);
+                    callback(false)
+                });
+        },
+        onChange: function (info) {
+            if (info.value === "new") {
+                document.getElementById("publisherType").selectedIndex = 0;
+                document.getElementById("publisherTypeLabel").style.display = "inherit";
+            } else {
+                document.getElementById("publisherTypeLabel").style.display = "none";
+            }
+            console.log(info);
         }
     });
     document.getElementById("titleUrl").addEventListener("change", function () {
@@ -193,4 +231,8 @@
                 }
             });
     });
+
+    // we keep the form disabled until the page is fully loaded
+    // otherwise it could be submitted with partial values which results in data loss
+    window.loaded = true;
 </script>

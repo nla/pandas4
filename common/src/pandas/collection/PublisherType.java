@@ -1,7 +1,9 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import pandas.core.View;
 
 import javax.persistence.*;
 
@@ -13,12 +15,14 @@ public class PublisherType {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PUBLISHER_TYPE_SEQ")
     @SequenceGenerator(name = "PUBLISHER_TYPE_SEQ", sequenceName = "PUBLISHER_TYPE_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
+    @JsonView(View.Summary.class)
     private Long id;
 
     @Column(name = "PUBLISHER_DESCRIPTION")
     private String description;
 
     @Column(name = "PUBLISHER_TYPE")
+    @JsonView(View.Summary.class)
     private String name;
 
     public String getDescription() {
