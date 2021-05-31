@@ -36,8 +36,9 @@ public class InstanceController {
     private final InstanceThumbnailProcessor thumbnailProcessor;
     private final AgencyRepository agencyRepository;
     private final IndividualRepository individualRepository;
+    private final IssueRepository issueRepository;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository, IssueRepository issueRepository) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
@@ -46,6 +47,7 @@ public class InstanceController {
         this.thumbnailProcessor = thumbnailProcessor;
         this.agencyRepository = agencyRepository;
         this.individualRepository = individualRepository;
+        this.issueRepository = issueRepository;
     }
 
     @GetMapping("/instances/{id}")
@@ -96,10 +98,14 @@ public class InstanceController {
     @PostMapping("/instances/{id}/archive")
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     public String archive(@PathVariable("id") Instance instance,
-                          @RequestParam(value = "publish", defaultValue = "false") boolean publish,
                           @RequestParam(value = "nextInstance", required = false) Long nextInstance,
                           @RequestParam(value = "worktray", required = false) String worktray) {
-        instanceService.archive(instance, userService.getCurrentUser(), publish);
+        boolean publishImmediately = true;
+        if (issueRepository.existForTitle(instance.getTitle())) {
+            // title has issues so they probably need to be manually updated
+            publishImmediately = false;
+        }
+        instanceService.archive(instance, userService.getCurrentUser(), publishImmediately);
         if (nextInstance != null) {
             return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
         }
