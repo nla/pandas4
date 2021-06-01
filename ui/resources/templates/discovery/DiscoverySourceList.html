@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Discovery Sources - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+    <header>
+        <nav><a th:href="@{/discovery-sources/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New Source</a></nav>
+    </header>
+
+    <h2>Discovery Sources</h2>
+
+    <ul>
+        <li th:each="source: ${sources}"><a th:text="${source.name}" th:href="@{/discovery-sources/{id}(id=${source.id})}"></a></li>
+    </ul>
+</main>

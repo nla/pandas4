@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Discovery Source - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+
+    <header>
+        <nav>
+            <button type="submit" data-keybind="s" class="btn btn-primary" form=editForm><i class="icon save"></i>Save</button>
+            <button onclick="history.back(); return false" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i> Cancel</button>
+        </nav>
+        <button th:if="${source != null}" type="submit" th:formaction="@{|/discovery-sources/${source.id}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
+    </header>
+
+    <form method=post class=form th:object="${form}" id=editForm>
+        <label>Name <input th:field="*{name}" required></label>
+        <label>URL <input th:field="*{url}"></label>
+        <fieldset>
+            <legend>Spider options</legend>
+            <label>Item CSS query <input th:field="*{itemQuery}"></label>
+            <label>Item name CSS query <input th:field="*{itemNameQuery}"></label>
+            <label>Item link CSS query <input th:field="*{itemLinkQuery}"></label>
+            <label>Item description CSS query <input th:field="*{itemDescriptionQuery}"></label>
+            <label>Link CSS query <input th:field="*{linkQuery}"></label>
+        </fieldset>
+    </form>
+</main>

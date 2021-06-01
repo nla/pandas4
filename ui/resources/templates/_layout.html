@@ -52,6 +52,9 @@
                href=PageSearch.html>
             <i class="icon http"></i>
             Pages</a></li>
+        <li><a th:href="@{/discoveries}" data-keybind=7 href=discovery/DiscoverySearch.html
+               th:classappend="${#request.servletPath.matches('/discoveries($|/.*)')}? 'active'">
+            <i class="icon discovery"></i> Discover</a></li>
     </ul>
 
     <ul>

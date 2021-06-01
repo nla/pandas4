@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Discover - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main class="search">
+    <form id="sf" th:action="@{/discoveries}">
+        <!-- hidden default submit button (otherwise the export buttons will be the default!) -->
+        <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+    </form>
+
+    <header>
+        <nav>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_DISCOVERY_SOURCES')" th:href="@{/discovery-sources}"
+               href="DiscoverySourceList.html" class="btn btn-secondary">Configure Sources</a>
+        </nav>
+        <input type=search name="q" th:value="${q}" placeholder="Search Discoveries" data-keybind="f" form=sf>
+    </header>
+
+    <label><input form=sf type=checkbox th:checked="${showDotAu}" name="showDotAu" onchange="this.form.submit()"> Show .au</label>
+    <label><input form=sf type=checkbox th:checked="${showAlreadySelected}" name="showAlreadySelected" onchange="this.form.submit()"> Show already selected</label>
+
+    <table>
+        <tr>
+            <td>Name</td>
+            <td>Source</td>
+            <td>Matching title</td>
+        </tr>
+        <tr th:each="discovery : ${discoveries}">
+            <td><a th:text="${discovery.name}" th:href="${discovery.url}"></a></td>
+            <td><a th:text="${discovery.source?.name}" th:href="${discovery.sourceUrl}"></a></td>
+            <td><a th:if="${discovery.title != null}" th:text="${discovery.title.name}" th:href="@{/titles/{id}(id=${discovery.title.id})}"></a></td>
+        </tr>
+    </table>
+
+    <nav class="pagination">
+        <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind=","
+                th:value="${discoveries.hasPrevious() ? discoveries.previousPageable().pageNumber : ''}"
+                tabindex="-1" th:disabled="${!discoveries.hasPrevious()}"><i class="icon previous"></i>Previous</button>
+        <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind="."
+                th:value="${discoveries.hasNext() ? discoveries.nextPageable().pageNumber : ''}"
+                th:disabled="${!discoveries.hasNext()}">Next<i class="icon icon-right next"></i></button>
+    </nav>
+</main>
