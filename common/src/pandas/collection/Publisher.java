@@ -34,7 +34,7 @@ public class Publisher {
     @Column(name = "NOTES", length = 4000)
     private String notes;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ORGANISATION_ID")
     @IndexedEmbedded(includePaths = {"id", "name"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static pandas.util.Strings.emptyToNull;
 
 public class TitleEditForm {
     private Long id;
@@ -42,6 +43,8 @@ public class TitleEditForm {
     private boolean legalDeposit;
 
     private Publisher publisher;
+    private String publisherName;
+    private PublisherType publisherType;
 
     public TitleEditForm() {}
 
@@ -219,5 +222,21 @@ public class TitleEditForm {
 
     public void setPublisher(Publisher publisher) {
         this.publisher = publisher;
+    }
+
+    public String getPublisherName() {
+        return publisherName;
+    }
+
+    public void setPublisherName(String publisherName) {
+        this.publisherName = emptyToNull(publisherName);
+    }
+
+    public PublisherType getPublisherType() {
+        return publisherType;
+    }
+
+    public void setPublisherType(PublisherType publisherType) {
+        this.publisherType = publisherType;
     }
 }

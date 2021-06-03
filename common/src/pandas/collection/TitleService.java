@@ -6,11 +6,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.core.Individual;
+import pandas.core.Organisation;
 import pandas.core.Utils;
 import pandas.gather.GatherMethodRepository;
 import pandas.gather.GatherScheduleRepository;
 import pandas.gather.TitleGather;
 import pandas.gather.TitleGatherRepository;
+import pandas.util.Strings;
 
 import java.time.Instant;
 import java.util.*;
@@ -27,12 +29,13 @@ public class TitleService {
     private final OwnerHistoryRepository ownerHistoryRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
+    private final PublisherRepository publisherRepository;
 
     public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
                         StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
-                        GatherScheduleRepository gatherScheduleRepository) {
+                        GatherScheduleRepository gatherScheduleRepository, PublisherRepository publisherRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
@@ -41,6 +44,7 @@ public class TitleService {
         this.ownerHistoryRepository = ownerHistoryRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
+        this.publisherRepository = publisherRepository;
     }
 
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
@@ -78,10 +82,6 @@ public class TitleService {
         return form;
     }
 
-    private static String emptyToNull(String s) {
-        return s != null && s.isEmpty() ? null : s;
-    }
-
     @Transactional
     @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
     public Title save(TitleEditForm form, Individual user) {
@@ -90,13 +90,13 @@ public class TitleService {
         if (form.getId() == null) {
             title.setRegDate(now);
         }
-        title.setAnbdNumber(emptyToNull(form.getAnbdNumber()));
+        title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
         title.setCollections(form.getCollections());
         title.setFormat(form.getFormat());
         title.setLegalDeposit(form.isLegalDeposit());
-        title.setLocalDatabaseNo(emptyToNull(form.getLocalDatabaseNo()));
-        title.setLocalReference(emptyToNull(form.getLocalReference()));
+        title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
+        title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
         title.setName(form.getName());
         title.setShortDisplayName(form.getName().length() > 60 ? (form.getName().substring(0, 60) + "...") : form.getName());
         title.setNotes(form.getNotes());
@@ -139,6 +139,18 @@ public class TitleService {
             title.setDefaultPermission(permission);
             title.setPermission(permission);
         }
+
+        // create or update publisher
+        Publisher publisher = form.getPublisher();
+        if (publisher == null && form.getPublisherName() != null) { // create new
+            Organisation organisation = new Organisation();
+            organisation.setName(form.getPublisherName());
+            publisher = new Publisher();
+            publisher.setOrganisation(organisation);
+            publisher.setType(form.getPublisherType());
+            publisher = publisherRepository.save(publisher);
+        }
+        title.setPublisher(publisher);
 
         titleRepository.save(title);
 

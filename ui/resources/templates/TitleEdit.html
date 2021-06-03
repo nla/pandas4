@@ -137,13 +137,15 @@
                 </label>
                 <label>
                     Publisher:
+                    <input id="publisherId" type="hidden" name="publisher" th:value="*{publisher?.id}">
+                    <input id="publisherName" type="hidden" name="publisherName">
                     <select id="publisher">
                         <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}" th:value="${form.publisher.id}"></option>
                     </select>
                 </label>
                 <label id="publisherTypeLabel" style="display:none">
                     Publisher Type:
-                    <select id="publisherType" required>
+                    <select id="publisherType" name="publisherType">
                         <option></option>
                         <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}"></option>
                     </select>
@@ -181,6 +183,7 @@
     });
     new SlimSelect({
         select: '#publisher',
+        allowDeselect: true,
         addable: function (value) {
             return {
                 text: value,
@@ -208,9 +211,29 @@
         },
         onChange: function (info) {
             if (info.value === "new") {
+                document.getElementById("publisherId").value = "";
+                document.getElementById("publisherName").value = info.text;
                 document.getElementById("publisherType").selectedIndex = 0;
+                document.getElementById("publisherType").required = true;
                 document.getElementById("publisherTypeLabel").style.display = "inherit";
+
+                const urlString = document.getElementById("titleUrl").value;
+                if (urlString) {
+                    const host = new URL(urlString).host;
+                    const publisherTypeOptions = document.getElementById("publisherType").options;
+                    for (let i = 0; i < publisherTypeOptions.length; i++) {
+                        let option = publisherTypeOptions[i];
+                        if (option.data.suffix && host.endsWith(option.data.suffix)) {
+                            document.getElementById("publisherType").selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
             } else {
+                document.getElementById("publisherId").value = info.value === undefined ? "" : info.value;
+                document.getElementById("publisherName").value = "";
+                document.getElementById("publisherType").selectedIndex = 0;
+                document.getElementById("publisherType").required = false;
                 document.getElementById("publisherTypeLabel").style.display = "none";
             }
             console.log(info);
