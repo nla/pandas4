@@ -25,6 +25,9 @@ public class PublisherType {
     @JsonView(View.Summary.class)
     private String name;
 
+    @Column(name = "DOMAIN_SUFFIXES")
+    private String domainSuffixes;
+
     public String getDescription() {
         return this.description;
     }
@@ -47,5 +50,13 @@ public class PublisherType {
 
     public void setId(Long publisherTypeId) {
         this.id = publisherTypeId;
+    }
+
+    public String getDomainSuffixes() {
+        return domainSuffixes;
+    }
+
+    public void setDomainSuffixes(String domainSuffixes) {
+        this.domainSuffixes = domainSuffixes;
     }
 }

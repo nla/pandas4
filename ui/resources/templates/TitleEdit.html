@@ -147,7 +147,7 @@
                     Publisher Type:
                     <select id="publisherType" name="publisherType">
                         <option></option>
-                        <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}"></option>
+                        <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
                     </select>
                 </label>
                 <label><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
@@ -221,11 +221,18 @@
                 if (urlString) {
                     const host = new URL(urlString).host;
                     const publisherTypeOptions = document.getElementById("publisherType").options;
+
+                    // try to preselect an appropraite publisher type based on the domain suffix
+                    outer:
                     for (let i = 0; i < publisherTypeOptions.length; i++) {
-                        let option = publisherTypeOptions[i];
-                        if (option.data.suffix && host.endsWith(option.data.suffix)) {
-                            document.getElementById("publisherType").selectedIndex = i;
-                            break;
+                        const option = publisherTypeOptions[i];
+                        if (option.dataset.domainsuffixes) {
+                            for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
+                                if (host.endsWith(suffix)) {
+                                    document.getElementById("publisherType").selectedIndex = i;
+                                    break outer;
+                                }
+                            }
                         }
                     }
                 }
@@ -236,7 +243,6 @@
                 document.getElementById("publisherType").required = false;
                 document.getElementById("publisherTypeLabel").style.display = "none";
             }
-            console.log(info);
         }
     });
     document.getElementById("titleUrl").addEventListener("change", function () {
