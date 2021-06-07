@@ -102,9 +102,6 @@ public class TitleService {
         title.setNotes(form.getNotes());
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
-        if (title.getSeedUrl() == null || title.getSeedUrl().isBlank()) {
-            title.setSeedUrl(form.getTitleUrl());
-        }
         boolean statusChanged = false;
         if (!Objects.equals(title.getStatus(), form.getStatus())) {
             title.setStatus(form.getStatus());
@@ -114,11 +111,14 @@ public class TitleService {
             title.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
             statusChanged = true;
         }
-        String[] seeds = form.getSeedUrls() == null ? new String[0] : form.getSeedUrls().split("\n+");
-        if (seeds.length > 0) {
-            title.setSeedUrl(seeds[0]);
-        } else {
+
+        // set seed url
+        String[] seeds = new String[0];
+        if (Strings.isNullOrBlank(form.getSeedUrls())) {
             title.setSeedUrl(form.getTitleUrl());
+        } else {
+            seeds = form.getSeedUrls().split("\\s+");
+            title.setSeedUrl(seeds[0]);
         }
 
         if (title.getId() == null) {
@@ -189,7 +189,7 @@ public class TitleService {
         titleGather.setSchedule(form.getGatherSchedule());
         titleGather.setMethod(form.getGatherMethod());
         if (seeds.length > 1) {
-            titleGather.setAdditionalUrls(String.join("\n", Arrays.copyOfRange(seeds, 1, seeds.length)));
+            titleGather.setAdditionalUrls(String.join(" ", Arrays.copyOfRange(seeds, 1, seeds.length)));
         } else {
             titleGather.setAdditionalUrls(null);
         }
