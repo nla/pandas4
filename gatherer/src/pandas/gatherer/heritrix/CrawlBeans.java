@@ -49,7 +49,7 @@ class CrawlBeans {
 
     private static void writeCrawlXml(Config config, Instance instance, Path jobDir) throws IOException {
         Document doc;
-        try (InputStream stream = CrawlBeans.class.getResourceAsStream("crawler-beans.cxml")) {
+        try (InputStream stream = CrawlBeans.class.getResourceAsStream("/pandas/crawlconfig/crawler-beans.cxml")) {
             doc = docBuilderFactory.newDocumentBuilder().parse(stream);
         } catch (SAXException | ParserConfigurationException e) {
             throw new RuntimeException("error parsing crawler-beans.cxml", e);
