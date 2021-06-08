@@ -122,11 +122,6 @@ public class HeritrixJobConfig {
         }
         globals.put("warcWriter.prefix", name);
 
-        globals.forEach((key, value) -> {
-            String[] keyParts = key.toString().split("\\.");
-            setBeanProperty(doc, keyParts[0], keyParts[1], value.toString());
-        });
-
         Element simpleOverrides = Xml.select(doc, "/beans:beans/beans:bean[@id='simpleOverrides']/beans:property/beans:value");
         StringWriter writer = new StringWriter();
         try {
