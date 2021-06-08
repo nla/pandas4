@@ -16,7 +16,7 @@ public class HeritrixJobConfigTest {
         CrawlConfig crawlConfig = new CrawlConfig("test", List.of(new Seed("http://example.com/"),
                 new Seed("http://example.org/subdir/")));
         String xml = new HeritrixJobConfig(crawlConfig).toXml();
-        System.out.println(xml);
+        //System.out.println(xml);
     }
 
     @Test
