@@ -101,7 +101,7 @@ public class Pandora2Warc {
         "WARC-Target-URI: http://pandora.nla.gov.au/pan/" + encodedPath + "\r\n" +
         "WARC-Record-ID: <urn:uuid:" + UUID.randomUUID() + ">\r\n" +
         "WARC-Date: "  + dateFmt.format (cdate) + "\r\n" +
-        "WARC-Block-Digest: sha1:" + sha1File(file) + "\r\n" +
+        "WARC-Block-Digest: " + sha1File(file) + "\r\n" +
         "Content-Type: " + contentType + "\r\n" +
         "Content-Length: " + Files.size(file) + "\r\n" +
         "\r\n";
