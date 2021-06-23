@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
@@ -14,6 +15,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.core.Individual;
+import pandas.core.View;
 import pandas.util.TimeFrame;
 
 import javax.persistence.*;
@@ -38,6 +40,7 @@ public class Collection {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
     @SequenceGenerator(name = "COL_SEQ", sequenceName = "COL_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
+    @JsonView(View.Summary.class)
     private Long id;
 
     @Lob
@@ -48,6 +51,7 @@ public class Collection {
     private String thumbnailUrl;
 
     @FullTextField(analyzer = "english")
+    @JsonView(View.Summary.class)
     private String name;
 
     @ManyToOne
@@ -147,6 +151,7 @@ public class Collection {
     @IndexingDependency(derivedFrom = {
             @ObjectPath(@PropertyValue(propertyName = "name")),
             @ObjectPath(@PropertyValue(propertyName = "parent"))})
+    @JsonView(View.Summary.class)
     public String getFullName() {
         if (fullName == null) {
             StringBuilder sb = new StringBuilder();

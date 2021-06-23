@@ -16,9 +16,10 @@ public class CollectionEditForm {
     private final Integer startYear;
     private final Integer endMonth;
     private final Integer endYear;
+    private final Collection parent;
 
     public CollectionEditForm(String name, List<Subject> subjects, String description, Integer startMonth,
-                              Integer startYear, Integer endMonth, Integer endYear) {
+                              Integer startYear, Integer endMonth, Integer endYear, Collection parent) {
         this.name = name;
         this.subjects = subjects;
         this.description = description;
@@ -26,6 +27,7 @@ public class CollectionEditForm {
         this.startYear = startYear;
         this.endMonth = endMonth;
         this.endYear = endYear;
+        this.parent = parent;
     }
 
     public static CollectionEditForm of(Collection collection) {
@@ -42,13 +44,14 @@ public class CollectionEditForm {
             endYear = endDate.getYear();
         }
         return new CollectionEditForm(collection.getName(), collection.getSubjects(), collection.getDescription(),
-                startMonth, startYear, endMonth, endYear);
+                startMonth, startYear, endMonth, endYear, collection.getParent());
     }
 
     public void applyTo(Collection collection) {
         collection.setName(name.trim());
         collection.setSubjects(subjects);
         collection.setDescription(description != null && !description.isBlank() ? description.trim() : null);
+        collection.setParent(parent);
         if (startYear != null) {
             collection.setStartDate(LocalDate.of(startYear, startMonth == null ? 1 : startMonth, 1)
                     .atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -86,5 +89,9 @@ public class CollectionEditForm {
 
     public Integer endYear() {
         return endYear;
+    }
+
+    public Collection parent() {
+        return parent;
     }
 }

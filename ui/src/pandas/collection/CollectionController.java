@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pandas.core.NotFoundException;
+import pandas.core.View;
 import pandas.search.SearchResults;
 
 import javax.persistence.EntityManager;
@@ -93,13 +95,13 @@ public class CollectionController {
 
     @GetMapping("/collections/new")
     @PreAuthorize("hasAuthority('PRIV_EDIT_COLLECTIONS')")
-    public String newForm(@RequestParam(value = "parent", required = false) Long parentId,
+    public String newForm(@RequestParam(value = "parent", required = false) Collection parent,
                           @RequestParam(value = "subject", required = false) List<Subject> subjects,
                           Model model) {
         Collection collection = new Collection();
+        collection.setParent(parent);
         collection.setSubjects(subjects);
         model.addAttribute("form", CollectionEditForm.of(collection));
-        model.addAttribute("parentId", parentId);
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
         return "CollectionEdit";
     }
@@ -120,4 +122,18 @@ public class CollectionController {
         Search.session(entityManager).massIndexer(Collection.class).startAndWait();
         return "OK";
     }
+
+    @GetMapping(value = "/collections.json", produces = "application/json")
+    @ResponseBody
+    @JsonView(View.Summary.class)
+    public Object json(@RequestParam(value = "q", required = true) String q, Pageable pageable) {
+        var search = Search.session(entityManager).search(Collection.class)
+                .where(f -> f.bool(b -> {
+                    b.must(f.matchAll());
+                    if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
+                }));
+        var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
+        return result.hits();
+    }
+
 }
