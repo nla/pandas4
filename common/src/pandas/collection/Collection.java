@@ -39,7 +39,7 @@ public class Collection {
     @Column(name = "COL_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
     @SequenceGenerator(name = "COL_SEQ", sequenceName = "COL_SEQ", allocationSize = 1)
-    @GenericField(aggregable = Aggregable.YES)
+    @GenericField(aggregable = Aggregable.YES, sortable = Sortable.YES)
     @JsonView(View.Summary.class)
     private Long id;
 
