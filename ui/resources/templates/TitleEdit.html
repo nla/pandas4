@@ -130,8 +130,8 @@
                 <label>
                     Collections:
                     <select th:field="*{collections}" id="collections" multiple>
-                        <option th:each="collection: ${collections}" th:value="${collection.id}"
-                                th:text="${collection.fullName}">Arts
+                        <option th:each="collection: ${form.collections}" th:value="${collection.id}"
+                                th:text="${collection.fullName}" selected>Arts
                         </option>
                     </select>
                 </label>
