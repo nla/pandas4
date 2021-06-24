@@ -72,7 +72,7 @@
     </section>
     <p>
 
-        <section>
+        <section th:unless="${collection.children.isEmpty()}">
             <h5>Subcollections</h5>
             <ul class="subcategories">
                 <li th:each="child: ${collection.children}">
@@ -86,7 +86,7 @@
             </ul>
         </section>
 
-        <section>
+        <section th:unless="${collection.titles.isEmpty()}">
             <h5>Titles</h5>
             <div th:each="title: ${collection.titles}">
                 <div th:replace="TitleSearch.html :: title-card(omitCollection=${collection})">
