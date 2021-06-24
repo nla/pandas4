@@ -88,10 +88,9 @@
 
         <section>
             <h5>Titles</h5>
-            <ul class="subcategories">
-                <li th:each="title: ${collection.titles}">
-                    <a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="TitleView.html">Australian story</a>
-                </li>
-            </ul>
+            <div th:each="title: ${collection.titles}">
+                <div th:replace="TitleSearch.html :: title-card(omitCollection=${collection})">
+                </div>
+            </div>
         </section>
 </main>

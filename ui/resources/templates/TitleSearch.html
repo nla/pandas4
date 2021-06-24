@@ -76,7 +76,7 @@
         </header>
         <ol start="${results.pageable.offset + 1}">
             <li th:each="title: ${results}">
-                <div class="title-card" th:fragment="title-card">
+                <div class="title-card" th:fragment="title-card" th:with="omitCollection = ${omitCollection ?: null}">
                     <a th:href="@{|/titles/${title.id}|}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
                     <div>
                         <header>
@@ -103,7 +103,7 @@
                         </div>
                         <div>
                             <ul class="collection-list">
-                                <li th:each="collection: ${title.collections}">
+                                <li th:each="collection: ${title.collections}" th:unless="${collection == omitCollection}">
                                     <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}"
                                        href="CollectionView.html">National peak sporting bodies</a>
                                 </li>
