@@ -130,7 +130,7 @@
                 <label>
                     Collections:
                     <select th:field="*{collections}" id="collections" multiple>
-                        <option th:each="collection: ${allCollections}" th:value="${collection.id}"
+                        <option th:each="collection: ${collections}" th:value="${collection.id}"
                                 th:text="${collection.fullName}">Arts
                         </option>
                     </select>
@@ -172,6 +172,8 @@
 <script th:inline="javascript">
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
     var publishersEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
+    var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
+
     new SlimSelect({
         select: '#subjects',
         searchFilter: function (option, search) {
@@ -179,7 +181,14 @@
         }
     });
     new SlimSelect({
-        select: '#collections'
+        select: '#collections',
+        ajax: function (search, callback) {
+            if (!search) return callback(false);
+            fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                .then(response => response.json())
+                .then(results => callback(results.map(collection => ({value: collection.id, text: collection.fullName}))))
+                .catch(error => callback(false));
+        },
     });
     new SlimSelect({
         select: '#publisher',

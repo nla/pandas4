@@ -8,19 +8,13 @@ import static pandas.core.Utils.sortBy;
 
 @Service
 public class ClassificationService {
-    private final CollectionRepository collectionRepository;
     private final SubjectRepository subjectRepository;
 
-    public ClassificationService(CollectionRepository collectionRepository, SubjectRepository subjectRepository) {
-        this.collectionRepository = collectionRepository;
+    public ClassificationService(SubjectRepository subjectRepository) {
         this.subjectRepository = subjectRepository;
     }
 
     public List<Subject> allSubjects() {
         return sortBy(subjectRepository.findAll(), Subject::getFullName);
-    }
-
-    public List<Collection> allCollections() {
-        return sortBy(collectionRepository.findAll(), Collection::getFullName);
     }
 }

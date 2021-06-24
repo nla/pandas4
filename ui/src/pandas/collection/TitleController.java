@@ -212,7 +212,6 @@ public class TitleController {
     public String edit(@PathVariable("id") Title title, Model model) {
         TitleEditForm form = titleService.editForm(title);
         model.addAttribute("form", form);
-        model.addAttribute("allCollections", classificationService.allCollections());
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
@@ -242,7 +241,6 @@ public class TitleController {
                          Model model) {
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         model.addAttribute("form", form);
-        model.addAttribute("allCollections", classificationService.allCollections());
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());

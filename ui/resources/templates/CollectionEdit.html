@@ -70,12 +70,12 @@
 <script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}"></script>
 <script th:inline="javascript">
     var collectionId = /*[[${collection?.id ?: null}]]*/ null;
-    var publishersEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
+    var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
     new SlimSelect({
         select: '#parent',
         ajax: function (search, callback) {
             if (!search) return callback(false);
-            fetch(publishersEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+            fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
                 .then(response => response.json())
                 .then(results => callback(results.filter(c => c.id !== collectionId)
                     .map(collection => ({value: collection.id, text: collection.fullName}))))
