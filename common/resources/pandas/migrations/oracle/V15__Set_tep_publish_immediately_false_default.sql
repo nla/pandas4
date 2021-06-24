@@ -1,0 +1,2 @@
+alter table TEP modify PUBLISH_IMMEDIATELY default 0;
+update TEP set PUBLISH_IMMEDIATELY = 0 where PUBLISH_IMMEDIATELY = 1;

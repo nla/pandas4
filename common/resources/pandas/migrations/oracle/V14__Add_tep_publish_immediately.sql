@@ -1,0 +1,1 @@
+alter table TEP add PUBLISH_IMMEDIATELY NUMBER(1) default 1 not null;
