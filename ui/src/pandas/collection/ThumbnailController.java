@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +12,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import pandas.core.NotFoundException;
+import pandas.gather.InstanceThumbnail;
+import pandas.gather.InstanceThumbnailRepository;
 
 @Controller
 public class ThumbnailController {
     private final ThumbnailProcessor thumbnailProcessor;
     private final ThumbnailRepository thumbnailRepository;
+    private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public ThumbnailController(ThumbnailProcessor thumbnailProcessor, ThumbnailRepository thumbnailRepository) {
+    public ThumbnailController(ThumbnailProcessor thumbnailProcessor, ThumbnailRepository thumbnailRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.thumbnailProcessor = thumbnailProcessor;
         this.thumbnailRepository = thumbnailRepository;
+        this.instanceThumbnailRepository = instanceThumbnailRepository;
     }
 
     @GetMapping("/thumbnails/{id}/edit")
@@ -40,6 +45,15 @@ public class ThumbnailController {
 
     @GetMapping("/titles/{titleId}/thumbnail/image")
     public ResponseEntity<byte[]> forTitle(@PathVariable("titleId") long titleId, WebRequest request) {
+        var instanceThumbnails = instanceThumbnailRepository.findForTitleId(titleId, PageRequest.of(0, 1));
+        if (!instanceThumbnails.isEmpty()) {
+            InstanceThumbnail thumbnail = instanceThumbnails.get(0);
+            return ResponseEntity.status(200)
+                    .cacheControl(CacheControl.noCache())
+                    .lastModified(thumbnail.getLastModifiedDate())
+                    .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
+                    .body(thumbnail.getData());
+        }
         Thumbnail thumbnail = thumbnailRepository.findFirstByTitleId(titleId);
         if (thumbnail == null) throw new NotFoundException("titleId = " + titleId);
         if (request.checkNotModified(thumbnail.getLastModifiedDate().toEpochMilli())) {
