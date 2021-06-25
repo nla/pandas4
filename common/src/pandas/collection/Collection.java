@@ -16,6 +16,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.core.Individual;
 import pandas.core.View;
+import pandas.gather.GatherSchedule;
 import pandas.util.TimeFrame;
 
 import javax.persistence.*;
@@ -88,6 +89,10 @@ public class Collection {
 
     private Instant endDate;
 
+    @ManyToOne
+    @JoinColumn(name = "GATHER_SCHEDULE_ID")
+    private GatherSchedule gatherSchedule;
+
     @CreatedDate
     private Instant createdDate;
 
@@ -157,7 +162,7 @@ public class Collection {
             StringBuilder sb = new StringBuilder();
             for (Collection c : getCollectionBreadcrumbs()) {
                 sb.append(c.getName());
-                sb.append(" / ");
+                sb.append("—");
             }
             sb.append(getName());
             fullName = sb.toString();
@@ -295,5 +300,17 @@ public class Collection {
 
     public void setLastModifiedBy(Individual lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public GatherSchedule getGatherSchedule() {
+        return gatherSchedule;
+    }
+
+    public void setGatherSchedule(GatherSchedule gatherSchedule) {
+        if (gatherSchedule == this.gatherSchedule) return;
+        this.gatherSchedule = gatherSchedule;
+        for (Title title: getTitles()) {
+            title.getGather().calculateNextGatherDate();
+        }
     }
 }

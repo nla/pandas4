@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pandas.core.NotFoundException;
 import pandas.core.View;
+import pandas.gather.GatherService;
 import pandas.search.SearchResults;
 
 import javax.persistence.EntityManager;
@@ -28,11 +29,13 @@ public class CollectionController {
     private final CollectionRepository collectionRepository;
     private final EntityManager entityManager;
     private final SubjectRepository subjectRepository;
+    private final GatherService gatherService;
 
-    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository) {
+    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository, GatherService gatherService) {
         this.collectionRepository = collectionRepository;
         this.entityManager = entityManager;
         this.subjectRepository = subjectRepository;
+        this.gatherService = gatherService;
     }
 
     @GetMapping("/collections")
@@ -75,6 +78,7 @@ public class CollectionController {
         model.addAttribute("collection", collection);
         model.addAttribute("form", CollectionEditForm.of(collection));
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
+        model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
         return "CollectionEdit";
     }
 
@@ -103,6 +107,7 @@ public class CollectionController {
         collection.setSubjects(subjects);
         model.addAttribute("form", CollectionEditForm.of(collection));
         model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
+        model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
         return "CollectionEdit";
     }
 

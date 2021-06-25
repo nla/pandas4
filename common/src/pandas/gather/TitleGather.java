@@ -9,6 +9,7 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextFi
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
+import pandas.collection.Status;
 import pandas.collection.Title;
 
 import javax.persistence.*;
@@ -301,20 +302,33 @@ public class TitleGather {
     }
 
     public void calculateNextGatherDate() {
-        Instant nextOneOff = getOneoffDates().isEmpty() ? null : Collections.min(getOneoffDates(), comparing(GatherDate::getDate)).getDate();
-        GatherSchedule schedule = getSchedule();
-        Instant nextScheduled;
-        if (schedule == null) {
-            nextScheduled = null;
-        } else {
-            nextScheduled = schedule.calculateNextTime(getLastGatherDate());
+        if (title.getStatus().getId().equals(Status.CEASED_ID)) {
+            setNextGatherDate(null);
+            return;
         }
-        Instant next;
-        if (nextScheduled == null || (nextOneOff != null && nextOneOff.isBefore(nextScheduled))) {
-            next = nextOneOff;
-        } else {
-            next = nextScheduled;
+
+        Instant next = Instant.MAX;
+
+        // first check the earliest one-off date
+        if (!getOneoffDates().isEmpty()) {
+            Instant date = Collections.min(getOneoffDates(), comparing(GatherDate::getDate)).getDate();
+            if (date.isBefore(next)) next = date;
         }
+
+        // next try the title-level scheduled date
+        if (getSchedule() != null) {
+            Instant date = getSchedule().calculateNextTime(getLastGatherDate());
+            if (date != null && date.isBefore(next)) next = date;
+        }
+
+        // now see if any collections have schedules
+        for (var collection: getTitle().getCollections()) {
+            if (collection.getGatherSchedule() == null) continue;
+            Instant date = collection.getGatherSchedule().calculateNextTime(getLastGatherDate());
+            if (date != null && date.isBefore(next)) next = date;
+        }
+
+        if (next == Instant.MAX) next = null;
         setNextGatherDate(next);
     }
 

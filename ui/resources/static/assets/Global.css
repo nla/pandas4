@@ -446,7 +446,7 @@ ul.subject-list a {
     color: teal;
 }
 
-ul.collection-list a {
+ul.collection-list a, .collection-link {
     color: saddlebrown;
 }
 

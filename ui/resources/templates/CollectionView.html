@@ -2,7 +2,7 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="|${collection.name} (Collection) - PANDAS|">Television shows (Collection) - PANDAS</title>
+    <title th:text="|${collection.fullName} - PANDAS|">Television shows (Collection) - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
@@ -66,6 +66,10 @@
                         <li><a href="#">Sport</a></li>
                     </ul>
                 </td>
+            </tr>
+            <tr th:if="${collection.gatherSchedule != null && !collection.gatherSchedule.isNone()}">
+                <th>Gather Schedule:</th>
+                <td th:text="${collection.gatherSchedule.name}"></td>
             </tr>
         </table>
         <div th:utext="${@htmlSanitizer.sanitize(collection.description)}">This is a description.</div>

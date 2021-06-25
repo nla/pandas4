@@ -52,6 +52,13 @@
         <div style="display: flex">
             <fieldset style="margin-right: 12px">
                 <legend>Gather</legend>
+
+                <div th:each="collection: ${form.collections}" th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
+                     style="color: #555; margin-bottom: 8px; font-style: italic; ">
+                    Also gathered <strong th:text="${collection.gatherSchedule.name}">Daily</strong> as part of
+                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" class="collection-link">Cool Sites</a>
+                </div>
+
                 <label>Method: <select th:field="*{gatherMethod}">
                     <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
                         Heritrix
@@ -107,7 +114,7 @@
                     </script>
                 </fieldset>
 
-                <details th:open="${form.seedUrls != form.titleUrl}">
+                <details th:open="${form.seedUrls != form.titleUrl}" style="margin-top: 16px">
                     <summary>Options</summary>
                     <label>
                         Seed URLs:

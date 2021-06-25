@@ -94,7 +94,7 @@
             Collections:
             <ul class="collection-list">
                 <li th:each="collection: ${title.collections}">
-                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
+                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}"
                        href="CollectionView.html">Nice Sites</a>
                 </li>
             </ul>
@@ -114,6 +114,12 @@
                 </div>
                 <div>Command: <span th:text="${title?.gather?.buildHttrackCommand()}"></span></div>
             </details>
+            <p style="font-style: italic" th:each="collection: ${title.collections}"
+               th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || title.status.isCeased()}">
+                Gathered <strong th:text="${collection.gatherSchedule.name}">Daily</strong> as part of
+                <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}"
+                   class="collection-link">Cool Sites</a>
+            </p>
         </div>
 
 

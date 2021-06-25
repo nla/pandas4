@@ -63,6 +63,18 @@
                 <input type=number min=1000 max=2999 th:field="*{endYear}" placeholder=YYYY size=4>
             </div>
         </div>
+
+        <div class="form-group">
+            <label>Gather schedule (optional)</label>
+            <div class="hint-text">Schedules non-ceased titles in this collection for periodic gathering. This will be
+                in addition to any schedule set at the title level.
+            </div>
+            <select th:field="*{gatherSchedule}">
+                <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
+                        th:text="${schedule.name}">Weekly
+                </option>
+            </select>
+        </div>
     </form>
 </main>
 

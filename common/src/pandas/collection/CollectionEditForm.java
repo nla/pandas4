@@ -1,5 +1,7 @@
 package pandas.collection;
 
+import pandas.gather.GatherSchedule;
+
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -17,9 +19,10 @@ public class CollectionEditForm {
     private final Integer endMonth;
     private final Integer endYear;
     private final Collection parent;
+    private final GatherSchedule gatherSchedule;
 
     public CollectionEditForm(String name, List<Subject> subjects, String description, Integer startMonth,
-                              Integer startYear, Integer endMonth, Integer endYear, Collection parent) {
+                              Integer startYear, Integer endMonth, Integer endYear, Collection parent, GatherSchedule gatherSchedule) {
         this.name = name;
         this.subjects = subjects;
         this.description = description;
@@ -28,6 +31,7 @@ public class CollectionEditForm {
         this.endMonth = endMonth;
         this.endYear = endYear;
         this.parent = parent;
+        this.gatherSchedule = gatherSchedule;
     }
 
     public static CollectionEditForm of(Collection collection) {
@@ -44,7 +48,7 @@ public class CollectionEditForm {
             endYear = endDate.getYear();
         }
         return new CollectionEditForm(collection.getName(), collection.getSubjects(), collection.getDescription(),
-                startMonth, startYear, endMonth, endYear, collection.getParent());
+                startMonth, startYear, endMonth, endYear, collection.getParent(), collection.getGatherSchedule());
     }
 
     public void applyTo(Collection collection) {
@@ -52,6 +56,7 @@ public class CollectionEditForm {
         collection.setSubjects(subjects);
         collection.setDescription(description != null && !description.isBlank() ? description.trim() : null);
         collection.setParent(parent);
+        collection.setGatherSchedule(gatherSchedule);
         if (startYear != null) {
             collection.setStartDate(LocalDate.of(startYear, startMonth == null ? 1 : startMonth, 1)
                     .atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -93,5 +98,9 @@ public class CollectionEditForm {
 
     public Collection parent() {
         return parent;
+    }
+
+    public GatherSchedule gatherSchedule() {
+        return gatherSchedule;
     }
 }

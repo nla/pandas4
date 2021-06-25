@@ -67,4 +67,8 @@ public class Status {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public boolean isCeased() {
+        return id != null && id.equals(CEASED_ID);
+    }
 }
