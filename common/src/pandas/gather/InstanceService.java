@@ -115,6 +115,7 @@ public class InstanceService {
         updateState(instance, State.FAILED);
     }
 
+    @Transactional
     public void publishInstanceImmediatelyIfNecessary(Instance instance) {
         if (instance.getTitle().getTep() != null && instance.getTitle().getTep().isPublishImmediately()) {
             instance.setIsDisplayed(1L);
@@ -122,6 +123,7 @@ public class InstanceService {
         }
     }
 
+    @Transactional
     public void updateGatherStats(Instance instance, long fileCount, long size) {
         InstanceGather gather = instance.getGather();
         gather.setFiles(fileCount);
