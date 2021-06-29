@@ -114,6 +114,13 @@ public class Tep {
     @OrderBy("order, id desc")
     private List<IssueGroup> issueGroups;
 
+    public Tep() {
+        doCollection = true;
+        doSubject = true;
+        doSearch = true;
+        displayDate = Instant.now();
+    }
+
     public Long getId() {
         return id;
     }

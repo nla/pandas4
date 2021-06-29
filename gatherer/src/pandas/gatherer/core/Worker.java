@@ -95,7 +95,7 @@ class Worker implements Runnable {
 					case State.ARCHIVING:
 						nameThread("A", instance);
                         backend.archive(instance);
-                        instanceService.publishInstanceImmediatelyIfNecessary(instance);
+                        instanceService.publishInstanceImmediatelyIfNecessary(instance.getId());
                         nextState = State.ARCHIVED;
                         break;
 					case State.DELETING:

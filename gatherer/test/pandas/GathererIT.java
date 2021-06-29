@@ -11,10 +11,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import pandas.collection.Title;
-import pandas.collection.TitleEditForm;
-import pandas.collection.TitleRepository;
-import pandas.collection.TitleService;
+import pandas.collection.*;
 import pandas.gather.*;
 import pandas.gatherer.heritrix.HeritrixClient;
 
@@ -47,6 +44,8 @@ public class GathererIT {
     @Autowired GatherMethodRepository gatherMethodRepository;
     @Autowired
     TitleRepository titleRepository;
+    @Autowired
+    TepRepository tepRepository;
     @Autowired
     InstanceRepository instanceRepository;
     @Autowired
@@ -141,6 +140,11 @@ public class GathererIT {
         form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
         form.setOneoffDates(List.of(Instant.now()));
         Title title = titleService.save(form, null);
+
+        Tep tep = new Tep();
+        tep.setTitle(title);
+        title.setTep(tep);
+        titleRepository.save(title);
 
         // wait for instance to be created
         List<Instance> instances = instanceRepository.findByTitle(title);

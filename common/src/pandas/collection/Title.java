@@ -102,7 +102,7 @@ public class Title {
     /**
      * The corresponding Title Entry Page used by the display system.
      */
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "TEP_ID")
     private Tep tep;
 
@@ -297,11 +297,11 @@ public class Title {
 
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date")
-    private List<Contact> contactEvents;
+    private List<Contact> contactEvents = new ArrayList<>();
 
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date desc")
-    private List<TitlePreviousName> previousNames;
+    private List<TitlePreviousName> previousNames = new ArrayList<>();
 
     @OneToMany(mappedBy = "ceased")
     @OrderBy("date")
@@ -728,5 +728,9 @@ public class Title {
         if (getGather() == null) return false;
         if (getGather().getSchedule() == null) return false;
         return !"None".equals(getGather().getSchedule().getName());
+    }
+
+    public void setTep(Tep tep) {
+        this.tep = tep;
     }
 }

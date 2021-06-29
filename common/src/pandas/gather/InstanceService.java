@@ -116,7 +116,8 @@ public class InstanceService {
     }
 
     @Transactional
-    public void publishInstanceImmediatelyIfNecessary(Instance instance) {
+    public void publishInstanceImmediatelyIfNecessary(long instanceId) {
+        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
         if (instance.getTitle().getTep() != null && instance.getTitle().getTep().isPublishImmediately()) {
             instance.setIsDisplayed(1L);
             instanceRepository.save(instance);
