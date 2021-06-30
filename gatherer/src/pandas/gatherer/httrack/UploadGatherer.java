@@ -12,13 +12,11 @@ import java.io.IOException;
 
 @Component
 public class UploadGatherer implements Backend {
-	private final Scripts scripts;
 	private final WorkingArea workingArea;
 	private final Config config;
 
 	public UploadGatherer(Config config, Scripts scripts, WorkingArea workingArea) {
 		this.config = config;
-		this.scripts = scripts;
 		this.workingArea = workingArea;
 	}
 
