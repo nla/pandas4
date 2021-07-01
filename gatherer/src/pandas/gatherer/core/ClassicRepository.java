@@ -1,5 +1,7 @@
 package pandas.gatherer.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pandas.gather.Instance;
 
@@ -12,6 +14,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Component
 public class ClassicRepository implements Repository {
+    private final Logger log = LoggerFactory.getLogger(ClassicRepository.class);
     private final Config config;
 
     public ClassicRepository(Config config) {
@@ -19,10 +22,10 @@ public class ClassicRepository implements Repository {
     }
 
     @Override
-    public void storeArtifacts(Instance instance, List<Path> files) throws IOException {
-        for (Path src: files) {
+    public void storeArtifacts(Instance instance, List<Artifact> artifacts) throws IOException {
+        for (Artifact artifact: artifacts) {
+            String fileName = artifact.path().replaceAll(".*/", "");
             Path destDir;
-            String fileName = src.getFileName().toString();
             if (fileName.startsWith("ps-")) {
                 destDir = getMasterDir(instance.getPi(), "preserve/arc3");
             } else if (fileName.startsWith("ac-")) {
@@ -30,12 +33,13 @@ public class ClassicRepository implements Repository {
             } else if (fileName.startsWith("mi-")) {
                 destDir = getMasterDir(instance.getPi(), "mime/arc3");
             } else {
-                throw new IllegalArgumentException("don't know where to store: " + src.getFileName());
+                log.warn("classic crawl bundles not implemented ({})", fileName);
+                continue;
             }
-            if (!Files.exists(destDir)) Files.createDirectories(destDir);
-            Path tmp = destDir.resolve(src.getFileName() + ".tmp");
-            Path dest = destDir.resolve(src.getFileName());
-            Files.copy(src, tmp, REPLACE_EXISTING);
+            Path tmp = destDir.resolve(artifact.path() + ".tmp");
+            Path dest = destDir.resolve(artifact.path());
+            if (!Files.exists(dest.getParent())) Files.createDirectories(dest.getParent());
+            Files.copy(artifact.file(), tmp, REPLACE_EXISTING);
             Files.move(tmp, dest, REPLACE_EXISTING);
         }
     }

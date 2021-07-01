@@ -71,7 +71,7 @@ public class WorkingArea {
         execRedir(workingdir, sz,"du", "-c", pi + "/" + date);
         execRedir(pwd, md5, "md5sum", tgz.toString());
 
-        repository.storeArtifacts(instance, Arrays.asList(tgz, lst, sz, md5));
+        repository.storeArtifactPaths(instance, Arrays.asList(tgz, lst, sz, md5));
 
         Files.deleteIfExists(tgz);
         Files.deleteIfExists(lst);
@@ -121,7 +121,7 @@ public class WorkingArea {
         repository.storeWarcs(instance, warcs);
 
         // copy to master storage
-        repository.storeArtifacts(instance, Arrays.asList(tgz, lst, sz, md5));
+        repository.storeArtifactPaths(instance, Arrays.asList(tgz, lst, sz, md5));
 
         Files.deleteIfExists(tgz);
         Files.deleteIfExists(lst);

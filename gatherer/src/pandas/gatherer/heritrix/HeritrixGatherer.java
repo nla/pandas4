@@ -8,13 +8,13 @@ import pandas.gather.GatherMethod;
 import pandas.gather.Instance;
 import pandas.gather.InstanceService;
 import pandas.gather.State;
-import pandas.gatherer.core.Backend;
-import pandas.gatherer.core.Config;
-import pandas.gatherer.core.WorkingArea;
+import pandas.gatherer.core.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static pandas.gatherer.heritrix.HeritrixClient.State.*;
@@ -29,15 +29,17 @@ public class HeritrixGatherer implements Backend {
     private final Config config;
     private final HeritrixConfig heritrixConfig;
     private final BambooClient bamboo;
+    private final Repository repository;
     private boolean shutdown;
 
-    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, BambooClient bamboo) {
+    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, BambooClient bamboo, Repository repository) {
         this.workingArea = workingArea;
         this.config = config;
         this.heritrixConfig = heritrixConfig;
         heritrix = new HeritrixClient(heritrixConfig.getUrl(), heritrixConfig.getUser(), heritrixConfig.getPassword());
         this.instanceService = instanceService;
         this.bamboo = bamboo;
+        this.repository = repository;
     }
 
     @Override
@@ -127,6 +129,8 @@ public class HeritrixGatherer implements Backend {
 
         long crawlId = bamboo.getOrCreateCrawl(crawlName, instance.getId());
 
+        List<Path> warcs = new ArrayList<>();
+        List<Artifact> artifacts = new ArrayList<>();
         for (Path file : Files.walk(jobDir).collect(toList())) {
             Path relpath = jobDir.relativize(file);
             if (Files.isDirectory(file)) continue;
@@ -141,11 +145,14 @@ public class HeritrixGatherer implements Backend {
 
             log.debug("Artifact {}", filename);
             if (filename.endsWith(".warc.gz")) {
-                bamboo.putWarcIfNotExists(crawlId, filename, file);
+                warcs.add(file);
             } else {
-                bamboo.putArtifactIfNotExists(crawlId, relpath.toString(), file);
+                artifacts.add(new Artifact(relpath.toString(), file));
             }
         }
+
+        repository.storeWarcs(instance, warcs);
+        repository.storeArtifacts(instance, artifacts);
 
         delete(instance);
     }
