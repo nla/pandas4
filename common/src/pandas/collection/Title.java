@@ -303,6 +303,12 @@ public class Title {
     @OrderBy("date")
     private List<Contact> contactEvents = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(name = "TITLE_INDIVIDUAL",
+            joinColumns = @JoinColumn(name = "TITLE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "INDIVIDUAL_ID"))
+    private List<Individual> contactPeople = new ArrayList<>();
+
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date desc")
     private List<TitlePreviousName> previousNames = new ArrayList<>();
@@ -688,6 +694,10 @@ public class Title {
 
     public void setContactEvents(List<Contact> contactEvents) {
         this.contactEvents = contactEvents;
+    }
+
+    public List<Individual> getContactPeople() {
+        return contactPeople;
     }
 
     public Instant getLastContactDate() {
