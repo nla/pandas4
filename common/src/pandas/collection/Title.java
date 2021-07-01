@@ -136,9 +136,13 @@ public class Title {
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Individual owner;
 
-    @OneToMany(mappedBy = "title", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date")
-    private List<OwnerHistory> ownerHistories;
+    private List<OwnerHistory> ownerHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OrderBy("id")
+    private List<StatusHistory> statusHistories = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "CURRENT_STATUS_ID")
@@ -732,5 +736,9 @@ public class Title {
 
     public void setTep(Tep tep) {
         this.tep = tep;
+    }
+
+    public List<StatusHistory> getStatusHistories() {
+        return statusHistories;
     }
 }
