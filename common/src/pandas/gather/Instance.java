@@ -139,6 +139,10 @@ public class Instance {
         return getDateZoned().format(instanceDateFormat);
     }
 
+    public void setDateString(String dateString) {
+        setDate(Instant.from(instanceDateFormat.withZone(ZoneId.systemDefault()).parse(dateString)));
+    }
+
     private ZonedDateTime getDateZoned() {
         return getDate().atZone(ZoneId.systemDefault());
     }
@@ -357,5 +361,14 @@ public class Instance {
      */
     public boolean isFlatFiles() {
         return "HTTrack".equals(getGatherMethodName()) || "Upload".equals(getGatherMethodName());
+    }
+
+    public static Instance createDummy(long pi, String dateString) {
+        Instance instance = new Instance();
+        instance.setDateString(dateString);
+        Title title = new Title();
+        title.setPi((long)pi);
+        instance.setTitle(title);
+        return instance;
     }
 }

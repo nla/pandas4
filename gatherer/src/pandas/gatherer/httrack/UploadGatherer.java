@@ -30,13 +30,13 @@ public class UploadGatherer implements Backend {
 
 	@Override
 	public void postprocess(Instance instance) throws IOException, InterruptedException {
-		workingArea.preserveInstance(instance.getTitle().getPi(), instance.getDateString());
+		workingArea.preserveInstance(instance);
 		HttrackUtils.postGather(instance.getPi(), instance.getDateString(), workingArea.getInstanceDir(instance.getPi(), instance.getDateString()));
 	}
 
 	@Override
 	public void archive(Instance instance) throws IOException, InterruptedException {
-		workingArea.archiveInstance(instance.getTitle().getPi(), instance.getDateString());
+		workingArea.archiveInstance(instance);
 	}
 
 	@Override

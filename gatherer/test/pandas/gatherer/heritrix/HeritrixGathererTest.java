@@ -26,6 +26,7 @@ package pandas.gatherer.heritrix;
 //import static org.junit.Assert.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import pandas.gatherer.core.ClassicRepository;
 import pandas.gatherer.core.Config;
 import pandas.gatherer.core.WorkingArea;
 
@@ -83,7 +84,7 @@ public class HeritrixGathererTest {
 //        config.bambooSeriesId = 1L;
 //        config.pywbDataDir = temp.newFolder("pywbData").toPath();
 
-        WorkingArea workingArea = new WorkingArea(config);
+        WorkingArea workingArea = new WorkingArea(config, new ClassicRepository(config));
 
 //        Instance instance = new Instance(123, (long) 12345, Instant.parse("2018-06-25T03:19:56.294Z"), "Heritrix");
 //

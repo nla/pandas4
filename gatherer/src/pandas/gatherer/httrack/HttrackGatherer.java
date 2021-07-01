@@ -106,7 +106,7 @@ public class HttrackGatherer implements Backend {
 	}
 
 	public void postprocess(Instance instance) throws IOException, InterruptedException {
-		workingArea.preserveInstance(instance.getTitle().getPi(), instance.getDateString());
+		workingArea.preserveInstance(instance);
 		Path root = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
 		HttrackUtils.postGather(instance.getTitle().getPi(), instance.getDateString(), root);
 
@@ -119,7 +119,7 @@ public class HttrackGatherer implements Backend {
 
 	@Override
 	public void archive(Instance instance) throws IOException, InterruptedException {
-		workingArea.archiveInstance(instance.getTitle().getPi(), instance.getDateString());
+		workingArea.archiveInstance(instance);
 	}
 
 	@Override

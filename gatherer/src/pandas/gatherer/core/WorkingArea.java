@@ -3,6 +3,7 @@ package pandas.gatherer.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pandas.gather.Instance;
 import pandas.gatherer.httrack.Pandora2Warc;
 
 import java.io.IOException;
@@ -33,10 +34,12 @@ public class WorkingArea {
             PosixFilePermission.OTHERS_READ
     ));
     private final Config config;
+    private final Repository repository;
 
-    public WorkingArea(Config config) {
+    public WorkingArea(Config config, Repository repository) {
         this.config = config;
         this.workingdir = config.getWorkingDir();
+        this.repository = repository;
     }
 
     private Path instancePath(long pi, String date) {
@@ -50,7 +53,9 @@ public class WorkingArea {
     /**
      * Create pre-qa preservation tarball metadata files.
      */
-    public void preserveInstance(long pi, String date) throws IOException {
+    public void preserveInstance(Instance instance) throws IOException {
+        long pi = instance.getPi();
+        String date = instance.getDateString();
         Path uploadDir = config.getUploadDir().toAbsolutePath();
         if (!Files.exists(uploadDir)) Files.createDirectories(uploadDir);
 
@@ -66,17 +71,12 @@ public class WorkingArea {
         execRedir(workingdir, sz,"du", "-c", pi + "/" + date);
         execRedir(pwd, md5, "md5sum", tgz.toString());
 
-        Path destDir = getMasterDir(pi, "preserve/arc3");
-        if (!Files.exists(destDir)) Files.createDirectories(destDir);
-        twoStepMove(tgz, destDir);
-        twoStepMove(lst, destDir);
-        twoStepMove(sz, destDir);
-        twoStepMove(md5, destDir);
-    }
+        repository.storeArtifacts(instance, Arrays.asList(tgz, lst, sz, md5));
 
-    private Path getMasterDir(long pi, String s) {
-        String piGroup = String.format("%03d", pi / 1000);
-        return config.getMastersDir().resolve(s).resolve(piGroup).resolve(Long.toString(pi));
+        Files.deleteIfExists(tgz);
+        Files.deleteIfExists(lst);
+        Files.deleteIfExists(sz);
+        Files.deleteIfExists(md5);
     }
 
     /**
@@ -90,7 +90,10 @@ public class WorkingArea {
         Files.move(tmp, dest, REPLACE_EXISTING);
     }
 
-    public void archiveInstance(long pi, String date) throws IOException {
+    public void archiveInstance(Instance instance) throws IOException {
+        long pi = instance.getPi();
+        String date = instance.getDateString();
+
         Path uploadDir = config.getUploadDir().toAbsolutePath();
         if (!Files.exists(uploadDir)) Files.createDirectories(uploadDir);
 
@@ -115,27 +118,15 @@ public class WorkingArea {
 
         // construct warc
         List<Path> warcs = Pandora2Warc.convertInstance(pwd, uploadDir);
-        for (Path warcGz : warcs) {
-            if (config.getRepo2Dir() != null) {
-                Path repo2Dir = config.getRepo2Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
-                if (!Files.exists(repo2Dir)) Files.createDirectories(repo2Dir);
-                log.info("Copying {} to {}", warcGz, repo2Dir);
-                Files.copy(warcGz, repo2Dir.resolve(warcGz.getFileName()));
-            }
-
-            Path repo1Dir = config.getRepo1Dir().resolve(String.format("%03d", pi / 1000)).resolve(Long.toString(pi));
-            if (!Files.exists(repo1Dir)) Files.createDirectories(repo1Dir);
-            log.info("Moving {} to {}", warcGz, repo1Dir);
-            Files.move(warcGz, repo1Dir.resolve(warcGz.getFileName()));
-        }
+        repository.storeWarcs(instance, warcs);
 
         // copy to master storage
-        Path destDir = getMasterDir(pi, "access/arc3");
-        if (!Files.exists(destDir)) Files.createDirectories(destDir);
-        twoStepMove(tgz, destDir);
-        twoStepMove(lst, destDir);
-        twoStepMove(sz, destDir);
-        twoStepMove(md5, destDir);
+        repository.storeArtifacts(instance, Arrays.asList(tgz, lst, sz, md5));
+
+        Files.deleteIfExists(tgz);
+        Files.deleteIfExists(lst);
+        Files.deleteIfExists(sz);
+        Files.deleteIfExists(md5);
     }
 
     private void execRedir(Path pwd, Path stdout, String... args) throws IOException {

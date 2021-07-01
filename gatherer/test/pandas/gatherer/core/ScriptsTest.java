@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import pandas.gather.Instance;
 import pandas.gatherer.httrack.HttrackUtils;
 
 import java.io.IOException;
@@ -94,7 +95,9 @@ public class ScriptsTest {
         Path instanceDir = config.getWorkingDir().resolve("" + pi).resolve(dateString);
         populateTestInstance(instanceDir);
 
-        new WorkingArea(config).preserveInstance(pi, dateString);
+        Instance instance = Instance.createDummy(pi, dateString);
+
+        new WorkingArea(config, new ClassicRepository(config)).preserveInstance(instance);
 
         assertTrue(Files.exists(config.getMastersDir().resolve("preserve/arc3/012/12345/ps-ar2-12345-20170101-1234.md5")));
         assertTrue(Files.readString(config.getMastersDir().resolve("preserve/arc3/012/12345/ps-ar2-12345-20170101-1234.md5"))

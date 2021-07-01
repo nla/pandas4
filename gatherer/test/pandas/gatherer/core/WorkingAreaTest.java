@@ -3,6 +3,7 @@ package pandas.gatherer.core;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import pandas.gather.Instance;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,7 +32,7 @@ public class WorkingAreaTest {
         config.setRepo1Dir(Files.createDirectories(temp.resolve("repo1")));
         config.setRepo2Dir(Files.createDirectories(temp.resolve("repo2")));
         config.setUploadDir(Files.createDirectories(temp.resolve("upload")));
-        workingArea = new WorkingArea(config);
+        workingArea = new WorkingArea(config, new ClassicRepository(config));
     }
 
     @Test
@@ -44,7 +45,7 @@ public class WorkingAreaTest {
     public void testArchiveInstance() throws IOException, InterruptedException {
         TestUtils.unzip(workingDir, "/pandas/gatherer/httrack/testcrawl.zip");
 
-        workingArea.archiveInstance(pi, date);
+        workingArea.archiveInstance(Instance.createDummy(pi, date));
 
         assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20210223-0954.md5")));
         assertTrue(Files.exists(config.getMastersDir().resolve("access/arc3/012/12345/ac-ar2-12345-20210223-0954.tgz")));
