@@ -110,6 +110,7 @@ public class InstanceService {
         logEntry.setDetail(message);
         logEntry.setOriginator(originator);
         logEntry.setPi(instance.getTitle().getPi());
+        logEntry.setViewed(0L);
         pandasExceptionLogRepository.save(logEntry);
         
         updateState(instance, State.FAILED);
