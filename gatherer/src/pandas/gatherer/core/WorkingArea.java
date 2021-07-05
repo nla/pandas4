@@ -122,12 +122,13 @@ public class WorkingArea {
         repository.storeWarcs(instance, warcs);
 
         // copy to master storage
-        repository.storeArtifactPaths(instance, Arrays.asList(tgz, lst, sz, md5));
+        repository.storeArtifactPaths(instance, Arrays.asList(tgz, lst, sz, md5, mimeTgz));
 
         Files.deleteIfExists(tgz);
         Files.deleteIfExists(lst);
         Files.deleteIfExists(sz);
         Files.deleteIfExists(md5);
+        Files.deleteIfExists(mimeTgz);
     }
 
     private void execRedir(Path pwd, Path stdout, String... args) throws IOException {
