@@ -9,10 +9,14 @@ import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
 import pandas.gatherer.core.WorkingArea;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Controller
 public class ScripterController {
+    private final ExecutorService threadPool = Executors.newCachedThreadPool();
     private final InstanceRepository instanceRepository;
     private final WorkingArea workingArea;
 
@@ -34,6 +38,7 @@ public class ScripterController {
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "No such instance"));
         request.pi = instance.getPi();
         request.root = workingArea.getInstanceDir(instance.getPi(), instance.getDateString());
+        threadPool.execute(request);
         return "global replacement queued.";
     }
 }
