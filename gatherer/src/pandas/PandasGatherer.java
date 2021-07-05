@@ -20,7 +20,7 @@ public class PandasGatherer {
                 ServerHttpSecurity http) {
             return http.authorizeExchange()
                     .anyExchange().permitAll()
-                    .and().build();
+                    .and().csrf().disable().build();
         }
     }
 }
