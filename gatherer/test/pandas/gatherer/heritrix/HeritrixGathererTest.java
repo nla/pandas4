@@ -26,9 +26,9 @@ package pandas.gatherer.heritrix;
 //import static org.junit.Assert.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import pandas.gatherer.core.ClassicRepository;
 import pandas.gatherer.core.Config;
 import pandas.gatherer.core.WorkingArea;
+import pandas.gatherer.repository.ClassicRepository;
 
 import java.io.IOException;
 

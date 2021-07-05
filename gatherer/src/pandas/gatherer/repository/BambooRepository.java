@@ -1,12 +1,16 @@
-package pandas.gatherer.core;
+package pandas.gatherer.repository;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.stereotype.Component;
 import pandas.gather.Instance;
-import pandas.gatherer.heritrix.BambooClient;
+import pandas.gatherer.core.Artifact;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+@Component
+@ConditionalOnBean(BambooClient.class)
 public class BambooRepository implements Repository {
     private final BambooClient bambooClient;
 

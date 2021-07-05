@@ -8,7 +8,11 @@ import pandas.gather.GatherMethod;
 import pandas.gather.Instance;
 import pandas.gather.InstanceService;
 import pandas.gather.State;
-import pandas.gatherer.core.*;
+import pandas.gatherer.core.Artifact;
+import pandas.gatherer.core.Backend;
+import pandas.gatherer.core.Config;
+import pandas.gatherer.core.WorkingArea;
+import pandas.gatherer.repository.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,17 +32,15 @@ public class HeritrixGatherer implements Backend {
     private final InstanceService instanceService;
     private final Config config;
     private final HeritrixConfig heritrixConfig;
-    private final BambooClient bamboo;
     private final Repository repository;
     private boolean shutdown;
 
-    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, BambooClient bamboo, Repository repository) {
+    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, Repository repository) {
         this.workingArea = workingArea;
         this.config = config;
         this.heritrixConfig = heritrixConfig;
         heritrix = new HeritrixClient(heritrixConfig.getUrl(), heritrixConfig.getUser(), heritrixConfig.getPassword());
         this.instanceService = instanceService;
-        this.bamboo = bamboo;
         this.repository = repository;
     }
 
@@ -124,11 +126,6 @@ public class HeritrixGatherer implements Backend {
     @Override
     public void archive(Instance instance) throws IOException {
         Path jobDir = jobDir(instance);
-
-        String crawlName = instance.getTitle().getName() + " [" + instance.getHumanId() + "]";
-
-        long crawlId = bamboo.getOrCreateCrawl(crawlName, instance.getId());
-
         List<Path> warcs = new ArrayList<>();
         List<Artifact> artifacts = new ArrayList<>();
         for (Path file : Files.walk(jobDir).collect(toList())) {

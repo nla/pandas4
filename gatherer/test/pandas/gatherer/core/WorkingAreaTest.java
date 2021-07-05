@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pandas.gather.Instance;
+import pandas.gatherer.repository.ClassicRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

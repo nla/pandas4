@@ -1,6 +1,7 @@
-package pandas.gatherer.core;
+package pandas.gatherer.repository;
 
 import pandas.gather.Instance;
+import pandas.gatherer.core.Artifact;
 
 import java.io.IOException;
 import java.nio.file.Path;

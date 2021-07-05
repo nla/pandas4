@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pandas.gather.Instance;
 import pandas.gatherer.httrack.Pandora2Warc;
+import pandas.gatherer.repository.Repository;
 
 import java.io.IOException;
 import java.nio.file.*;

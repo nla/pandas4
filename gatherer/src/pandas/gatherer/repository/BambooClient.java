@@ -1,8 +1,9 @@
-package pandas.gatherer.heritrix;
+package pandas.gatherer.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import java.util.Objects;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
 @Component
+@ConditionalOnProperty("bamboo.url")
 public class BambooClient implements HealthIndicator {
     public static final MediaType APPLICATION_WARC = MediaType.parseMediaType("application/warc");
     private final BambooConfig config;

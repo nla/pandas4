@@ -1,9 +1,12 @@
-package pandas.gatherer.core;
+package pandas.gatherer.repository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 import pandas.gather.Instance;
+import pandas.gatherer.core.Artifact;
+import pandas.gatherer.core.Config;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +16,7 @@ import java.util.List;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Component
+@ConditionalOnMissingBean(BambooRepository.class)
 public class ClassicRepository implements Repository {
     private final Logger log = LoggerFactory.getLogger(ClassicRepository.class);
     private final Config config;
