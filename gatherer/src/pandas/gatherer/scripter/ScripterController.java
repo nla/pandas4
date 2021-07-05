@@ -3,10 +3,12 @@ package pandas.gatherer.scripter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
+import pandas.gatherer.core.GatherManager;
 import pandas.gatherer.core.WorkingArea;
 
 import java.util.concurrent.ExecutorService;
@@ -19,10 +21,12 @@ public class ScripterController {
     private final ExecutorService threadPool = Executors.newCachedThreadPool();
     private final InstanceRepository instanceRepository;
     private final WorkingArea workingArea;
+    private final GatherManager gatherManager;
 
-    public ScripterController(InstanceRepository instanceRepository, WorkingArea workingArea) {
+    public ScripterController(InstanceRepository instanceRepository, WorkingArea workingArea, GatherManager gatherManager) {
         this.instanceRepository = instanceRepository;
         this.workingArea = workingArea;
+        this.gatherManager = gatherManager;
     }
 
     @GetMapping("/replaceAllInInstance")
@@ -31,7 +35,7 @@ public class ScripterController {
         return "POST expected";
     }
 
-    @PostMapping("/replaceAllInInstance")
+    @PostMapping(value = "/replaceAllInInstance", produces = "text/plain")
     @ResponseBody
     public String replaceAllInInstance(GlobalReplaceRequest request) {
         Instance instance = instanceRepository.findById(request.instanceId)
@@ -40,5 +44,11 @@ public class ScripterController {
         request.root = workingArea.getInstanceDir(instance.getPi(), instance.getDateString());
         threadPool.execute(request);
         return "global replacement queued.";
+    }
+
+    @GetMapping(value = "/gatherDataExists", produces = "text/plain")
+    @ResponseBody
+    public String gatherDataExists(@RequestParam("instanceId") long instanceId) {
+        return gatherManager.isInstancePopulated(instanceId);
     }
 }
