@@ -133,6 +133,9 @@ public class GathererIT {
     @Timeout(value = 10)
     public void testHttrackCrawl() throws InterruptedException {
         mockServer.when(request().withMethod("GET").withPath("/target/")).respond(response().withBody("test page"));
+        mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
+        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
+        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
 
         TitleEditForm form = titleService.newTitleForm(List.of(), List.of());
         form.setName("HTTrack title");
