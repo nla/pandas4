@@ -124,7 +124,7 @@ public class TitleSearcher {
             return f -> f.bool(b -> {
                 b.must(f.matchAll());
                 if (q != null && !q.isBlank()) {
-                    b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes").matching(q).defaultOperator(AND));
+                    b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes", "pi").matching(q).defaultOperator(AND));
                 }
                 if (url != null && !url.isBlank()) {
                     b.must(f.phrase().fields("titleUrl", "seedUrl").matching(url));
