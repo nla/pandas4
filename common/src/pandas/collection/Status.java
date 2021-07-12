@@ -4,6 +4,7 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 import javax.persistence.*;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,6 +39,10 @@ public class Status {
 
     @Column(name = "STATUS_NAME")
     private String name;
+
+    public boolean isTransitionAllowed(Status newStatus) {
+        return allowedTransitions.getOrDefault(getId(), Collections.emptyList()).contains(newStatus.getId());
+    }
 
     public Long getId() {
         return this.id;

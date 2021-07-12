@@ -36,7 +36,10 @@
             <td align="right" th:text="${title.pi ?: title.id}">12345</td>
             <td><a th:text="${title.name}" th:href="@{|/titles/${title.id}|}">Example title</a></td>
             <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="@{|/users/${title.owner.id}|}">jsmith</a></td>
-            <td>TODO: Accept | Reject | Transfer</td>
+            <td>
+                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=3)}">Accept</a> |
+                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=2)}">Reject</a> | Transfer
+            </td>
         </tr>
         </tbody>
     </table>

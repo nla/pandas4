@@ -37,6 +37,7 @@ import java.time.format.FormatStyle;
 import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.*;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
@@ -209,8 +210,15 @@ public class TitleController {
     }
 
     @GetMapping("/titles/{id}/edit")
-    public String edit(@PathVariable("id") Title title, Model model) {
+    public String edit(@PathVariable("id") Title title,
+                       @RequestParam(value = "setStatus", required = false) Status setStatus,
+                       Model model) {
         TitleEditForm form = titleService.editForm(title);
+
+        if (setStatus != null && title.getStatus().isTransitionAllowed(setStatus)) {
+            form.setStatus(setStatus);
+        }
+
         model.addAttribute("form", form);
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
@@ -220,7 +228,7 @@ public class TitleController {
 
         var statusList = new ArrayList<Status>();
         statusList.add(form.getStatus());
-        List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatus().getId(), Collections.emptyList());
+        List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatus().getId(), emptyList());
         statusRepository.findAllById(statusIds).forEach(statusList::add);
         statusList.sort(Comparator.comparing(Status::getId));
         model.addAttribute("statusList", statusList);
