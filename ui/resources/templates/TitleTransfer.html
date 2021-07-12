@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${'Transfer Ownership - ' + title.name + ' - PANDAS'}">Transfer Ownership - Example Title - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <button type="submit" class="btn btn-primary" form=form><i class="icon save"></i> Transfer</button>
+            <a href="javascript:history.back()" class="btn btn-secondary"><i class="icon cancel"></i> Cancel</a>
+        </nav>
+    </header>
+
+    <h1 th:text="${'Transfer Ownership - ' + title.name}">Transfer Ownership - Example Title</h1>
+
+    <form method=post id=form>
+        <div class="form-group">
+            <label for=newAgency>New agency</label>
+            <select id=newAgency name=newAgency onchange="window.location.replace('?newAgency=' + this.value)">
+                <option th:each="agency : ${allAgencies}" th:text="${agency.name}" th:value="${agency.id}"
+                        th:selected="${agency.id == newAgency.id}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for=newOwner>New owner</label>
+            <select id=newOwner name=newOwner>
+                <option th:each="user : ${agencyUsers}" th:text="${user.name}" th:value="${user.id}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for=note>Transfer note</label>
+            <textarea id="note" name="note"></textarea>
+        </div>
+    </form>
+</main>

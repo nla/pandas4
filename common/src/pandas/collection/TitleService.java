@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pandas.agency.Agency;
 import pandas.core.Individual;
 import pandas.core.Organisation;
 import pandas.core.Utils;
@@ -265,5 +266,20 @@ public class TitleService {
     @PreAuthorize("hasPermission(#title, 'edit')")
     public TitleEditForm editForm(Title title) {
         return new TitleEditForm(title);
+    }
+
+    @Transactional
+    public void transferOwnership(Title title, Agency newAgency, Individual newOwner, String note, Individual currentUser) {
+        OwnerHistory ownerHistory = new OwnerHistory();
+        ownerHistory.setTitle(title);
+        ownerHistory.setDate(Instant.now());
+        ownerHistory.setIndividual(newOwner);
+        ownerHistory.setAgency(newAgency);
+        ownerHistory.setTransferrer(currentUser);
+        ownerHistory.setNote(note);
+        title.setAgency(newAgency);
+        title.setOwner(newOwner);
+        title.getOwnerHistories().add(ownerHistory);
+        titleRepository.save(title);
     }
 }

@@ -41,7 +41,8 @@
             <td>
                 <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=3)}">Accept</a> |
                 <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=2)}">Reject</a> |
-                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=4)}">Monitor</a> | Transfer
+                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=4)}">Monitor</a> |
+                <a th:href="@{/titles/{id}/transfer(id=${title.id})}">Transfer</a>
             </td>
         </tr>
         </tbody>

@@ -15,6 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import pandas.agency.Agency;
+import pandas.agency.AgencyRepository;
 import pandas.core.Config;
 import pandas.core.Individual;
 import pandas.core.IndividualRepository;
@@ -58,8 +60,9 @@ public class TitleController {
     private final StatusRepository statusRepository;
     private final UserService userService;
     private final PublisherTypeRepository publisherTypeRepository;
+    private final AgencyRepository agencyRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -75,6 +78,7 @@ public class TitleController {
         this.statusRepository = statusRepository;
         this.userService = userService;
         this.publisherTypeRepository = publisherTypeRepository;
+        this.agencyRepository = agencyRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -241,6 +245,30 @@ public class TitleController {
     public String delete(@PathVariable("id") Title title) {
         titleRepository.delete(title);
         return "redirect:/titles";
+    }
+
+    @GetMapping("/titles/{id}/transfer")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String transferForm(@PathVariable("id") Title title,
+                               @RequestParam(value = "newAgency", required = false) Agency newAgency, Model model) {
+        if (newAgency == null) {
+            newAgency = title.getAgency();
+        }
+        model.addAttribute("title", title);
+        model.addAttribute("newAgency", newAgency);
+        model.addAttribute("allAgencies", agencyRepository.findAllOrdered());
+        model.addAttribute("agencyUsers", individualRepository.findActiveUsersByAgency(newAgency));
+        return "TitleTransfer";
+    }
+
+    @PostMapping("/titles/{id}/transfer")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String transfer(@PathVariable("id") Title title, @RequestParam("newAgency") Agency newAgency,
+                           @RequestParam("newOwner") Individual newOwner, @RequestParam("note") String note,
+                           Principal principal) {
+        Individual currentUser = individualRepository.findByUserid(principal.getName()).orElse(null);
+        titleService.transferOwnership(title, newAgency, newOwner, note, currentUser);
+        return "redirect:/titles/" + title.getId();
     }
 
     @GetMapping("/titles/new")

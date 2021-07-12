@@ -65,8 +65,9 @@
     <header>
         <nav>
             <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
-            <a th:href="@{|/titles/${title.id}/p3|}" class="btn btn-secondary">View in PANDAS 3</a>
+            <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/transfer|}" class="btn btn-secondary"> Transfer</a>
         </nav>
+        <a th:href="@{|/titles/${title.id}/p3|}" class="btn btn-secondary">View in PANDAS 3</a>
     </header>
 
     <div class="panel-title-details">
