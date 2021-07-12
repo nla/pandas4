@@ -129,6 +129,7 @@ public class WorkingArea {
         Files.deleteIfExists(sz);
         Files.deleteIfExists(md5);
         Files.deleteIfExists(mimeTgz);
+        deleteInstance(instance.getPi(), instance.getDateString());
     }
 
     private void execRedir(Path pwd, Path stdout, String... args) throws IOException {
