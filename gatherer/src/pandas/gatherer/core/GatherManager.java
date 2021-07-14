@@ -28,7 +28,7 @@ public class GatherManager implements AutoCloseable {
 	private final Map<Long, String> currentlyGatheringTitles = new ConcurrentHashMap<>(); // pi -> thread name
 	private final Map<Long, String> currentInstances = new ConcurrentHashMap<>(); // instance id -> thread name
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	private boolean systemShutDown;
+	private volatile boolean systemShutDown;
 	private final List<Backend> backends = new ArrayList<>();
 	private final List<Thread> workerThreads = new ArrayList<>();
 	private final WorkingArea workingArea;
@@ -36,6 +36,7 @@ public class GatherManager implements AutoCloseable {
 	private final TitleRepository titleRepository;
 	private final InstanceService instanceService;
 	private final InstanceGatherRepository instanceGatherRepository;
+	private final Object pollingLock = new Object();
 	private String version;
 
 	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
@@ -67,29 +68,30 @@ public class GatherManager implements AutoCloseable {
 	/**
 	 * Query the database and select the next instance for gathering.
 	 */
-	synchronized Instance nextInstance(String gatherMethod, String threadName) {
-
-		// first consider incomplete instances
-		for (Instance instance: instanceRepository.findIncomplete(gatherMethod)) {
-			if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId())) {
-				currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
-				return instance;
+	Instance nextInstance(String gatherMethod, String threadName) {
+		synchronized (pollingLock) {
+			// first consider incomplete instances
+			for (Instance instance : instanceRepository.findIncomplete(gatherMethod)) {
+				if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId())) {
+					currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
+					return instance;
+				}
 			}
-		}
 
-		// now look for titles scheduled for a new gather
-		// XXX: we ignore any titles that were last gathered within the current minute
-		//      this is to ensure that we don't generate an instance with the same datestring
-		//      as a previous one.
-		Instant startOfThisMinute = LocalDateTime.now().withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
-		for (Title title: titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
-			if (!currentlyGatheringTitles.containsKey(title.getId())) {
-				currentlyGatheringTitles.put(title.getId(), threadName);
-				return instanceService.createInstance(gatherMethod, title);
+			// now look for titles scheduled for a new gather
+			// XXX: we ignore any titles that were last gathered within the current minute
+			//      this is to ensure that we don't generate an instance with the same datestring
+			//      as a previous one.
+			Instant startOfThisMinute = LocalDateTime.now().withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
+			for (Title title : titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
+				if (!currentlyGatheringTitles.containsKey(title.getId())) {
+					currentlyGatheringTitles.put(title.getId(), threadName);
+					return instanceService.createInstance(gatherMethod, title);
+				}
 			}
-		}
 
-		return null;
+			return null;
+		}
 	}
 
 	/**
@@ -105,7 +107,7 @@ public class GatherManager implements AutoCloseable {
 		currentInstances.put(instanceId, threadName);
 	}
 
-	public synchronized boolean isShutdown() {
+	public boolean isShutdown() {
 		return systemShutDown;
 	}
 
@@ -161,7 +163,7 @@ public class GatherManager implements AutoCloseable {
 		return "Ok";
 	}
 
-	public synchronized String version() {
+	public String version() {
 		if (version == null) {
 		    StringBuilder sb = new StringBuilder();
 		    for (Backend backend: backends) {
