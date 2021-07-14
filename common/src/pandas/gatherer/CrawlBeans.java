@@ -1,4 +1,4 @@
-package pandas.gatherer.heritrix;
+package pandas.gatherer;
 
 import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Document;
@@ -8,7 +8,6 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.SAXException;
 import pandas.gather.Instance;
-import pandas.gatherer.core.Config;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,7 +22,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.*;
 
-class CrawlBeans {
+public class CrawlBeans {
     private static final XPathFactory xPathFactory = XPathFactory.newInstance();
     private static final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
     private static final SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
@@ -47,7 +46,7 @@ class CrawlBeans {
         }
     }
 
-    private static void writeCrawlXml(Config config, Instance instance, Path jobDir) throws IOException {
+    public static void writeCrawlXml(Instance instance, Writer writer, String gathererBindAddress) throws IOException {
         Document doc;
         try (InputStream stream = CrawlBeans.class.getResourceAsStream("/pandas/crawlconfig/crawler-beans.cxml")) {
             doc = docBuilderFactory.newDocumentBuilder().parse(stream);
@@ -58,14 +57,20 @@ class CrawlBeans {
         setBeanProperty(doc, "metadata", "jobName", instance.getHumanId());
         setBeanProperty(doc, "metadata", "description", instance.getTitle().getName());
         setBeanProperty(doc, "warcWriter", "prefix", instance.getHumanId());
-        setBeanProperty(doc, "fetchHttp", "httpBindAddress", config.getGathererBindAddress());
+        if (gathererBindAddress != null) {
+            setBeanProperty(doc, "fetchHttp", "httpBindAddress", gathererBindAddress);
+        }
 
         DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
         LSSerializer lsSerializer = domImplementation.createLSSerializer();
         LSOutput lsOutput = domImplementation.createLSOutput();
+        lsOutput.setCharacterStream(writer);
+        lsSerializer.write(doc, lsOutput);
+    }
+
+    private static void writeCrawlXml(Instance instance, Path jobDir, String gathererBindAddress) throws IOException {
         try (Writer writer = Files.newBufferedWriter(jobDir.resolve("crawler-beans.cxml"), UTF_8, CREATE, TRUNCATE_EXISTING, WRITE)) {
-            lsOutput.setCharacterStream(writer);
-            lsSerializer.write(doc, lsOutput);
+            writeCrawlXml(instance, writer, gathererBindAddress);
         }
     }
 
@@ -79,8 +84,8 @@ class CrawlBeans {
         }
     }
 
-    static void writeConfig(Config config, Instance instance, Path jobDir) throws IOException {
-        writeCrawlXml(config, instance, jobDir);
+    public static void writeConfig(Instance instance, Path jobDir, String gathererBindAddress) throws IOException {
+        writeCrawlXml(instance, jobDir, gathererBindAddress);
         writeSeeds(instance.getTitle().getAllSeeds(), jobDir);
     }
 }

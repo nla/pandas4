@@ -8,6 +8,7 @@ import pandas.gather.GatherMethod;
 import pandas.gather.Instance;
 import pandas.gather.InstanceService;
 import pandas.gather.State;
+import pandas.gatherer.CrawlBeans;
 import pandas.gatherer.core.Artifact;
 import pandas.gatherer.core.Backend;
 import pandas.gatherer.core.Config;
@@ -49,7 +50,7 @@ public class HeritrixGatherer implements Backend {
         // create heritrix dirs
         Path jobDir = jobDir(instance);
         Files.createDirectories(jobDir);
-        CrawlBeans.writeConfig(config, instance, jobDir);
+        CrawlBeans.writeConfig(instance, jobDir, config.getGathererBindAddress());
 
         // create pywb dirs
         Path collDir = pywbDir(instance);

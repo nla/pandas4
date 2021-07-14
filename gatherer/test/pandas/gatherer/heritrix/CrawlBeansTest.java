@@ -5,7 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import pandas.collection.Title;
 import pandas.gather.Instance;
 import pandas.gather.TitleGather;
-import pandas.gatherer.core.Config;
+import pandas.gatherer.CrawlBeans;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,8 +34,7 @@ public class CrawlBeansTest {
         instance.setDate(Instant.now());
         instance.setGatherMethodName("Heritrix");
 
-        Config config = new Config();
-        CrawlBeans.writeConfig(config, instance, jobDir);
+        CrawlBeans.writeConfig(instance, jobDir, null);
 
         assertEquals("http://example.org/\nhttp://example.org/two\n",
                 Files.readString(jobDir.resolve("seeds.txt")));

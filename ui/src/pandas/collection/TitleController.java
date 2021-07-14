@@ -21,17 +21,17 @@ import pandas.core.Config;
 import pandas.core.Individual;
 import pandas.core.IndividualRepository;
 import pandas.core.UserService;
-import pandas.gather.GatherMethodRepository;
-import pandas.gather.GatherScheduleRepository;
-import pandas.gather.GatherService;
-import pandas.gather.State;
+import pandas.gather.*;
+import pandas.gatherer.CrawlBeans;
 
 import javax.persistence.EntityManager;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.security.Principal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -269,6 +269,15 @@ public class TitleController {
         Individual currentUser = individualRepository.findByUserid(principal.getName()).orElse(null);
         titleService.transferOwnership(title, newAgency, newOwner, note, currentUser);
         return "redirect:/titles/" + title.getId();
+    }
+
+    @GetMapping(value = "/titles/{id}/heritrix-config", produces = "application/xml")
+    public void heritrixConfig(@PathVariable("id") Title title, ServletResponse response) throws IOException {
+        Instance instance = new Instance();
+        instance.setTitle(title);
+        instance.setDate(Instant.now());
+        response.setContentType("application/xml");
+        CrawlBeans.writeCrawlXml(instance, new OutputStreamWriter(response.getOutputStream(), UTF_8), null);
     }
 
     @GetMapping("/titles/new")
