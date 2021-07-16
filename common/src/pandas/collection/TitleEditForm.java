@@ -1,9 +1,6 @@
 package pandas.collection;
 
-import pandas.gather.GatherDate;
-import pandas.gather.GatherMethod;
-import pandas.gather.GatherSchedule;
-import pandas.gather.TitleGather;
+import pandas.gather.*;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
@@ -45,6 +42,7 @@ public class TitleEditForm {
     private Publisher publisher;
     private String publisherName;
     private PublisherType publisherType;
+    private Profile activeProfile;
 
     public TitleEditForm() {}
 
@@ -59,7 +57,6 @@ public class TitleEditForm {
         setLocalReference(title.getLocalReference());
         setName(title.getName());
         setNotes(title.getNotes());
-        setOneoffDates(title.getGather().getOneoffDates().stream().map(GatherDate::getDate).collect(toList()));
         setPublisher(title.getPublisher());
         setStatus(title.getStatus());
         setSubjects(title.getSubjects());
@@ -72,8 +69,10 @@ public class TitleEditForm {
 
         TitleGather gather = title.getGather();
         if (gather != null) {
+            setActiveProfile(gather.getActiveProfile());
             setGatherMethod(gather.getMethod());
             setGatherSchedule(gather.getSchedule());
+            setOneoffDates(gather.getOneoffDates().stream().map(GatherDate::getDate).collect(toList()));
             if (gather.getAdditionalUrls() != null && !gather.getAdditionalUrls().isBlank()) {
                 setSeedUrls(getSeedUrls() + "\n" + gather.getAdditionalUrls());
             }
@@ -238,5 +237,13 @@ public class TitleEditForm {
 
     public void setPublisherType(PublisherType publisherType) {
         this.publisherType = publisherType;
+    }
+
+    public Profile getActiveProfile() {
+        return activeProfile;
+    }
+
+    public void setActiveProfile(Profile activeProfile) {
+        this.activeProfile = activeProfile;
     }
 }

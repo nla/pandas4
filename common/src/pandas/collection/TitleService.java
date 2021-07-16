@@ -186,6 +186,7 @@ public class TitleService {
         if (titleGather.getTitle() == null) {
             titleGather.setTitle(title);
         }
+        titleGather.setActiveProfile(form.getActiveProfile()); // TODO: do we need to swap httrack config?
         titleGather.setGatherUrl(title.getSeedUrl() != null && !title.getSeedUrl().isBlank() ? title.getSeedUrl() : title.getTitleUrl());
         titleGather.setSchedule(form.getGatherSchedule());
         titleGather.setMethod(form.getGatherMethod());

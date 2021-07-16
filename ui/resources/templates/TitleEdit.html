@@ -69,6 +69,12 @@
                             th:text="${schedule.name}">Weekly
                     </option>
                 </select></label>
+                <label>Profile: <select th:field="*{activeProfile}">
+                    <option value=""></option>
+                    <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}">
+                        Pandas Defaults
+                    </option>
+                </select></label>
 
                 <fieldset>
                     <legend>One-off</legend>

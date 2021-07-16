@@ -22,6 +22,9 @@ public class Profile {
     @Column(name = "IS_DEFAULT")
     private boolean isDefault;
 
+    @Column
+    private String heritrixConfig;
+
     public String getName() {
         return this.name;
     }
@@ -52,5 +55,13 @@ public class Profile {
 
     public void setDefault(boolean aDefault) {
         isDefault = aDefault;
+    }
+
+    public String getHeritrixConfig() {
+        return heritrixConfig;
+    }
+
+    public void setHeritrixConfig(String heritrixConfig) {
+        this.heritrixConfig = heritrixConfig;
     }
 }

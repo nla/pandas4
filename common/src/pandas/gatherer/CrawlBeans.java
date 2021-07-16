@@ -8,6 +8,7 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.SAXException;
 import pandas.gather.Instance;
+import pandas.gather.Profile;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,6 +47,19 @@ public class CrawlBeans {
         }
     }
 
+    private static void setBeanPropertyMultiline(Document doc, String bean, String property, String value) {
+        try {
+            XPath xPath = xPathFactory.newXPath();
+            xPath.setNamespaceContext(namespaceContext);
+            XPathExpression expr = xPath.compile(
+                    "/beans:beans/beans:bean[@id='" + bean + "']/beans:property[@name='" + property + "']/beans:value");
+            Element element = (Element) expr.evaluate(doc, XPathConstants.NODE);
+            element.setTextContent(value);
+        } catch (XPathExpressionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void writeCrawlXml(Instance instance, Writer writer, String gathererBindAddress) throws IOException {
         Document doc;
         try (InputStream stream = CrawlBeans.class.getResourceAsStream("/pandas/crawlconfig/crawler-beans.cxml")) {
@@ -59,6 +73,10 @@ public class CrawlBeans {
         setBeanProperty(doc, "warcWriter", "prefix", instance.getHumanId());
         if (gathererBindAddress != null) {
             setBeanProperty(doc, "fetchHttp", "httpBindAddress", gathererBindAddress);
+        }
+        Profile profile = instance.getTitle().getGather().getActiveProfile();
+        if (profile != null && profile.getHeritrixConfig() != null) {
+            setBeanPropertyMultiline(doc, "simpleOverrides", "properties", profile.getHeritrixConfig());
         }
 
         DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();

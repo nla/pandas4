@@ -22,6 +22,12 @@
 
     <context:annotation-config/>
 
+    <bean id="simpleOverrides" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+        <property name="properties">
+            <value></value>
+        </property>
+    </bean>
+
     <!-- CRAWL METADATA: including identification of crawler/operator -->
     <bean id="metadata" class="org.archive.modules.CrawlMetadata" autowire="byName">
         <property name="operatorContactUrl" value="http://www.nla.gov.au/legal-deposit/request"/>
@@ -79,7 +85,7 @@
                 <!-- ...then ACCEPT those within configured/seed-implied SURT prefixes... -->
                 <ref bean="acceptSurts" />
                 <!-- ...but REJECT those more than a configured link-hop-count from start... -->
-                <bean class="org.archive.modules.deciderules.TooManyHopsDecideRule">
+                <bean id="tooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
                     <!-- <property name="maxHops" value="20" /> -->
                 </bean>
                 <!-- ...but ACCEPT those more than a configured link-hop-count from start... -->

@@ -61,8 +61,9 @@ public class TitleController {
     private final UserService userService;
     private final PublisherTypeRepository publisherTypeRepository;
     private final AgencyRepository agencyRepository;
+    private final ProfileRepository profileRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -79,6 +80,7 @@ public class TitleController {
         this.userService = userService;
         this.publisherTypeRepository = publisherTypeRepository;
         this.agencyRepository = agencyRepository;
+        this.profileRepository = profileRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -227,6 +229,7 @@ public class TitleController {
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
+        model.addAttribute("allProfiles", profileRepository.findAllByOrderByName());
         model.addAttribute("allPublisherTypes", publisherTypeRepository.findAll());
         model.addAttribute("allSubjects", classificationService.allSubjects());
 
@@ -289,6 +292,7 @@ public class TitleController {
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
+        model.addAttribute("allProfiles", profileRepository.findAllByOrderByName());
         model.addAttribute("allSubjects", classificationService.allSubjects());
         model.addAttribute("statusList", statusRepository.findAllById(
                 List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
