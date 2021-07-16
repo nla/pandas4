@@ -162,7 +162,8 @@ public class Title {
     private List<Collection> collections;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "title")
-    @IndexedEmbedded(includePaths = {"schedule.id", "method.id", "notes", "nextGatherDate", "lastGatherDate", "firstGatherDate"})
+    @IndexedEmbedded(includePaths = {"activeProfile.id", "schedule.id", "method.id", "notes", "nextGatherDate",
+            "lastGatherDate", "firstGatherDate"})
     // XXX: not sure why it can't find the inverse automatically
     @AssociationInverseSide(
             inversePath = @ObjectPath( @PropertyValue( propertyName = "title" ) )

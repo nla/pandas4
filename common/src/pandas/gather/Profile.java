@@ -1,5 +1,8 @@
 package pandas.gather;
 
+import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
@@ -10,6 +13,7 @@ public class Profile {
     @Column(name = "PROFILE_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PROFILE_SEQ")
     @SequenceGenerator(name = "PROFILE_SEQ", sequenceName = "PROFILE_SEQ", allocationSize = 1)
+    @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
     @Column(name = "NAME")

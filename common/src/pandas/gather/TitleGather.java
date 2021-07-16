@@ -32,6 +32,8 @@ public class TitleGather {
 
     @ManyToOne
     @JoinColumn(name = "ACTIVE_PROFILE_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Profile activeProfile;
 
     @Column(name = "ADDITIONAL_URLS", length = 4000)
