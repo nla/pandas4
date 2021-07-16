@@ -88,6 +88,11 @@
                 <bean class="org.archive.modules.deciderules.RejectDecideRule" />
                 <!-- ...then ACCEPT those within configured/seed-implied SURT prefixes... -->
                 <ref bean="acceptSurts" />
+                <!-- NLA: also ACCEPT files with common document file extensions even if otherwise outside scope -->
+                <bean class="org.archive.modules.deciderules.MatchesRegexDecideRule">
+                    <property name="decision" value="ACCEPT" />
+                    <property name="regex" value="(?i)^[^?]*\.(?:abw|doc|docx|epub|ods|odt|pdf|ppt|pptx|rtf|vsd|xls|xlsx)(?:$|\?)" />
+                </bean>
                 <!-- ...but REJECT those more than a configured link-hop-count from start... -->
                 <ref bean="tooManyHopsDecideRule" />
                 <!-- ...but ACCEPT those more than a configured link-hop-count from start... -->
