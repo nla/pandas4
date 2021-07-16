@@ -74,6 +74,10 @@
              </property> -->
     </bean>
 
+    <bean id="tooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
+        <!-- <property name="maxHops" value="20" /> -->
+    </bean>
+
     <!-- SCOPE: rules for which discovered URIs to crawl; order is very
          important because last decision returned other than 'NONE' wins. -->
     <bean id="scope" class="org.archive.modules.deciderules.DecideRuleSequence">
@@ -85,9 +89,7 @@
                 <!-- ...then ACCEPT those within configured/seed-implied SURT prefixes... -->
                 <ref bean="acceptSurts" />
                 <!-- ...but REJECT those more than a configured link-hop-count from start... -->
-                <bean id="tooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
-                    <!-- <property name="maxHops" value="20" /> -->
-                </bean>
+                <ref bean="tooManyHopsDecideRule" />
                 <!-- ...but ACCEPT those more than a configured link-hop-count from start... -->
                 <bean class="org.archive.modules.deciderules.TransclusionDecideRule">
                     <!-- <property name="maxTransHops" value="2" /> -->
