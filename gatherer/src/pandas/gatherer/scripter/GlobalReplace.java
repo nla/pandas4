@@ -1,5 +1,8 @@
 package pandas.gatherer.scripter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -20,6 +23,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * Based on the old globrep.pl script.
  */
 public class GlobalReplace {
+    private static final Logger logger = LoggerFactory.getLogger(GlobalReplace.class);
+
     public static class Report {
         public long directoriesProcessed;
         public long substitutionsMade;
@@ -91,6 +96,16 @@ public class GlobalReplace {
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 report.directoriesProcessed++;
                 return super.postVisitDirectory(dir, exc);
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                if (file.getFileName().toString().endsWith(".tmppandas")) {
+                    // I think NFS sometimes leaves these briefly visible so just skip them
+                    return CONTINUE;
+                }
+                logger.warn("Exception visiting " + file, exc);
+                return CONTINUE;
             }
         });
         report.endTime = Instant.now();
