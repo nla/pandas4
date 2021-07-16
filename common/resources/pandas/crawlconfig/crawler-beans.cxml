@@ -74,8 +74,14 @@
              </property> -->
     </bean>
 
+    <!-- NLA: we move some of the decide rules to the top-level so we can change their settings with overrides -->
     <bean id="tooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
         <!-- <property name="maxHops" value="20" /> -->
+    </bean>
+    <bean id="transclusionDecideRule" class="org.archive.modules.deciderules.TransclusionDecideRule">
+        <!-- NLA: increasing maxTransHops from the default of 2 as situations like iframe -> css -> image aren't uncommon -->
+        <property name="maxTransHops" value="5" />
+        <!-- <property name="maxSpeculativeHops" value="1" /> -->
     </bean>
 
     <!-- SCOPE: rules for which discovered URIs to crawl; order is very
@@ -96,10 +102,7 @@
                 <!-- ...but REJECT those more than a configured link-hop-count from start... -->
                 <ref bean="tooManyHopsDecideRule" />
                 <!-- ...but ACCEPT those more than a configured link-hop-count from start... -->
-                <bean class="org.archive.modules.deciderules.TransclusionDecideRule">
-                    <!-- <property name="maxTransHops" value="2" /> -->
-                    <!-- <property name="maxSpeculativeHops" value="1" /> -->
-                </bean>
+                <ref bean="transclusionDecideRule" />
                 <!-- ...but REJECT those from a configurable (initially empty) set of REJECT SURTs... -->
                 <bean class="org.archive.modules.deciderules.surt.SurtPrefixedDecideRule">
                     <property name="decision" value="REJECT"/>
