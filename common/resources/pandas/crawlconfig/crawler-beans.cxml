@@ -74,6 +74,10 @@
              </property> -->
     </bean>
 
+    <!-- NLA: optionally ACCEPT subdomains of the seeds (disabled by default) -->
+    <bean id="onDomainsDecideRule" class="org.archive.modules.deciderules.surt.OnDomainsDecideRule">
+        <property name="enabled" value="false" />
+    </bean>
     <!-- NLA: we move some of the decide rules to the top-level so we can change their settings with overrides -->
     <bean id="tooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
         <!-- <property name="maxHops" value="20" /> -->
@@ -94,6 +98,8 @@
                 <bean class="org.archive.modules.deciderules.RejectDecideRule" />
                 <!-- ...then ACCEPT those within configured/seed-implied SURT prefixes... -->
                 <ref bean="acceptSurts" />
+                <!-- NLA: optionally ACCEPT subdomains of the seeds -->
+                <ref bean="onDomainsDecideRule" />
                 <!-- NLA: also ACCEPT files with common document file extensions even if otherwise outside scope -->
                 <bean class="org.archive.modules.deciderules.MatchesRegexDecideRule">
                     <property name="decision" value="ACCEPT" />
