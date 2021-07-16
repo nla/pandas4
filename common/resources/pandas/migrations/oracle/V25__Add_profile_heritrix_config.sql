@@ -1,1 +1,1 @@
-alter table PROFILE add heritrix_config NVARCHAR2(4000);
+alter table PROFILE add heritrix_config NCLOB;
