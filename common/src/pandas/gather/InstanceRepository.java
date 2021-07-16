@@ -15,7 +15,8 @@ import java.util.List;
 
 @Repository
 public interface InstanceRepository extends CrudRepository<Instance,Long> {
-    @Query("select i from Instance i where i.state.name in ('gathering', 'gatherPause', 'gatherProcess') order by i.date")
+    @Query("select i from Instance i where i.state.name in ('gathering', 'gatherPause', 'gatherProcess', " +
+            "'archiving', 'deleting') order by i.date")
     List<Instance> findGathering();
 
     @Query("select i from Instance i where i.state.id in (12, 9, 7, 13) and i.gatherMethodName = ?1")
