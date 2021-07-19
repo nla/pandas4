@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
-import pandas.core.Config;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
-import pandas.core.UserService;
+import pandas.core.*;
 import pandas.gather.*;
 import pandas.search.*;
 
@@ -113,8 +110,8 @@ public class TitleSearcher {
                         qTerms.append(term).append(' ');
                     }
                 }
-                this.q = qTerms.toString();
-                this.url = urlTerms.toString();
+                this.q = qTerms.toString().strip();
+                this.url = urlTerms.toString().strip();
             } else {
                 this.q = null;
                 this.url = null;
@@ -125,7 +122,20 @@ public class TitleSearcher {
             return f -> f.bool(b -> {
                 b.must(f.matchAll());
                 if (q != null && !q.isBlank()) {
-                    b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes", "pi").matching(q).defaultOperator(AND));
+                    var simpleQuery = f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes").matching(q).defaultOperator(AND);
+                    if (Utils.isNumeric(q)) {
+                        try {
+                            long longValue = Long.parseLong(q);
+                            var b2 = f.bool();
+                            b2.should(f.match().field("pi").matching(longValue));
+                            b2.should(simpleQuery);
+                            b.must(b2);
+                        } catch (NumberFormatException e) {
+                            b.must(simpleQuery);
+                        }
+                    } else {
+                        b.must(simpleQuery);
+                    }
                 }
                 if (url != null && !url.isBlank()) {
                     b.must(f.phrase().fields("titleUrl", "seedUrl").matching(url));
