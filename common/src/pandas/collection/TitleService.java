@@ -201,9 +201,6 @@ public class TitleService {
         titleGather.calculateNextGatherDate();
         titleGather.setGatherCommand(titleGather.buildHttrackCommand());
 
-        // FIXME: does it make sense to have both this and next_gather_date?
-        titleGather.setScheduledDate(titleGather.getNextGatherDate());
-
         titleGatherRepository.save(titleGather);
 
         return title;

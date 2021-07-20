@@ -320,6 +320,7 @@ public class TitleGather {
         // next try the title-level scheduled date
         if (getSchedule() != null) {
             Instant date = getSchedule().calculateNextTime(getLastGatherDate());
+            setScheduledDate(date);
             if (date != null && date.isBefore(next)) next = date;
         }
 
