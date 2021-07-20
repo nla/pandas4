@@ -35,29 +35,24 @@ public class CrawlBeans {
     }
 
     private static void setBeanProperty(Document doc, String bean, String property, String value) {
+        Element element = xpath(doc, "/beans:beans/beans:bean[@id='" + bean + "']/beans:property[@name='" + property + "']");
+        element.setAttribute("value", value);
+    }
+
+    private static Element xpath(Document doc, String expression) {
         try {
             XPath xPath = xPathFactory.newXPath();
             xPath.setNamespaceContext(namespaceContext);
-            XPathExpression expr = xPath.compile(
-                    "/beans:beans/beans:bean[@id='" + bean + "']/beans:property[@name='" + property + "']");
-            Element element = (Element) expr.evaluate(doc, XPathConstants.NODE);
-            element.setAttribute("value", value);
+            XPathExpression expr = xPath.compile(expression);
+            return (Element) expr.evaluate(doc, XPathConstants.NODE);
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);
         }
     }
 
     private static void setBeanPropertyMultiline(Document doc, String bean, String property, String value) {
-        try {
-            XPath xPath = xPathFactory.newXPath();
-            xPath.setNamespaceContext(namespaceContext);
-            XPathExpression expr = xPath.compile(
-                    "/beans:beans/beans:bean[@id='" + bean + "']/beans:property[@name='" + property + "']/beans:value");
-            Element element = (Element) expr.evaluate(doc, XPathConstants.NODE);
+            Element element = xpath(doc, "/beans:beans/beans:bean[@id='" + bean + "']/beans:property[@name='" + property + "']/beans:value");
             element.setTextContent(value);
-        } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static void writeCrawlXml(Instance instance, Writer writer, String gathererBindAddress) throws IOException {
@@ -78,6 +73,8 @@ public class CrawlBeans {
         if (profile != null && profile.getHeritrixConfig() != null) {
             setBeanPropertyMultiline(doc, "simpleOverrides", "properties", profile.getHeritrixConfig());
         }
+        xpath(doc, "/beans:beans/beans:bean[@id='seeds']/beans:property[@name='textSource']/beans:bean/beans:property[@name='value']/beans:value")
+                .setTextContent(String.join("\n", instance.getTitle().getAllSeeds()));
 
         DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
         LSSerializer lsSerializer = domImplementation.createLSSerializer();

@@ -43,16 +43,21 @@
 
     </bean>
 
-    <!-- SEEDS ALTERNATE APPROACH: specifying external seeds.txt file in
-         the job directory, similar to the H1 approach. -->
+    <!-- SEEDS: crawl starting points
+         ConfigString allows simple, inline specification of a moderate
+         number of seeds; see below comment for example of using an
+         arbitrarily-large external file. -->
     <bean id="seeds" class="org.archive.modules.seeds.TextSeedModule">
-     <property name="textSource">
-      <bean class="org.archive.spring.ConfigFile">
-       <property name="path" value="seeds.txt" />
-      </bean>
-     </property>
-     <property name='sourceTagSeeds' value='false'/>
-     <property name='blockAwaitingSeedLines' value='-1'/>
+        <property name="textSource">
+            <bean class="org.archive.spring.ConfigString">
+                <property name="value">
+                    <value>
+                    </value>
+                </property>
+            </bean>
+        </property>
+        <!-- <property name='sourceTagSeeds' value='false'/> -->
+        <!-- <property name='blockAwaitingSeedLines' value='-1'/> -->
     </bean>
 
     <bean id="acceptSurts" class="org.archive.modules.deciderules.surt.SurtPrefixedDecideRule">
