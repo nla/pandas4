@@ -1,6 +1,7 @@
 package pandas.discovery;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.collection.Title;
 import pandas.core.Individual;
+import pandas.core.View;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -25,29 +27,35 @@ public class Discovery {
     @Column(name = "DISCOVERY_ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "DISCOVERY_SEQ")
     @SequenceGenerator(name = "DISCOVERY_SEQ", sequenceName = "DISCOVERY_SEQ", allocationSize = 1)
+    @JsonView(View.Summary.class)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "DISCOVERY_SOURCE_ID")
     @IndexedEmbedded(includePaths = {"id"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
+    @JsonView(View.Summary.class)
     private DiscoverySource source;
 
     @Column(length = 1024)
     @FullTextField(analyzer = "url")
+    @JsonView(View.Summary.class)
     private String sourceUrl;
 
     @NotBlank
     @Column(length = 1024)
     @FullTextField(analyzer = "url")
+    @JsonView(View.Summary.class)
     private String url;
 
     @Column(length = 1024)
     @FullTextField(analyzer = "english")
+    @JsonView(View.Summary.class)
     private String name;
 
     @Column(length = 1024)
     @FullTextField(analyzer = "english")
+    @JsonView(View.Summary.class)
     private String description;
 
     private String state;
@@ -58,6 +66,7 @@ public class Discovery {
 
     @CreatedDate
     @GenericField(sortable = Sortable.YES)
+    @JsonView(View.Summary.class)
     private Instant createdDate;
 
     @CreatedBy
@@ -67,6 +76,7 @@ public class Discovery {
     private Individual createdBy;
 
     @LastModifiedDate
+    @JsonView(View.Summary.class)
     private Instant lastModifiedDate;
 
     @LastModifiedBy

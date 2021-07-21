@@ -1,5 +1,6 @@
 package pandas.discovery;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.springframework.data.annotation.CreatedBy;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.core.Individual;
+import pandas.core.View;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -21,11 +23,14 @@ public class DiscoverySource {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "DISCOVERY_SEQ")
     @SequenceGenerator(name = "DISCOVERY_SEQ", sequenceName = "DISCOVERY_SEQ", allocationSize = 1)
     @GenericField
+    @JsonView(View.Summary.class)
     private Long id;
 
     @NotBlank
+    @JsonView(View.Summary.class)
     private String name;
 
+    @JsonView(View.Summary.class)
     private String url;
 
     // spider options

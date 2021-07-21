@@ -1,11 +1,13 @@
 package pandas.discovery;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import pandas.core.View;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -64,10 +66,12 @@ public class DiscoverySourceController {
     @GetMapping(value = "/{id}/dryrun", produces = "text/plain")
     public void dryrun(@PathVariable("id") DiscoverySource source, HttpServletResponse response) throws IOException, InterruptedException {
         var objectMapper = new ObjectMapper();
+        objectMapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         var writer = response.getWriter();
         var spider = new DiscoverySpider(source, discovery -> {
             try {
-                writer.println(objectMapper.writeValueAsString(discovery));
+                writer.println(objectMapper.writerWithView(View.Summary.class)
+                        .writeValueAsString(discovery));
                 writer.flush();
             } catch (JsonProcessingException e) {
                 e.printStackTrace(writer);
@@ -81,13 +85,15 @@ public class DiscoverySourceController {
                     @RequestParam(value = "dry", defaultValue = "false") boolean dry,
                     HttpServletResponse response) throws IOException, InterruptedException {
         var objectMapper = new ObjectMapper();
+        objectMapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         var writer = response.getWriter();
         var spider = new DiscoverySpider(source, discovery -> {
             if (!dry && discoveryRepository.findBySourceAndUrl(source, discovery.getUrl()).isEmpty()) {
                 discovery = discoveryRepository.save(discovery);
             }
             try {
-                writer.println(objectMapper.writeValueAsString(discovery));
+                writer.println(objectMapper.writerWithView(View.Summary.class)
+                        .writeValueAsString(discovery));
                 writer.flush();
             } catch (JsonProcessingException e) {
                 e.printStackTrace(writer);
