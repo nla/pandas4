@@ -10,6 +10,9 @@
             My Agency
         </option>
     </select>
+    <form th:action="@{/titles}">
+        <input type=search name="q" placeholder="Search Titles" data-keybind="f">
+    </form>
 </header>
 
 <div th:fragment="pagination(page)">
