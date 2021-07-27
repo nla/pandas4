@@ -49,7 +49,7 @@
         </thead>
         <tbody>
         <tr th:each="instance: ${gatheringInstances}">
-            <td th:text="${instance.date}">Date</td>
+            <td th:text="${@dateFormats.dayDateTime.format(instance.date)}">Date</td>
             <td th:text="${instance.title.pi}">12345</td>
             <td><a th:href="@{|/titles/${instance.title.id}|}" th:text="${instance.title.name}" href="#">Fishes of Australia</a></td>
             <td th:text="${instance.gatherMethodName}">Heritrix</td>

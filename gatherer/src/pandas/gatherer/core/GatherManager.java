@@ -13,10 +13,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,6 +35,7 @@ public class GatherManager implements AutoCloseable {
 	private final InstanceGatherRepository instanceGatherRepository;
 	private final Object pollingLock = new Object();
 	private String version;
+	private volatile boolean paused;
 
 	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
 						 TitleRepository titleRepository, InstanceService instanceService,
@@ -69,6 +67,9 @@ public class GatherManager implements AutoCloseable {
 	 * Query the database and select the next instance for gathering.
 	 */
 	Instance nextInstance(String gatherMethod, String threadName) {
+		if (paused) {
+			return null;
+		}
 		synchronized (pollingLock) {
 			// first consider incomplete instances
 			for (Instance instance : instanceRepository.findIncomplete(gatherMethod)) {
@@ -192,6 +193,22 @@ public class GatherManager implements AutoCloseable {
 				// just exit
 			}
 		}
+	}
+
+	public void setPaused(boolean paused) {
+		this.paused = paused;
+	}
+
+	public boolean isPaused() {
+		return paused;
+	}
+
+	public Set<Long> getCurrentTitles() {
+		return Collections.unmodifiableSet(currentlyGatheringTitles.keySet());
+	}
+
+	public Set<Long> getCurrentInstances() {
+		return Collections.unmodifiableSet(currentInstances.keySet());
 	}
 }
 
