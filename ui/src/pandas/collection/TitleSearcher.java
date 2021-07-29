@@ -87,6 +87,12 @@ public class TitleSearcher {
         return result.aggregation(titlesBySchedule);
     }
 
+    public List<Title> urlCheck(String url) {
+        return Search.session(entityManager).search(Title.class)
+                .where(f -> f.phrase().fields("titleUrl", "seedUrl")
+                .matching(url)).fetch(5).hits();
+    }
+
     private class Query {
         private final SearchSession session;
         private final MultiValueMap<String, String> params;

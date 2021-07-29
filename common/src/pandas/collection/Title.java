@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
@@ -12,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.Agency;
 import pandas.core.Individual;
+import pandas.core.View;
 import pandas.gather.Instance;
 import pandas.gather.TitleGather;
 
@@ -49,6 +51,7 @@ public class Title {
 // TODO: native generator for mysql support, but this breaks existing h2 schema
 //  @GeneratedValue(strategy = GenerationType.AUTO, generator = "TITLE_SEQ")
 //  @GenericGenerator(name = "TITLE_SEQ", strategy = "native")
+    @JsonView(View.Summary.class)
     private Long id;
 
     /**
@@ -56,6 +59,7 @@ public class Title {
      * TODO: Unify this with id by changing the id of existing titles to their pi.
      */
     @GenericField
+    @JsonView(View.Summary.class)
     private Long pi;
 
     /**
@@ -65,6 +69,7 @@ public class Title {
     @FullTextField(analyzer = "english")
     @KeywordField(name = "name_sort", sortable = Sortable.YES)
     @NotNull
+    @JsonView(View.Summary.class)
     private String name;
 
     /**
@@ -72,6 +77,7 @@ public class Title {
      */
     @Column(name = "TITLE_URL", length = 1024)
     @FullTextField(analyzer = "url")
+    @JsonView(View.Summary.class)
     private String titleUrl;
 
     /**

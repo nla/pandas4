@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.hibernate.search.engine.search.query.SearchScroll;
@@ -17,10 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
-import pandas.core.Config;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
-import pandas.core.UserService;
+import pandas.core.*;
 import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
 
@@ -303,5 +301,13 @@ public class TitleController {
     public String update(@Valid TitleEditForm form) {
         Title title = titleService.save(form, userService.getCurrentUser());
         return "redirect:/titles/" + title.getId();
+    }
+
+    @GetMapping(value = "/titles/check", produces = "application/json")
+    @CrossOrigin("*")
+    @ResponseBody
+    @JsonView(View.Summary.class)
+    public List<Title> check(@RequestParam("url") String url) {
+        return titleSearcher.urlCheck(url);
     }
 }
