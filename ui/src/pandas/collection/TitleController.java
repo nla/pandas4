@@ -284,8 +284,10 @@ public class TitleController {
     @GetMapping("/titles/new")
     public String update(@RequestParam(value = "collection", required = false) List<Collection> collections,
                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
+                         @RequestParam(value = "url", required = false) String url,
                          Model model) {
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
+        form.setTitleUrl(url);
         model.addAttribute("form", form);
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
@@ -308,6 +310,8 @@ public class TitleController {
     @ResponseBody
     @JsonView(View.Summary.class)
     public List<Title> check(@RequestParam("url") String url) {
-        return titleSearcher.urlCheck(url);
+        String urlWithoutPath = url.replaceFirst("^(https?://[^/]+/).*$", "$1");
+        return titleSearcher.urlCheck(urlWithoutPath);
     }
+
 }

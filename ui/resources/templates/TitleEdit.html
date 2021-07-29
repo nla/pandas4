@@ -203,6 +203,7 @@
                 .catch(error => callback(false));
         },
     });
+    let titleUrlField = document.getElementById("titleUrl");
     new SlimSelect({
         select: '#publisher',
         allowDeselect: true,
@@ -239,7 +240,7 @@
                 document.getElementById("publisherType").required = true;
                 document.getElementById("publisherTypeLabel").style.display = "inherit";
 
-                const urlString = document.getElementById("titleUrl").value;
+                const urlString = titleUrlField.value;
                 if (urlString) {
                     const host = new URL(urlString).host;
                     const publisherTypeOptions = document.getElementById("publisherType").options;
@@ -267,11 +268,11 @@
             }
         }
     });
-    document.getElementById("titleUrl").addEventListener("change", function () {
+    function titleUrlChanged () {
         document.getElementById("urlInfo").innerText = "Loading...";
         document.getElementById("urlInfo").style.color = "#555";
 
-        fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(this.value))
+        fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
             .then(response => response.json())
             .then(info => {
                 let contentType = info.contentType == null ? "?" : info.contentType.replace(/\s*;.*/, "");
@@ -281,7 +282,11 @@
                     document.getElementById("name").value = info.title;
                 }
             });
-    });
+    }
+    titleUrlField.addEventListener("change", titleUrlChanged);
+    if (titleUrlField.value !== "") {
+        titleUrlChanged();
+    }
 
     // we keep the form disabled until the page is fully loaded
     // otherwise it could be submitted with partial values which results in data loss
