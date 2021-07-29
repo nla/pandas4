@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${collection == null ? 'New Collection - PANDAS' : 'Edit Collection - PANDAS'}">Edit Collection - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header></header>
+
+    <h2>Google Bookmarklet</h2>
+    <p>Drag the following link into your bookmarks toolbar. Then do a Google search and click on the bookmark.</p>
+    <p>
+        <a th:href="${bookmarklet}" style="font-size: 140%; padding: 8px; border: 1px solid #ccc; display:inline-block; margin: 16px">Check PANDAS (Google)</a>
+    </p>
+    <p>
+        <strong>Pro tip:</strong> Configure Google to show more results per page: ⚙️ Settings -&gt;
+        <a href="https://www.google.com/preferences">Search Settings</a> -&gt; Results per page
+    </p>
+
+</main>
