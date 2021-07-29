@@ -18,7 +18,7 @@ public class BookmarkletController {
     public void get(Model model, HttpServletRequest request) throws IOException {
         try (InputStream stream = BookmarkletController.class.getResourceAsStream("/bookmarklets/google.js")) {
             String bookmarklet = new String(stream.readAllBytes(), UTF_8);
-            String baseUrl = ServletUriComponentsBuilder.fromRequest(request).replacePath("").build().toString();
+            String baseUrl = ServletUriComponentsBuilder.fromContextPath(request).build().toString().replaceFirst("/$", "");
             bookmarklet = bookmarklet.replace("https://pandas.nla.gov.au/admin", baseUrl);
             bookmarklet = bookmarklet.replace("\n", "").replaceAll("  +", " ");
             model.addAttribute("bookmarklet", "javascript:" + UriUtils.encode(bookmarklet, UTF_8));
