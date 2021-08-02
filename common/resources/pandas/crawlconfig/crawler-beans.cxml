@@ -267,14 +267,14 @@
     </bean>
     <bean id="extractorHttp" class="org.archive.modules.extractor.ExtractorHTTP">
     </bean>
-    <bean id="extractorChromeTooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
-    </bean>
-    <bean id="extractorChrome" class="org.archive.modules.extractor.ExtractorChrome">
-        <property name="enabled" value="false" />
-        <property name="shouldProcessRule">
-            <ref bean="extractorChromeTooManyHopsDecideRule" />
-        </property>
-    </bean>
+<!--    <bean id="extractorChromeTooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">-->
+<!--    </bean>-->
+<!--    <bean id="extractorChrome" class="org.archive.modules.extractor.ExtractorChrome">-->
+<!--        <property name="enabled" value="false" />-->
+<!--        <property name="shouldProcessRule">-->
+<!--            <ref bean="extractorChromeTooManyHopsDecideRule" />-->
+<!--        </property>-->
+<!--    </bean>-->
     <bean id="extractorHtml" class="org.archive.modules.extractor.ExtractorHTML">
         <!-- <property name="extractJavascript" value="true" /> -->
         <!-- <property name="extractValueAttributes" value="true" /> -->
@@ -308,7 +308,7 @@
                 <!-- ...extract outlinks from HTTP headers... -->
                 <ref bean="extractorHttp"/>
                 <!-- NLA: load in headless browser -->
-                <ref bean="extractorChrome"/>
+<!--                <ref bean="extractorChrome"/>-->
                 <!-- ...extract outlinks from HTML content... -->
                 <ref bean="extractorHtml"/>
                 <!-- ...extract outlinks from CSS content... -->
