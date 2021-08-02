@@ -83,6 +83,10 @@
     <bean id="onDomainsDecideRule" class="org.archive.modules.deciderules.surt.OnDomainsDecideRule">
         <property name="enabled" value="false" />
     </bean>
+    <bean id="rejectHopsPathRegex" class="org.archive.modules.deciderules.HopsPathMatchesRegexDecideRule">
+        <property name="enabled" value="false" />
+        <property name="decision" value="REJECT" />
+    </bean>
     <!-- NLA: we move some of the decide rules to the top-level so we can change their settings with overrides -->
     <bean id="tooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
         <!-- <property name="maxHops" value="20" /> -->
@@ -91,6 +95,10 @@
         <!-- NLA: increasing maxTransHops from the default of 2 as situations like iframe -> css -> image aren't uncommon -->
         <property name="maxTransHops" value="5" />
         <!-- <property name="maxSpeculativeHops" value="1" /> -->
+    </bean>
+    <bean id="rejectSpeculative" class="org.archive.modules.deciderules.HopsPathMatchesRegexDecideRule">
+        <property name="regex" value=".*X.*"/>
+        <property name="decision" value="REJECT"/>
     </bean>
 
     <!-- SCOPE: rules for which discovered URIs to crawl; order is very
@@ -142,6 +150,8 @@
                 <bean class="org.archive.modules.deciderules.TooManyPathSegmentsDecideRule">
                     <!-- <property name="maxPathDepth" value="20" /> -->
                 </bean>
+                <!-- NLA: ... and REJECT those that match a given path (for more control over shallow crawls) -->
+                <ref bean="rejectHopsPathRegex" />
                 <!-- ...but always ACCEPT those marked as prerequisitee for another URI... -->
                 <bean class="org.archive.modules.deciderules.PrerequisiteAcceptDecideRule">
                 </bean>
@@ -149,10 +159,7 @@
                 <bean class="org.archive.modules.deciderules.SchemeNotInSetDecideRule">
                 </bean>
                 <!-- ...and always REJECT all speculative fetches (NLA addition to reduce garbage) -->
-                <bean class="org.archive.modules.deciderules.HopsPathMatchesRegexDecideRule">
-                  <property name="regex" value=".*X.*"/>
-                  <property name="decision" value="REJECT"/>
-                </bean>
+                <ref bean="rejectSpeculative" />
             </list>
         </property>
     </bean>
@@ -260,6 +267,14 @@
     </bean>
     <bean id="extractorHttp" class="org.archive.modules.extractor.ExtractorHTTP">
     </bean>
+    <bean id="extractorChromeTooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
+    </bean>
+    <bean id="extractorChrome" class="org.archive.modules.extractor.ExtractorChrome">
+        <property name="enabled" value="false" />
+        <property name="shouldProcessRule">
+            <ref bean="extractorChromeTooManyHopsDecideRule" />
+        </property>
+    </bean>
     <bean id="extractorHtml" class="org.archive.modules.extractor.ExtractorHTML">
         <!-- <property name="extractJavascript" value="true" /> -->
         <!-- <property name="extractValueAttributes" value="true" /> -->
@@ -292,6 +307,8 @@
                 <ref bean="fetchHttp"/>
                 <!-- ...extract outlinks from HTTP headers... -->
                 <ref bean="extractorHttp"/>
+                <!-- NLA: load in headless browser -->
+                <ref bean="extractorChrome"/>
                 <!-- ...extract outlinks from HTML content... -->
                 <ref bean="extractorHtml"/>
                 <!-- ...extract outlinks from CSS content... -->
