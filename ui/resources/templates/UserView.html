@@ -20,18 +20,17 @@
         <ol>
             <li style="font-weight: bold"><a th:href="@{/agencies}">Agencies</a></li>
             <li><a th:href="${@link.to(user.agency)}" th:text="${user.agency.name}">National Library</a></li>
-            <li class="active" th:text="${user.fullName}">Somebody</li>
+            <li class="active">
+                <span th:unless="${user.active}" title="Account disabled" style="color: #999; user-select: none">✗</span>
+                <span th:text="${user.fullName + ' (' + user.userid + ')'}">Somebody (userid)</span>
+            </li>
         </ol>
     </nav>
 
     <table class="details-table">
-        <tr><th>Username:</th><td>
-            <span th:text="${user.userid}"></span>
-            <span th:unless="${user.active}" title="Account deactivated" style="color: #999; user-select: none">✗</span>
-        </td></tr>
         <tr th:if="${user.email != null}"><th>Email:</th><td><a th:href="${'mailto:' + user.email}" th:text="${user.email}"></a></td></tr>
         <tr th:if="${user.phone != null}"><th>Phone:</th><td th:text="${user.phone}"></td></tr>
-        <tr><th>Role:</th><td th:text="${user.role.title}"></td></tr>
+        <tr><th>Role:</th><td><span th:text="${user.role.title}"></span><span th:unless="${user.active}" style="color: #999"> (account disabled)</span></td></tr>
         <tr th:if="${user.auditCreateDate != null}"><th>Created:</th><td th:text="${user.auditCreateDate}"></td></tr>
     </table>
 

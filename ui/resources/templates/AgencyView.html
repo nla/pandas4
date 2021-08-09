@@ -50,7 +50,7 @@
             <th>Created</th>
         </tr>
         <tr th:each="user : ${users}">
-            <td><span th:unless="${user.active}" title="Account deactivated" style="color: #999; user-select: none">✗</span></td>
+            <td><span th:unless="${user.active}" title="Account disabled" style="color: #999; user-select: none">✗</span></td>
             <td><a th:href="${@link.to(user)}" th:text="${user.userid}"></a></td>
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.role.title}"></td>
