@@ -19,7 +19,7 @@
     <nav class=breadcrumb>
         <ol>
             <li style="font-weight: bold"><a th:href="@{/agencies}">Agencies</a></li>
-            <li class="active" th:text="${agency.name}">National Library</li>
+            <li class="active" th:text="${agency.name} + ' (' + ${agency.organisation.alias} + ')'">National Library</li>
         </ol>
     </nav>
 
