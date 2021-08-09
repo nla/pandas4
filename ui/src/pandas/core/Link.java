@@ -32,7 +32,7 @@ public class Link {
     }
 
     public String to(Agency agency) {
-        return link("/agencies/" + agency.getId());
+        return link("/agencies/" + agency.getOrganisation().getAlias());
     }
 
     public String to(Individual individual) {

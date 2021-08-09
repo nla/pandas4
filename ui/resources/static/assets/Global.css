@@ -517,6 +517,10 @@ ul.subject-list li + li:before {
     color: #888;
 }
 
+.title-card > div > footer .agency {
+    color: #888;
+}
+
 .live-url {
     color: darkgreen;
 }

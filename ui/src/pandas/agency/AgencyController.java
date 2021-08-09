@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.collection.TitleRepository;
 import pandas.core.IndividualRepository;
+import pandas.core.NotFoundException;
 
 @Controller
 public class AgencyController {
@@ -28,8 +29,9 @@ public class AgencyController {
         return agencyRepository.findAll();
     }
 
-    @GetMapping("/agencies/{id}")
-    public String view(@PathVariable("id") Agency agency, Model model) {
+    @GetMapping("/agencies/{alias}")
+    public String view(@PathVariable("alias") String alias, Model model) {
+        Agency agency = agencyRepository.findByAlias(alias).orElseThrow(NotFoundException::new);
         model.addAttribute("agency", agency);
         model.addAttribute("users", individualRepository.findUsersByAgency(agency));
         model.addAttribute("titleCount", titleRepository.countByAgency(agency));
@@ -37,8 +39,9 @@ public class AgencyController {
         return "AgencyView";
     }
 
-    @GetMapping("/agencies/{id}/logo")
-    public ResponseEntity<byte[]> logo(@PathVariable("id") Agency agency) {
+    @GetMapping("/agencies/{alias}/logo")
+    public ResponseEntity<byte[]> logo(@PathVariable("alias") String alias) {
+        Agency agency = agencyRepository.findByAlias(alias).orElseThrow(NotFoundException::new);
         byte[] logo = agency.getLogo();
         MediaType type = MediaType.APPLICATION_OCTET_STREAM;
         if (logo.length > 0) {

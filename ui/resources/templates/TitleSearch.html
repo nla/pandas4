@@ -121,7 +121,7 @@
                             </a>
                             <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
                             <span class="owner" th:if="${title.owner != null}"><a th:href="${@link.to(title.owner)}" th:text="${title.owner.userid}">aosborne</a></span>
-                            <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
+                            <a th:if="${title.agency != null}" class="agency" th:href="${@link.to(title.agency)}" th:text="${title?.agency?.organisation?.alias}">NLA</a>
                         </footer>
                     </div>
                 </div>
