@@ -25,8 +25,10 @@
     </nav>
 
     <table class="details-table">
-    <tr><th>Name:</th><td th:text="${user.fullName}"></td></tr>
-    <tr><th>Username:</th><td th:text="${user.userid}"></td></tr>
+        <tr><th>Username:</th><td>
+            <span th:text="${user.userid}"></span>
+            <span th:unless="${user.active}" title="Account deactivated" style="color: #999; user-select: none">✗</span>
+        </td></tr>
         <tr><th>Email:</th><td th:text="${user.email}"></td></tr>
         <tr th:if="${user.phone}"><th>Phone:</th><td th:text="${user.phone}"></td></tr>
         <tr><th>Role:</th><td th:text="${user.role.title}"></td></tr>

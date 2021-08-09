@@ -9,6 +9,8 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericFie
 import pandas.agency.Agency;
 
 import javax.persistence.*;
+import java.time.Instant;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "INDIVIDUAL")
@@ -22,13 +24,13 @@ public class Individual {
     private Long id;
 
     @Column(name = "AUDIT_CREATE_DATE")
-    private java.sql.Timestamp auditCreateDate;
+    private Instant auditCreateDate;
 
     @Column(name = "AUDIT_CREATE_USERID")
     private Long auditCreateUserid;
 
     @Column(name = "AUDIT_DATE")
-    private java.sql.Timestamp auditDate;
+    private Instant auditDate;
 
     @Column(name = "AUDIT_USERID")
     private Long auditUserid;
@@ -93,11 +95,11 @@ public class Individual {
         return getNameGiven() + " "  + getNameFamily();
     }
 
-    public java.sql.Timestamp getAuditCreateDate() {
+    public Instant getAuditCreateDate() {
         return this.auditCreateDate;
     }
 
-    public void setAuditCreateDate(java.sql.Timestamp auditCreateDate) {
+    public void setAuditCreateDate(Instant auditCreateDate) {
         this.auditCreateDate = auditCreateDate;
     }
 
@@ -109,11 +111,11 @@ public class Individual {
         this.auditCreateUserid = auditCreateUserid;
     }
 
-    public java.sql.Timestamp getAuditDate() {
+    public Instant getAuditDate() {
         return this.auditDate;
     }
 
-    public void setAuditDate(java.sql.Timestamp auditDate) {
+    public void setAuditDate(Instant auditDate) {
         this.auditDate = auditDate;
     }
 
@@ -273,5 +275,12 @@ public class Individual {
         if (getRole() == null) return null;
         if (getRole().getOrganisation() == null) return null;
         return getRole().getOrganisation().getAgency();
+    }
+
+    public Integer getYearCreated() {
+        if (getAuditCreateDate() == null) {
+            return null;
+        }
+        return getAuditCreateDate().atZone(ZoneId.systemDefault()).getYear();
     }
 }

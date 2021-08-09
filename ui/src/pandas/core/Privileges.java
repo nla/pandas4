@@ -16,6 +16,10 @@ public class Privileges {
     public static final SimpleGrantedAuthority EDIT_AGENCY_USERS = new SimpleGrantedAuthority("PRIV_EDIT_AGENCY_USERS");
     public static final SimpleGrantedAuthority EDIT_ALL_USERS = new SimpleGrantedAuthority("PRIV_EDIT_ALL_USERS");
 
+
+    public static final SimpleGrantedAuthority EDIT_OWN_AGENCY = new SimpleGrantedAuthority("PRIV_EDIT_OWN_AGENCY");
+    public static final SimpleGrantedAuthority EDIT_ALL_AGENCIES = new SimpleGrantedAuthority("PRIV_EDIT_ALL_AGENCIES");
+
     public static final SimpleGrantedAuthority EDIT_COLLECTIONS = new SimpleGrantedAuthority("PRIV_EDIT_COLLECTIONS");
     public static final SimpleGrantedAuthority EDIT_PUBLISHERS = new SimpleGrantedAuthority("PRIV_EDIT_PUBLISHERS");
     public static final SimpleGrantedAuthority EDIT_SUBJECTS = new SimpleGrantedAuthority("PRIV_EDIT_SUBJECTS");
@@ -30,8 +34,8 @@ public class Privileges {
             "infouser", Set.of(),
             "suppuser", Set.of(),
             "stduser", Set.of(CREATE_TITLES, EDIT_OWN_TITLES, EDIT_COLLECTIONS, EDIT_PUBLISHERS, VIEW_GATHER_QUEUE),
-            "agadmin", Set.of(EDIT_AGENCY_TITLES, EDIT_AGENCY_USERS),
+            "agadmin", Set.of(EDIT_AGENCY_TITLES, EDIT_AGENCY_USERS, EDIT_OWN_AGENCY),
             "panadmin", Set.of(EDIT_ALL_TITLES, BULK_EDIT_TITLES, EDIT_ALL_USERS,
-                    EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO, EDIT_DISCOVERY_SOURCES),
+                    EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO, EDIT_DISCOVERY_SOURCES, EDIT_ALL_AGENCIES),
             "sysadmin", Set.of(SYSADMIN));
 }

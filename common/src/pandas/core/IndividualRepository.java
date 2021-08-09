@@ -21,4 +21,9 @@ public interface IndividualRepository extends CrudRepository<Individual, Long> {
             "and r.individual.active = true " +
             "order by r.individual.nameGiven, r.individual.nameFamily")
     List<Individual> findActiveUsersByAgency(@Param("agency") Agency agency);
+
+    @Query("select r.individual from Role r where r.organisation.agency = :agency " +
+            "and r.type in ('SysAdmin', 'PanAdmin', 'AgAdmin', 'StdUser', 'InfoUser', 'SuppUser') " +
+            "order by r.individual.nameGiven, r.individual.nameFamily")
+    List<Individual> findUsersByAgency(@Param("agency") Agency agency);
 }

@@ -9,6 +9,7 @@ import pandas.agency.Agency;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Arrays;
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -248,5 +249,18 @@ public class Organisation implements Serializable {
 
     public void setAgency(Agency agency) {
         this.agency = agency;
+    }
+
+    public String getAddress() {
+        StringBuilder builder = new StringBuilder();
+        for (String element : Arrays.asList(getLine1(), getLine2(), getLocality(), getLongstate(), getPostcode())) {
+            if (element != null && !element.isBlank()) {
+                if (builder.length() != 0) {
+                    builder.append("\n");
+                }
+                builder.append(element);
+            }
+        }
+        return builder.toString();
     }
 }

@@ -20,10 +20,14 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     List<Title> findWithoutThumbnails(Pageable pageable);
 
     List<Title> findFirst20ByOwnerOrderByRegDateDesc(Individual owner);
+    List<Title> findFirst20ByAgencyOrderByRegDateDesc(Agency agency);
 
     long countByOwner(Individual owner);
 
+    long countByAgency(Agency agency);
+
     List<Title> findFirst100ByLastModifiedDateAfterOrderByLastModifiedDate(Instant start);
+
 
     @Query("select t from Title t where t.gather.method.name = 'Bulk'")
 //    @Query("select t from Title t where t.gather.method.name = 'Bulk' and t.gather.nextGatherDate < ?1")

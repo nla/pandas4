@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${agency.name + ' - PANDAS'}">National Library - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <a sec:authorize="hasPermission(#vars.agency, 'edit')" th:href="@{|/agencies/${agency.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
+        </nav>
+    </header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/agencies}">Agencies</a></li>
+            <li class="active" th:text="${agency.name}">National Library</li>
+        </ol>
+    </nav>
+
+    <div style="display: flex; align-items: center">
+        <a th:href="${agency.organisation.url}">
+            <img th:src="@{/agencies/{id}/logo(id=${agency.id})}" style="max-height: 100px; margin-right: 12px;">
+        </a>
+
+        <table class="details-table">
+            <tr><th th:if="${agency.externalEmail != null}">Email:</th><td th:text="${agency.externalEmail}"></td></tr>
+            <tr><th>Address:</th><td th:text="${agency.organisation.address}"></td></tr>
+            <tr><th>Titles:</th><td><a th:href="@{/titles(agency=${agency.id},sort='Newest',page=1)}" th:text="${#numbers.formatInteger(titleCount, 0, 'COMMA')}"></a></td></tr>
+        </table>
+    </div>
+
+    <p></p>
+    <style>
+        .user-table th {
+            text-align: left;
+        }
+    </style>
+    <table class="user-table">
+        <tr>
+            <th></th>
+            <th>User</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Created</th>
+        </tr>
+        <tr th:each="user : ${users}">
+            <td><span th:unless="${user.active}" title="Account deactivated" style="color: #999; user-select: none">✗</span></td>
+            <td><a th:href="@{/users/{id}(id=${user.id})}" th:text="${user.userid}"></a></td>
+            <td th:text="${user.fullName}"></td>
+            <td th:text="${user.role.title}"></td>
+            <td th:text="${user.yearCreated}" style="text-align: right"></td>
+        </tr>
+    </table>
+</main>

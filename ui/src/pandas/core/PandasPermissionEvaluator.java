@@ -3,6 +3,8 @@ package pandas.core;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import pandas.agency.Agency;
+import pandas.agency.AgencyRepository;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 
@@ -13,10 +15,12 @@ import static pandas.core.Privileges.*;
 @SuppressWarnings({"RedundantIfStatement"})
 @Component
 public class PandasPermissionEvaluator implements PermissionEvaluator {
+    private final AgencyRepository agencyRepository;
     private final IndividualRepository individualRepository;
     private final TitleRepository titleRepository;
 
-    public PandasPermissionEvaluator(IndividualRepository individualRepository, TitleRepository titleRepository) {
+    public PandasPermissionEvaluator(AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository) {
+        this.agencyRepository = agencyRepository;
         this.individualRepository = individualRepository;
         this.titleRepository = titleRepository;
     }
@@ -25,6 +29,17 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Object target, Object permission) {
         var authorities = authentication.getAuthorities();
         switch (target.getClass().getSimpleName() + ":" + permission) {
+            case "Agency:edit": {
+                if (authorities.contains(EDIT_ALL_AGENCIES)) {
+                    return true;
+                }
+                Agency agency = (Agency) target;
+                Individual currentUser = individualRepository.findByUserid(authentication.getName()).orElseThrow();
+                if (authorities.contains(EDIT_OWN_AGENCY) && currentUser.getAgency().equals(agency)) {
+                    return true;
+                }
+                return false;
+            }
             case "Collection:edit":
                 return authorities.contains(EDIT_COLLECTIONS);
             case "Individual:edit": {
@@ -63,6 +78,13 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
         var authorities = authentication.getAuthorities();
         switch (targetType + ":" + permission) {
+            case "Agency:edit": {
+                if (targetId == null) {
+                    return authorities.contains(EDIT_ALL_AGENCIES);
+                }
+                Agency agency = agencyRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
+                return hasPermission(authentication, agency, permission);
+            }
             case "Collection:edit":
                 return authorities.contains(EDIT_COLLECTIONS);
             case "Individual:edit": {
