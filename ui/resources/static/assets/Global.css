@@ -102,7 +102,7 @@ body > nav > header a {
     display: block;
     color: #fff;
     padding-top: 10px;
-    padding-left: 0px;
+    padding-left: 0;
     font-size: 1.5rem;
     text-shadow: 0 0 16px #fff;
     text-align: center;
@@ -172,7 +172,7 @@ body > main > header, main > form > header {
     justify-content: space-between;
     
     height: 50px;
-    padding: 0px 15px;
+    padding: 0 15px;
     margin-left: 180px;
     box-sizing: border-box;
 }
@@ -357,7 +357,7 @@ button.btn-danger:hover, a.btn-danger:hover {
 .breadcrumb {
     border-bottom: 1px solid var(--color-light-grey);
     padding-bottom: 8px;
-    margin-top: 0px;
+    margin-top: 0;
     margin-bottom: 8px;
 }
 
@@ -426,6 +426,10 @@ table.history-table {
     border: solid 1px var(--color-light-grey);
     padding: 6px;
     text-align: left;
+}
+
+.details-table th {
+    text-align: right;
 }
 
 /**

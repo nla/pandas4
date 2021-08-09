@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 import static pandas.core.Privileges.*;
 
-@SuppressWarnings({"SwitchStatementWithTooFewBranches", "RedundantIfStatement"})
+@SuppressWarnings({"RedundantIfStatement"})
 @Component
 public class PandasPermissionEvaluator implements PermissionEvaluator {
     private final IndividualRepository individualRepository;
@@ -27,6 +27,20 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
         switch (target.getClass().getSimpleName() + ":" + permission) {
             case "Collection:edit":
                 return authorities.contains(EDIT_COLLECTIONS);
+            case "Individual:edit": {
+                if (authorities.contains(EDIT_ALL_USERS)) {
+                    return true;
+                }
+                Individual targetUser = (Individual) target;
+                if (targetUser.getUserid() == null) {
+                    return false; // not an actual user
+                }
+                Individual currentUser = individualRepository.findByUserid(authentication.getName()).orElseThrow();
+                if (authorities.contains(EDIT_AGENCY_USERS) && currentUser.getAgency().equals(targetUser.getAgency())) {
+                    return true;
+                }
+                return false;
+            }
             case "Subject:edit":
                 return authorities.contains(EDIT_SUBJECTS);
             case "Title:edit": {
@@ -51,6 +65,13 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
         switch (targetType + ":" + permission) {
             case "Collection:edit":
                 return authorities.contains(EDIT_COLLECTIONS);
+            case "Individual:edit": {
+                if (targetId == null) {
+                    return authorities.contains(EDIT_ALL_USERS); // TODO: agadmins probably need to create users
+                }
+                Individual user = individualRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
+                return hasPermission(authentication, user, permission);
+            }
             case "Subject:edit":
                 return authorities.contains(EDIT_SUBJECTS);
             case "Title:edit": {

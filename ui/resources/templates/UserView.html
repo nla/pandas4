@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${user.fullName + ' - PANDAS'}">Somebody - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <a sec:authorize="hasPermission(#vars.user, 'edit')" th:href="@{|/users/${user.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
+        </nav>
+    </header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/agencies}">Agencies</a></li>
+            <li><a th:href="@{/agencies/{id}(id=${user.agency.id})}" th:text="${user.agency.name}">National Library</a></li>
+            <li class="active" th:text="${user.fullName}">Somebody</li>
+        </ol>
+    </nav>
+
+    <table class="details-table">
+    <tr><th>Name:</th><td th:text="${user.fullName}"></td></tr>
+    <tr><th>Username:</th><td th:text="${user.userid}"></td></tr>
+        <tr><th>Email:</th><td th:text="${user.email}"></td></tr>
+        <tr th:if="${user.phone}"><th>Phone:</th><td th:text="${user.phone}"></td></tr>
+        <tr><th>Role:</th><td th:text="${user.role.title}"></td></tr>
+        <tr th:if="${user.auditCreateDate}"><th>Created:</th><td th:text="${user.auditCreateDate}"></td></tr>
+    </table>
+
+    <h4>Titles (<span th:text="${titleCount}"></span>)</h4>
+    <div th:each="title: ${titles}">
+        <div th:replace="TitleSearch.html :: title-card">
+        </div>
+    </div>
+    <a th:href="@{/titles(owner=${user.id},sort='Newest',page=1)}" class="btn btn-secondary">Next <i class="icon icon-right next"></i></a>
+</main>

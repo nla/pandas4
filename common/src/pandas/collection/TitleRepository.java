@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
+import pandas.core.Individual;
 
 import java.time.Instant;
 import java.util.List;
@@ -17,6 +18,10 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select t from Title t where t.thumbnails is empty " +
             "and (t.titleUrl is not null or t.seedUrl is not null)")
     List<Title> findWithoutThumbnails(Pageable pageable);
+
+    List<Title> findFirst20ByOwnerOrderByRegDateDesc(Individual owner);
+
+    long countByOwner(Individual owner);
 
     List<Title> findFirst100ByLastModifiedDateAfterOrderByLastModifiedDate(Instant start);
 

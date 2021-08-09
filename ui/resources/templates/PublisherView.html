@@ -22,11 +22,11 @@
         </ol>
     </nav>
 
-    <section style="float: left; width: 450px; margin-right: 64px;">
+    <section class="details-table">
         <table>
-            <tr><td>Publisher Type:</td><td th:text="${publisher.type.name}"></td></tr>
-            <tr><td>Homepage:</td><td><a th:href="${publisher.organisation.url}" th:text="${publisher.organisation.url}"></a></td></tr>
-            <tr th:if="${publisher.localReference}"><td>Local Reference No:</td><td th:text="${publisher.localReference}"></td></tr>
+            <tr><th>Type:</th><td th:text="${publisher.type.name}"></td></tr>
+            <tr><th>Homepage:</th><td><a th:href="${publisher.organisation.url}" th:text="${publisher.organisation.url}"></a></td></tr>
+            <tr th:if="${publisher.localReference}"><th>Local Reference No:</th><td th:text="${publisher.localReference}"></td></tr>
         </table>
         <div th:if="${publisher.notes}">
             <strong>Notes:</strong><br>
@@ -35,7 +35,7 @@
     </section>
 
     <section>
-        <strong>Titles</strong>
+        <h4>Titles</h4>
         <div th:each="title: ${publisher.titles}">
             <div th:replace="TitleSearch.html :: title-card">
             </div>
