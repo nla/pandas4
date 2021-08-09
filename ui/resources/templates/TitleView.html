@@ -73,7 +73,7 @@
     <div class="panel-title-details">
         <h3 th:text="${title.name}">Example Title</h3>
         <span th:text="${title.getYearRange()}"></span>, <a th:if="${title.publisher}"
-                                                            th:href="@{|/publishers/${title.publisher.id}|}"
+                                                            th:href="${@link.to(title.publisher)}"
                                                             th:text="${title.publisher.name}"></a><br>
         <br>
         <a style="color: var(--color-black)" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span
@@ -139,10 +139,10 @@
         <div>
             <h4>Owner</h4>
             <div th:if="${title.owner != null}">
-                Owner: <a th:href="@{/users/{id}(id=${title.owner.id})}" th:text="${title?.owner?.fullName}"></a>
-                <a th:href="@{|/titles/${title.id}/ownerhistory|}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
+                Owner: <a th:href="${@link.to(title.owner)}" th:text="${title?.owner?.fullName}"></a>
+                <a th:href="${@link.to(title) + '/ownerhistory'}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
             </div>
-            <div>Agency: <a th:href="@{/agencies/{id}(id=${title.agency.id})}" th:text="${title.agency.name}">National Library</a></div>
+            <div>Agency: <a th:href="${@link.to(title.agency)}" th:text="${title.agency.name}">National Library</a></div>
             <div>Registered: <span th:text="${dateFormat.format(title.regDate)}"></span></div>
         </div>
 
@@ -163,7 +163,7 @@
                 <td class="instance-year" th:text="${year.key}">2021</td>
                 <td class="instance-list">
                     <a th:each="instance : ${year.value}"
-                       th:href="@{|/instances/${instance.id}|}" th:class="${'instance-' + instance.state.name}">
+                       th:href="${@link.to(instance)}" th:class="${'instance-' + instance.state.name}">
                         <!--suppress HtmlRequiredAltAttribute -->
                         <img src="#" th:src="@{|/instances/${instance.id}/thumbnail|}" alt="">
                         <div th:text="${instanceDateFormat.format(instance.date)}"></div>

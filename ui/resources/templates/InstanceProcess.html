@@ -65,17 +65,17 @@
 
     <nav class="breadcrumb">
         <ol>
-            <li><a th:href="@{|/titles/${instance.title.id}|}" href="TitleView.html"
+            <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
             <li><span th:text="${instance.gatherMethodName}"></span> gather from
 
                 <span class="prev-instances-container">
-                    <a href="#" th:href="@{|/titles/${instance.title.id}|}">
+                    <a href="#" th:href="${@link.to(instance.title)}">
                         <strong th:text="${@dateFormats.dayDate.format(instance.date)}">Wednesday, 5 May 2021</strong>
                         at <strong th:text="${@dateFormats.time.format(instance.date)}">1:20 am</strong></a>
                     <div class="prev-instances-popup">
                         <strong>Other recent gathers:</strong><br>
-                        <a th:each="instance : ${previousInstances}" th:href="@{|/instances/${instance.id}|}"
+                        <a th:each="instance : ${previousInstances}" th:href="${@link.to(instance)}"
                         th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)}"><img th:src="@{|/instances/${instance.id}/thumbnail|}" width="200" height="150"></a>
                     </div>
                 </span>

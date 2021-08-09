@@ -46,7 +46,7 @@
         <table>
             <tbody>
             <tr th:each="publisher: ${results}">
-                <td><a th:text="${publisher.name}" th:href="@{|/publishers/${publisher.id}|}">Example Publisher</a></td>
+                <td><a th:text="${publisher.name}" th:href="${@link.to(publisher)}">Example Publisher</a></td>
                 <td th:text="${publisher.type.name}">Government</td>
                 <td th:text="${publisher.organisation.getLocality()}">Canberra</td>
                 <td><a th:href="@{/titles(publisher=${publisher.id})}">Titles</a></td>

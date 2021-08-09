@@ -38,8 +38,8 @@
             <td align="center"><a th:href="${instance.title.titleUrl}"><i class="icon globe"></i></a></td>
             <td align="center"><time th:text="${dateTimeFormat.format(instance.date)}">12:43:00</time></td>
             <td align="right" th:text="${instance.title.pi ?: instance.title.id}">12345</td>
-            <td><a th:text="${instance.title.name}" th:href="@{|/titles/${instance.title.id}|}">Example title</a></td>
-            <td><a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="@{|/users/${instance.title.owner.id}|}">jsmith</a></td>
+            <td><a th:text="${instance.title.name}" th:href="${@link.to(instance.title)}">Example title</a></td>
+            <td><a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="${@link.to(instance.title.owner)}">jsmith</a></td>
             <td><span th:if="${instance.gather?.size}" th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}">10 MB</span></td>
             <td><span th:if="${instance.gather?.files}" th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}">1,234</span></td>
             <td>TODO: Stop etc</td>

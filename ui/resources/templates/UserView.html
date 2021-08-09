@@ -12,14 +12,14 @@
 <main>
     <header>
         <nav>
-            <a sec:authorize="hasPermission(#vars.user, 'edit')" th:href="@{|/users/${user.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
+            <a sec:authorize="hasPermission(#vars.user, 'edit')" th:href="${@link.edit(user)}" class="btn"><i class="icon edit"></i> Edit</a>
         </nav>
     </header>
 
     <nav class=breadcrumb>
         <ol>
             <li style="font-weight: bold"><a th:href="@{/agencies}">Agencies</a></li>
-            <li><a th:href="@{/agencies/{id}(id=${user.agency.id})}" th:text="${user.agency.name}">National Library</a></li>
+            <li><a th:href="${@link.to(user.agency)}" th:text="${user.agency.name}">National Library</a></li>
             <li class="active" th:text="${user.fullName}">Somebody</li>
         </ol>
     </nav>

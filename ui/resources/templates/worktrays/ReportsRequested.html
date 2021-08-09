@@ -31,7 +31,7 @@
         <tr th:each="report: ${requestedReports}">
             <td align="center"><time th:text="${dateFormat.format(report.nextGenerationDate)}">04/02/2021</time></td>
             <td align="right" th:text="${report.type.name}">Nifty report</td>
-            <td><a th:if="${report.owner}" th:text="${report.owner}" th:href="@{|/users/${report.owner.id}|}">jsmith</a></td>
+            <td><a th:if="${report.owner}" th:text="${report.owner}" th:href="${@link.to(report.owner)}">jsmith</a></td>
             <td>TODO: Cancel</td>
         </tr>
         </tbody>

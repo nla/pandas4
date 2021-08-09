@@ -33,7 +33,7 @@
             <td align="center"><time th:text="${dateFormat.format(report.nextGenerationDate)}">04/02/2021</time></td>
             <td th:text="${report.type.name}">Nifty report</td>
             <td><th:block th:if="${report.agency}" th:text="${report.agency.organisation.alias}">NLA</th:block></td>
-            <td><a th:if="${report.owner}" th:text="${report.owner.userid}" th:href="@{|/users/${report.owner.id}|}">jsmith</a></td>
+            <td><a th:if="${report.owner}" th:text="${report.owner.userid}" th:href="${@link.to(report.owner)}">jsmith</a></td>
             <td>TODO: All | HTML | CSV | XML | PDF | Remove</td>
         </tr>
         </tbody>

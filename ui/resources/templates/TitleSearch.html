@@ -77,10 +77,10 @@
         <ol start="${results.pageable.offset + 1}">
             <li th:each="title: ${results}">
                 <div class="title-card" th:fragment="title-card" th:with="omitCollection = ${omitCollection ?: null}">
-                    <a th:href="@{|/titles/${title.id}|}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
+                    <a th:href="${@link.to(title)}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
                     <div>
                         <header>
-                            <strong><a th:href="@{|/titles/${title.id}|}" th:text="${title.name}" href="TitleView.html">Sydney
+                            <strong><a th:href="${@link.to(title)}" th:text="${title.name}" href="TitleView.html">Sydney
                                 2000</a></strong>
                             <nav>
                                 <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
@@ -115,12 +115,12 @@
                                 <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
                                 <span class="method" th:text="${title.gather.method.name}">HTTrack</span> ·
                             </th:block>
-                            <a th:if="${title.publisher != null}" th:href="@{|/publishers/${title.publisher.id}|}"
+                            <a th:if="${title.publisher != null}" th:href="${@link.to(title.publisher)}"
                                   th:text="|${title.publisher.organisation.name}, |">
                                 International Olympic Committee
                             </a>
                             <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
-                            <span class="owner"><a th:href="@{|/users/${title?.owner?.id}|}" th:text="${title?.owner?.userid}">aosborne</a></span>
+                            <span class="owner" th:if="${title.owner != null}"><a th:href="${@link.to(title.owner)}" th:text="${title.owner.userid}">aosborne</a></span>
                             <span class="agency" th:text="${title?.agency?.organisation?.alias}">NLA</span>
                         </footer>
                     </div>

@@ -12,18 +12,18 @@
     <form id="actionForm" method=post></form>
     <header>
         <nav>
-            <a th:href="@{|/titles/${instance.title.id}|}" class="btn"><i class="icon back"></i> Back to title</a>
+            <a th:href="${@link.to(instance.title)}" class="btn"><i class="icon back"></i> Back to title</a>
             <a th:href="${bambooUrl}" class="btn btn-secondary">View in Bamboo</a>
             <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
-                    th:href="@{|/instances/${instance.id}/process|}" class="btn btn-secondary">Process</a>
+                    th:href="${@link.to(instance) + '/process'}" class="btn btn-secondary">Process</a>
         </nav>
-        <button th:if="${instance.canDelete()}" th:formaction="@{|/instances/${instance.id}/delete|}" type=submit form=actionForm class="btn btn-danger"><i class="icon delete"></i> Delete</button>
+        <button th:if="${instance.canDelete()}" th:formaction="${@link.to(instance) + '/delete'}" type=submit form=actionForm class="btn btn-danger"><i class="icon delete"></i> Delete</button>
     </header>
 
     <nav class="breadcrumb">
         <ol>
             <li><a th:href="@{/titles}" href="TitleSearch.html" style="font-weight: bold">Titles</a></li>
-            <li><a th:href="@{|/titles/${instance.title.id}|}" href="TitleView.html"
+            <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
             <li class="active">Instance <span th:text="${instance.dateString}"></span></li>
         </ol>

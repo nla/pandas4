@@ -34,8 +34,8 @@
             <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
             <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
             <td align="right" th:text="${title.pi ?: title.id}">12345</td>
-            <td><a th:text="${title.name}" th:href="@{|/titles/${title.id}|}">Example title</a></td>
-            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="@{|/users/${title.owner.id}|}">jsmith</a></td>
+            <td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a></td>
+            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
             <td>TODO: Request Permission |
                 <a th:href="@{/titles/{id}/transfer(id=${title.id})}">Transfer</a>
             </td>

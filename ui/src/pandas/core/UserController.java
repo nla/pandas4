@@ -8,14 +8,17 @@ import pandas.collection.TitleRepository;
 
 @Controller
 public class UserController {
+    private final IndividualRepository individualRepository;
     private final TitleRepository titleRepository;
 
-    public UserController(TitleRepository titleRepository) {
+    public UserController(IndividualRepository individualRepository, TitleRepository titleRepository) {
+        this.individualRepository = individualRepository;
         this.titleRepository = titleRepository;
     }
 
-    @GetMapping("/users/{id}")
-    public String view(@PathVariable("id") Individual user, Model model) {
+    @GetMapping("/users/{userid}")
+    public String view(@PathVariable("userid") String userid, Model model) {
+        Individual user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
         model.addAttribute("user", user);
         model.addAttribute("titles", titleRepository.findFirst20ByOwnerOrderByRegDateDesc(user));
         model.addAttribute("titleCount", titleRepository.countByOwner(user));

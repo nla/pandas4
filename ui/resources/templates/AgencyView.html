@@ -12,7 +12,7 @@
 <main>
     <header>
         <nav>
-            <a sec:authorize="hasPermission(#vars.agency, 'edit')" th:href="@{|/agencies/${agency.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
+            <a sec:authorize="hasPermission(#vars.agency, 'edit')" th:href="@{link.edit(agency)}" class="btn"><i class="icon edit"></i> Edit</a>
         </nav>
     </header>
 
@@ -25,7 +25,7 @@
 
     <div style="display: flex; align-items: center">
         <a th:href="${agency.organisation.url}">
-            <img th:src="@{/agencies/{id}/logo(id=${agency.id})}" style="max-height: 100px; margin-right: 12px;">
+            <img th:src="${@link.logo(agency)}" style="max-height: 100px; margin-right: 12px;">
         </a>
 
         <table class="details-table">
@@ -51,7 +51,7 @@
         </tr>
         <tr th:each="user : ${users}">
             <td><span th:unless="${user.active}" title="Account deactivated" style="color: #999; user-select: none">✗</span></td>
-            <td><a th:href="@{/users/{id}(id=${user.id})}" th:text="${user.userid}"></a></td>
+            <td><a th:href="${@link.to(user)}" th:text="${user.userid}"></a></td>
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.role.title}"></td>
             <td th:text="${user.yearCreated}" style="text-align: right"></td>

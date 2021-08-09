@@ -11,7 +11,7 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{|/titles/${title.id}|}" class="btn"><i class="icon back"></i> Back</a>
+            <a th:href="${@link.to(title)}" class="btn"><i class="icon back"></i> Back</a>
         </nav>
     </header>
 

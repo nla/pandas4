@@ -25,9 +25,9 @@
         <tbody>
         <tr th:each="gather: ${queuedGathers}">
             <td th:text="${gather.title.pi}">12345</td>
-            <td><a th:href="@{|/titles/${gather.title.id}|}" th:text="${gather.title.name}" href="#">Fishes of Australia</a></td>
+            <td><a th:href="${@link.to(gather.title)}" th:text="${gather.title.name}" href="#">Fishes of Australia</a></td>
             <td th:text="${gather.title?.agency?.organisation?.alias}">NLA</td>
-            <td><a th:href="@{|/users/${gather.title?.owner?.id}|}" th:text="${gather.title?.owner?.userid}">jsmith</a></td>
+            <td><a th:href="${@link.to(gather.title?.owner?)}" th:text="${gather.title?.owner?.userid}">jsmith</a></td>
             <td th:text="${gather.method.name}">Heritrix</td>
         </tr>
         </tbody>
@@ -51,7 +51,7 @@
         <tr th:each="instance: ${gatheringInstances}">
             <td th:text="${@dateFormats.dayDateTime.format(instance.date)}">Date</td>
             <td th:text="${instance.title.pi}">12345</td>
-            <td><a th:href="@{|/titles/${instance.title.id}|}" th:text="${instance.title.name}" href="#">Fishes of Australia</a></td>
+            <td><a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="#">Fishes of Australia</a></td>
             <td th:text="${instance.gatherMethodName}">Heritrix</td>
             <td th:text="${instance.state.name}">Heritrix</td>
             <td><button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i class="icon stop"></i> Stop</button></td>
