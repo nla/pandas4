@@ -29,10 +29,10 @@
             <span th:text="${user.userid}"></span>
             <span th:unless="${user.active}" title="Account deactivated" style="color: #999; user-select: none">✗</span>
         </td></tr>
-        <tr><th>Email:</th><td th:text="${user.email}"></td></tr>
-        <tr th:if="${user.phone}"><th>Phone:</th><td th:text="${user.phone}"></td></tr>
+        <tr th:if="${user.email != null}"><th>Email:</th><td><a th:href="${'mailto:' + user.email}" th:text="${user.email}"></a></td></tr>
+        <tr th:if="${user.phone != null}"><th>Phone:</th><td th:text="${user.phone}"></td></tr>
         <tr><th>Role:</th><td th:text="${user.role.title}"></td></tr>
-        <tr th:if="${user.auditCreateDate}"><th>Created:</th><td th:text="${user.auditCreateDate}"></td></tr>
+        <tr th:if="${user.auditCreateDate != null}"><th>Created:</th><td th:text="${user.auditCreateDate}"></td></tr>
     </table>
 
     <h4>Titles (<span th:text="${titleCount}"></span>)</h4>
