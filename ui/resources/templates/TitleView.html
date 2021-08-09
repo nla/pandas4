@@ -138,10 +138,11 @@
 
         <div>
             <h4>Owner</h4>
-            <div>Owner: <span th:text="${title?.owner?.fullName}"></span> <a
-                    th:href="@{|/titles/${title.id}/ownerhistory|}" href="TitleOwnerHistory.html"><i
-                    class="icon history"></i></a></div>
-            <div>Agency: <span th:text="${title.agency.name}"></span></div>
+            <div th:if="${title.owner != null}">
+                Owner: <a th:href="@{/users/{id}(id=${title.owner.id})}" th:text="${title?.owner?.fullName}"></a>
+                <a th:href="@{|/titles/${title.id}/ownerhistory|}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
+            </div>
+            <div>Agency: <a th:href="@{/agencies/{id}(id=${title.agency.id})}" th:text="${title.agency.name}">National Library</a></div>
             <div>Registered: <span th:text="${dateFormat.format(title.regDate)}"></span></div>
         </div>
 
