@@ -72,15 +72,32 @@
                     </option>
                 </select></label>
                 <label>Profile:
-                    <select th:field="*{activeProfile}">
+                    <select th:field="*{activeProfile}" id="activeProfile">
                         <option value=""></option>
                         <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}"
-                                th:data-gathermethod="${profile.gatherMethod?.id}">
+                                th:data-gathermethod="${profile.gatherMethod?.id}" th:data-default="${profile.default ? true : null}">
                             Pandas Defaults
                         </option>
                     </select>
                     <script>
-                        document.getElementById("activeProfile").addEventListener("change", function(event) {
+                        let profileSelect = document.getElementById("activeProfile");
+                        let gatherMethodSelect = document.getElementById("gatherMethod");
+
+                        // if gather method is changed to a method unsupported by current profile, select default profile
+                        gatherMethodSelect.addEventListener("change", function(event) {
+                            let profileGatherMethodId = profileSelect.selectedOptions[0].dataset.gathermethod;
+                            if (profileGatherMethodId && profileGatherMethodId !== gatherMethodSelect.value) {
+                                for (let option of profileSelect.options) {
+                                    if (option.dataset['default']) {
+                                        profileSelect.value = option.value;
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+
+                        // select the appropriate method for the selected profile
+                        profileSelect.addEventListener("change", function(event) {
                             let methodId = event.target.selectedOptions[0].dataset.gathermethod;
                             if (methodId) {
                                 document.getElementById('gatherMethod').value = methodId;
