@@ -59,22 +59,35 @@
                     <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" class="collection-link">Cool Sites</a>
                 </div>
 
-                <label>Method: <select th:field="*{gatherMethod}">
-                    <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
-                        Heritrix
-                    </option>
-                </select></label>
+                <label>Method:
+                    <select th:field="*{gatherMethod}">
+                        <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
+                            Heritrix
+                        </option>
+                    </select>
+                </label>
                 <label>Schedule: <select th:field="*{gatherSchedule}">
                     <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
                             th:text="${schedule.name}">Weekly
                     </option>
                 </select></label>
-                <label>Profile: <select th:field="*{activeProfile}">
-                    <option value=""></option>
-                    <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}">
-                        Pandas Defaults
-                    </option>
-                </select></label>
+                <label>Profile:
+                    <select th:field="*{activeProfile}">
+                        <option value=""></option>
+                        <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}"
+                                th:data-gathermethod="${profile.gatherMethod?.id}">
+                            Pandas Defaults
+                        </option>
+                    </select>
+                    <script>
+                        document.getElementById("activeProfile").addEventListener("change", function(event) {
+                            let methodId = event.target.selectedOptions[0].dataset.gathermethod;
+                            if (methodId) {
+                                document.getElementById('gatherMethod').value = methodId;
+                            }
+                        });
+                    </script>
+                </label>
 
                 <fieldset>
                     <legend>One-off</legend>

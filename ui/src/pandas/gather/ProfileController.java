@@ -13,9 +13,11 @@ import javax.validation.Valid;
 @PreAuthorize("hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')")
 public class ProfileController {
     private final ProfileRepository profileRepository;
+    private final GatherMethodRepository gatherMethodRepository;
 
-    public ProfileController(ProfileRepository profileRepository) {
+    public ProfileController(ProfileRepository profileRepository, GatherMethodRepository gatherMethodRepository) {
         this.profileRepository = profileRepository;
+        this.gatherMethodRepository = gatherMethodRepository;
     }
 
     @GetMapping("/profiles")
@@ -37,6 +39,7 @@ public class ProfileController {
 
     @GetMapping("/profiles/{id}")
     public String edit(@PathVariable("id") Profile profile, Model model) {
+        model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("profile", profile);
         return "gather/ProfileEdit";
     }

@@ -29,6 +29,10 @@ public class Profile {
     @Column
     private String heritrixConfig;
 
+    @ManyToOne
+    @JoinColumn(name = "GATHER_METHOD_ID")
+    private GatherMethod gatherMethod;
+
     public String getName() {
         return this.name;
     }
@@ -66,6 +70,17 @@ public class Profile {
     }
 
     public void setHeritrixConfig(String heritrixConfig) {
+        if (heritrixConfig != null && heritrixConfig.isBlank()) {
+            heritrixConfig = null;
+        }
         this.heritrixConfig = heritrixConfig;
+    }
+
+    public GatherMethod getGatherMethod() {
+        return gatherMethod;
+    }
+
+    public void setGatherMethod(GatherMethod gatherMethod) {
+        this.gatherMethod = gatherMethod;
     }
 }

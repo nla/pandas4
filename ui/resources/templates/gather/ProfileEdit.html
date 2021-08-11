@@ -23,8 +23,15 @@
         <input type=hidden th:field="*{default}">
 
         <fieldset>
-            <label>Name: <input th:field="*{name}" required class="form-control"></label>
-            <label>Description: <textarea th:field="*{description}" required class="form-control"></textarea></label>
+            <label>Name <input th:field="*{name}" required class="form-control"></label>
+            <label>Description <textarea th:field="*{description}" required class="form-control"></textarea></label>
+            <label>Gather method
+                <select th:field="*{gatherMethod}" class="form-control">
+                    <option value=""></option>
+                    <option th:each="method : ${allGatherMethods}" th:text="${method.name}" th:value="${method.id}"></option>
+                </select>
+            </label>
+            <label>Heritrix configuration <textarea th:field="*{heritrixConfig}" class="form-control"></textarea></label>
         </fieldset>
     </form>
 </main>
