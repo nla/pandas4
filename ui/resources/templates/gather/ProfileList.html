@@ -16,9 +16,16 @@
     <h1>Gather Profiles</h1>
 
     <table>
+        <thead>
+        <tr>
+            <th style="text-align: left">Profile</th>
+            <th>Method</th>
+        </tr>
+        </thead>
         <tbody>
         <tr th:each="profile: ${profiles}">
             <td><a href="ProfileEdit.html" th:href="@{|/profiles/${profile.id}|}" th:text="${profile.name}">Defaults</a></td>
+            <td th:text="${profile.gatherMethod?.name}"></td>
         </tr>
         </tbody>
     </table>
