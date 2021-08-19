@@ -29,6 +29,11 @@
             padding: 8px 0;
         }
 
+        .gather-stats {
+            font-size: 80%;
+            color: #555;
+        }
+
     </style>
 
     <table th:fragment="table" class="gathered-table">
@@ -50,10 +55,7 @@
             <td style="text-align: center">
                 <a href="#workingAreaUrl"><img src="${@link.thumbnail(instance)}" width=150 height=100></a><br>
                 <time th:text="${@dateFormats.shortDate(instance.date)}"></time><br>
-                <span style="font-size: 80%; color: #555">
-                    <span th:if="${instance.gather?.files}" th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')} + ' files'">1,234 files</span>
-                    <span th:if="${instance.gather?.size}" th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}">10 MB</span>
-                </span>
+                <span class="gather-stats" th:if="${instance.gather != null}" th:text="${instance.gather.stats}">1,234 files 10 MB</span>
             </td>
             <td style="text-align: center; vertical-align: top">
                 <a th:href="${instance.title.titleUrl}"><img src="${@link.thumbnail(instance)}" width=150 height=100></a>
@@ -63,10 +65,7 @@
                     <img th:id="${previousGather != null}" th:src="@{/instances/{id}/thumbnail(id=${previousGather.id})}" width=150 height=100><br>
                 </a>
                 <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
-                <span style="font-size: 80%; color: #555">
-                    <span th:if="${previousGather?.files != null}" th:text="${#numbers.formatInteger(previousGather.files, 0, 'COMMA')} + ' files'">1,234 files</span>
-                    <span th:if="${previousGather?.size != null}" th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(previousGather.size)}">10 MB</span>
-                </span>
+                <span class="gather-stats" th:text="${previousGather.stats}">1,234 files 10 MB</span>
             </td>
             <td><a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}" class="btn btn-primary">Process</a></td>
         </tr>

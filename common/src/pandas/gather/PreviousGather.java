@@ -36,4 +36,8 @@ public class PreviousGather {
     public Instant getDate() {
         return date;
     }
+
+    public String getStats() {
+        return InstanceGather.formatStats(getFiles(), getSize());
+    }
 }

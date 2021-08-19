@@ -1,6 +1,7 @@
 package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.io.FileUtils;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -109,5 +110,24 @@ public class InstanceGather {
 
     public void setInstance(Instance instance) {
         this.instance = instance;
+    }
+
+    public String getStats() {
+        return formatStats(getFiles(), getSize());
+    }
+
+    static String formatStats(Long files, Long size) {
+        var builder = new StringBuilder();
+        if (files != null) {
+            builder.append(String.format("%,d", files));
+            builder.append(" files");
+        }
+        if (size != null) {
+            if (builder.length() != 0) {
+                builder.append(' ');
+            }
+            builder.append(FileUtils.byteCountToDisplaySize(size));
+        }
+        return builder.toString();
     }
 }
