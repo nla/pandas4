@@ -19,6 +19,8 @@ public class InstanceThumbnail {
     @JsonIgnore
     private Instance instance;
 
+    private Type type = Type.REPLAY;
+
     private String contentType;
 
     private int status;
@@ -85,5 +87,18 @@ public class InstanceThumbnail {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public enum Type {
+        REPLAY,
+        LIVE
     }
 }

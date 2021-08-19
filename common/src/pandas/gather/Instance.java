@@ -2,6 +2,7 @@ package pandas.gather;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import pandas.collection.Title;
 
 import javax.persistence.*;
@@ -97,6 +98,7 @@ public class Instance {
     private List<PandasExceptionLog> exceptions;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "instance", fetch = FetchType.LAZY)
+    @Where(clause = "type = 0" /* ARCHIVED */)
     private InstanceThumbnail thumbnail;
 
     public State getState() {

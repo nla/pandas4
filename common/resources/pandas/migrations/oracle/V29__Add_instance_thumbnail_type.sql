@@ -1,0 +1,1 @@
+alter table INSTANCE_THUMBNAIL add TYPE number(3) default 0 not null;
