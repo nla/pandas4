@@ -31,6 +31,10 @@ public class Link {
         return to(agency) + "/logo";
     }
 
+    public String thumbnail(Instance instance) {
+        return to(instance) + "/thumbnail";
+    }
+
     public String to(Agency agency) {
         return link("/agencies/" + agency.getOrganisation().getAlias());
     }

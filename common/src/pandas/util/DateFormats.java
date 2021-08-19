@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 
 import static java.time.ZoneOffset.UTC;
@@ -16,8 +17,8 @@ public class DateFormats {
     public static final DateTimeFormatter DAY_DATE_TIME = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy 'at' h:mm a").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter DAY_DATE = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("h:mm a").withZone(ZoneId.systemDefault());
-    public static final DateTimeFormatter SHORT_DATE = DateTimeFormatter.ofPattern("d/M/y").withZone(ZoneId.systemDefault());
-    public static final DateTimeFormatter SHORT_DATE_TIME = DateTimeFormatter.ofPattern("d/M/y h:mm:ss a").withZone(ZoneId.systemDefault());
+    public static final DateTimeFormatter SHORT_DATE = DateTimeFormatter.ofPattern("d MMM y").withZone(ZoneId.systemDefault());
+    public static final DateTimeFormatter SHORT_DATE_TIME = DateTimeFormatter.ofPattern("d MMM y h:mma").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter MONTH_YEAR = DateTimeFormatter.ofPattern("MMMM yyyy").withZone(ZoneId.systemDefault());
 
     public DateTimeFormatter getDayDateTime() {
@@ -30,6 +31,10 @@ public class DateFormats {
 
     public DateTimeFormatter getTime() {
         return TIME;
+    }
+
+    public String shortDate(TemporalAccessor date) {
+        return SHORT_DATE.format(date).replace(".", "");
     }
 
     public DateTimeFormatter getShortDate() {

@@ -19,32 +19,56 @@
         </ol>
     </nav>
 
-    <table th:fragment="table">
+    <style>
+        .gathered-table td {
+            border-top: 1px solid #ccc;
+            padding: 4px 8px;
+        }
+
+        .gathered-table td:first-of-type {
+            padding: 8px 0;
+        }
+
+    </style>
+
+    <table th:fragment="table" class="gathered-table">
         <thead>
         <tr>
-            <th>Site</th>
-            <th>Gathered</th>
-            <th>PI</th>
             <th align=left>Title</th>
-            <th>Archived Site</th>
-            <th>Owner</th>
-            <th>Size</th>
-            <th>Files</th>
-            <th>Method</th>
+            <th>This Gather</th>
+            <th>Live Site</th>
+            <th>Previous Gather</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="instance: ${gatheredInstances}">
-            <td align="center"><a th:href="${instance.title.titleUrl}"><i class="icon globe"></i></a></td>
-            <td align="center"><time th:text="${dateTimeFormat.format(instance.date)}">12:43:00</time></td>
-            <td align="right" th:text="${instance.title.pi ?: instance.title.id}">12345</td>
-            <td><a th:text="${instance.title.name}" th:href="${@link.to(instance.title)}">Example title</a></td>
-            <td><a href="#workingAreaUrl"><i class="icon globe"></i></a></td>
-            <td><a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="${@link.to(instance.title.owner)}">jsmith</a></td>
-            <td><span th:if="${instance.gather?.size}" th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}">10 MB</span></td>
-            <td><span th:if="${instance.gather?.files}" th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}">1,234</span></td>
-            <td><a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}">Process</a></td>
-            <td th:text="${instance.gatherMethodName}"></td>
+        <tr th:each="instance: ${gatheredInstances}" th:with="previousGather = ${previousGathers.get(instance.id)}">
+            <td>
+                <a th:text="${instance.title.name}" th:href="${@link.to(instance.title)}" style="font-weight: bold">Example title</a><br>
+                <span th:text="${instance.gatherMethodName}">Heritrix</span>
+                <a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="${@link.to(instance.title.owner)}">jsmith</a>
+            </td>
+            <td style="text-align: center">
+                <a href="#workingAreaUrl"><img src="${@link.thumbnail(instance)}" width=150 height=100></a><br>
+                <time th:text="${@dateFormats.shortDate(instance.date)}"></time><br>
+                <span style="font-size: 80%; color: #555">
+                    <span th:if="${instance.gather?.files}" th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')} + ' files'">1,234 files</span>
+                    <span th:if="${instance.gather?.size}" th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}">10 MB</span>
+                </span>
+            </td>
+            <td style="text-align: center; vertical-align: top">
+                <a th:href="${instance.title.titleUrl}"><img src="${@link.thumbnail(instance)}" width=150 height=100></a>
+            </td>
+            <td style="text-align: center">
+                <a th:href="@{/instances/{id}(id=${previousGather.id})}">
+                    <img th:id="${previousGather != null}" th:src="@{/instances/{id}/thumbnail(id=${previousGather.id})}" width=150 height=100><br>
+                </a>
+                <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
+                <span style="font-size: 80%; color: #555">
+                    <span th:if="${previousGather?.files != null}" th:text="${#numbers.formatInteger(previousGather.files, 0, 'COMMA')} + ' files'">1,234 files</span>
+                    <span th:if="${previousGather?.size != null}" th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(previousGather.size)}">10 MB</span>
+                </span>
+            </td>
+            <td><a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}" class="btn btn-primary">Process</a></td>
         </tr>
         </tbody>
     </table>

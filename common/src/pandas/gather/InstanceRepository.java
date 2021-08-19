@@ -85,4 +85,14 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             "order by i.id asc")
     Page<Instance> prevInGatheredWorktray(@Param("agency") Agency agency, @Param("owner") Individual owner,
                                               @Param("instanceId") long instanceId, Pageable pageable);
+
+    @Query("select new pandas.gather.PreviousGather(cur.id, prev.id, prev.date, prev.gather.files, prev.gather.size) " +
+            "from Instance cur " +
+            "inner join Instance prev " +
+            "   on prev.id = (select max(i.id) from Instance i " +
+            "                 where i.title = cur.title " +
+            "                   and i.id < cur.id " +
+            "                   and i.state.name = 'archived') " +
+            "where cur in (:instances)")
+    List<PreviousGather> findPreviousStats(@Param("instances") List<Instance> instances);
 }

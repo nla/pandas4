@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
@@ -13,13 +14,17 @@ import pandas.core.Individual;
 import pandas.core.IndividualRepository;
 import pandas.core.NotFoundException;
 import pandas.core.UserService;
+import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
+import pandas.gather.PreviousGather;
 import pandas.report.ReportRepository;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -149,7 +154,12 @@ public class WorktraysController {
 
     @GetMapping("/worktrays/{alias}/gathered")
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
-        model.addAttribute("gatheredInstances", instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable));
+        Page<Instance> instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable);
+        Map<Long, PreviousGather> previousGathers = new HashMap<>();
+        instanceRepository.findPreviousStats(instances.getContent())
+                .forEach(ps -> previousGathers.put(ps.getCurrentInstanceId(), ps));
+        model.addAttribute("gatheredInstances", instances);
+        model.addAttribute("previousGathers", previousGathers);
         return "worktrays/Gathered";
     }
 
