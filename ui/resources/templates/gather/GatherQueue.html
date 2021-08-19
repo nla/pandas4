@@ -27,7 +27,7 @@
             <td th:text="${gather.title.pi}">12345</td>
             <td><a th:href="${@link.to(gather.title)}" th:text="${gather.title.name}" href="#">Fishes of Australia</a></td>
             <td th:text="${gather.title?.agency?.organisation?.alias}">NLA</td>
-            <td><a th:href="${@link.to(gather.title?.owner?)}" th:text="${gather.title?.owner?.userid}">jsmith</a></td>
+            <td><a th:if="${gather.title.owner != null}" th:href="${@link.to(gather.title.owner)}" th:text="${gather.title.owner.userid}">jsmith</a></td>
             <td th:text="${gather.method.name}">Heritrix</td>
         </tr>
         </tbody>
