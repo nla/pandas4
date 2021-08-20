@@ -115,7 +115,7 @@ public class ThumbnailGenerator {
                     "-dDEVICEWIDTH=" + width, "-dDEVICEHEIGHT=" + height, "-sOutputFile=-", "-")
                     .redirectInput(ProcessBuilder.Redirect.PIPE)
                     .redirectOutput(ProcessBuilder.Redirect.PIPE)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD)
                     .start();
             try {
                 body.transferTo(process.getOutputStream());
