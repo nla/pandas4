@@ -109,7 +109,7 @@ public class ThumbnailGenerator {
     private InstanceThumbnail generatePdfThumbnail(String url, InstanceThumbnail thumbnail, int width, int height) throws IOException, InterruptedException {
         try (var body = httpClient.send(HttpRequest.newBuilder(URI.create(url)).GET()
                 .timeout(Duration.ofSeconds(timeoutSeconds)).build(), BodyHandlers.ofInputStream()).body()) {
-            Process process = new ProcessBuilder("gs", "sstdout=%stderr", "-q", "-sDEVICE=jpeg",
+            Process process = new ProcessBuilder("gs", "-sstdout=%stderr", "-q", "-sDEVICE=jpeg",
                     "-dNOPAUSE", "-dBATCH", "-r35x36", "-dPDFFitPage=true", "-sPageList=1",
                     "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4",
                     "-dDEVICEWIDTH=" + width, "-dDEVICEHEIGHT=" + height, "-sOutputFile=-", "-")
