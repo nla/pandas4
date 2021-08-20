@@ -119,7 +119,7 @@
                                 <artifactItem>
                                     <groupId>org.archive.heritrix</groupId>
                                     <artifactId>heritrix</artifactId>
-                                    <version>3.4.0-20200518</version>
+                                    <version>3.4.0-20210803</version>
                                     <classifier>dist</classifier>
                                     <type>zip</type>
                                 </artifactItem>
@@ -213,6 +213,12 @@
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-spring-test-listener</artifactId>
+            <version>5.11.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-junit-jupiter</artifactId>
             <version>5.11.2</version>
             <scope>test</scope>
         </dependency>

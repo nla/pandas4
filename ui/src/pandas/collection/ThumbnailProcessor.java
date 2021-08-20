@@ -11,8 +11,8 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
-import pandas.render.Browser;
-import pandas.render.BrowserPool;
+import pandas.browser.Browser;
+import pandas.browser.BrowserPool;
 import pandas.util.DateFormats;
 
 import java.nio.charset.StandardCharsets;

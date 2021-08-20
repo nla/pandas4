@@ -10,10 +10,14 @@ import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.util.UriUtils;
-import pandas.gather.*;
-import pandas.render.Browser;
-import pandas.render.BrowserPool;
+import pandas.browser.Browser;
+import pandas.browser.BrowserPool;
+import pandas.gather.Instance;
+import pandas.gather.InstanceRepository;
+import pandas.gather.InstanceThumbnail;
+import pandas.gather.InstanceThumbnailRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -30,15 +34,15 @@ public class InstanceThumbnailProcessor {
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
     private static final Logger log = LoggerFactory.getLogger(InstanceThumbnailProcessor.class);
     private static final OkHttpClient httpClient = new OkHttpClient.Builder().followRedirects(true).build();
-    private final InstanceService instanceService;
     private final InstanceRepository instanceRepository;
-    private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final BrowserPool browserPool;
+    private final TransactionTemplate transactionTemplate;
+    private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public InstanceThumbnailProcessor(ThumbnailRepository thumbnailRepository, InstanceService instanceService, InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
-        this.instanceService = instanceService;
+    public InstanceThumbnailProcessor(InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository, TransactionTemplate transactionTemplate) {
         this.instanceRepository = instanceRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
+        this.transactionTemplate = transactionTemplate;
         this.browserPool = new BrowserPool();
     }
 
@@ -66,8 +70,11 @@ public class InstanceThumbnailProcessor {
     public InstanceThumbnail processAndSave(Instance instance) {
         try {
             InstanceThumbnail thumbnail = process(instance);
-            instanceService.saveThumbnail(instance, thumbnail);
-            return thumbnail;
+            return transactionTemplate.execute(transactionStatus -> {
+                thumbnail.setInstance(instanceRepository.findById(instance.getId()).orElseThrow());
+                instanceThumbnailRepository.save(thumbnail);
+                return thumbnail;
+            });
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

@@ -330,12 +330,9 @@ public class Title {
 
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
-        if (getGather() != null && getGather().getGatherUrl() != null) {
-            seeds.add(getGather().getGatherUrl());
-        } else if (getSeedUrl() != null) {
-            seeds.add(getSeedUrl());
-        } else if (getTitleUrl() != null) {
-            seeds.add(getTitleUrl());
+        String primarySeed = getPrimarySeedUrl();
+        if (primarySeed != null) {
+            seeds.add(primarySeed);
         }
         TitleGather gather = getGather();
         if (gather != null && gather.getAdditionalUrls() != null) {
@@ -347,6 +344,16 @@ public class Title {
             }
         }
         return seeds;
+    }
+
+    public String getPrimarySeedUrl() {
+        if (getGather() != null && getGather().getGatherUrl() != null) {
+            return getGather().getGatherUrl();
+        } else if (getSeedUrl() != null) {
+            return getSeedUrl();
+        } else {
+            return getTitleUrl();
+        }
     }
 
     public Agency getAgency() {

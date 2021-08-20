@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -49,6 +50,8 @@ public class GathererIT {
     @Autowired
     InstanceRepository instanceRepository;
     @Autowired
+    InstanceThumbnailRepository instanceThumbnailRepository;
+    @Autowired
     InstanceService instanceService;
 
     MockServerClient mockServer;
@@ -66,7 +69,7 @@ public class GathererIT {
         String javaExe = Paths.get(System.getProperty("java.home")).resolve("bin").resolve("java").toString();
         Path heritrixWorking = Files.createDirectories(tempDir.resolve("heritrix"));
         Path heritrixStdio = heritrixWorking.resolve("stdio");
-        Process process = new ProcessBuilder(javaExe, "-cp", Paths.get("target/dependency/heritrix-3.4.0-20200518/lib/*").toAbsolutePath().toString(),
+        Process process = new ProcessBuilder(javaExe, "-cp", Paths.get("target/dependency/heritrix-3.4.0-20210803/lib/*").toAbsolutePath().toString(),
                 "-Xmx512m",
                 "org.archive.crawler.Heritrix", "-a", "password", "-p", Integer.toString(heritrixPort))
                 .directory(heritrixWorking.toFile())
@@ -120,6 +123,7 @@ public class GathererIT {
                 instance = instanceRepository.findById(instance.getId()).orElseThrow();
             }
             assertEquals(State.ARCHIVED, instance.getState().getName());
+            assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.LIVE));
         } finally {
             System.err.println("Killing Heritrix");
             process.destroyForcibly();
@@ -173,6 +177,7 @@ public class GathererIT {
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
         assertEquals(State.ARCHIVED, instance.getState().getName());
+        assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.LIVE));
     }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {

@@ -33,18 +33,20 @@ public class GatherManager implements AutoCloseable {
 	private final TitleRepository titleRepository;
 	private final InstanceService instanceService;
 	private final InstanceGatherRepository instanceGatherRepository;
+	private final ThumbnailGenerator thumbnailGenerator;
 	private final Object pollingLock = new Object();
 	private String version;
 	private volatile boolean paused;
 
 	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
 						 TitleRepository titleRepository, InstanceService instanceService,
-						 InstanceGatherRepository instanceGatherRepository, List<Backend> backends) {
+						 InstanceGatherRepository instanceGatherRepository, List<Backend> backends, ThumbnailGenerator thumbnailGenerator) {
 		this.workingArea = workingArea;
 		this.instanceRepository = instanceRepository;
 		this.titleRepository = titleRepository;
 		this.instanceService = instanceService;
 		this.instanceGatherRepository = instanceGatherRepository;
+		this.thumbnailGenerator = thumbnailGenerator;
 		scheduler.scheduleWithFixedDelay(this::updateGatherStats, 10, config.getGatherStatsPollSeconds(), TimeUnit.SECONDS);
 
 		for (Backend backend : backends) {
@@ -55,7 +57,7 @@ public class GatherManager implements AutoCloseable {
 	public void startWorkers(Backend backend, int count) {
 	    log.info("Starting {} {} workers", count, backend.getGatherMethod());
 		for (int i = 0; i < count; i++) {
-			Worker worker = new Worker(this, instanceService, instanceGatherRepository, workingArea, backend);
+			Worker worker = new Worker(this, instanceService, instanceGatherRepository, workingArea, backend, thumbnailGenerator);
 			Thread thread = new Thread(worker, backend.getGatherMethod() + i);
 			workerThreads.add(thread);
 			thread.start();

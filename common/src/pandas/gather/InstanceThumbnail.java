@@ -13,7 +13,7 @@ public class InstanceThumbnail {
     @Column(name="INSTANCE_ID")
     private Long id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="INSTANCE_ID")
     @MapsId
     @JsonIgnore
@@ -25,6 +25,7 @@ public class InstanceThumbnail {
 
     private int status;
 
+    @Lob
     private byte[] data;
 
     @CreatedDate

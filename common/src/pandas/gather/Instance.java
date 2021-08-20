@@ -2,7 +2,6 @@ package pandas.gather;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.Where;
 import pandas.collection.Title;
 
 import javax.persistence.*;
@@ -97,9 +96,8 @@ public class Instance {
     @OneToMany(mappedBy = "instance")
     private List<PandasExceptionLog> exceptions;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "instance", fetch = FetchType.LAZY)
-    @Where(clause = "type = 0" /* ARCHIVED */)
-    private InstanceThumbnail thumbnail;
+    @OneToMany(mappedBy = "instance")
+    private List<InstanceThumbnail> thumbnails;
 
     public State getState() {
         return this.state;
@@ -337,11 +335,12 @@ public class Instance {
     }
 
     public InstanceThumbnail getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(InstanceThumbnail thumbnail) {
-        this.thumbnail = thumbnail;
+        for (var thumbnail : thumbnails) {
+            if (thumbnail.getType() == InstanceThumbnail.Type.REPLAY) {
+                return thumbnail;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -372,5 +371,14 @@ public class Instance {
         title.setPi((long)pi);
         instance.setTitle(title);
         return instance;
+    }
+
+    public InstanceThumbnail getLiveThumbnail() {
+        for (var thumbnail : thumbnails) {
+            if (thumbnail.getType() == InstanceThumbnail.Type.LIVE) {
+                return thumbnail;
+            }
+        }
+        return null;
     }
 }

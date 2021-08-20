@@ -2,6 +2,7 @@ package pandas.render;
 
 import org.junit.Assume;
 import org.junit.Test;
+import pandas.browser.Browser;
 
 import java.io.IOException;
 

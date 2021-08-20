@@ -16,13 +16,15 @@ class Worker implements Runnable {
 	private final Backend backend;
 	private final InstanceService instanceService;
 	private final InstanceGatherRepository instanceGatherRepository;
+	private final ThumbnailGenerator thumbnailGenerator;
 
-	Worker(GatherManager gatherManager, InstanceService instanceService, InstanceGatherRepository instanceGatherRepository, WorkingArea workingArea, Backend backend) {
+	Worker(GatherManager gatherManager, InstanceService instanceService, InstanceGatherRepository instanceGatherRepository, WorkingArea workingArea, Backend backend, ThumbnailGenerator thumbnailGenerator) {
 		this.gatherManager = gatherManager;
 		this.instanceService = instanceService;
 		this.workingArea = workingArea;
 		this.backend = backend;
 		this.instanceGatherRepository = instanceGatherRepository;
+		this.thumbnailGenerator = thumbnailGenerator;
 	}
 
 	/**
@@ -83,6 +85,7 @@ class Worker implements Runnable {
 					case State.GATHERING:
 						nameThread("G", instance);
 						Instant startTime = Instant.now();
+						thumbnailGenerator.generateLiveThumbnail(instance);
 						backend.gather(instance);
 						nextState = State.GATHER_PROCESS;
 						saveGatherStatistics(instance, startTime);

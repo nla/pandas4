@@ -15,4 +15,6 @@ public interface InstanceThumbnailRepository extends CrudRepository<InstanceThum
             "order by it.instance.date desc")
     List<InstanceThumbnail> findForTitleId(@Param("titleId") long titleId, @Param("type") InstanceThumbnail.Type type,
                                            Pageable pageable);
+
+    boolean existsByInstanceAndType(Instance instance, InstanceThumbnail.Type type);
 }
