@@ -9,8 +9,6 @@ import org.mockserver.springtest.MockServerTest;
 import pandas.gather.InstanceThumbnail;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +46,6 @@ class ThumbnailGeneratorTest {
         assertEquals(200, thumbnail.getStatus());
         assertNotNull(thumbnail.getData());
         assertTrue(thumbnail.getData().length > 0);
-        Files.write(Paths.get("/tmp/x.pdf"), thumbnail.getData());
     }
 
 }
