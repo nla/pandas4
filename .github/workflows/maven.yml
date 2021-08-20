@@ -20,8 +20,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Install httrack
-      run: sudo apt-get install -y httrack
+    - name: Install httrack and ghostscript
+      run: sudo apt-get install -y httrack ghostscript
     - name: Install pywb 2.5.0
       run: sudo pip install pywb==2.5.0
     - name: Cache local Maven repository
