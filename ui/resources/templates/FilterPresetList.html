@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Gather Filter Presets - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <h1>Gather Filter Presets</h1>
+        <a th:href="@{/gather/filterpresets/new}" class="btn btn-primary">New Preset</a>
     </header>
+    <h2>Filter Presets</h2>
     <ul>
         <li th:each="preset: ${presets}"><a href="FilterPresetEdit.html" th:href="@{|/gather/filterpresets/${preset.id}|}" th:text="${preset.name}"></a>
     </ul>
-
-    <a th:href="@{/gather/filterpresets/new}" class="btn btn-primary">New Filter Preset</a>
 </main>

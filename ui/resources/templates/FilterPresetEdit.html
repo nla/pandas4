@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit Filter Preset - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <h1>Edit Filter Preset</h1>
+        <nav>
+            <button type="submit" class="btn btn-primary" form=form>Save</button>
+            <a th:href="@{/gather/filterpresets}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+        </nav>
+        <button th:if="${preset.id != null}" type="submit"
+                th:formaction="@{|/gather/filterpresets/${preset.id}/delete|}"
+                class="btn btn-danger float-right" form=form>Delete
+        </button>
     </header>
-    <form method=post class=form th:action="@{/gather/filterpresets}">
+    <h2>Edit Filter Preset</h2>
+    <form method=post class=form th:action="@{/gather/filterpresets}" id=form>
         <input type=hidden name=id th:value="${preset.id}">
         <div class="form-group">
             <label for="name">Name:</label>
@@ -22,14 +30,5 @@
             <textarea class="form-control" id="filters" name="filters" rows="15"
                       th:text="${preset.filters?.replace(' ', '\n') ?: ''}"></textarea>
         </div>
-
-        <nav>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a th:href="@{/gather/filterpresets}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
-            <button th:if="${preset.id != null}" type="submit"
-                    th:formaction="@{|/gather/filterpresets/${preset.id}/delete|}"
-                    class="btn btn-danger float-right">Delete
-            </button>
-        </nav>
     </form>
 </main>

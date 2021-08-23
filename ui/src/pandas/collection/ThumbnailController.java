@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,14 +24,6 @@ public class ThumbnailController {
         this.thumbnailProcessor = thumbnailProcessor;
         this.thumbnailRepository = thumbnailRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
-    }
-
-    @GetMapping("/thumbnails/{id}/edit")
-    @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
-    public String edit(@PathVariable("id") long id, Model model) {
-        Thumbnail thumbnail = thumbnailRepository.findById(id).orElseThrow(NotFoundException::new);
-        model.addAttribute("thumbnail", thumbnail);
-        return "ThumbnailEdit";
     }
 
     @GetMapping("/thumbnails/generate")

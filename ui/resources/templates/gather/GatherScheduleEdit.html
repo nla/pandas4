@@ -3,12 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Gather Schedules - PANDAS</title>
-    <link rel="stylesheet" href="../../target/classes/static/pandas-admin.css" th:href="@{/pandas-admin.css}">
+    <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<header th:replace="_layout.html :: header"></header>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
+    <header>
+        <nav>
+            <button type="submit" class="btn btn-primary" form=scheduleForm>Save</button>
+            <a th:href="@{/schedules}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+        </nav>
+        <button th:if="${schedule.id != null}" type="submit" th:formaction="@{|/schedules/${schedule.id}/delete|}"
+                class="btn btn-danger float-right"  form=scheduleForm>Delete
+        </button>
+    </header>
     <h1>Edit Gather Schedule</h1>
 
     <form method=post id=scheduleForm>
@@ -107,14 +116,6 @@
             updatePreview();
             form.addEventListener('change', updatePreview);
         </script>
-
-        <div>
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a th:href="@{/schedules}" href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
-            <button th:if="${schedule.id != null}" type="submit" th:formaction="@{|/schedules/${schedule.id}/delete|}"
-                    class="btn btn-danger float-right">Delete
-            </button>
-        </div>
     </form>
 
 </main>

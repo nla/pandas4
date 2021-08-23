@@ -43,25 +43,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.gitlab.haynes</groupId>
-                <artifactId>libsass-maven-plugin</artifactId>
-                <version>0.2.24</version>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <inputPath>${basedir}/sass/</inputPath>
-                    <outputPath>${basedir}/target/classes/static/</outputPath>
-                    <sourceMapOutputPath>${basedir}/target/classes/static/</sourceMapOutputPath>
-                    <enableClasspathAwareImporter>true</enableClasspathAwareImporter>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.version}</version>
