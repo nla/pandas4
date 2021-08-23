@@ -77,7 +77,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
         if (oidcIssuerUri != null) {
             http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService());
             http.logout().logoutSuccessUrl("/");
