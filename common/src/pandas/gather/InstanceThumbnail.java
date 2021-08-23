@@ -1,17 +1,20 @@
 package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Entity
+@IdClass(InstanceThumbnailId.class)
 public class InstanceThumbnail {
     @Id
     @Column(name="INSTANCE_ID")
-    private Long id;
+    private Long instanceId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="INSTANCE_ID")
@@ -19,6 +22,9 @@ public class InstanceThumbnail {
     @JsonIgnore
     private Instance instance;
 
+    @Id
+    @NotNull
+    @ColumnDefault("0")
     private Type type = Type.REPLAY;
 
     private String contentType;
@@ -26,6 +32,7 @@ public class InstanceThumbnail {
     private int status;
 
     @Lob
+    @org.hibernate.annotations.Type(type = "org.hibernate.type.BinaryType")
     private byte[] data;
 
     @CreatedDate
@@ -40,6 +47,7 @@ public class InstanceThumbnail {
 
     public void setInstance(Instance instance) {
         this.instance = instance;
+        setInstanceId(instance.getId());
     }
 
     public byte[] getData() {
@@ -50,12 +58,12 @@ public class InstanceThumbnail {
         this.data = data;
     }
 
-    public Long getId() {
-        return id;
+    public Long getInstanceId() {
+        return instanceId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setInstanceId(Long id) {
+        this.instanceId = id;
     }
 
     public Instant getCreatedDate() {

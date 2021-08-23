@@ -53,19 +53,21 @@
                 <a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="${@link.to(instance.title.owner)}">jsmith</a>
             </td>
             <td style="text-align: center">
-                <a href="#workingAreaUrl"><img src="${@link.thumbnail(instance)}" width=150 height=100></a><br>
+                <a href="#workingAreaUrl"><img th:src="${@link.thumbnail(instance)}" width=150 height=100></a><br>
                 <time th:text="${@dateFormats.shortDate(instance.date)}"></time><br>
                 <span class="gather-stats" th:if="${instance.gather != null}" th:text="${instance.gather.stats}">1,234 files 10 MB</span>
             </td>
             <td style="text-align: center; vertical-align: top">
-                <a th:href="${instance.title.titleUrl}"><img src="${@link.thumbnail(instance)}" width=150 height=100></a>
+                <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
             </td>
             <td style="text-align: center">
-                <a th:href="@{/instances/{id}(id=${previousGather.id})}">
-                    <img th:id="${previousGather != null}" th:src="@{/instances/{id}/thumbnail(id=${previousGather.id})}" width=150 height=100><br>
-                </a>
-                <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
-                <span class="gather-stats" th:text="${previousGather.stats}">1,234 files 10 MB</span>
+                <th:block th:if="${previousGather != null}">
+                    <a th:href="@{/instances/{id}(id=${previousGather.id})}">
+                        <img th:src="@{/instances/{id}/thumbnail(id=${previousGather.id})}" width=150 height=100><br>
+                    </a>
+                    <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
+                    <span class="gather-stats" th:text="${previousGather.stats}">1,234 files 10 MB</span>
+                </th:block>
             </td>
             <td><a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}" class="btn btn-primary">Process</a></td>
         </tr>

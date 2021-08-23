@@ -25,6 +25,7 @@ public class Config {
     private Path uploadDir;
     private Path pywbDir;
     private Path pywbDataDir;
+    private int pywbPort = 10910;
     private String gathererBindAddress = "0.0.0.0";
     private int uploadWorkers = 2;
     private int scriptWorkers = 2;
@@ -67,6 +68,7 @@ public class Config {
         setRepo2Dir(Paths.get(env.getOrDefault("PANDAS_REPO2", getRepo2Dir().toString())));
         setPywbDir(Paths.get(env.getOrDefault("PYWB", getPywbDir().toString())));
         setPywbDataDir(Paths.get(env.getOrDefault("PYWB_DATA", getPywbDataDir().toString())));
+        setPywbPort(Integer.parseInt(env.getOrDefault("PYWB_PORT", String.valueOf(getPywbPort()))));
 
         setGathererBindAddress(System.getenv().getOrDefault("GATHERER_BIND_ADDRESS", getGathererBindAddress()));
         if (env.containsKey("PORT")) {
@@ -293,5 +295,13 @@ public class Config {
 
     public void setLegacyScripts(Path legacyScripts) {
         this.legacyScripts = legacyScripts;
+    }
+
+    public int getPywbPort() {
+        return pywbPort;
+    }
+
+    public void setPywbPort(int pywbPort) {
+        this.pywbPort = pywbPort;
     }
 }

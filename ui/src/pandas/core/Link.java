@@ -35,6 +35,10 @@ public class Link {
         return to(instance) + "/thumbnail";
     }
 
+    public String thumbnail(Instance instance, String type) {
+        return to(instance) + "/thumbnail?type=" + type;
+    }
+
     public String to(Agency agency) {
         return link("/agencies/" + agency.getOrganisation().getAlias());
     }

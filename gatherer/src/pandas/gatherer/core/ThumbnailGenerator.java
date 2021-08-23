@@ -59,6 +59,25 @@ public class ThumbnailGenerator {
         });
     }
 
+    public void generateReplayThumbnail(Instance instance, String url) {
+        if (instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.REPLAY)) return;
+
+        InstanceThumbnail thumbnail;
+        try {
+            thumbnail = generateThumbnail(url);
+        } catch (Exception e) {
+            log.error("Error generating replay thumbnail of " + url, e);
+            return;
+        }
+
+        transactionTemplate.executeWithoutResult((status) -> {
+            thumbnail.setType(InstanceThumbnail.Type.REPLAY);
+            thumbnail.setInstance(instanceRepository.findById(instance.getId()).orElseThrow());
+            instanceThumbnailRepository.save(thumbnail);
+        });
+    }
+
+
     private InstanceThumbnail generate(Instance instance) throws Exception {
         String url = instance.getTepUrlAbsolute();
         String sourceUrl = "https://web.archive.org.au/awa-nobanner/" + DateFormats.ARC_DATE.format(instance.getDate()) + "/" + url;

@@ -21,6 +21,7 @@ import pandas.gather.*;
 import pandas.util.DateFormats;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -32,12 +33,13 @@ public class InstanceController {
     private final UserService userService;
     private final InstanceService instanceService;
     private final InstanceRepository instanceRepository;
+    private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final StateHistoryRepository stateHistoryRepository;
     private final InstanceThumbnailProcessor thumbnailProcessor;
     private final AgencyRepository agencyRepository;
     private final IndividualRepository individualRepository;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
@@ -46,6 +48,7 @@ public class InstanceController {
         this.thumbnailProcessor = thumbnailProcessor;
         this.agencyRepository = agencyRepository;
         this.individualRepository = individualRepository;
+        this.instanceThumbnailRepository = instanceThumbnailRepository;
     }
 
     @GetMapping("/instances/{id}")
@@ -116,9 +119,16 @@ public class InstanceController {
     }
 
     @GetMapping("/instances/{id}/thumbnail")
-    public ResponseEntity<byte[]> getThumbnail(@PathVariable("id") Instance instance) {
-        // icons from material.io/icons
-        if (instance.getState().getName().equals(State.DELETED) || instance.getState().getName().equals(State.DELETING)) {
+    public ResponseEntity<byte[]> getThumbnail(@PathVariable("id") Instance instance,
+                                               @RequestParam(name="type", defaultValue = "REPLAY") InstanceThumbnail.Type type) {
+        Optional<InstanceThumbnail> thumbnail = instanceThumbnailRepository.findByInstanceAndType(instance, type);
+        if (thumbnail.isPresent()) {
+            return ResponseEntity.ok()
+                    .cacheControl(maxAge(1, DAYS))
+                    .header("Content-Type", thumbnail.get().getContentType())
+                    .body(thumbnail.get().getData());
+        } else if (instance.getState().getName().equals(State.DELETED) || instance.getState().getName().equals(State.DELETING)) {
+            // icons from material.io/icons
             return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/svg+xml"))
                     .body("<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 0 24 24\" width=\"24px\" fill=\"#999999\"><path d=\"M0 0h24v24H0V0z\" fill=\"none\"/><path d=\"M6 21h12V7H6v14zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z\"/></svg>".getBytes(UTF_8));
         } else if (instance.getState().getName().equals(State.GATHERED)) {
@@ -130,18 +140,8 @@ public class InstanceController {
         } else if (!instance.getState().getName().equals(State.ARCHIVED)) {
             return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/svg+xml"))
                     .body("<svg xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24px\" viewBox=\"0 0 24 24\" width=\"24px\" fill=\"#999999\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/></g><g><path d=\"M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z M7,13.5c-0.83,0-1.5-0.67-1.5-1.5 c0-0.83,0.67-1.5,1.5-1.5s1.5,0.67,1.5,1.5C8.5,12.83,7.83,13.5,7,13.5z M12,13.5c-0.83,0-1.5-0.67-1.5-1.5 c0-0.83,0.67-1.5,1.5-1.5s1.5,0.67,1.5,1.5C13.5,12.83,12.83,13.5,12,13.5z M17,13.5c-0.83,0-1.5-0.67-1.5-1.5 c0-0.83,0.67-1.5,1.5-1.5s1.5,0.67,1.5,1.5C18.5,12.83,17.83,13.5,17,13.5z\"/></g></svg>".getBytes(UTF_8));
-        }
-
-        var thumbnail = instance.getThumbnail();
-        if (thumbnail == null && System.getProperty("thumbnailOnDemand") != null && instance.getState().getName().equals(State.ARCHIVED)) {
-            thumbnail = thumbnailProcessor.processAndSave(instance);
-        }
-        if (thumbnail == null) {
+        } else {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok()
-                .cacheControl(maxAge(1, DAYS))
-                .header("Content-Type", thumbnail.getContentType())
-                .body(thumbnail.getData());
     }
 }

@@ -124,6 +124,7 @@ public class GathererIT {
             }
             assertEquals(State.ARCHIVED, instance.getState().getName());
             assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.LIVE));
+            assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.REPLAY));
         } finally {
             System.err.println("Killing Heritrix");
             process.destroyForcibly();

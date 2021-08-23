@@ -9,10 +9,7 @@ import pandas.gather.Instance;
 import pandas.gather.InstanceService;
 import pandas.gather.State;
 import pandas.gatherer.CrawlBeans;
-import pandas.gatherer.core.Artifact;
-import pandas.gatherer.core.Backend;
-import pandas.gatherer.core.Config;
-import pandas.gatherer.core.WorkingArea;
+import pandas.gatherer.core.*;
 import pandas.gatherer.repository.Repository;
 
 import java.io.IOException;
@@ -34,15 +31,19 @@ public class HeritrixGatherer implements Backend {
     private final Config config;
     private final HeritrixConfig heritrixConfig;
     private final Repository repository;
+    private final PywbService pywbService;
+    private final ThumbnailGenerator thumbnailGenerator;
     private boolean shutdown;
 
-    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, Repository repository) {
+    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, Repository repository, PywbService pywbService, ThumbnailGenerator thumbnailGenerator) {
         this.workingArea = workingArea;
         this.config = config;
         this.heritrixConfig = heritrixConfig;
         heritrix = new HeritrixClient(heritrixConfig.getUrl(), heritrixConfig.getUser(), heritrixConfig.getPassword());
         this.instanceService = instanceService;
         this.repository = repository;
+        this.pywbService = pywbService;
+        this.thumbnailGenerator = thumbnailGenerator;
     }
 
     @Override
@@ -53,7 +54,7 @@ public class HeritrixGatherer implements Backend {
         CrawlBeans.writeConfig(instance, jobDir, config.getGathererBindAddress());
 
         // create pywb dirs
-        Path collDir = pywbDir(instance);
+        Path collDir = pywbService.directoryFor(instance);
         Path indexDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString()).resolve("indexes");
         Files.createDirectories(collDir);
         Files.createDirectories(indexDir);
@@ -88,8 +89,6 @@ public class HeritrixGatherer implements Backend {
         } finally {
             heritrix.teardownJob(instance.getHumanId());
         }
-
-        pywbReindex(instance);
     }
 
     private static void createSymbolicLinkIfNotExists(Path link, Path target) throws IOException {
@@ -100,28 +99,8 @@ public class HeritrixGatherer implements Backend {
 
     @Override
     public void postprocess(Instance instance) throws IOException {
-        // does nothing for heritrix crawls
-    }
-
-    public void pywbReindex(Instance instance) throws IOException {
-//        String wbManager = config.getPywbDir().resolve("bin/wb-manager").toString();
-        try {
-            new ProcessBuilder("wb-manager", "reindex", pywbColl(instance))
-                    .directory(config.getPywbDataDir().toFile())
-                    .inheritIO()
-                    .start()
-                    .waitFor();
-        } catch (InterruptedException e) {
-            log.warn("Interrupted indexing", e);
-        }
-    }
-
-    private Path pywbDir(Instance instance) {
-        return config.getPywbDataDir().resolve("collections").resolve(pywbColl(instance));
-    }
-
-    private String pywbColl(Instance instance) {
-        return instance.getTitle().getPi() + "-" + instance.getDateString();
+        pywbService.reindex(instance);
+        thumbnailGenerator.generateReplayThumbnail(instance, pywbService.replayUrlFor(instance));
     }
 
     @Override
@@ -158,7 +137,7 @@ public class HeritrixGatherer implements Backend {
     @Override
     public void delete(Instance instance) throws IOException {
         workingArea.deleteInstance(instance.getTitle().getPi(), instance.getDateString());
-        workingArea.deleteRecursivelyIfExists(pywbDir(instance));
+        workingArea.deleteRecursivelyIfExists(pywbService.directoryFor(instance));
     }
 
     @Override
