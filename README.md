@@ -5,10 +5,26 @@ The fourth-generation of the PANDAS web archiving workflow system. This project
 is at an early stage development and currently must be used in conjunction with
 the older PANDAS 3 system (which is not open source).
 
+External Dependencies
+---------------------
+
+PANDAS requires the following tools to be installed:
+
+* [JDK 11](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot)
+* [Maven](https://maven.apache.org/)
+* [pywb](https://github.com/webrecorder/pywb)
+* [Ghostscript](https://www.ghostscript.com/)
+
+On RHEL/CentOS 7 install with:
+
+    yum install -y epel-release
+    yum install -y ghostscript httrack java-11-openjdk-devel python36 python36-devel python36-setuptools
+    pip install pywb
+
 Building and Running
 --------------------
 
-To compile install [JDK 11](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot) and [Maven](https://maven.apache.org/)
+Compile with:
 
     mvn package
 
