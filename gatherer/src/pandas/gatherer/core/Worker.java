@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import pandas.gather.*;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 
 class Worker implements Runnable {
@@ -149,21 +148,14 @@ class Worker implements Runnable {
 
 	private void saveGatherStatistics(Instance instance, Instant startTime) {
 		try {
-			Instant now = Instant.now();
-			long elapsedSeconds = Duration.between(startTime, now).getSeconds();
-			InstanceGather insGather = instance.getGather();
-			insGather.setStart(startTime);
-			insGather.setTime(elapsedSeconds / 60);
-			insGather.setFinish(now);
+			instanceService.finishGather(instance.getId(), startTime);
 			if (!instance.getGatherMethodName().equals(GatherMethod.HERITRIX)) {
 				FileStats stats = workingArea.instanceStats(instance.getTitle().getPi(), instance.getDateString(), gatherManager::isShutdown);
 				if (gatherManager.isShutdown()) {
 					return;
 				}
-				insGather.setSize(stats.size());
-				insGather.setFiles(stats.fileCount());
+				instanceService.updateGatherStats(instance.getId(), stats.fileCount(), stats.size());
 			}
-			instanceGatherRepository.save(insGather);
 		} catch (IOException e) {
 			log.warn("Unable to save gather stats for " + instance.getHumanId(), e);
 		}

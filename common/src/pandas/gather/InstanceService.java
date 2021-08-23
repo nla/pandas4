@@ -6,6 +6,7 @@ import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.core.Individual;
 
+import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -126,8 +127,8 @@ public class InstanceService {
     }
 
     @Transactional
-    public void updateGatherStats(Instance instance, long fileCount, long size) {
-        InstanceGather gather = instance.getGather();
+    public void updateGatherStats(long instanceId, long fileCount, long size) {
+        InstanceGather gather = instanceGatherRepository.findById(instanceId).orElseThrow();
         gather.setFiles(fileCount);
         gather.setSize(size);
         instanceGatherRepository.save(gather);
@@ -141,5 +142,15 @@ public class InstanceService {
             instance.setIsDisplayed(1L);
         }
         instanceRepository.save(instance);
+    }
+
+    @Transactional
+    public void finishGather(long instanceId, Instant startTime) {
+        Instant now = Instant.now();
+        InstanceGather insGather = instanceGatherRepository.findById(instanceId).orElseThrow();
+        insGather.setStart(startTime);
+        insGather.setTime(Duration.between(startTime, now).getSeconds() / 60);
+        insGather.setFinish(now);
+        instanceGatherRepository.save(insGather);
     }
 }

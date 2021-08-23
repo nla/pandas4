@@ -76,7 +76,7 @@ public class HeritrixGatherer implements Backend {
             while (true) {
                 HeritrixClient.Job job = heritrix.getJob(instance.getHumanId());
                 instance = instanceService.refresh(instance);
-                instanceService.updateGatherStats(instance, job.fileStats().fileCount(), job.fileStats().size());
+                instanceService.updateGatherStats(instance.getId(), job.fileStats().fileCount(), job.fileStats().size());
                 if (job.crawlControllerState != RUNNING ||
                         !instance.getState().getName().equals(State.GATHERING) ||
                         shutdown) {

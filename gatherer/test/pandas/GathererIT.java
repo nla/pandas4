@@ -24,10 +24,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static pandas.gather.InstanceThumbnail.Type.LIVE;
+import static pandas.gather.InstanceThumbnail.Type.REPLAY;
 
 /**
  * Integration tests for PANDAS Gatherer
@@ -123,8 +124,12 @@ public class GathererIT {
                 instance = instanceRepository.findById(instance.getId()).orElseThrow();
             }
             assertEquals(State.ARCHIVED, instance.getState().getName());
-            assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.LIVE));
-            assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.REPLAY));
+
+            assertNotNull(instance.getGather().getFiles(), "missing files gather stat");
+            assertNotNull(instance.getGather().getSize(), "missing size gather stat");
+
+            assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE), "missing live thumbnail");
+            assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, REPLAY), "missing replay thumbnail");
         } finally {
             System.err.println("Killing Heritrix");
             process.destroyForcibly();
@@ -178,7 +183,7 @@ public class GathererIT {
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
         assertEquals(State.ARCHIVED, instance.getState().getName());
-        assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, InstanceThumbnail.Type.LIVE));
+        assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
     }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
