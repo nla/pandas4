@@ -32,7 +32,7 @@ public class InstanceThumbnail {
     private int status;
 
     @Lob
-    @org.hibernate.annotations.Type(type = "org.hibernate.type.BinaryType")
+    @org.hibernate.annotations.Type(type = "org.hibernate.type.ImageType")
     private byte[] data;
 
     @CreatedDate
