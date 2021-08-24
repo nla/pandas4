@@ -118,6 +118,7 @@ public class ThumbnailGenerator {
                 log.warn("Timeout loading {}", url);
             }
             tab.hideScrollbars();
+            Thread.sleep(500); // give JS a moment to run
             thumbnail.setData(tab.screenshot(0, 0, cropWidth, cropHeight, scale));
         } finally {
             browserPool.returnObject(browser);
