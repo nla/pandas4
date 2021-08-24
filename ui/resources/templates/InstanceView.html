@@ -9,7 +9,7 @@
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <form id="actionForm" method=post></form>
+    <form id="actionForm" method=post th:action="${@link.to(instance)}"></form>
     <header>
         <nav>
             <a th:href="${@link.to(instance.title)}" class="btn"><i class="icon back"></i> Back to title</a>

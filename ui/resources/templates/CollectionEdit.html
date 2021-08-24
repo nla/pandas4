@@ -15,7 +15,7 @@
         </nav>
         <button th:if="${collection != null}" type="submit" th:formaction="@{|/collections/${collection.id}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
     </header>
-    <form method=post class=form th:object="${form}" id=editForm>
+    <form method=post class=form th:object="${form}" id=editForm th:action="@{''}">
         <div class="form-group">
             <label for=parent>Parent</label>
             <select th:field="*{parent}" id="parent">

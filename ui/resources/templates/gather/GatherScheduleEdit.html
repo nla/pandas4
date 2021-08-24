@@ -20,7 +20,7 @@
     </header>
     <h1>Edit Gather Schedule</h1>
 
-    <form method=post id=scheduleForm>
+    <form method=post id=scheduleForm th:action="@{''}">
         <div class="form-group">
             <label for="name">Name:</label>
             <input class="form-control" id="name" name="name" th:value="${schedule.name}" required>

@@ -86,7 +86,7 @@
 
         </div>
         <div>
-            <form method="post" id="dateRangeForm">
+            <form method="post" id="dateRangeForm" th:action="@{''}">
                 <input type="hidden" name="ids">
                 <button name="format" value="text" class="btn btn-primary">Preview</button>
                 <button name="format" value="marc" class="btn btn-secondary">Export</button>
@@ -94,7 +94,7 @@
         </div>
     </div>
     <div class="tab-pane" id="tab-individual-titles">
-        <form method="post">
+        <form method="post" th:action="@{''}">
             <div>
                 <p><label for="ids">List of PANDAS title ids (PIs) to export:</label></p>
                 <textarea id="ids" name="ids"></textarea>

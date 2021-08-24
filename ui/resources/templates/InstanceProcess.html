@@ -30,7 +30,7 @@
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main class="full-height">
-    <form method=post>
+    <form method=post th:action="@{|/instances/${instance.id}/process}">
         <input th:if="${nextInstance}" type=hidden name=nextInstance th:value="${nextInstance.id}">
         <input th:if="${worktray}" type=hidden name=worktray th:value="${worktray}">
         <header>

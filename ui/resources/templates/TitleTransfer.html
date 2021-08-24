@@ -18,7 +18,7 @@
 
     <h1 th:text="${'Transfer Ownership - ' + title.name}">Transfer Ownership - Example Title</h1>
 
-    <form method=post id=form>
+    <form method=post id=form th:action="@{''}">
         <div class="form-group">
             <label for=newAgency>New agency</label>
             <select id=newAgency name=newAgency onchange="window.location.replace('?newAgency=' + this.value)">
