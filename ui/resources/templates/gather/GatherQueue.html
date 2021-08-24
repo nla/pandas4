@@ -28,6 +28,35 @@
             color: #666;
             cursor: default;
         }
+
+        .gather-method {
+            color: #666;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 80%;
+        }
+
+        .gather-state {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 75%;
+            white-space: nowrap;
+            border-radius: .5rem;
+            background: #ddd;
+            text-transform: capitalize;
+        }
+
+        .gather-state-gathering {
+            background: #a3efa3;
+        }
+
+        .gather-state-archiving {
+            background: #afbeff;
+        }
+
+        .gather-state-deleting {
+            background: #fdd;
+        }
     </style>
 </head>
 <body>
@@ -74,9 +103,9 @@
                     <span th:text="${instance.title.owner.userid}"></span>
                 </span>
             </td>
-            <td>
-                <div th:text="${instance.gatherMethodName}">Heritrix</div>
-                <div th:text="${instance.state.name}">Gathering</div>
+            <td align="center">
+                <span th:text="${instance.gatherMethodName}" class="gather-method">Heritrix</span><br>
+                <span th:text="${instance.state.name}" class="gather-state" th:classappend="${'gather-state-' + instance.state.name}">Gathering</span>
             </td>
             <td class="start-time">
                 ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">Date</time><br>
