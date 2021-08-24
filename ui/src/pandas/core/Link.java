@@ -35,6 +35,10 @@ public class Link {
         return to(instance) + "/thumbnail";
     }
 
+    public String thumbnail(Title title) {
+        return to(title) + "/thumbnail/image";
+    }
+
     public String thumbnail(Instance instance, String type) {
         return to(instance) + "/thumbnail?type=" + type;
     }

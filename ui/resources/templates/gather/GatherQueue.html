@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Gather Queue - PANDAS</title>
-    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
         .gather-queue-table {
             border-collapse: collapse;
@@ -57,6 +57,15 @@
         .gather-state-deleting {
             background: #fdd;
         }
+
+        .title-link {
+            font-weight: bold;
+        }
+
+        .title-details {
+            font-size: 80%;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -64,43 +73,24 @@
 <main>
     <header></header>
 
-    <h2 id="queued">Queued</h2>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>PI</th>
-            <th>Title</th>
-            <th>Agency</th>
-            <th>Owner</th>
-            <th>Method</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="gather: ${queuedGathers}">
-            <td th:text="${gather.title.pi}">12345</td>
-            <td><a th:href="${@link.to(gather.title)}" th:text="${gather.title.name}" href="#">Fishes of Australia</a></td>
-            <td th:text="${gather.title?.agency?.organisation?.alias}">NLA</td>
-            <td><a th:if="${gather.title.owner != null}" th:href="${@link.to(gather.title.owner)}" th:text="${gather.title.owner.userid}">jsmith</a></td>
-            <td th:text="${gather.method.name}">Heritrix</td>
-        </tr>
-        </tbody>
-    </table>
-
     <h2>Gathering</h2>
 
-    <form method=post>
+    <span th:if="${gatheringInstances.isEmpty()}">Nothing is currently gathering.</span>
+    <form method=post th:action="@{/queue}">
     <table class="table gather-queue-table">
         <tr th:each="instance: ${gatheringInstances}">
             <td>
-                <a th:href="${instance.gatheredUrl}">
+                <a th:href="${instance.gatheredUrl}" href="http://example.com/">
                     <img th:src="${@link.thumbnail(instance, 'LIVE')}" width=67 height=50>
                 </a>
             </td>
             <td>
-                <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="#" style="font-weight: bold">Fishes of Australia</a><br>
-                <span style="font-size: 80%; color: #666">
+                <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="../TitleView.html"
+                   class="title-link">Fishes of Australia</a><br>
+                <span class="title-details">
                     <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
-                    <span th:text="${instance.title.owner.userid}"></span>
+                    <span th:text="${instance.title.owner.userid}">ckent</span>
+                    <span th:text="${gather.title?.agency?.organisation?.alias}">NLA</span>
                 </span>
             </td>
             <td align="center">
@@ -108,13 +98,43 @@
                 <span th:text="${instance.state.name}" class="gather-state" th:classappend="${'gather-state-' + instance.state.name}">Gathering</span>
             </td>
             <td class="start-time">
-                ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">Date</time><br>
-                📈 <span th:text="${instance.gather.stats}"></span>
+                ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">1 hour ago</time><br>
+                📈 <span th:text="${instance.gather.stats}">1,234 files 20 MB</span>
             </td>
             <td><button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i class="icon stop"></i> Stop</button></td>
         </tr>
     </table>
     </form>
+
+    <section th:if="${!queuedGathers.isEmpty()}">
+        <h2 id="queued">Scheduled for today</h2>
+        <table class="table gather-queue-table">
+            <tr th:each="gather: ${queuedGathers}">
+                <td>
+                    <a th:href="${gather.title.primarySeedUrl}">
+                        <img th:src="${@link.thumbnail(gather.title)}" width=67 height=50>
+                    </a>
+                </td>
+                <td>
+                    <a th:href="${@link.to(gather.title)}" th:text="${gather.title.name}" href="../TitleView.html"
+                       class="title-link">Fishes of Australia</a><br>
+                    <span class="title-details">
+                        <span th:text="${gather.title.humanId}">nla.arc-186737-20210824-1143</span>
+                        <span th:text="${gather.title.owner.userid}">ckent</span>
+                        <span th:text="${gather.title.agency?.organisation?.alias}">NLA</span>
+                    </span>
+                </td>
+                <td align="center">
+                    <span th:text="${gather.method.name}" class="gather-method">Heritrix</span><br>
+                </td>
+                <td class="start-time">
+                    to begin <time th:datetime="${gather.nextGatherDate}" th:text="${@dateFormats.dayDateTime.format(gather.nextGatherDate)}"
+                            th:title="${'Scheduled for ' + @dateFormats.dayDateTime.format(gather.nextGatherDate)}">1 hour ago</time><br>
+                </td>
+            </tr>
+        </table>
+    </section>
+
     <script th:src="@{/webjars/timeago.js/4.0.2/dist/timeago.min.js}"></script>
     <script>
         timeago.render(document.querySelectorAll('time'));

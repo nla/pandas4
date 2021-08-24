@@ -765,4 +765,8 @@ public class Title {
     public List<StatusHistory> getStatusHistories() {
         return statusHistories;
     }
+
+    public String getHumanId() {
+        return "nla.arc-" + getPi();
+    }
 }
