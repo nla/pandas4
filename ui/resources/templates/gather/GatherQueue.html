@@ -5,6 +5,30 @@
     <title>Gather Queue - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .gather-queue-table {
+            border-collapse: collapse;
+            border-radius: 8px;
+        }
+
+        .gather-queue-table tr {
+            border: 1px solid #ebedef;
+            border-bottom: none;
+        }
+
+        .gather-queue-table tr:last-child {
+            border-bottom: 1px solid #ebedef;
+        }
+
+        .gather-queue-table td {
+            padding: 0 8px;
+        }
+
+        .gather-queue-table .start-time {
+            color: #666;
+            cursor: default;
+        }
+    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
@@ -36,29 +60,34 @@
     <h2>Gathering</h2>
 
     <form method=post>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>PI</th>
-            <th>Title</th>
-            <th>Method</th>
-            <th>State</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
+    <table class="table gather-queue-table">
         <tr th:each="instance: ${gatheringInstances}">
-            <td th:text="${@dateFormats.dayDateTime.format(instance.date)}">Date</td>
-            <td th:text="${instance.title.pi}">12345</td>
-            <td><a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="#">Fishes of Australia</a></td>
-            <td th:text="${instance.gatherMethodName}">Heritrix</td>
-            <td th:text="${instance.state.name}">Heritrix</td>
+            <td>
+                <a th:href="${instance.gatheredUrl}">
+                    <img th:src="${@link.thumbnail(instance, 'LIVE')}" width=100 height=75>
+                </a>
+            </td>
+            <td>
+                <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="#" style="font-weight: bold">Fishes of Australia</a><br>
+                <span style="font-size: 80%; color: #666">
+                    <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
+                    <span th:text="${instance.title.owner.userid}"></span>
+                </span>
+            </td>
+            <td>
+                <div th:text="${instance.gatherMethodName}">Heritrix</div>
+                <div th:text="${instance.state.name}">Gathering</div>
+            </td>
+            <td class="start-time">
+                ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">Date</time><br>
+                📈 <span th:text="${instance.gather.stats}"></span>
+            </td>
             <td><button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i class="icon stop"></i> Stop</button></td>
         </tr>
-        </tbody>
     </table>
     </form>
-
-
+    <script th:src="@{/webjars/timeago.js/4.0.2/dist/timeago.min.js}"></script>
+    <script>
+        timeago.render(document.querySelectorAll('time'));
+    </script>
 </main>
