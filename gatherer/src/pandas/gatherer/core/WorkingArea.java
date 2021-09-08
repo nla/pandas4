@@ -124,6 +124,9 @@ public class WorkingArea {
         // copy to master storage
         repository.storeArtifactPaths(instance, Arrays.asList(tgz, lst, sz, md5, mimeTgz));
 
+        for (Path warc : warcs) {
+            Files.deleteIfExists(warc);
+        }
         Files.deleteIfExists(tgz);
         Files.deleteIfExists(lst);
         Files.deleteIfExists(sz);
