@@ -65,7 +65,7 @@ public class Collection {
 
     @ManyToMany(mappedBy = "collections")
     @OrderBy("name")
-    private List<Title> titles;
+    private List<Title> titles = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "COL_SUBS",
