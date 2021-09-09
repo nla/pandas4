@@ -193,4 +193,15 @@ public class Subject {
     public int hashCode() {
         return Objects.hash(getId());
     }
+
+    public boolean hasAncester(Subject ancester) {
+        Long ancesterId = ancester.getId();
+        if (ancesterId == null) return false;
+        for (Subject s = this; s != null; s = s.getParent()) {
+            if (ancesterId.equals(s.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

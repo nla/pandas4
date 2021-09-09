@@ -17,17 +17,27 @@
                 class="btn btn-danger float-right" form=form><i class="icon delete"></i> Delete
         </button>
     </header>
-    <form method=post class=form th:action="@{/subjects}" id=form>
-        <input type=hidden name=id th:value="${subject.id}">
+    <form method=post class=form th:action="@{/subjects}" th:object="${subject}" id=form>
+        <input type=hidden th:field="*{id}">
+
+        <div class="form-group">
+            <label for="name">Parent Subject</label>
+            <select th:field="*{parent}" id="subjects">
+                <option value=""></option>
+                <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
+                        th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                        th:data-fullname="${subject.fullName}">Arts
+                </option>
+            </select>
+        </div>
 
         <div class="form-group">
             <label for="name">Name:</label>
-            <input class="form-control" id="name" name="name" th:value="${subject.name}" required>
+            <input class="form-control" id="name" th:field="*{name}" required>
         </div>
         <div class="form-group">
             <label for="description">Description:</label>
-            <textarea class="form-control" id="description" name="description"
-                      rows="3" th:text="${subject.description}"></textarea>
+            <textarea class="form-control" id="description" rows="3" th:field="*{description}"></textarea>
         </div>
     </form>
 </main>
