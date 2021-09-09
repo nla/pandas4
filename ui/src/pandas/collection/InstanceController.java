@@ -26,6 +26,8 @@ import java.util.Optional;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.springframework.http.CacheControl.maxAge;
+import static pandas.gather.InstanceThumbnail.Type.LIVE;
+import static pandas.gather.InstanceThumbnail.Type.REPLAY;
 
 @Controller
 public class InstanceController {
@@ -120,8 +122,14 @@ public class InstanceController {
 
     @GetMapping("/instances/{id}/thumbnail")
     public ResponseEntity<byte[]> getThumbnail(@PathVariable("id") Instance instance,
-                                               @RequestParam(name="type", defaultValue = "REPLAY") InstanceThumbnail.Type type) {
-        Optional<InstanceThumbnail> thumbnail = instanceThumbnailRepository.findByInstanceAndType(instance, type);
+                                               @RequestParam(name="type", required = false) InstanceThumbnail.Type type) {
+        Optional<InstanceThumbnail> thumbnail;
+        if (type == null) {
+            thumbnail = instanceThumbnailRepository.findByInstanceAndType(instance, REPLAY)
+                    .or(() -> instanceThumbnailRepository.findByInstanceAndType(instance, LIVE));
+        } else {
+            thumbnail = instanceThumbnailRepository.findByInstanceAndType(instance, type);
+        }
         if (thumbnail.isPresent()) {
             return ResponseEntity.ok()
                     .cacheControl(maxAge(1, DAYS))
