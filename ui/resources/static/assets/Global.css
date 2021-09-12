@@ -389,6 +389,25 @@ button.btn-danger:hover, a.btn-danger:hover {
  * Forms
  */
 
+.form {
+    max-width: 800px;
+}
+
+.form fieldset > div {
+    display: flex;
+    gap: 8px;
+}
+
+.form, .form fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form label {
+    display: block;
+}
+
 .form input:not([type]), .form textarea, .form select {
     width: 100%;
     box-sizing: border-box;

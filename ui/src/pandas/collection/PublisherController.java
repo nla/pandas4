@@ -20,9 +20,11 @@ import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 @Controller
 public class PublisherController {
     private final EntityManager entityManager;
+    private final PublisherTypeRepository publisherTypeRepository;
 
-    public PublisherController(EntityManager entityManager) {
+    public PublisherController(EntityManager entityManager, PublisherTypeRepository publisherTypeRepository) {
         this.entityManager = entityManager;
+        this.publisherTypeRepository = publisherTypeRepository;
     }
 
     @GetMapping("/publishers/{id}")
@@ -30,6 +32,15 @@ public class PublisherController {
         model.addAttribute("publisher", publisher);
         return "PublisherView";
     }
+
+    @GetMapping("/publishers/{id}/edit")
+    public String edit(@PathVariable("id") Publisher publisher, Model model) {
+        model.addAttribute("allPublisherTypes", publisherTypeRepository.findAll());
+        model.addAttribute("form", new PublisherEditForm(publisher));
+        model.addAttribute("publisher", publisher);
+        return "PublisherEdit";
+    }
+
 
     @GetMapping("/publishers")
     public String search(@RequestParam(value = "q", required = false) String rawQ, Pageable pageable, Model model) {
