@@ -5,10 +5,6 @@
     <title th:text="${form.id == null ? 'New Title - PANDAS' : 'Edit Title - PANDAS'}">Edit Title - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
-
-    <style>
-        fieldset { margin-bottom: 12px; }
-    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
@@ -25,32 +21,32 @@
 
         <input type=hidden th:field="*{id}">
 
-        <fieldset style="display: flex; margin-top: 6px">
-            <legend>Basics</legend>
-            <div style="flex-grow: 1; margin-right: 12px">
-                <label>URL <input th:field="*{titleUrl}" required class="form-control"></label>
-                <div id="urlInfo"></div>
-                <label>Name <input th:field="*{name}" required class="form-control"></label>
-            </div>
-            <div style="width: 160px">
-                <label>Status
+        <fieldset>
+            <div>
+                <label style="flex-grow: 1">
+                    URL
+                    <input th:field="*{titleUrl}" required class="form-control">
+                    <div id="urlInfo"></div>
+                </label>
+                <label style="width: 150px">Status
                     <select th:field="*{status}">
                         <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
                     </select>
                 </label>
-                <div>Format
-                    <label>
-                        <select th:field="*{format}">w
-                            <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
-                                    th:selected="${fmt == format}">Integrating</option>
-                        </select>
-                    </label>
-                </div>
+            </div>
+            <div>
+                <label style="flex-grow: 1">Name <input th:field="*{name}" required class="form-control"></label>
+                <label style="width: 150px">Format
+                    <select th:field="*{format}">w
+                        <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
+                                th:selected="${fmt == format}">Integrating</option>
+                    </select>
+                </label>
             </div>
         </fieldset>
 
-        <div style="display: flex">
-            <fieldset style="margin-right: 12px">
+        <div style="display: flex; gap: 12px">
+            <fieldset>
                 <legend>Gather</legend>
 
                 <div th:each="collection: ${form.collections}" th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
@@ -59,19 +55,19 @@
                     <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" class="collection-link">Cool Sites</a>
                 </div>
 
-                <label>Method:
+                <label>Method
                     <select th:field="*{gatherMethod}">
                         <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
                             Heritrix
                         </option>
                     </select>
                 </label>
-                <label>Schedule: <select th:field="*{gatherSchedule}">
+                <label>Schedule <select th:field="*{gatherSchedule}">
                     <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
                             th:text="${schedule.name}">Weekly
                     </option>
                 </select></label>
-                <label>Profile:
+                <label>Profile
                     <select th:field="*{activeProfile}" id="activeProfile">
                         <option value=""></option>
                         <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}"
@@ -106,49 +102,47 @@
                     </script>
                 </label>
 
-                <fieldset>
-                    <legend>One-off</legend>
+                <label>One-off</label>
 
-                    <ul id="oneoffDatesList">
-                        <li th:each="date: *{oneoffDates}">
-                            <time th:datetime="${date}" th:text="${date}"></time>
-                            <button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>
-                            <input type=hidden name="oneoffDates" th:value="${date}">
-                        </li>
-                    </ul>
+                <ul id="oneoffDatesList" th:unless="${form.oneoffDates.isEmpty()}">
+                    <li th:each="date: *{oneoffDates}">
+                        <time th:datetime="${date}" th:text="${date}"></time>
+                        <button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>
+                        <input type=hidden name="oneoffDates" th:value="${date}">
+                    </li>
+                </ul>
 
-                    <div>
-                        <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
-                        <button onclick="addOneoffDate()" type=button>Add</button>
-                    </div>
+                <div>
+                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
+                    <button onclick="addOneoffDate()" type=button>Add</button>
+                </div>
 
-                    <script>
-                        document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
+                <script>
+                    document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
 
-                        function addOneoffDate() {
-                            var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
-                            var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
-                            var date = new Date();
-                            date.setMilliseconds(0);
-                            if (dateInput) {
-                                date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
-                            }
-                            if (timeInput) {
-                                date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
-                            } else {
-                                date.setHours(0, 0, 0);
-                            }
-                            const iso = date.toISOString().replace(".000Z", "Z");
-                            if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
-                                return; // don't allow duplicates
-                            }
-                            document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
-                                '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
-                                '<button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>' +
-                                '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
+                    function addOneoffDate() {
+                        var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
+                        var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
+                        var date = new Date();
+                        date.setMilliseconds(0);
+                        if (dateInput) {
+                            date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
                         }
-                    </script>
-                </fieldset>
+                        if (timeInput) {
+                            date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
+                        } else {
+                            date.setHours(0, 0, 0);
+                        }
+                        const iso = date.toISOString().replace(".000Z", "Z");
+                        if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
+                            return; // don't allow duplicates
+                        }
+                        document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
+                            '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
+                            '<button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>' +
+                            '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
+                    }
+                </script>
 
                 <details th:open="${form.seedUrls != form.titleUrl}" style="margin-top: 16px">
                     <summary>Options</summary>
@@ -159,10 +153,10 @@
                 </details>
             </fieldset>
 
-            <fieldset style="margin-right: 12px">
+            <fieldset style="flex-grow: 1">
                 <legend>Metadata</legend>
                 <label>
-                    Subjects:
+                    Subjects
                     <select th:field="*{subjects}" id="subjects" multiple>
                         <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
                                 th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
@@ -171,7 +165,7 @@
                     </select>
                 </label>
                 <label>
-                    Collections:
+                    Collections
                     <select th:field="*{collections}" id="collections" multiple>
                         <option th:each="collection: ${form.collections}" th:value="${collection.id}"
                                 th:text="${collection.fullName}" selected>Arts
@@ -179,7 +173,7 @@
                     </select>
                 </label>
                 <label>
-                    Publisher:
+                    Publisher
                     <input id="publisherId" type="hidden" name="publisher" th:value="*{publisher?.id}">
                     <input id="publisherName" type="hidden" name="publisherName">
                     <select id="publisher">
@@ -205,7 +199,9 @@
                 </details>
             </fieldset>
         </div>
-        <label>Notes: <textarea th:field="*{notes}" rows=10></textarea></label>
+        <fieldset>
+            <label>Notes: <textarea th:field="*{notes}" rows=10></textarea></label>
+        </fieldset>
 
 
     </form>

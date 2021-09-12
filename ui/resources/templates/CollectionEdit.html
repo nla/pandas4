@@ -16,65 +16,56 @@
         <button th:if="${collection != null}" type="submit" th:formaction="@{|/collections/${collection.id}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
     </header>
     <form method=post class=form th:object="${form}" id=editForm th:action="@{''}">
-        <div class="form-group">
-            <label for=parent>Parent</label>
-            <select th:field="*{parent}" id="parent">
-                <option th:if="${form.parent != null}" th:value="${form.parent.id}"
-                        th:text="${form.parent.fullName}" selected>Arts
-                </option>
-            </select>
-        </div>
+        <fieldset>
+            <label>Name <input class="form-control" th:field="*{name}" required></label>
 
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input class="form-control" th:field="*{name}" required>
-        </div>
-
-        <div class="form-group">
-            <label for="subjects">Subjects</label>
-            <select th:field="*{subjects}" multiple>
-                <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
-                        th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
-                        th:data-fullname="${subject.fullName}">Arts
-                </option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="description">Description (optional)</label>
-            <div class="hint-text">Shown publicly when browsing the collection. Basic HTML tags allowed.</div>
-            <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="startDate">Time frame (optional)</label>
-            <div class="hint-text">For collections about events in time such as election campaigns or the Olympics.</div>
-            <div>
-                <!-- unfortunately input[type=month] isn't well-supported by browsers -->
-                <select th:field="*{startMonth}" style="width: auto">
-                    <option value="" th:selected="${startMonth == null}"></option>
-                    <option th:each="month: ${months}" th:text="${month.key}" th:value="${month.value}" th:selected="${startMonth == month.value}">January</option>
+            <label style="flex-grow: 1">Parent collection
+                <select th:field="*{parent}">
+                    <option th:if="${form.parent != null}" th:value="${form.parent.id}"
+                            th:text="${form.parent.fullName}" selected>Arts
+                    </option>
                 </select>
-                <input type=number min=1000 max=2999 th:field="*{startYear}" placeholder=YYYY size=4> to
-                <select th:field="*{endMonth}" style="width: auto">
-                    <option value="" th:selected="${endMonth == null}"></option>
-                    <option th:each="month: ${months}" th:text="${month.key}" th:value="${month.value}" th:selected="${endMonth == month.value}">January</option>
-                </select>
-                <input type=number min=1000 max=2999 th:field="*{endYear}" placeholder=YYYY size=4>
-            </div>
-        </div>
+            </label>
 
-        <div class="form-group">
-            <label>Gather schedule (optional)</label>
-            <div class="hint-text">Schedules non-ceased titles in this collection for periodic gathering. This will be
-                in addition to any schedule set at the title level.
-            </div>
-            <select th:field="*{gatherSchedule}">
-                <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
-                        th:text="${schedule.name}">Weekly
-                </option>
-            </select>
-        </div>
+
+            <label style="flex-grow: 1">Subjects
+                <select th:field="*{subjects}" multiple>
+                    <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
+                            th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                            th:data-fullname="${subject.fullName}">Arts
+                    </option>
+                </select>
+            </label>
+
+            <span class="form-group">
+                <label for="startMonth">Time frame</label>
+                <div class="hint-text">For collections about events in time such as election campaigns or the Olympics. (Optional) </div>
+                <div>
+                    <!-- unfortunately input[type=month] isn't well-supported by browsers -->
+                    <select th:field="*{startMonth}" style="width: auto">
+                        <option value="" th:selected="${startMonth == null}"></option>
+                        <option th:each="month: ${months}" th:text="${month.key}" th:value="${month.value}" th:selected="${startMonth == month.value}">January</option>
+                    </select>
+                    <input type=number min=1000 max=2999 th:field="*{startYear}" placeholder=YYYY size=4> to
+                    <select th:field="*{endMonth}" style="width: auto">
+                        <option value="" th:selected="${endMonth == null}"></option>
+                        <option th:each="month: ${months}" th:text="${month.key}" th:value="${month.value}" th:selected="${endMonth == month.value}">January</option>
+                    </select>
+                    <input type=number min=1000 max=2999 th:field="*{endYear}" placeholder=YYYY size=4>
+                </div>
+            </span>
+        </fieldset>
+
+        <fieldset>
+            <label>Gather schedule
+                <div class="hint-text">Applied in addition to any schedules set at the title level. (Optional)</div>
+                <select th:field="*{gatherSchedule}">
+                    <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
+                            th:text="${schedule.name}">Weekly
+                    </option>
+                </select>
+            </label>
+        </fieldset>
     </form>
 </main>
 

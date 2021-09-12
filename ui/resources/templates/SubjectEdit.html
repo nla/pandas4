@@ -20,24 +20,19 @@
     <form method=post class=form th:action="@{/subjects}" th:object="${subject}" id=form>
         <input type=hidden th:field="*{id}">
 
-        <div class="form-group">
-            <label for="name">Parent Subject</label>
-            <select th:field="*{parent}" id="subjects">
-                <option value=""></option>
-                <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
-                        th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
-                        th:data-fullname="${subject.fullName}">Arts
-                </option>
-            </select>
-        </div>
+        <fieldset>
+            <label>Parent Subject
+                <select th:field="*{parent}">
+                    <option value=""></option>
+                    <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
+                            th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                            th:data-fullname="${subject.fullName}">Arts
+                    </option>
+                </select>
+            </label>
 
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input class="form-control" id="name" th:field="*{name}" required>
-        </div>
-        <div class="form-group">
-            <label for="description">Description:</label>
-            <textarea class="form-control" id="description" rows="3" th:field="*{description}"></textarea>
-        </div>
+            <label>Name <input class="form-control" th:field="*{name}" required></label>
+            <label>Description <textarea class="form-control" rows="3" th:field="*{description}"></textarea></label>
+        </fieldset>
     </form>
 </main>

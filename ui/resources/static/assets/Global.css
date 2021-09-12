@@ -68,10 +68,10 @@ details > summary {
     cursor: pointer;
 }
 
-input:not([type]), input[type=text] {
+input:not([type]), input[type=text], select {
     height: 32px;
     border-radius: .2rem;
-    border: 1px solid #333;
+    border: 1px solid #ccc;
     padding-left: 8px;
     padding-right: 8px;
 }
@@ -398,10 +398,19 @@ button.btn-danger:hover, a.btn-danger:hover {
     gap: 8px;
 }
 
+.form {
+    gap: 12px;
+}
+
+.form fieldset {
+    gap: 8px;
+}
+
 .form, .form fieldset {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .form label {
