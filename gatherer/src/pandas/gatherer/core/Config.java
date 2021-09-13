@@ -26,7 +26,6 @@ public class Config {
     private Path pywbDir;
     private Path pywbDataDir;
     private int pywbPort = 10910;
-    private String gathererBindAddress = "0.0.0.0";
     private int uploadWorkers = 2;
     private int scriptWorkers = 2;
     private final int gatherStatsPollSeconds = 60;
@@ -70,7 +69,6 @@ public class Config {
         setPywbDataDir(Paths.get(env.getOrDefault("PYWB_DATA", getPywbDataDir().toString())));
         setPywbPort(Integer.parseInt(env.getOrDefault("PYWB_PORT", String.valueOf(getPywbPort()))));
 
-        setGathererBindAddress(System.getenv().getOrDefault("GATHERER_BIND_ADDRESS", getGathererBindAddress()));
         if (env.containsKey("PORT")) {
             setWebPort(Integer.parseInt(env.get("PORT")));
         }
@@ -167,14 +165,6 @@ public class Config {
 
     public void setPywbDataDir(Path pywbDataDir) {
         this.pywbDataDir = pywbDataDir;
-    }
-
-    public String getGathererBindAddress() {
-        return gathererBindAddress;
-    }
-
-    public void setGathererBindAddress(String gathererBindAddress) {
-        this.gathererBindAddress = gathererBindAddress;
     }
 
     public int getUploadWorkers() {

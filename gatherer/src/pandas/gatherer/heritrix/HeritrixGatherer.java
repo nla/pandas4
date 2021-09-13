@@ -28,16 +28,14 @@ public class HeritrixGatherer implements Backend {
     private final HeritrixClient heritrix;
     private final WorkingArea workingArea;
     private final InstanceService instanceService;
-    private final Config config;
     private final HeritrixConfig heritrixConfig;
     private final Repository repository;
     private final PywbService pywbService;
     private final ThumbnailGenerator thumbnailGenerator;
     private boolean shutdown;
 
-    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, Repository repository, PywbService pywbService, ThumbnailGenerator thumbnailGenerator) {
+    public HeritrixGatherer(HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, Repository repository, PywbService pywbService, ThumbnailGenerator thumbnailGenerator) {
         this.workingArea = workingArea;
-        this.config = config;
         this.heritrixConfig = heritrixConfig;
         heritrix = new HeritrixClient(heritrixConfig.getUrl(), heritrixConfig.getUser(), heritrixConfig.getPassword());
         this.instanceService = instanceService;
@@ -51,7 +49,7 @@ public class HeritrixGatherer implements Backend {
         // create heritrix dirs
         Path jobDir = jobDir(instance);
         Files.createDirectories(jobDir);
-        CrawlBeans.writeConfig(instance, jobDir, config.getGathererBindAddress());
+        CrawlBeans.writeConfig(instance, jobDir, heritrixConfig.getBindAddress());
 
         // create pywb dirs
         Path collDir = pywbService.directoryFor(instance);

@@ -10,6 +10,7 @@ public class HeritrixConfig {
     private String user = "admin";
     private String password;
     private int workers = 8;
+    private String bindAddress = "0.0.0.0";
 
     public String getUrl() {
         return url;
@@ -41,5 +42,13 @@ public class HeritrixConfig {
 
     public void setWorkers(int workers) {
         this.workers = workers;
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public void setBindAddress(String bindAddress) {
+        this.bindAddress = bindAddress;
     }
 }
