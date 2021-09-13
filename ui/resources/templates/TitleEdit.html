@@ -104,7 +104,7 @@
 
                 <label>One-off</label>
 
-                <ul id="oneoffDatesList" th:unless="${form.oneoffDates.isEmpty()}">
+                <ul id="oneoffDatesList">
                     <li th:each="date: *{oneoffDates}">
                         <time th:datetime="${date}" th:text="${date}"></time>
                         <button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>
