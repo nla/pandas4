@@ -56,6 +56,8 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 }
                 return false;
             }
+            case "Publisher:edit":
+                return authorities.contains(EDIT_PUBLISHERS);
             case "Subject:edit":
                 return authorities.contains(EDIT_SUBJECTS);
             case "Title:edit": {
@@ -94,6 +96,8 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 Individual user = individualRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
                 return hasPermission(authentication, user, permission);
             }
+            case "Publisher:edit":
+                return authorities.contains(EDIT_PUBLISHERS);
             case "Subject:edit":
                 return authorities.contains(EDIT_SUBJECTS);
             case "Title:edit": {

@@ -10,7 +10,7 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{/publishers/{id}/edit(id=${publisher.id})}" href="PublisherEdit.html" class="btn btn-primary"
+            <a sec:authorize="hasPermission(#vars.publisher, 'edit')"  th:href="@{/publishers/{id}/edit(id=${publisher.id})}" href="PublisherEdit.html" class="btn btn-primary"
                data-keybind="e"><i class="icon edit"></i> Edit</a>
         </nav>
     </header>

@@ -1,6 +1,9 @@
 package pandas.collection;
 
+import pandas.core.Organisation;
+
 public class PublisherEditForm {
+    private final Long id;
     private final String name;
     private final PublisherType type;
     private final String url;
@@ -13,7 +16,8 @@ public class PublisherEditForm {
     private final String postcode;
     private final String country;
 
-    public PublisherEditForm(String name, PublisherType type, String url, String localReference, String notes, String addressLine1, String addressLine2, String locality, String state, String postcode, String country) {
+    public PublisherEditForm(Long id, String name, PublisherType type, String url, String localReference, String notes, String addressLine1, String addressLine2, String locality, String state, String postcode, String country) {
+        this.id = id;
         this.name = name;
         this.type = type;
         this.url = url;
@@ -27,18 +31,13 @@ public class PublisherEditForm {
         this.country = country;
     }
 
-    public PublisherEditForm(Publisher publisher) {
-        name = publisher.getName();
-        type = publisher.getType();
-        url = publisher.getOrganisation().getUrl();
-        localReference = publisher.getLocalReference();
-        notes = publisher.getNotes();
-        addressLine1 = publisher.getOrganisation().getLine1();
-        addressLine2 = publisher.getOrganisation().getLine2();
-        locality = publisher.getOrganisation().getLocality();
-        state = publisher.getOrganisation().getLongstate();
-        postcode = publisher.getOrganisation().getPostcode();
-        country = publisher.getOrganisation().getLongcountry();
+    public static PublisherEditForm of(Publisher publisher) {
+        Organisation organisation = publisher.getOrganisation();
+        return new PublisherEditForm(publisher.getId(), publisher.getName(), publisher.getType(),
+                organisation.getUrl(), publisher.getLocalReference(), publisher.getNotes(),
+                organisation.getLine1(), organisation.getLine2(),
+                organisation.getLocality(), organisation.getLongstate(),
+                organisation.getPostcode(), organisation.getLongcountry());
     }
 
     public void applyTo(Publisher publisher) {
@@ -53,6 +52,10 @@ public class PublisherEditForm {
         publisher.getOrganisation().setLongstate(state);
         publisher.getOrganisation().setPostcode(postcode);
         publisher.getOrganisation().setLongcountry(country);
+    }
+
+    public Long id() {
+        return id;
     }
 
     public String name() {

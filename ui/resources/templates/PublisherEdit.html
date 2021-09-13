@@ -17,6 +17,7 @@
     </header>
 
     <form method=post class=form th:object="${form}" id=editForm th:action="@{''}">
+        <input type=hidden th:field="*{id}">
         <fieldset>
             <div>
                 <label style="flex-grow: 1">Publisher Name <input th:field="*{name}" required></label>

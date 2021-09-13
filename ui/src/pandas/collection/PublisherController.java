@@ -6,10 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import pandas.core.View;
 import pandas.search.SearchResults;
 
@@ -20,10 +17,12 @@ import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 @Controller
 public class PublisherController {
     private final EntityManager entityManager;
+    private final PublisherRepository publisherRepository;
     private final PublisherTypeRepository publisherTypeRepository;
 
-    public PublisherController(EntityManager entityManager, PublisherTypeRepository publisherTypeRepository) {
+    public PublisherController(EntityManager entityManager, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository) {
         this.entityManager = entityManager;
+        this.publisherRepository = publisherRepository;
         this.publisherTypeRepository = publisherTypeRepository;
     }
 
@@ -34,13 +33,21 @@ public class PublisherController {
     }
 
     @GetMapping("/publishers/{id}/edit")
+    @PreAuthorize("hasPermission(#publisher, 'edit')")
     public String edit(@PathVariable("id") Publisher publisher, Model model) {
         model.addAttribute("allPublisherTypes", publisherTypeRepository.findAll());
-        model.addAttribute("form", new PublisherEditForm(publisher));
+        model.addAttribute("form", PublisherEditForm.of(publisher));
         model.addAttribute("publisher", publisher);
         return "PublisherEdit";
     }
 
+    @PostMapping("/publishers/{id}/edit")
+    @PreAuthorize("hasPermission(#publisher, 'edit')")
+    public String update(@PathVariable("id") Publisher publisher, PublisherEditForm form) {
+        form.applyTo(publisher);
+        publisher = publisherRepository.save(publisher);
+        return "redirect:/publishers/" + publisher.getId();
+    }
 
     @GetMapping("/publishers")
     public String search(@RequestParam(value = "q", required = false) String rawQ, Pageable pageable, Model model) {
