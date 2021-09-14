@@ -101,9 +101,24 @@
                th:unless="${instance.isFlatFiles()}"><i class="icon robot"></i></a>
         </nav>
         <input id="url-bar" style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
+        <nav style="margin-left: 4px">
+            <button id="toggleScreenshotSidebar" class="btn btn-secondary btn-compact btn-pressed"><i class="icon image"></i></button>
+        </nav>
     </div>
 
     <script>
+        document.getElementById("toggleScreenshotSidebar").addEventListener("click", function(event) {
+            let sidebar = document.getElementById("screenshotSidebar");
+            let button = document.getElementById("toggleScreenshotSidebar");
+            if (sidebar.style.display === 'none') {
+                sidebar.style.display = 'block';
+                button.classList.add('btn-pressed');
+            } else {
+                sidebar.style.display = 'none';
+                button.classList.remove('btn-pressed');
+            }
+        });
+
         window.addEventListener("message", (event) => {
             if (event.data.wb_type !== "load") return;
             document.getElementById("url-bar").value = event.data.url;
@@ -116,7 +131,7 @@
                 sandbox="allow-forms allow-pointer-lock allow-popups allow-scripts allow-downloads
                 allow-downloads-without-user-activation allow-modals allow-orientation-lock allow-popups
                 allow-popups-to-escape-sandbox allow-presentation allow-same-origin"></iframe>
-        <div style="width: 158px; margin-left: 4px; overflow-y: auto; min-height: min-content; scrollbar-width: thin;">
+        <div id="screenshotSidebar" style="width: 158px; margin-left: 4px; overflow-y: auto; min-height: min-content; scrollbar-width: thin;">
             <strong>Live</strong><br>
             <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
             <strong>Previous</strong>
