@@ -27,13 +27,16 @@
                 <label style="flex-grow: 1">
                     URL
                     <input th:field="*{titleUrl}" required class="form-control">
-                    <div id="urlInfo"></div>
                 </label>
                 <label style="width: 150px">Status
                     <select th:field="*{status}">
                         <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
                     </select>
                 </label>
+            </div>
+            <div>
+                <div id="urlInfo"></div>
+                <div id="duplicatesWarning"></div>
             </div>
             <div>
                 <label style="flex-grow: 1">Name <input th:field="*{name}" required class="form-control"></label>
@@ -210,6 +213,7 @@
 <link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.css">
 <script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
 <script th:inline="javascript">
+    var titleCheckEndpoint = /*[[@{/titles/check}]]*/ '../titles/check';
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
     var publishersEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
@@ -298,12 +302,34 @@
     function titleUrlChanged () {
         document.getElementById("urlInfo").innerText = "Loading...";
         document.getElementById("urlInfo").style.color = "#555";
+        document.getElementById("duplicatesWarning").innerHTML = '';
+
+        fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
+            .then(response => response.json())
+            .then(titles => {
+                if (titles.length === 0) return;
+                let warningDiv = document.getElementById("duplicatesWarning");
+                warningDiv.appendChild(document.createTextNode("Possible duplicates: "));
+                for (let title of titles) {
+                    let link = document.createElement("a");
+                    link.href = "../titles/" + title.id;
+                    link.innerText = title.name;
+                    warningDiv.appendChild(link);
+                    warningDiv.appendChild(document.createTextNode(", "));
+                }
+
+                let link = document.createElement("a");
+                link.href = "../titles?q=" + encodeURIComponent(titleUrlField.value);
+                link.innerText = "more...";
+                link.target = "_blank";
+                warningDiv.appendChild(link);
+            });
 
         fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
             .then(response => response.json())
             .then(info => {
                 let contentType = info.contentType == null ? "?" : info.contentType.replace(/\s*;.*/, "");
-                document.getElementById("urlInfo").innerText = contentType + " " + info.status + " " + info.reason;
+                document.getElementById("urlInfo").innerText = info.status + " " + info.reason + " " + contentType;
                 document.getElementById("urlInfo").style.color = info.status < 300 ? "green" : info.status < 400 ? "blue" : "red";
                 if (!document.getElementById("name").value && info.title && info.status < 300) {
                     document.getElementById("name").value = info.title;

@@ -97,7 +97,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
         var auth = http.authorizeRequests()
                 .antMatchers("/actuator/health").anonymous()
-                .antMatchers("/titles/check").anonymous()
+                .antMatchers("/titles/check").permitAll()
                 .anyRequest().hasRole("stduser");
         if (oidcIssuerUri != null && clientRegistrationRepository != null) {
             auth.and().logout().logoutSuccessHandler((request, response, authentication) -> {
