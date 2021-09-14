@@ -134,14 +134,16 @@
         <div id="screenshotSidebar" style="width: 158px; margin-left: 4px; overflow-y: auto; min-height: min-content; scrollbar-width: thin;">
             <strong>Live</strong><br>
             <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
-            <strong>Previous</strong>
-            <a th:each="instance : ${previousInstances}" th:href="${@link.to(instance)}"
-               th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)} + '&#10;' + ${instance.gather?.stats ?: ''}">
-                <img th:src="@{|/instances/${instance.id}/thumbnail|}" width="150" height="100">
-            </a>
-            <img th:remove="all" width="150" height="100">
-            <img th:remove="all" width="150" height="100">
-            <img th:remove="all" width="150" height="100">
+            <section th:unless="${previousInstances.isEmpty()}">
+                <strong>Previous</strong>
+                <a th:each="instance : ${previousInstances}" th:href="${@link.to(instance)}"
+                   th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)} + '&#10;' + ${instance.gather?.stats ?: ''}">
+                    <img th:src="@{|/instances/${instance.id}/thumbnail|}" width="150" height="100">
+                </a>
+                <img th:remove="all" width="150" height="100">
+                <img th:remove="all" width="150" height="100">
+                <img th:remove="all" width="150" height="100">
+            </section>
         </div>
     </div>
 </main>
