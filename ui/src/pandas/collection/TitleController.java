@@ -299,9 +299,9 @@ public class TitleController {
                 List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
 
         String backlink;
-        if (collections.size() == 1) {
+        if (collections != null && collections.size() == 1) {
             backlink = "/collections/" + collections.get(0).getId();
-        } else if (subjects.size() == 1) {
+        } else if (subjects != null && subjects.size() == 1) {
             backlink = "/subjects/" + subjects.get(0).getId();
         } else {
             backlink = "";
