@@ -314,6 +314,7 @@
                     let link = document.createElement("a");
                     link.href = "../titles/" + title.id;
                     link.innerText = title.name;
+                    link.target = "_blank";
                     warningDiv.appendChild(link);
                     warningDiv.appendChild(document.createTextNode(", "));
                 }
