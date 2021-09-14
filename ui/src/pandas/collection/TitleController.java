@@ -282,10 +282,10 @@ public class TitleController {
     }
 
     @GetMapping("/titles/new")
-    public String update(@RequestParam(value = "collection", required = false) List<Collection> collections,
-                         @RequestParam(value = "subject", required = false) List<Subject> subjects,
-                         @RequestParam(value = "url", required = false) String url,
-                         Model model) {
+    public String newForm(@RequestParam(value = "collection", required = false) List<Collection> collections,
+                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
+                          @RequestParam(value = "url", required = false) String url,
+                          Model model) {
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         form.setTitleUrl(url);
         model.addAttribute("form", form);
@@ -297,13 +297,28 @@ public class TitleController {
         model.addAttribute("allSubjects", classificationService.allSubjects());
         model.addAttribute("statusList", statusRepository.findAllById(
                 List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
+
+        String backlink;
+        if (collections.size() == 1) {
+            backlink = "/collections/" + collections.get(0).getId();
+        } else if (subjects.size() == 1) {
+            backlink = "/subjects/" + subjects.get(0).getId();
+        } else {
+            backlink = "";
+        }
+        model.addAttribute("backlink", backlink);
+
         return "TitleEdit";
     }
 
     @PostMapping(value = "/titles", produces = "application/json")
-    public String update(@Valid TitleEditForm form) {
+    public String update(@RequestParam(value = "backlink", required = false) String backlink, @Valid TitleEditForm form) {
         Title title = titleService.save(form, userService.getCurrentUser());
-        return "redirect:/titles/" + title.getId();
+        if (backlink != null && backlink.startsWith("/")) {
+            return "redirect:" + backlink;
+        } else {
+            return "redirect:/titles/" + title.getId();
+        }
     }
 
     @GetMapping(value = "/titles/check", produces = "application/json")
