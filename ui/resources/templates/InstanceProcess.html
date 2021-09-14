@@ -110,9 +110,23 @@
         }, false);
     </script>
 
-    <iframe th:src="${@instanceUrls.qa(instance)}" name="replay-frame"
-            style="width: 100%; flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"
-            sandbox="allow-forms allow-pointer-lock allow-popups allow-scripts allow-downloads
-            allow-downloads-without-user-activation allow-modals allow-orientation-lock allow-popups
-            allow-popups-to-escape-sandbox allow-presentation allow-same-origin"></iframe>
+    <div style="flex-grow: 1; display: flex; overflow: hidden">
+        <iframe th:src="${@instanceUrls.qa(instance)}" name="replay-frame"
+                style="flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"
+                sandbox="allow-forms allow-pointer-lock allow-popups allow-scripts allow-downloads
+                allow-downloads-without-user-activation allow-modals allow-orientation-lock allow-popups
+                allow-popups-to-escape-sandbox allow-presentation allow-same-origin"></iframe>
+        <div style="width: 158px; margin-left: 4px; overflow-y: auto; min-height: min-content; scrollbar-width: thin;">
+            <strong>Live</strong><br>
+            <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
+            <strong>Previous</strong>
+            <a th:each="instance : ${previousInstances}" th:href="${@link.to(instance)}"
+               th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)} + '&#10;' + ${instance.gather?.stats ?: ''}">
+                <img th:src="@{|/instances/${instance.id}/thumbnail|}" width="150" height="100">
+            </a>
+            <img th:remove="all" width="150" height="100">
+            <img th:remove="all" width="150" height="100">
+            <img th:remove="all" width="150" height="100">
+        </div>
+    </div>
 </main>
