@@ -245,7 +245,14 @@ public class Instance {
     private static final Pattern PARCHIVE_REGEX = Pattern.compile("^/parchive/(.*)$");
 
     public String getTepUrlAbsolute() {
-        return tepUrlToAbsolute(getTepUrl());
+        if (GatherMethod.HTTRACK.equals(getGatherMethodName()) ||
+                GatherMethod.UPLOAD.equals(getGatherMethodName())) {
+            return tepUrlToAbsolute(getTepUrl());
+        } else if (getTepUrl().startsWith("/pan/")) {
+            return getGatheredUrl();
+        } else {
+            return getTepUrl();
+        }
     }
 
     public static String tepUrlToAbsolute(String url) {
