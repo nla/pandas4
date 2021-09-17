@@ -483,6 +483,27 @@
         </property>
     </bean>
 
+    <!-- Ignore robots.txt for embedded or inferred links (or redirects therefrom) -->
+    <bean class='org.archive.crawler.spring.DecideRuledSheetAssociation'>
+        <property name="targetSheetNames">
+            <list>
+                <value>ignoreRobotsSheet</value>
+            </list>
+        </property>
+        <property name="rules">
+            <bean class="org.archive.modules.deciderules.HopsPathMatchesRegexDecideRule">
+                <property name="regex" value=".*[EI]R*"/>
+            </bean>
+        </property>
+    </bean>
+    <bean id='ignoreRobotsSheet' class='org.archive.spring.Sheet'>
+        <property name='map'>
+            <map>
+                <entry key='metadata.robotsPolicyName' value='ignore'/>
+            </map>
+        </property>
+    </bean>
+
     <!--
        EXAMPLE SETTINGS OVERLAY SHEET-ASSOCIATION
        A SheetAssociation says certain URIs should have certain overlay Sheets
