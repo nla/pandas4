@@ -27,6 +27,10 @@ public class Link {
         return to(individual) + "/edit";
     }
 
+    public String edit(Title title) {
+        return to(title) + "/edit";
+    }
+
     public String logo(Agency agency) {
         return to(agency) + "/logo";
     }

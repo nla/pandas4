@@ -57,9 +57,12 @@
                    class="btn btn-secondary" th:title="'Go to Next Instance (Ctrl+Right)'" data-keybind="Ctrl+ArrowRight">❭</a>
                 <button th:unless="${nextInstance}" class="btn btn-secondary" disabled>❭</button>
             </nav>
-            <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
-                    class="btn btn-danger float-right" onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"
-                    title="Delete Instance (Ctrl+Delete)" data-keybind="Ctrl+Delete"><i class="icon delete"></i>Delete</button>
+            <nav>
+                <a th:href="${@link.edit(instance.title)}" class="btn btn-secondary"><i class="icon edit"></i> Edit Title</a>
+                <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
+                        class="btn btn-danger float-right" onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"
+                        title="Delete Instance (Ctrl+Delete)" data-keybind="Ctrl+Delete"><i class="icon delete"></i>Delete</button>
+            </nav>
         </header>
     </form>
 

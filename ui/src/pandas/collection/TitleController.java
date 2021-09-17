@@ -24,6 +24,7 @@ import pandas.gatherer.CrawlBeans;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.*;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.REFERER;
 
 @Controller
 public class TitleController {
@@ -216,6 +218,7 @@ public class TitleController {
     @GetMapping("/titles/{id}/edit")
     public String edit(@PathVariable("id") Title title,
                        @RequestParam(value = "setStatus", required = false) Status setStatus,
+                       HttpServletRequest request,
                        Model model) {
         TitleEditForm form = titleService.editForm(title);
 
@@ -237,6 +240,15 @@ public class TitleController {
         statusRepository.findAllById(statusIds).forEach(statusList::add);
         statusList.sort(Comparator.comparing(Status::getId));
         model.addAttribute("statusList", statusList);
+
+        String referer = request.getHeader(REFERER);
+        if (referer != null) {
+            String prefix = request.getRequestURL().toString().replaceFirst("(https?://[^/]+)/.*", "$1");
+            prefix += request.getContextPath() + "/";
+            if (referer.startsWith(prefix)) {
+                model.addAttribute("backlink", referer.substring(prefix.length() - 1));
+            }
+        }
 
         return "TitleEdit";
     }
