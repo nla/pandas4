@@ -11,11 +11,9 @@ import java.util.Optional;
 public interface InstanceThumbnailRepository extends CrudRepository<InstanceThumbnail, Long> {
 
     @Query("select it from InstanceThumbnail it where it.instance.title.id = :titleId\n" +
-            "and it.type = :type\n" +
             "and it.status >= 200 and it.status <= 299\n" +
-            "order by it.instance.date desc")
-    List<InstanceThumbnail> findForTitleId(@Param("titleId") long titleId, @Param("type") InstanceThumbnail.Type type,
-                                           Pageable pageable);
+            "order by it.instance.date desc, it.type")
+    List<InstanceThumbnail> findForTitleId(@Param("titleId") long titleId, Pageable pageable);
 
     boolean existsByInstanceAndType(Instance instance, InstanceThumbnail.Type type);
 

@@ -36,7 +36,7 @@ public class ThumbnailController {
 
     @GetMapping("/titles/{titleId}/thumbnail/image")
     public ResponseEntity<byte[]> forTitle(@PathVariable("titleId") long titleId, WebRequest request) {
-        var instanceThumbnails = instanceThumbnailRepository.findForTitleId(titleId, InstanceThumbnail.Type.REPLAY, PageRequest.of(0, 1));
+        var instanceThumbnails = instanceThumbnailRepository.findForTitleId(titleId, PageRequest.of(0, 1));
         if (!instanceThumbnails.isEmpty()) {
             InstanceThumbnail thumbnail = instanceThumbnails.get(0);
             return ResponseEntity.status(200)
