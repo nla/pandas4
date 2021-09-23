@@ -1,0 +1,5 @@
+#!/bin/bash
+PANDAS_HOME="$(dirname "$(realpath -s "$0")")"/..
+exec java -Dloader.main=pandas.gatherer.httrack.Pandora2Warc \
+  -cp "$PANDAS_HOME"/gatherer/target/pandas4-gatherer.jar \
+  org.springframework.boot.loader.PropertiesLauncher "$@"
