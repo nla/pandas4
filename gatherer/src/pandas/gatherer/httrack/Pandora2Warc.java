@@ -157,4 +157,12 @@ public class Pandora2Warc {
         }
         return warcWriter.writtenFiles;
     }
+
+    public static void main(String[] args) throws IOException {
+        if (args.length < 2) {
+            System.err.println("Usage: Pandora2Warc src-dir dest-dir");
+            System.exit(1);
+        }
+        convertInstance(Paths.get(args[0]), Paths.get(args[1]));
+    }
 }
