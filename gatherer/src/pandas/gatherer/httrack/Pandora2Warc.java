@@ -43,6 +43,7 @@ public class Pandora2Warc {
             closeCurrentFile();
             this.currentPath = String.format(pathPattern, serial);
             this.stream = Files.newOutputStream(Paths.get(currentPath + ".open"));
+            serial++;
         }
 
         private void closeCurrentFile() throws IOException {
