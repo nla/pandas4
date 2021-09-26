@@ -2,11 +2,14 @@ package pandas.collection;
 
 import pandas.core.Organisation;
 
+import static pandas.util.Strings.emptyToNull;
+
 public class PublisherEditForm {
     private final Long id;
     private final String name;
     private final PublisherType type;
     private final String url;
+    private final String abn;
     private final String localReference;
     private final String notes;
     private final String addressLine1;
@@ -16,25 +19,26 @@ public class PublisherEditForm {
     private final String postcode;
     private final String country;
 
-    public PublisherEditForm(Long id, String name, PublisherType type, String url, String localReference, String notes, String addressLine1, String addressLine2, String locality, String state, String postcode, String country) {
+    public PublisherEditForm(Long id, String name, PublisherType type, String url, String abn, String localReference, String notes, String addressLine1, String addressLine2, String locality, String state, String postcode, String country) {
         this.id = id;
-        this.name = name;
+        this.name = emptyToNull(name);
         this.type = type;
-        this.url = url;
-        this.localReference = localReference;
-        this.notes = notes;
-        this.addressLine1 = addressLine1;
-        this.addressLine2 = addressLine2;
-        this.locality = locality;
-        this.state = state;
-        this.postcode = postcode;
-        this.country = country;
+        this.url = emptyToNull(url);
+        this.abn = emptyToNull(abn);
+        this.localReference = emptyToNull(localReference);
+        this.notes = emptyToNull(notes);
+        this.addressLine1 = emptyToNull(addressLine1);
+        this.addressLine2 = emptyToNull(addressLine2);
+        this.locality = emptyToNull(locality);
+        this.state = emptyToNull(state);
+        this.postcode = emptyToNull(postcode);
+        this.country = emptyToNull(country);
     }
 
     public static PublisherEditForm of(Publisher publisher) {
         Organisation organisation = publisher.getOrganisation();
         return new PublisherEditForm(publisher.getId(), publisher.getName(), publisher.getType(),
-                organisation.getUrl(), publisher.getLocalReference(), publisher.getNotes(),
+                organisation.getUrl(), organisation.getAbn(), publisher.getLocalReference(), publisher.getNotes(),
                 organisation.getLine1(), organisation.getLine2(),
                 organisation.getLocality(), organisation.getLongstate(),
                 organisation.getPostcode(), organisation.getLongcountry());
@@ -44,6 +48,7 @@ public class PublisherEditForm {
         publisher.getOrganisation().setName(name);
         publisher.setType(type);
         publisher.getOrganisation().setUrl(url);
+        publisher.getOrganisation().setAbn(abn);
         publisher.setLocalReference(localReference);
         publisher.setNotes(notes);
         publisher.getOrganisation().setLine1(addressLine1);
@@ -68,6 +73,10 @@ public class PublisherEditForm {
 
     public String url() {
         return url;
+    }
+
+    public String abn() {
+        return abn;
     }
 
     public String localReference() {

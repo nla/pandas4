@@ -36,7 +36,7 @@ public class Publisher {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ORGANISATION_ID")
-    @IndexedEmbedded(includePaths = {"id", "name"})
+    @IndexedEmbedded(includePaths = {"id", "name", "abn"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Organisation organisation;
 

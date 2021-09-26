@@ -82,6 +82,10 @@ public class Organisation implements Serializable {
     @JoinColumn(name = "AGENCY_ID")
     private Agency agency;
 
+    @Column(name = "ABN", length = 11)
+    @GenericField
+    private String abn;
+
     public String getAlias() {
         return this.alias;
     }
@@ -262,5 +266,13 @@ public class Organisation implements Serializable {
             }
         }
         return builder.toString();
+    }
+
+    public String getAbn() {
+        return abn;
+    }
+
+    public void setAbn(String abn) {
+        this.abn = abn;
     }
 }

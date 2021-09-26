@@ -26,9 +26,10 @@
         <table>
             <tr><th>Type:</th><td th:text="${publisher.type.name}"></td></tr>
             <tr><th>Homepage:</th><td><a th:href="${publisher.organisation.url}" th:text="${publisher.organisation.url}"></a></td></tr>
-            <tr th:if="${publisher.localReference}"><th>Local Reference No:</th><td th:text="${publisher.localReference}"></td></tr>
+            <tr th:unless="${#strings.isEmpty(publisher.organisation.abn)}"><th>ABN:</th><td><a th:href="@{https://abr.business.gov.au/ABN/View(id=${publisher.organisation.abn})}" th:text="${publisher.organisation.abn}"></a></td></tr>
+            <tr th:unless="${#strings.isEmpty(publisher.localReference)}"><th>Local Reference No:</th><td th:text="${publisher.localReference}"></td></tr>
         </table>
-        <div th:if="${publisher.notes}">
+        <div th:unless="${#strings.isEmpty(publisher.notes)}">
             <strong>Notes:</strong><br>
             <div th:text="${publisher.notes}"></div>
         </div>

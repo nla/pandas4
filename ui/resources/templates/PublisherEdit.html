@@ -29,7 +29,11 @@
                 </label>
             </div>
             <label>Organisation Homepage <input th:field="*{url}"></label>
-            <label>Local Reference No. <input th:field="*{localReference}"></label>
+            <div>
+                <label>Local Reference No. <input th:field="*{localReference}"></label>
+                <label>ABN <input th:field="*{abn}" pattern="[0-9]{11}" title="11-digit Australian Business Number"
+                                  onchange="this.value = this.value.replace(/[ -]/g, '')"></label>
+            </div>
             <label>Notes <textarea th:field="*{notes}" rows="3"></textarea></label>
         </fieldset>
 

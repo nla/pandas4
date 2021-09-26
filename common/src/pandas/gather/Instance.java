@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
         indexes = @Index(name = "instance_title_id_instance_date_index", columnList = "title_id, instance_date"))
 @DynamicUpdate
 public class Instance {
-    static final DateTimeFormatter instanceDateFormat = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
+    public static final DateTimeFormatter instanceDateFormat = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
 
     @Id
     @Column(name = "INSTANCE_ID")
