@@ -39,6 +39,7 @@
     <table th:fragment="table" class="gathered-table">
         <thead>
         <tr>
+            <th><input type=checkbox onchange="document.querySelectorAll('.selectedInstances').forEach(el => el.checked = this.checked)"></th>
             <th align=left>Title</th>
             <th>This Gather</th>
             <th>Live Site</th>
@@ -47,6 +48,9 @@
         </thead>
         <tbody>
         <tr th:each="instance: ${gatheredInstances}" th:with="previousGather = ${previousGathers.get(instance.id)}">
+            <td>
+                <input type=checkbox class=selectedInstances name=selectedInstances th:value='${instance.id}'>
+            </td>
             <td>
                 <a th:text="${instance.title.name}" th:href="${@link.to(instance.title)}" style="font-weight: bold">Example title</a><br>
                 <span th:text="${instance.gatherMethodName}">Heritrix</span>
