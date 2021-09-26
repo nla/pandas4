@@ -61,6 +61,7 @@ public class HeritrixGatherer implements Backend {
 
         heritrix.addJobDir(jobDir);
 
+        HeritrixClient.Job job = null;
         try {
             if (heritrix.getJob(instance.getHumanId()).crawlControllerState == RUNNING) {
                 log.info("job {} already RUNNING, assuming gatherer was restarted and resuming monitoring.", instance.getHumanId());
@@ -72,7 +73,7 @@ public class HeritrixGatherer implements Backend {
             }
 
             while (true) {
-                HeritrixClient.Job job = heritrix.getJob(instance.getHumanId());
+                job = heritrix.getJob(instance.getHumanId());
                 instance = instanceService.refresh(instance);
                 instanceService.updateGatherStats(instance.getId(), job.fileStats().fileCount(), job.fileStats().size());
                 if (job.crawlControllerState != RUNNING ||
@@ -83,9 +84,12 @@ public class HeritrixGatherer implements Backend {
 
                 Thread.sleep(1000);
             }
-
         } finally {
-            heritrix.teardownJob(instance.getHumanId());
+            if (shutdown && job != null && job.crawlControllerState == RUNNING) {
+                log.info("Letting Heritrix crawl {} continue running after shutdown", instance.getHumanId());
+            } else {
+                heritrix.teardownJob(instance.getHumanId());
+            }
         }
     }
 
