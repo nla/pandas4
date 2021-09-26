@@ -1,6 +1,7 @@
 package pandas.gatherer.httrack;
 
 import org.apache.commons.codec.binary.Base32;
+import pandas.gather.Instance;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -9,6 +10,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -143,12 +145,12 @@ public class Pandora2Warc {
         String outpattern = destDir.resolve("nla.arc-" + pi + "-" + timestamp + "-%03d.warc.gz").toString();
         var typeMap = buildTypeMap(srcDir);
 
+        Date ctime = Date.from(Instant.from(Instance.instanceDateFormat.parse(timestamp)));
         WarcWriter warcWriter = new WarcWriter(outpattern);
         try (WarcWriter warc = warcWriter) {
             Files.walkFileTree(srcDir, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-                    Date ctime = new Date(attrs.creationTime().toMillis());
                     if (Files.exists(path) && !Files.isDirectory(path) && !PANACCESS.matcher(path.getFileName().toString()).matches()) {
                         writeRecord(path, ctime, prefixSize, typeMap, warc);
                     }
