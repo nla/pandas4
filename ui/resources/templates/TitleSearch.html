@@ -78,7 +78,7 @@
             <li th:each="title: ${results}">
                 <div class="title-card" th:fragment="title-card" th:with="omitCollection = ${omitCollection ?: null}">
                     <a th:href="${@link.to(title)}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
-                    <div>
+                    <div class="title-card-text" th:fragment="title-card-text">
                         <header>
                             <strong><a th:href="${@link.to(title)}" th:text="${title.name}" href="TitleView.html">Sydney
                                 2000</a></strong>

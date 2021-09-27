@@ -532,21 +532,21 @@ ul.subject-list li + li:before {
     transition: width 0.25s, height 0.25s;
 }
 
-.title-card > div > header > nav {
+.title-card-text > header > nav {
     display: inline;
     font-size: 60%;
 }
 
-.title-card > div > div {
+.title-card-text > div {
     font-size: 80%;
 }
 
-.title-card > div > footer {
+.title-card-text > footer {
     font-size: 80%;
     color: #888;
 }
 
-.title-card > div > footer .agency {
+.title-card-text > footer .agency {
     color: #888;
 }
 

@@ -9,12 +9,17 @@
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}/gathered')">
+    <header>
+        <nav>
+            <button class="btn btn-primary selected-action" form=form type=submit><i class="icon archive"></i>Archive</button>
+            <button class="btn btn-danger selected-action" form=form type=submit><i class="icon delete"></i>Delete</button>
+        </nav>
+        <th:block th:include="worktrays/_worktrays.html :: header('/worktrays/{alias}/gathered')">
+        </th:block>
     </header>
-
     <nav class="breadcrumb">
         <ol>
-             <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
+            <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
             <li class="active">Instances in QA (<span th:text="${gatheredInstances.totalElements}"></span>)</li>
         </ol>
     </nav>
@@ -36,47 +41,91 @@
 
     </style>
 
-    <table th:fragment="table" class="gathered-table">
-        <thead>
-        <tr>
-            <th><input type=checkbox onchange="document.querySelectorAll('.selectedInstances').forEach(el => el.checked = this.checked)"></th>
-            <th align=left>Title</th>
-            <th>This Gather</th>
-            <th>Live Site</th>
-            <th>Previous Gather</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="instance: ${gatheredInstances}" th:with="previousGather = ${previousGathers.get(instance.id)}">
-            <td>
-                <input type=checkbox class=selectedInstances name=selectedInstances th:value='${instance.id}'>
-            </td>
-            <td>
-                <a th:text="${instance.title.name}" th:href="${@link.to(instance.title)}" style="font-weight: bold">Example title</a><br>
-                <span th:text="${instance.gatherMethodName}">Heritrix</span>
-                <a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="${@link.to(instance.title.owner)}">jsmith</a>
-            </td>
-            <td style="text-align: center">
-                <a href="#workingAreaUrl"><img th:src="${@link.thumbnail(instance)}" width=150 height=100></a><br>
-                <time th:text="${@dateFormats.shortDate(instance.date)}"></time><br>
-                <span class="gather-stats" th:if="${instance.gather != null}" th:text="${instance.gather.stats}">1,234 files 10 MB</span>
-            </td>
-            <td style="text-align: center; vertical-align: top">
-                <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
-            </td>
-            <td style="text-align: center">
-                <th:block th:if="${previousGather != null}">
-                    <a th:href="@{/instances/{id}(id=${previousGather.id})}">
-                        <img th:src="@{/instances/{id}/thumbnail(id=${previousGather.id})}" width=150 height=100><br>
-                    </a>
-                    <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
-                    <span class="gather-stats" th:text="${previousGather.stats}">1,234 files 10 MB</span>
-                </th:block>
-            </td>
-            <td><a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}" class="btn btn-primary">Process</a></td>
-        </tr>
-        </tbody>
-    </table>
+    <form id=form method=post>
+        <table th:fragment="table" class="gathered-table">
+            <thead>
+            <tr>
+                <th><input type=checkbox onchange="toggleSelectAll(this)" id="selectAllCheckbox"></th>
+                <th align=left id="titleColumnHeader">Title</th>
+                <th>This Gather</th>
+                <th>Live Site</th>
+                <th>Previous Gather</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="instance: ${gatheredInstances}" th:with="previousGather = ${previousGathers.get(instance.id)}">
+                <td>
+                    <input type=checkbox class="selectedInstancesCheckbox" name=instance th:value='${instance.id}'
+                           onchange="updateSelected()">
+                </td>
+                <td th:insert="TitleSearch.html :: title-card-text(title=${instance.title})">
+                    <a style="font-weight: bold">Example title</a><br>
+                    <span>Heritrix</span>
+                    <a>jsmith</a>
+                </td>
+                <td style="text-align: center">
+                    <a href="#workingAreaUrl"><img th:src="${@link.thumbnail(instance)}" width=150 height=100></a><br>
+                    <time th:text="${@dateFormats.shortDate(instance.date)}"></time><br>
+                    <span class="gather-stats" th:if="${instance.gather != null}" th:text="${instance.gather.stats}">1,234 files 10 MB</span>
+                </td>
+                <td style="text-align: center; vertical-align: top">
+                    <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
+                </td>
+                <td style="text-align: center">
+                    <th:block th:if="${previousGather != null}">
+                        <a th:href="@{/instances/{id}(id=${previousGather.id})}">
+                            <img th:src="@{/instances/{id}/thumbnail(id=${previousGather.id})}" width=150 height=100><br>
+                        </a>
+                        <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
+                        <span class="gather-stats" th:text="${previousGather.stats}">1,234 files 10 MB</span>
+                    </th:block>
+                </td>
+                <td><a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}" class="btn btn-primary">Process</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+
+    <script>
+        function updateSelected() {
+            let selectAllCheckbox = document.getElementById("selectAllCheckbox");
+            let totalCount = document.querySelectorAll(".selectedInstancesCheckbox").length;
+            let selectedCount = document.querySelectorAll(".selectedInstancesCheckbox:checked").length;
+
+            if (selectedCount === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (selectedCount >= totalCount) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = true;
+            }
+
+            if (selectedCount > 0) {
+                document.querySelectorAll("button.selected-action").forEach(btn => btn.disabled = false);
+            } else {
+                document.querySelectorAll("button.selected-action").forEach(btn => btn.disabled = true);
+            }
+
+            // show count in title
+            if (selectedCount === 0) {
+                document.getElementById("titleColumnHeader").innerText = "Title";
+            } else if (selectedCount === 1) {
+                document.getElementById("titleColumnHeader").innerText = selectedCount + " instance selected";
+            } else {
+                document.getElementById("titleColumnHeader").innerText = selectedCount + " instances selected";
+            }
+        }
+
+        function toggleSelectAll(selectAllCheckbox) {
+            document.querySelectorAll('.selectedInstancesCheckbox').forEach(el =>
+                el.checked = selectAllCheckbox.checked);
+            updateSelected();
+        }
+    </script>
+
 
     <div th:replace="worktrays/_worktrays :: pagination(${gatheredInstances})">
     </div>
