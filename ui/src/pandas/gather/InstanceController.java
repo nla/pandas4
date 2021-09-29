@@ -1,4 +1,4 @@
-package pandas.collection;
+package pandas.gather;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
+import pandas.collection.TitleRepository;
 import pandas.core.Config;
 import pandas.core.Individual;
 import pandas.core.IndividualRepository;
 import pandas.core.UserService;
-import pandas.gather.*;
 import pandas.util.DateFormats;
+import pandas.util.Requests;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,6 @@ public class InstanceController {
     private final InstanceRepository instanceRepository;
     private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final StateHistoryRepository stateHistoryRepository;
-    private final InstanceThumbnailProcessor thumbnailProcessor;
     private final AgencyRepository agencyRepository;
     private final IndividualRepository individualRepository;
 
@@ -47,7 +47,6 @@ public class InstanceController {
         this.instanceService = instanceService;
         this.instanceRepository = instanceRepository;
         this.stateHistoryRepository = stateHistoryRepository;
-        this.thumbnailProcessor = thumbnailProcessor;
         this.agencyRepository = agencyRepository;
         this.individualRepository = individualRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
@@ -91,11 +90,20 @@ public class InstanceController {
                          @RequestParam(value = "nextInstance", required = false) Long nextInstance,
                          @RequestParam(value = "worktray", required = false) String worktray) {
         if (!instance.canDelete()) throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
-        instanceService.updateState(instance, State.DELETING, userService.getCurrentUser());
+        instanceService.delete(instance, userService.getCurrentUser());
         if (nextInstance != null) {
             return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
         }
         return "redirect:/titles/" + instance.getTitle().getId();
+    }
+
+    @PostMapping("/instances/delete")
+    public String deleteSelected(@RequestParam("instance") List<Instance> instances) {
+        var user = userService.getCurrentUser();
+        for (var instance: instances) {
+            instanceService.delete(instance, userService.getCurrentUser());
+        }
+        return "redirect:" + Requests.backlinkOrDefault("/instances");
     }
 
     @PostMapping("/instances/{id}/archive")
@@ -109,6 +117,15 @@ public class InstanceController {
             return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
         }
         return "redirect:/instances/" + instance.getId();
+    }
+
+    @PostMapping("/instances/archive")
+    public String archiveSelected(@RequestParam("instance") List<Instance> instances) {
+        var user = userService.getCurrentUser();
+        for (var instance: instances) {
+            instanceService.archive(instance, user, true);
+        }
+        return "redirect:" + Requests.backlinkOrDefault("/instances");
     }
 
     @PostMapping("/instances/{id}/stop")

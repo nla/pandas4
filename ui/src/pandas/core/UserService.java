@@ -15,12 +15,16 @@ public class UserService implements AuditorAware<Individual> {
         this.individualRepository = individualRepository;
     }
 
-    public Individual getCurrentUser() {
+    public static Individual currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return null;
         }
         return ((PandasUser)authentication.getPrincipal()).getIndividual();
+    }
+
+    public Individual getCurrentUser() {
+        return currentUser();
     }
 
     @Override

@@ -40,6 +40,13 @@ public class Status {
     @Column(name = "STATUS_NAME")
     private String name;
 
+    public Status() {
+    }
+
+    public Status(String name) {
+        this.name = name;
+    }
+
     public boolean isTransitionAllowed(Status newStatus) {
         return allowedTransitions.getOrDefault(getId(), Collections.emptyList()).contains(newStatus.getId());
     }

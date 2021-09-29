@@ -20,6 +20,13 @@ public class State {
     @Column(name = "STATE_NAME")
     private String name;
 
+    public State() {
+    }
+
+    public State(String name) {
+        this.name = name;
+    }
+
     public Long getId() {
         return this.id;
     }

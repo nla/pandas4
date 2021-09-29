@@ -11,8 +11,10 @@
 <main>
     <header>
         <nav>
-            <button class="btn btn-primary selected-action" form=form type=submit><i class="icon archive"></i>Archive</button>
-            <button class="btn btn-danger selected-action" form=form type=submit><i class="icon delete"></i>Delete</button>
+            <button class="btn btn-primary selected-action" form=form type=submit
+                    th:formaction="@{/instances/archive}"><i class="icon archive"></i>Archive</button>
+            <button class="btn btn-danger selected-action" form=form type=submit
+                    th:formaction="@{/instances/delete}"><i class="icon delete"></i>Delete</button>
         </nav>
         <th:block th:include="worktrays/_worktrays.html :: header('/worktrays/{alias}/gathered')">
         </th:block>
@@ -38,10 +40,9 @@
             font-size: 80%;
             color: #555;
         }
-
     </style>
 
-    <form id=form method=post>
+    <form id=form method=post th:action="@{''}">
         <table th:fragment="table" class="gathered-table">
             <thead>
             <tr>

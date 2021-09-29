@@ -10,6 +10,8 @@ import java.time.Instant;
 @Table(name = "ROLE", indexes = @Index(name = "role_individual_id_index", columnList = "individual_id"))
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role {
+    public static final String TYPE_SYSADMIN = "SysAdmin";
+
     @Id
     @Column(name = "ROLE_ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "ROLE_SEQ")

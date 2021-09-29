@@ -19,6 +19,10 @@ public class Pandas {
         copyEnvToProperty("OIDC_URL", "spring.security.oauth2.client.provider.oidc.issuer-uri");
         copyEnvToProperty("OIDC_CLIENT_ID", "spring.security.oauth2.client.registration.oidc.client-id");
         copyEnvToProperty("OIDC_CLIENT_SECRET", "spring.security.oauth2.client.registration.oidc.client-secret");
+        if (System.getProperty("spring.security.oauth2.client.provider.oidc.issuer-uri") != null) {
+            System.setProperty("spring.security.oauth2.client.registration.oidc.scope", "openid");
+            System.setProperty("spring.security.oauth2.client.provider.oidc.user-name-attribute", "preferred_username");
+        }
         SpringApplication.run(Pandas.class, args);
     }
 

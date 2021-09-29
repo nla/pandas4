@@ -21,6 +21,7 @@ import pandas.agency.AgencyRepository;
 import pandas.core.*;
 import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
+import pandas.util.Requests;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletResponse;
@@ -41,7 +42,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.*;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static org.springframework.http.HttpHeaders.REFERER;
 
 @Controller
 public class TitleController {
@@ -241,13 +241,9 @@ public class TitleController {
         statusList.sort(Comparator.comparing(Status::getId));
         model.addAttribute("statusList", statusList);
 
-        String referer = request.getHeader(REFERER);
-        if (referer != null) {
-            String prefix = request.getRequestURL().toString().replaceFirst("(https?://[^/]+)/.*", "$1");
-            prefix += request.getContextPath() + "/";
-            if (referer.startsWith(prefix)) {
-                model.addAttribute("backlink", referer.substring(prefix.length() - 1));
-            }
+        String backlink = Requests.backlink();
+        if (backlink != null) {
+            model.addAttribute("backlink", backlink);
         }
 
         return "TitleEdit";

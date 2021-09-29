@@ -47,6 +47,16 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
     @Column(name = "HOURS_OF_DAY")
     private int hoursOfDay;
 
+    public GatherSchedule() {
+    }
+
+    public GatherSchedule(String name, int years, int months, int days) {
+        this.name = name;
+        this.years = years;
+        this.months = months;
+        this.days = days;
+    }
+
     public Long getId() {
         return this.id;
     }

@@ -1,5 +1,6 @@
 package pandas.gather;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.collection.Title;
@@ -134,6 +135,7 @@ public class InstanceService {
         instanceGatherRepository.save(gather);
     }
 
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
     public void archive(Instance instance, Individual user, boolean publish) {
         if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
@@ -152,5 +154,11 @@ public class InstanceService {
         insGather.setTime(Duration.between(startTime, now).getSeconds() / 60);
         insGather.setFinish(now);
         instanceGatherRepository.save(insGather);
+    }
+
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
+    @Transactional
+    public void delete(Instance instance, Individual currentUser) {
+        updateState(instance, State.DELETING, currentUser);
     }
 }

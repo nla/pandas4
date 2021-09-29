@@ -52,7 +52,7 @@ public class Agency {
     /**
      * The organisation which corresponds to this agency.
      */
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ORGANISATION_ID")
     private Organisation organisation;
 

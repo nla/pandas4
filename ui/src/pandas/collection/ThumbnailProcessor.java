@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 import pandas.browser.Browser;
@@ -35,7 +34,6 @@ public class ThumbnailProcessor {
         this.browserPool = new BrowserPool();
     }
 
-    @Scheduled(fixedDelayString = "${pandas.thumbnailProcessor.delay:86400000}", initialDelayString = "${pandas.thumbnailProcessor.initialDelay:0}")
     public synchronized void run() {
         ThreadPoolExecutor threadPool = new ThreadPoolExecutor(8,8,1, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));
         try {

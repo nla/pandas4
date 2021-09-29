@@ -25,6 +25,12 @@ public class GatherMethod {
     @Column(name = "METHOD_NAME")
     private String name;
 
+    public GatherMethod() {
+    }
+
+    public GatherMethod(String name) {
+        this.name = name;
+    }
 
     public Long getId() {
         return this.id;

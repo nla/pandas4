@@ -1,4 +1,4 @@
-package pandas.collection;
+package pandas.gather;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -8,16 +8,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.util.UriUtils;
 import pandas.browser.Browser;
 import pandas.browser.BrowserPool;
-import pandas.gather.Instance;
-import pandas.gather.InstanceRepository;
-import pandas.gather.InstanceThumbnail;
-import pandas.gather.InstanceThumbnailRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -46,7 +41,6 @@ public class InstanceThumbnailProcessor {
         this.browserPool = new BrowserPool();
     }
 
-    @Scheduled(fixedDelayString = "${pandas.thumbnailProcessor.delay:86400000}", initialDelayString = "${pandas.thumbnailProcessor.initialDelay:0}")
     public synchronized void run() {
         log.info("Starting scheduled thumbnail processor");
         ThreadPoolExecutor threadPool = new ThreadPoolExecutor(8,8,1, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));

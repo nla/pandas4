@@ -8,6 +8,7 @@ import pandas.collection.Publisher;
 import pandas.collection.Subject;
 import pandas.collection.Title;
 import pandas.gather.Instance;
+import pandas.util.DateFormats;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.web.util.UriUtils.encodePathSegment;
@@ -17,6 +18,11 @@ public class Link {
     private String link(String path) {
         String contextPath = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getContextPath();
         return contextPath.replaceFirst("/+$", "") + path;
+    }
+
+    public String delivery(Instance instance) {
+        return "https://webarchive.nla.gov.au/awa/" + DateFormats.ARC_DATE.format(instance.getDate()) + "/" +
+                instance.getTepUrlAbsolute();
     }
 
     public String edit(Agency agency) {

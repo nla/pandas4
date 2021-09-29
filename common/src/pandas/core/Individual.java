@@ -88,7 +88,7 @@ public class Individual {
     @JsonIgnore
     private String pwdigest;
 
-    @OneToOne(mappedBy = "individual")
+    @OneToOne(mappedBy = "individual", cascade = CascadeType.ALL)
     private Role role;
 
     public String getFullName() {
@@ -269,6 +269,11 @@ public class Individual {
 
     public Role getRole() {
         return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+        role.setIndividual(this);
     }
 
     public Agency getAgency() {

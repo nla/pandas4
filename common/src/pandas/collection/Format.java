@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Table(name = "FORMAT")
 public class Format {
     public static final long INTEGRATING_ID = 3;
+
     @Id
     @Column(name = "FORMAT_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FORMAT_SEQ")
@@ -18,6 +19,13 @@ public class Format {
 
     @Column(name = "NAME")
     private String name;
+
+    public Format() {
+    }
+
+    public Format(String name) {
+        this.name = name;
+    }
 
     public Long getId() {
         return this.id;
