@@ -41,7 +41,7 @@
             <div>
                 <label style="flex-grow: 1">Name <input th:field="*{name}" required class="form-control"></label>
                 <label style="width: 150px">Format
-                    <select th:field="*{format}">w
+                    <select th:field="*{format}">
                         <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
                                 th:selected="${fmt == format}">Integrating</option>
                     </select>
@@ -236,7 +236,7 @@
         },
     });
     let titleUrlField = document.getElementById("titleUrl");
-    new SlimSelect({
+    let publisherSelect = new SlimSelect({
         select: '#publisher',
         allowDeselect: true,
         addable: function (value) {
@@ -300,6 +300,14 @@
             }
         }
     });
+
+    function nameChanged() {
+        if (!publisherSelect.selected()) {
+            publisherSelect.search(document.getElementById("name").value);
+        }
+    }
+    document.getElementById("name").addEventListener("change", nameChanged);
+
     function titleUrlChanged () {
         document.getElementById("urlInfo").innerText = "Loading...";
         document.getElementById("urlInfo").style.color = "#555";
@@ -336,6 +344,7 @@
                 document.getElementById("urlInfo").style.color = info.status < 300 ? "green" : info.status < 400 ? "blue" : "red";
                 if (!document.getElementById("name").value && info.title && info.status < 300) {
                     document.getElementById("name").value = info.title;
+                    nameChanged();
                 }
             });
     }
