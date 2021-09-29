@@ -23,9 +23,9 @@ public class Status {
     public static final long CEASED_ID = 11;
 
     public static Map<Long,List<Long>> allowedTransitions = Map.of(
-            NOMINATED_ID, List.of(SELECTED_ID, MONITORED_ID, REJECTED_ID),
-            MONITORED_ID, List.of(SELECTED_ID, REJECTED_ID),
-            REJECTED_ID, List.of(NOMINATED_ID, SELECTED_ID),
+            NOMINATED_ID, List.of(SELECTED_ID, MONITORED_ID, REJECTED_ID, CEASED_ID),
+            MONITORED_ID, List.of(SELECTED_ID, REJECTED_ID, CEASED_ID),
+            REJECTED_ID, List.of(NOMINATED_ID, SELECTED_ID, CEASED_ID),
             SELECTED_ID, List.of(REJECTED_ID, CEASED_ID),
             CEASED_ID, List.of(SELECTED_ID)
     );
