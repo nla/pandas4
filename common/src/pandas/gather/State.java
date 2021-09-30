@@ -42,4 +42,8 @@ public class State {
     public void setName(String stateName) {
         this.name = stateName;
     }
+
+    public boolean isDeleted() {
+        return getName().equals(DELETED) || getName().equals(DELETING);
+    }
 }

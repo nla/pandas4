@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ContentDisposition;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +22,7 @@ import pandas.agency.AgencyRepository;
 import pandas.core.*;
 import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
+import pandas.util.DateFormats;
 import pandas.util.Requests;
 
 import javax.persistence.EntityManager;
@@ -92,7 +94,7 @@ public class TitleController {
         model.addAttribute("instancesByYear", title.getInstances().stream().collect(
                 groupingBy(i -> i.getDate().atZone(ZoneId.systemDefault()).getYear(),
                 () -> new TreeMap<>(comparator.reversed()), toList())));
-        model.addAttribute("deletedInstancesCount", title.getInstances().stream().filter(instance -> State.DELETED.equals(instance.getState().getName())).count());
+        model.addAttribute("deletedInstancesCount", title.getInstances().stream().filter(instance -> instance.getState().isDeleted()).count());
         return "TitleView";
     }
 
@@ -338,4 +340,45 @@ public class TitleController {
         return titleSearcher.urlCheck(urlWithoutPath);
     }
 
+    public static class ChartData {
+        public final List<String> labels = new ArrayList<>();
+        public final List<ChartDataset> datasets = new ArrayList<>();
+    }
+
+    public static class ChartDataset {
+        public final String yAxisID;
+        public final String label;
+        public final String borderColor;
+        public final String backgroundColor;
+        public final List<Number> data = new ArrayList<>();
+
+        public ChartDataset(String yAxisID, String label, String color) {
+            this.yAxisID = yAxisID;
+            this.label = label;
+            this.borderColor = color;
+            this.backgroundColor = color;
+        }
+    }
+
+    @GetMapping(value = "/titles/{id}/charts/gathersize.json", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ChartData chartGatherSize(@PathVariable("id") Title title) {
+        var chartData = new ChartData();
+        var filesDataSet = new ChartDataset("y1files", "Files", "rgb(74, 182, 235)");
+        var sizeDataSet = new ChartDataset("y2size", "Size", "rgb(25, 70, 235)");
+        chartData.datasets.add(filesDataSet);
+        chartData.datasets.add(sizeDataSet);
+        for (var instance : tail(title.getInstances(), 25)) {
+            if (instance.getState().isDeleted()) continue;
+            if (instance.getGather() == null || instance.getGather().getSize() == null) continue;
+            chartData.labels.add(DateFormats.SHORT_DATE.format(instance.getDate()).replace(".", ""));
+            filesDataSet.data.add(instance.getGather().getFiles());
+            sizeDataSet.data.add(instance.getGather().getSize() / 1024 / 1024);
+        }
+        return chartData;
+    }
+
+    public static <T> List<T> tail(List<T> list, int n) {
+        return list.subList(Math.max(list.size() - n, 0), list.size());
+    }
 }

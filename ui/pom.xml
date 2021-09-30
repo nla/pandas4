@@ -101,6 +101,11 @@
             <version>4.0.2</version>
         </dependency>
         <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>chartjs</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-client</artifactId>
         </dependency>

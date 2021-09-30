@@ -135,6 +135,9 @@
                 allow-downloads-without-user-activation allow-modals allow-orientation-lock allow-popups
                 allow-popups-to-escape-sandbox allow-presentation allow-same-origin"></iframe>
         <div id="screenshotSidebar" style="width: 158px; margin-left: 4px; overflow-y: auto; min-height: min-content; scrollbar-width: thin;">
+
+            <canvas id="sizeChart" width="150px" height="100px"></canvas>
+
             <strong>Live</strong><br>
             <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
             <section th:unless="${previousInstances.isEmpty()}">
@@ -153,3 +156,52 @@
         </div>
     </div>
 </main>
+
+<script th:src="@{/webjars/chartjs/3.5.1/dist/chart.min.js}" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js" defer></script>
+<script th:inline="javascript">
+    const chartEndpoint = /*[[@{/titles/{titleId}/charts/gathersize.json(titleId=${instance.title.id})}]]*/ '../titles/charts/gathersize.json';
+    const chartDataPromise = fetch(chartEndpoint).then(rsp => rsp.json());
+    document.addEventListener("DOMContentLoaded", function() {
+        chartDataPromise.then(chartData => {
+            new Chart(document.getElementById('sizeChart'), {
+                type: 'line',
+                data: chartData,
+                options: {
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                display: false
+                            }
+                        },
+                        y1files: {
+                            position: 'left',
+                            ticks: {
+                                display: false,
+                            }
+                        },
+                        y2size: {
+                            position: 'right',
+                            ticks: {
+                                display: false,
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.dataset.yAxisID === 'y2size' ? ctx.parsed.y + " MB" : ctx.parsed.y + " files"
+                            }
+                        }
+                    },
+                }
+            });
+        });
+    });
+</script>
