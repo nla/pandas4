@@ -39,7 +39,7 @@
         <!-- <property name="organization" value=""/> -->
         <!-- <property name="audience" value=""/> -->
         <property name="userAgentTemplate"
-               value="nla.gov.au_bot/@VERSION@ (National Library of Australia Legal Deposit Request; +@OPERATOR_CONTACT_URL@)"/>
+               value="nla.gov.au_bot heritrix/@VERSION@ (National Library of Australia Legal Deposit Request; +@OPERATOR_CONTACT_URL@)"/>
 
     </bean>
 
