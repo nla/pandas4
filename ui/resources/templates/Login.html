@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - PANDAS</title>
+    <style>
+        body {
+            background: #010066 url(https://pandas.nla.gov.au/images/galaxy90.jpg) no-repeat center top;
+            color: #fff;
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        @keyframes slide-in {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        #globe {
+            animation: 0.8s ease-out 0s 1 slide-in;
+        }
+        h1 {
+            font-family: 'cursive'; font-size: 80px; color: #80b3ff;
+            margin: 20px;
+        }
+
+        .login-button {
+            display: inline-block;
+            border: 1px solid #bbb;
+            color: #fff;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 5px;
+            background: linear-gradient(#2f5aa5, #0044aa);
+            margin: 0 16px;
+            width: 130px;
+            text-decoration: none;
+        }
+
+        .login-button:hover {
+            text-decoration: none;
+            color: #fff;
+            background: linear-gradient(#4f70aa, #0044aa);
+        }
+
+        .pandora-text {
+            font-size: 26px;
+            font-family: 'Liberation Serif', 'Time New Roman', Times, serif;
+            font-weight: lighter;
+            margin-bottom: 4px
+        }
+    </style>
+</head>
+<body>
+    <img id="globe" th:src="@{/assets/globe.svg}" src="../static/assets/globe.svg" style="margin-top: 60px" alt="">
+
+    <h1>Australian Web Archive</h1>
+
+    <a th:each="registration: ${registrations}" class="login-button"
+       th:href="@{/oauth2/authorization/{id}(id=${registration.registrationId})}" href="#"
+        th:switch="${registration.registrationId}">
+        <th:block th:case="'oidc'">
+            <img th:src="@{/assets/galaxy.svg}" src="../static/assets/galaxy.svg" width="88px" alt="">
+            <div class="pandora-text">PANDORA</div>
+            Partner Login
+        </th:block>
+        <th:block th:case="'shire'">
+            <img src="https://www.nla.gov.au/themes/custom/nlaweb/logo.svg" alt="National Library of Australia"
+                 style="margin-bottom: 4px" width=100px height=102px><br>
+            Staff Login
+        </th:block>
+        <th:block th:case="*">
+            <img th:src="@{/assets/galaxy.svg}" src="../static/assets/galaxy.svg" width="88px" alt=""><br>
+            <th:block th:text="${registration.clientName}" />
+        </th:block>
+    </a>
+</body>

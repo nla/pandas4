@@ -78,8 +78,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         if (oidcIssuerUri != null) {
-            http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService());
-            http.logout().logoutSuccessUrl("/");
+            http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService())
+                    .and().loginPage("/login")
+                    .and().logout().logoutUrl("/logout");
+            //http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
         }
         if (config.getAutologin() != null) {
             UserDetails user = pandasUserDetailsService.loadUserByUsername(config.getAutologin());
@@ -96,13 +98,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             http.addFilterBefore(filter, AnonymousAuthenticationFilter.class);
         }
         var auth = http.authorizeRequests()
-                .antMatchers("/actuator/health").anonymous()
-                .antMatchers("/titles/check").permitAll()
+                .mvcMatchers("/actuator/health").anonymous()
+                .mvcMatchers("/titles/check").permitAll()
+                .mvcMatchers("/login").permitAll()
+                .mvcMatchers("/assets/**").permitAll()
                 .anyRequest().hasRole("stduser");
         if (oidcIssuerUri != null && clientRegistrationRepository != null) {
             auth.and().logout().logoutSuccessHandler((request, response, authentication) -> {
                 OidcClientInitiatedLogoutSuccessHandler handler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
-                handler.setPostLogoutRedirectUri(ServletUriComponentsBuilder.fromRequestUri(request).replacePath(null).build().toUriString());
+                handler.setPostLogoutRedirectUri(ServletUriComponentsBuilder.fromContextPath(request).build().toUriString());
                 handler.onLogoutSuccess(request, response, authentication);
             });
         }
