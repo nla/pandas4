@@ -3,6 +3,7 @@ package pandas.core;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.Agency;
 import pandas.collection.Publisher;
 import pandas.collection.Subject;
@@ -10,14 +11,23 @@ import pandas.collection.Title;
 import pandas.gather.Instance;
 import pandas.util.DateFormats;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.web.util.UriUtils.encodePathSegment;
 
 @Service
 public class Link {
     private String link(String path) {
-        String contextPath = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getContextPath();
-        return contextPath.replaceFirst("/+$", "") + path;
+        return servletRequest().getContextPath().replaceFirst("/+$", "") + path;
+    }
+
+    private HttpServletRequest servletRequest() {
+        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    }
+
+    public String checkSessionReply() {
+        return ServletUriComponentsBuilder.fromContextPath(servletRequest()).path("/login/check-session-reply").toUriString();
     }
 
     public String delivery(Instance instance) {

@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,5 +28,11 @@ public class LoginController {
         Collections.sort(registrations, Comparator.comparing(ClientRegistration::getRegistrationId));
         model.addAttribute("registrations", registrations);
         return "Login";
+    }
+
+    @GetMapping(value = "/login/check-session-reply")
+    @ResponseBody
+    public String checkSessionReply() {
+        return "";
     }
 }

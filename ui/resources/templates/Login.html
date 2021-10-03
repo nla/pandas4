@@ -57,26 +57,35 @@
     </style>
 </head>
 <body>
-    <img id="globe" th:src="@{/assets/globe.svg}" src="../static/assets/globe.svg" style="margin-top: 60px" alt="">
+<img id="globe" th:src="@{/assets/globe.svg}" src="../static/assets/globe.svg" style="margin-top: 60px" alt="">
 
-    <h1>Australian Web Archive</h1>
+<h1>Australian Web Archive</h1>
 
-    <a th:each="registration: ${registrations}" class="login-button"
-       th:href="@{/oauth2/authorization/{id}(id=${registration.registrationId})}" href="#"
-        th:switch="${registration.registrationId}">
-        <th:block th:case="'oidc'">
-            <img th:src="@{/assets/galaxy.svg}" src="../static/assets/galaxy.svg" width="88px" alt="">
-            <div class="pandora-text">PANDORA</div>
-            Partner Login
-        </th:block>
-        <th:block th:case="'shire'">
-            <img src="https://www.nla.gov.au/themes/custom/nlaweb/logo.svg" alt="National Library of Australia"
-                 style="margin-bottom: 4px" width=100px height=102px><br>
-            Staff Login
-        </th:block>
-        <th:block th:case="*">
-            <img th:src="@{/assets/galaxy.svg}" src="../static/assets/galaxy.svg" width="88px" alt=""><br>
-            <th:block th:text="${registration.clientName}" />
-        </th:block>
-    </a>
+<a th:each="registration: ${registrations}" class="login-button"
+   th:href="@{/oauth2/authorization/{id}(id=${registration.registrationId})}" href="#"
+   th:switch="${registration.registrationId}">
+    <th:block th:case="'oidc'">
+        <img th:src="@{/assets/galaxy.svg}" src="../static/assets/galaxy.svg" width="88px" alt="">
+        <div class="pandora-text">PANDORA</div>
+        Partner Login
+    </th:block>
+    <th:block th:case="'shire'">
+        <img src="https://www.nla.gov.au/themes/custom/nlaweb/logo.svg" alt="National Library of Australia"
+             style="margin-bottom: 4px" width=100px height=102px><br>
+        Staff Login
+    </th:block>
+    <th:block th:case="*">
+        <img th:src="@{/assets/galaxy.svg}" src="../static/assets/galaxy.svg" width="88px" alt=""><br>
+        <th:block th:text="${registration.clientName}" />
+    </th:block>
+</a>
+
+<th:block th:each="registration: ${registrations}">
+    <iframe th:if="${registration.providerDetails.configurationMetadata.containsKey('check_session_iframe')}"
+            th:src="${registration.providerDetails.getAuthorizationUri() + '?response_type=none&prompt=none' +
+                '&client_id=' + registration.getClientId() + '&redirect_uri='} + ${@link.checkSessionReply()}"
+            style="display: none" class="checkSessionIframe"
+            onload="if (this.contentWindow.location.search.match('session_state=')) window.location = this.dataset.loginurl"
+            th:data-loginurl="@{/oauth2/authorization/{id}(id=${registration.registrationId})}"></iframe>
+</th:block>
 </body>

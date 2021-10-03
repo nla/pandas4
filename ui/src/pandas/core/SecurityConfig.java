@@ -77,6 +77,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.mvcMatcher("/login/check-session-reply").headers().frameOptions().sameOrigin().and().mvcMatcher("/**");
+
         if (oidcIssuerUri != null) {
             http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService())
                     .and().loginPage("/login")
@@ -101,6 +103,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/actuator/health").anonymous()
                 .mvcMatchers("/titles/check").permitAll()
                 .mvcMatchers("/login").permitAll()
+                .mvcMatchers("/login/check-session-reply").permitAll()
                 .mvcMatchers("/assets/**").permitAll()
                 .anyRequest().hasRole("stduser");
         if (oidcIssuerUri != null && clientRegistrationRepository != null) {
