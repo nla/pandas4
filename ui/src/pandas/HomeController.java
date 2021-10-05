@@ -20,6 +20,11 @@ import java.util.Set;
 
 @Controller
 public class HomeController {
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "Dashboard";
+    }
+
     @GetMapping("/whoami")
     @ResponseBody
     public Principal whoami(Principal principal) {
@@ -43,13 +48,12 @@ public class HomeController {
         }
         switch (role) {
             case "agadmin":
-                newAuthorities.add(new SimpleGrantedAuthority("ROLE_agadmin"));
-                newAuthorities.addAll(Privileges.byRole.getOrDefault("agadmin", Set.of()));
             case "stduser":
-                newAuthorities.add(new SimpleGrantedAuthority("ROLE_stduser"));
-                newAuthorities.addAll(Privileges.byRole.getOrDefault("stduser", Set.of()));
+            case "infouser":
+                newAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                newAuthorities.addAll(Privileges.byRole.getOrDefault(role, Set.of()));
                 break;
-            default: throw new IllegalArgumentException("this only support stduser and agadmin currently");
+            default: throw new IllegalArgumentException("this only support infouser, stduser and agadmin currently");
         }
         SecurityContextHolder.getContext().setAuthentication(new AuthenticationWrapper(auth, newAuthorities));
         return "redirect:" + (referer != null ? referer : "/");

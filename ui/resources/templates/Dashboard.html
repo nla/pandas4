@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <a th:href="@{/titles/new}" href="TitleEdit.html" class="btn btn-primary" data-keybind="t"><i class="icon title"></i> New Site</a>
+        </nav>
+    </header>
+    <section style="text-align: center; max-width: 500px; margin-top: 50px">
+        <img th:src="@{/assets/globe.svg}">
+        <h1>Ready to archive some websites?</h1>
+        <p>Start by nominating a <a th:href="@{/titles/new}">new site</a>.</p>
+    </section>
+</main>

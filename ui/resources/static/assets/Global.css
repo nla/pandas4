@@ -11,6 +11,12 @@
     --color-link-hover: #2248a1;
     --color-gray-eee: #eee;
     --color-gray-bbb: #bbb;
+
+    --header-height: 50px;
+    --sidebar-width: 180px;
+    --margin-width: 16px;
+    --margin-height: 16px;
+    --gutter: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -87,7 +93,7 @@ body > nav {
     left: 0;
     z-index: 100;
     height: 100%;
-    width: 180px;
+    width: var(--sidebar-width);
     background-color: var(--color-sidebar-background);
     padding: 0;
     border-right: 1px solid var(--color-light-grey);
@@ -120,7 +126,8 @@ body > nav > ul {
 }
 
 body > nav > ul > li > a {
-    padding-left: 1rem;
+    padding-left: var(--margin-width);
+    padding-right: var(--margin-width);
     color: var(--color-dark-grey);
     height: 30px;
     display: flex;
@@ -147,7 +154,10 @@ body > nav > ul > li > a > .icon {
 
 body > main {
     flex-grow: 1;
-    padding: 58px 15px 14px 196px;
+    padding-top: calc(var(--header-height) + var(--margin-height));
+    padding-left: calc(var(--sidebar-width) + var(--margin-width));
+    padding-bottom: var(--margin-height);
+    padding-right: var(--margin-width);
     box-sizing: border-box;
 }
 
@@ -171,7 +181,7 @@ body > main > header, main > form > header {
     align-items: center;
     justify-content: space-between;
     
-    height: 50px;
+    height: var(--header-height);
     padding: 0 15px;
     margin-left: 180px;
     box-sizing: border-box;
@@ -387,11 +397,30 @@ button.btn-danger:hover, a.btn-danger:hover {
 }
 
 /*
+ * Alerts
+ */
+
+.alert-warning {
+    padding: var(--margin-height) var(--margin-width);
+    background: #FFECB3;
+    border: 1px solid #ffe583;
+    border-radius: 5px;
+}
+
+.alert-error {
+    padding: var(--margin-height) var(--margin-width);
+    background: #ffb3b3;
+    border: 1px solid #ff8383;
+    border-radius: 5px;
+}
+
+/*
  * Forms
  */
 
 .form {
     max-width: 800px;
+    margin: 0;
 }
 
 .form fieldset > div {
@@ -400,18 +429,18 @@ button.btn-danger:hover, a.btn-danger:hover {
 }
 
 .form {
-    gap: 12px;
+    gap: var(--gutter);
 }
 
 .form fieldset {
-    gap: 8px;
+    margin: 0;
+    padding: calc(var(--gutter) - 2px);
+    gap: var(--gutter);
 }
 
 .form, .form fieldset {
     display: flex;
     flex-direction: column;
-    padding-top: 8px;
-    padding-bottom: 8px;
 }
 
 .form label {
@@ -433,10 +462,18 @@ button.btn-danger:hover, a.btn-danger:hover {
     margin-bottom: .5rem;
 }
 
+.form input[type=radio] {
+    margin-left: 0;
+}
+
 input[type=date] {
     line-height: 1.5;
     margin-top: .25rem;
     margin-bottom: .25rem;
+}
+
+.help-text {
+    color: #999;
 }
 
 /**

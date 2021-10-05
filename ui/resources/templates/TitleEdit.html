@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${form.id == null ? 'New Title - PANDAS' : 'Edit Title - PANDAS'}">Edit Title - PANDAS</title>
@@ -25,32 +25,39 @@
         <fieldset>
             <div>
                 <label style="flex-grow: 1">
-                    URL
+                    Web address (URL)
                     <input th:field="*{titleUrl}" required class="form-control">
                 </label>
-                <label style="width: 150px">Status
+                <label sec:authorize="hasRole('stduser')" style="width: 150px">Status
                     <select th:field="*{status}">
                         <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
                     </select>
                 </label>
             </div>
-            <div>
-                <div id="urlInfo"></div>
-                <div id="duplicatesWarning"></div>
-            </div>
+            <div id="fetchAlert" class="alert-warning" style="display: none"></div>
+            <div id="duplicateAlert" class="alert-warning" style="display: none"></div>
             <div>
                 <label style="flex-grow: 1">Name <input th:field="*{name}" required class="form-control"></label>
-                <label style="width: 150px">Format
+                <label sec:authorize="hasRole('stduser')" style="width: 150px">Format
                     <select th:field="*{format}">
                         <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
                                 th:selected="${fmt == format}">Integrating</option>
                     </select>
                 </label>
             </div>
+            <div>
+                <label>What to collect
+                    <div style="margin-top: 4px; display: flex; gap: 16px">
+                        <label><input type=radio name=scope checked>All pages on this website</label>
+                        <label><input type=radio name=scope>Just this page</label>
+                        <label><input type=radio name=scope>This page and the pages it links to</label>
+                    </div>
+                </label>
+            </div>
         </fieldset>
 
         <div style="display: flex; gap: 12px">
-            <fieldset>
+            <fieldset sec:authorize="hasRole('stduser')">
                 <legend>Gather</legend>
 
                 <div th:each="collection: ${form.collections}" th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
@@ -161,6 +168,7 @@
                 <legend>Metadata</legend>
                 <label>
                     Subjects
+                    <spanw class="help-text">Select up to three.</spanw>
                     <select th:field="*{subjects}" id="subjects" multiple>
                         <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
                                 th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
@@ -176,7 +184,7 @@
                         </option>
                     </select>
                 </label>
-                <label>
+                <label sec:authorize="hasRole('stduser')">
                     Publisher
                     <input id="publisherId" type="hidden" name="publisher" th:value="*{publisher?.id}">
                     <input id="publisherName" type="hidden" name="publisherName">
@@ -191,8 +199,8 @@
                         <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
                     </select>
                 </label>
-                <label><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
-                <details th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
+                <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
+                <details sec:authorize="hasRole('stduser')" th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
                     <summary>Cataloguing</summary>
                     <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
                     <div>
@@ -204,7 +212,7 @@
             </fieldset>
         </div>
         <fieldset>
-            <label>Notes: <textarea th:field="*{notes}" rows=10></textarea></label>
+            <label>Notes <textarea th:field="*{notes}" rows=10></textarea></label>
         </fieldset>
 
 
@@ -236,114 +244,165 @@
         },
     });
     let titleUrlField = document.getElementById("titleUrl");
-    let publisherSelect = new SlimSelect({
-        select: '#publisher',
-        allowDeselect: true,
-        addable: function (value) {
-            return {
-                text: value,
-                value: "new" // I'd prefer to use null/empty-string but slim-js then overrides it with the text
-            };
-        },
-        ajax: function (search, callback) {
-            if (!search) {
-                callback(false);
-                return;
-            }
-            fetch(publishersEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-                .then(response => response.json())
-                .then(results => {
-                    callback(results.map(publisher => {
-                        return {
-                            value: publisher.id,
-                            text: publisher.name
-                        }
-                    }));
-                }).catch(error => {
+
+    let publisherSelect = null;
+    if (document.getElementById("publisher")) {
+        publisherSelect = new SlimSelect({
+            select: '#publisher',
+            allowDeselect: true,
+            addable: function (value) {
+                return {
+                    text: value,
+                    value: "new" // I'd prefer to use null/empty-string but slim-js then overrides it with the text
+                };
+            },
+            ajax: function (search, callback) {
+                if (!search) {
+                    callback(false);
+                    return;
+                }
+                fetch(publishersEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                    .then(response => response.json())
+                    .then(results => {
+                        callback(results.map(publisher => {
+                            return {
+                                value: publisher.id,
+                                text: publisher.name
+                            }
+                        }));
+                    }).catch(error => {
                     console.log("Publisher search failed: ", error);
                     callback(false)
                 });
-        },
-        onChange: function (info) {
-            if (info.value === "new") {
-                document.getElementById("publisherId").value = "";
-                document.getElementById("publisherName").value = info.text;
-                document.getElementById("publisherType").selectedIndex = 0;
-                document.getElementById("publisherType").required = true;
-                document.getElementById("publisherTypeLabel").style.display = "inherit";
+            },
+            onChange: function (info) {
+                if (info.value === "new") {
+                    document.getElementById("publisherId").value = "";
+                    document.getElementById("publisherName").value = info.text;
+                    document.getElementById("publisherType").selectedIndex = 0;
+                    document.getElementById("publisherType").required = true;
+                    document.getElementById("publisherTypeLabel").style.display = "inherit";
 
-                const urlString = titleUrlField.value;
-                if (urlString) {
-                    const host = new URL(urlString).host;
-                    const publisherTypeOptions = document.getElementById("publisherType").options;
+                    const urlString = titleUrlField.value;
+                    if (urlString) {
+                        const host = new URL(urlString).host;
+                        const publisherTypeOptions = document.getElementById("publisherType").options;
 
-                    // try to preselect an appropraite publisher type based on the domain suffix
-                    outer:
-                    for (let i = 0; i < publisherTypeOptions.length; i++) {
-                        const option = publisherTypeOptions[i];
-                        if (option.dataset.domainsuffixes) {
-                            for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
-                                if (host.endsWith(suffix)) {
-                                    document.getElementById("publisherType").selectedIndex = i;
-                                    break outer;
+                        // try to preselect an appropraite publisher type based on the domain suffix
+                        outer:
+                            for (let i = 0; i < publisherTypeOptions.length; i++) {
+                                const option = publisherTypeOptions[i];
+                                if (option.dataset.domainsuffixes) {
+                                    for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
+                                        if (host.endsWith(suffix)) {
+                                            document.getElementById("publisherType").selectedIndex = i;
+                                            break outer;
+                                        }
+                                    }
                                 }
                             }
-                        }
                     }
+                } else {
+                    document.getElementById("publisherId").value = info.value === undefined ? "" : info.value;
+                    document.getElementById("publisherName").value = "";
+                    document.getElementById("publisherType").selectedIndex = 0;
+                    document.getElementById("publisherType").required = false;
+                    document.getElementById("publisherTypeLabel").style.display = "none";
                 }
-            } else {
-                document.getElementById("publisherId").value = info.value === undefined ? "" : info.value;
-                document.getElementById("publisherName").value = "";
-                document.getElementById("publisherType").selectedIndex = 0;
-                document.getElementById("publisherType").required = false;
-                document.getElementById("publisherTypeLabel").style.display = "none";
             }
-        }
-    });
-
+        });
+    }
     function nameChanged() {
-        if (!publisherSelect.selected()) {
+        if (publisherSelect && !publisherSelect.selected()) {
             publisherSelect.search(document.getElementById("name").value);
         }
     }
     document.getElementById("name").addEventListener("change", nameChanged);
 
     function titleUrlChanged () {
-        document.getElementById("urlInfo").innerText = "Loading...";
-        document.getElementById("urlInfo").style.color = "#555";
-        document.getElementById("duplicatesWarning").innerHTML = '';
+        // document.getElementById("urlInfo").innerText = "Loading...";
+        // document.getElementById("urlInfo").style.color = "#555";
+        // document.getElementById("urlInfo").parentElement.style.display = 'block';
+
+        let fetchAlert = document.getElementById("fetchAlert");
+        fetchAlert.innerHTML = '';
+        fetchAlert.style.display = 'none'
+        document.getElementById("duplicateAlert").innerHTML = '';
+        document.getElementById("duplicateAlert").style.display = 'none'
+
+        if (!titleUrlField.value.match(/^[a-z]+:\/\//)) {
+            titleUrlField.value = "http://" + titleUrlField.value;
+        }
 
         fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
             .then(response => response.json())
             .then(titles => {
                 titles = titles.filter(title => title.id !== thisTitleId);
                 if (titles.length === 0) return;
-                let warningDiv = document.getElementById("duplicatesWarning");
-                warningDiv.appendChild(document.createTextNode("Possible duplicates: "));
+                let warningDiv = document.getElementById("duplicateAlert");
+                warningDiv.innerHtml = '';
+                warningDiv.style.display = 'block';
+                warningDiv.appendChild(document.createTextNode("We have some other records for this website: "));
+                const list = document.createElement("ul");
+                warningDiv.appendChild(list);
                 for (let title of titles) {
                     let link = document.createElement("a");
                     link.href = "../titles/" + title.id;
                     link.innerText = title.name;
                     link.target = "_blank";
-                    warningDiv.appendChild(link);
-                    warningDiv.appendChild(document.createTextNode(", "));
+                    let item = document.createElement("li");
+                    item.appendChild(link);
+                    list.appendChild(item);
                 }
 
                 let link = document.createElement("a");
                 link.href = "../titles?q=" + encodeURIComponent(titleUrlField.value);
-                link.innerText = "more...";
+                link.innerText = "More...";
                 link.target = "_blank";
                 warningDiv.appendChild(link);
             });
 
         fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
+            .catch(reason => console.log(reason))
             .then(response => response.json())
             .then(info => {
-                let contentType = info.contentType == null ? "?" : info.contentType.replace(/\s*;.*/, "");
-                document.getElementById("urlInfo").innerText = info.status + " " + info.reason + " " + contentType;
-                document.getElementById("urlInfo").style.color = info.status < 300 ? "green" : info.status < 400 ? "blue" : "red";
-                if (!document.getElementById("name").value && info.title && info.status < 300) {
-                    document.getElementById("name").value = info.title;
+                function normalize(url) {
+                    return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+                }
+
+                if (info.location && normalize(titleUrlField.value).localeCompare(normalize(info.location), 'en', { sensitivity: 'base' }) === 0) {
+                    titleUrlField.value = info.location;
+                    titleUrlChanged();
+                    return;
+                }
+
+                let alertMessage = null;
+                if (info.status === -1) {
+                    alertMessage = `This website does not exist (DNS lookup failed).`;
+                }else if (info.status === 403) {
+                    alertMessage = `This website may be blocking us (${info.status} ${info.reason}).`;
+                } else if (info.status === 404) {
+                    alertMessage = `This web page does not exist (${info.status} ${info.reason}). Please check the address is correct.`;
+                } else if (info.status >= 400) {
+                    alertMessage = `This web page returned an error (${info.status} ${info.reason}).`;
+                } else if (info.location) {
+                    alertMessage = `This web address redirects to ${info.location}`;
+                }
+
+                if (alertMessage) {
+                    fetchAlert.innerText = alertMessage;
+                    fetchAlert.style.display = 'block';
+                } else {
+                    fetchAlert.innerText = '';
+                    fetchAlert.style.display = 'nonew';
+                }
+
+                let nameTextbox = document.getElementById("name");
+                if (!nameTextbox.value && info.title && info.status < 300) {
+                    nameTextbox.value = info.title.replace(/^Home\s*[-:|]\s*/, '');
+                    if (document.activeElement === nameTextbox) {
+                        nameTextbox.select();
+                    }
                     nameChanged();
                 }
             });

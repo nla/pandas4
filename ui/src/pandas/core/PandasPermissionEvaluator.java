@@ -102,7 +102,7 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 return authorities.contains(EDIT_SUBJECTS);
             case "Title:edit": {
                 if (targetId == null)
-                    return authorities.contains(CREATE_TITLES);
+                    return authorities.contains(NOMINATE_TITLES);
                 Title title = titleRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
                 return hasPermission(authentication, title, permission);
             }

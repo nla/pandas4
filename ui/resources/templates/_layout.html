@@ -15,9 +15,9 @@
 
 <nav th:fragment="sidebar">
     <header>
-        <a href="/">PANDAS 4</a>
+        <a href="/">Web Archive</a>
     </header>
-    <ul>
+    <ul sec:authorize="hasRole('stduser')">
         <li><a href="/"><i class="icon back"></i> To PANDAS 3</a></li>
     </ul>
     <ul>
@@ -28,7 +28,7 @@
         <li><a th:href="@{/titles}" data-keybind=2 th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
                href=TitleSearch.html>
             <i class="icon title"></i>
-            Titles</a>
+            Sites</a>
         <li><a th:href="@{/collections}" data-keybind=3
                th:class="''"
                th:classappend="${#request.servletPath.matches('/collections($|/.*)')}? 'active'"
@@ -42,24 +42,24 @@
                href=SubjectList.html>
             <i class="icon subject"></i>
             Subjects</a>
-        <li><a th:href="@{/publishers}" data-keybind=5
+        <li><a sec:authorize="hasRole('stduser')" th:href="@{/publishers}" data-keybind=5
                th:classappend="${#request.servletPath.matches('/publishers($|/.*)')}? 'active'"
                href=PublisherSearch.html>
             <i class="icon publisher"></i>
             Publishers</a></li>
-        <li><a th:href="@{/pages}" data-keybind=6
+        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/pages}" data-keybind=6
                th:classappend="${#request.servletPath.matches('/pages($|/.*)')}? 'active'"
                href=PageSearch.html>
             <i class="icon http"></i>
             Pages</a></li>
-        <li><a th:href="@{/discoveries}" data-keybind=7 href=discovery/DiscoverySearch.html
+        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/discoveries}" data-keybind=7 href=discovery/DiscoverySearch.html
                th:classappend="${#request.servletPath.matches('/discoveries($|/.*)')}? 'active'">
             <i class="icon discovery"></i> Discover</a></li>
     </ul>
 
     <ul>
         <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${#request.servletPath.matches('/queue')}? 'active'">Gather Queue</a>
-        <li><a th:href="@{/marcexport}">MARC Export</a>
+        <li sec:authorize="hasRole('stduser')"><a th:href="@{/marcexport}">MARC Export</a>
     </ul>
 
     <!-- Gather option administration -->
@@ -71,6 +71,7 @@
     <ul>
         <li style="padding-left: 1rem; color: #999">User: <span sec:authentication="name">jsmith</span></li>
         <li><form th:action="@{/logout}" method=post id=logoutForm></form><a href="#" onclick="document.getElementById('logoutForm').submit()">Sign Out</a></li>
+        <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=infouser}">Become infouser</a></li>
         <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=stduser}">Become stduser</a></li>
         <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=agadmin}">Become agadmin</a></li>
     </ul>

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class Privileges {
-    public static final SimpleGrantedAuthority CREATE_TITLES = new SimpleGrantedAuthority("PRIV_CREATE_TITLES");
+    public static final SimpleGrantedAuthority NOMINATE_TITLES = new SimpleGrantedAuthority("PRIV_NOMINATE_TITLES");
     public static final SimpleGrantedAuthority EDIT_OWN_TITLES = new SimpleGrantedAuthority("PRIV_EDIT_OWN_TITLES");
     public static final SimpleGrantedAuthority EDIT_AGENCY_TITLES = new SimpleGrantedAuthority("PRIV_EDIT_AGENCY_TITLES");
     public static final SimpleGrantedAuthority EDIT_ALL_TITLES = new SimpleGrantedAuthority("PRIV_EDIT_ALL_TITLES");
@@ -31,9 +31,9 @@ public class Privileges {
     public static final SimpleGrantedAuthority SYSADMIN = new SimpleGrantedAuthority("PRIV_SYSADMIN");
 
     public static final Map<String, Set<GrantedAuthority>> byRole = Map.of(
-            "infouser", Set.of(),
+            "infouser", Set.of(NOMINATE_TITLES),
             "suppuser", Set.of(),
-            "stduser", Set.of(CREATE_TITLES, EDIT_OWN_TITLES, EDIT_COLLECTIONS, EDIT_PUBLISHERS, VIEW_GATHER_QUEUE),
+            "stduser", Set.of(EDIT_OWN_TITLES, EDIT_COLLECTIONS, EDIT_PUBLISHERS, VIEW_GATHER_QUEUE),
             "agadmin", Set.of(EDIT_AGENCY_TITLES, EDIT_AGENCY_USERS, EDIT_OWN_AGENCY),
             "panadmin", Set.of(EDIT_ALL_TITLES, BULK_EDIT_TITLES, EDIT_ALL_USERS,
                     EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO, EDIT_DISCOVERY_SOURCES, EDIT_ALL_AGENCIES),

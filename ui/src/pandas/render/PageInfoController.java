@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
@@ -78,6 +79,8 @@ public class PageInfoController {
                 title = handler.title;
             }
             return new PageInfo(response.code(), reason, contentType, charsetName, title, response.header("Location"));
+        } catch (UnknownHostException e) {
+            return new PageInfo(-1, e.getMessage(), null, null, null, null);
         }
     }
 }

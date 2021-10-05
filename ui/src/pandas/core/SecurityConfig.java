@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,7 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService())
                     .and().loginPage("/login")
                     .and().logout().logoutUrl("/logout");
-            //http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+            http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
         }
         if (config.getAutologin() != null) {
             UserDetails user = pandasUserDetailsService.loadUserByUsername(config.getAutologin());
@@ -104,8 +105,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/titles/check").permitAll()
                 .mvcMatchers("/login").permitAll()
                 .mvcMatchers("/login/check-session-reply").permitAll()
+                .mvcMatchers("/logout").permitAll()
                 .mvcMatchers("/assets/**").permitAll()
-                .anyRequest().hasRole("stduser");
+                .mvcMatchers("/whoami").permitAll()
+                .anyRequest().hasAnyRole("infouser");
         if (oidcIssuerUri != null && clientRegistrationRepository != null) {
             auth.and().logout().logoutSuccessHandler((request, response, authentication) -> {
                 OidcClientInitiatedLogoutSuccessHandler handler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
