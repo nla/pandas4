@@ -25,6 +25,7 @@ public class LinkedAccount {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "INDIVIDUAL_ID", nullable = false)
     private Individual individual;
 
     /**
