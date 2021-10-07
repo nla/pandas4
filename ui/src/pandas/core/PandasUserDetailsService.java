@@ -31,7 +31,7 @@ public class PandasUserDetailsService implements UserDetailsService, Authenticat
         return new PandasUser(individual, null, authoritiesFor(individual));
     }
 
-    private Collection<? extends GrantedAuthority> authoritiesFor(Individual individual) {
+    static Collection<? extends GrantedAuthority> authoritiesFor(Individual individual) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         switch (individual.getRole().getType()) {
             case "SysAdmin":
