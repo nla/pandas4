@@ -11,14 +11,18 @@ import java.util.Collections;
 import java.util.Map;
 
 public class PandasUser implements UserDetails, OidcUser {
-    private final Individual individual;
+    private final Long individualId;
+    private final String username;
+    private transient final String password;
     private final OidcUser oidcUser;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public PandasUser(Individual individual, OidcUser oidcUser, Collection<? extends GrantedAuthority> authorities) {
-        this.individual = individual;
+        this.individualId = individual.getId();
+        this.username = individual.getUserid();
         this.oidcUser = oidcUser;
         this.authorities = authorities;
+        this.password = oidcUser == null ? individual.getPassword() : null;
     }
 
     @Override
@@ -31,18 +35,14 @@ public class PandasUser implements UserDetails, OidcUser {
         return authorities;
     }
 
-    public Individual getIndividual() {
-        return individual;
-    }
-
     @Override
     public String getPassword() {
-        return individual.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return individual.getUserid();
+        return username;
     }
 
     @Override
@@ -83,5 +83,9 @@ public class PandasUser implements UserDetails, OidcUser {
     @Override
     public String getName() {
         return getUsername();
+    }
+
+    public Long getIndividualId() {
+        return individualId;
     }
 }
