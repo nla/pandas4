@@ -83,6 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.mvcMatcher("/login/check-session-reply").headers().frameOptions().sameOrigin().and().mvcMatcher("/**");
         if (oidcIssuerUri != null) {
             System.out.println("setting user service");
             http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService())
@@ -90,7 +91,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .and().logout().logoutUrl("/logout");
             http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
         }
-//        http.mvcMatcher("/login/check-session-reply").headers().frameOptions().sameOrigin().and().mvcMatcher("/**");
         if (config.getAutologin() != null) {
             UserDetails user = pandasUserDetailsService.loadUserByUsername(config.getAutologin());
             AbstractPreAuthenticatedProcessingFilter filter = new AbstractPreAuthenticatedProcessingFilter() {
