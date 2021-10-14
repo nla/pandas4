@@ -71,7 +71,7 @@ public class BrowsertrixGatherer implements Backend {
         }
         command.addAll(List.of("webrecorder/browsertrix-crawler",
                 "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
-                "--generatecdx", "--logging", "pywb"));
+                "--generatecdx", "--logging", "none"));
         for (var seed : instance.getTitle().getAllSeeds()) {
             if (!seed.startsWith("http://") && !seed.startsWith("https://")) {
                 log.warn("Ignoring non http/https seed: {}", seed);
@@ -122,15 +122,14 @@ public class BrowsertrixGatherer implements Backend {
     public void archive(Instance instance) throws IOException, InterruptedException {
         Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
         Path collectionDir = workingDir.resolve("collections").resolve(collectionName(instance));
-        var warcFiles = Files.list(collectionDir)
+        var warcs = Files.list(collectionDir)
                 .filter(f -> f.getFileName().toString().endsWith(".warc.gz"))
                 .map(this::renameWarcIfNecessary)
                 .collect(toList());
-        Path pagesLogFile = collectionDir.resolve("pages").resolve("pages.jsonl");
-        if (Files.exists(pagesLogFile)) {
-            repository.storeArtifactPaths(instance, List.of(pagesLogFile));
-        }
-        repository.storeWarcs(instance, warcFiles);
+        var artifacts = List.of(collectionDir.resolve("pages").resolve("pages.jsonl"),
+                        workingDir.resolve("stdio.log")).stream().filter(Files::exists).collect(toList());
+        repository.storeArtifactPaths(instance, artifacts);
+        repository.storeWarcs(instance, warcs);
     }
 
     // rename warcs from nla.arc-12345-20100830-1234_0.warc.gz
