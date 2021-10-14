@@ -130,6 +130,7 @@ public class BrowsertrixGatherer implements Backend {
                         workingDir.resolve("stdio.log")).stream().filter(Files::exists).collect(toList());
         repository.storeArtifactPaths(instance, artifacts);
         repository.storeWarcs(instance, warcs);
+        delete(instance);
     }
 
     // rename warcs from nla.arc-12345-20100830-1234_0.warc.gz
