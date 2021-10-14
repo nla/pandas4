@@ -97,7 +97,7 @@ public class BrowsertrixGatherer implements Backend {
                 }
             }
 
-            log.info("HTTrack {} returned {}", instance.getHumanId(), process.exitValue());
+            log.info(getGatherMethod() + " {} returned {}", instance.getHumanId(), process.exitValue());
             if (process.exitValue() != 0) {
                 System.err.println(Files.readString(logFile));
                 throw new GatherException("Browsertrix exited with status " + process.exitValue());
