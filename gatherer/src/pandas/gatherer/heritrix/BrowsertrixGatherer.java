@@ -64,6 +64,10 @@ public class BrowsertrixGatherer implements Backend {
         }
 
         Path logFile = workingDir.resolve("stdio.log");
+
+        int limit = 1000;
+        int depth = 0;
+
         var command = new ArrayList<String>();
         command.addAll(List.of("podman", "run", "--rm", "-v", workingDir + ":/crawls/"));
         if (config.getPodmanOptions() != null) {
@@ -71,7 +75,8 @@ public class BrowsertrixGatherer implements Backend {
         }
         command.addAll(List.of("webrecorder/browsertrix-crawler",
                 "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
-                "--generatecdx", "--logging", "none"));
+                "--generatecdx", "--logging", "none", "--limit", String.valueOf(limit),
+                "--depth", String.valueOf(depth)));
         for (var seed : instance.getTitle().getAllSeeds()) {
             if (!seed.startsWith("http://") && !seed.startsWith("https://")) {
                 log.warn("Ignoring non http/https seed: {}", seed);
