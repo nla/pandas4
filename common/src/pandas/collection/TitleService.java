@@ -188,8 +188,9 @@ public class TitleService {
         }
         titleGather.setActiveProfile(form.getActiveProfile()); // TODO: do we need to swap httrack config?
         titleGather.setGatherUrl(title.getSeedUrl() != null && !title.getSeedUrl().isBlank() ? title.getSeedUrl() : title.getTitleUrl());
-        titleGather.setSchedule(form.getGatherSchedule());
         titleGather.setMethod(form.getGatherMethod());
+        titleGather.setSchedule(form.getGatherSchedule());
+        titleGather.setScope(form.getScope());
         if (seeds.length > 1) {
             titleGather.setAdditionalUrls(String.join(" ", Arrays.copyOfRange(seeds, 1, seeds.length)));
         } else {

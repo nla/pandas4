@@ -43,6 +43,7 @@ public class TitleEditForm {
     private String publisherName;
     private PublisherType publisherType;
     private Profile activeProfile;
+    private Scope scope;
 
     public TitleEditForm() {}
 
@@ -73,6 +74,7 @@ public class TitleEditForm {
             setGatherMethod(gather.getMethod());
             setGatherSchedule(gather.getSchedule());
             setOneoffDates(gather.getOneoffDates().stream().map(GatherDate::getDate).collect(toList()));
+            setScope(gather.getScope());
             if (gather.getAdditionalUrls() != null && !gather.getAdditionalUrls().isBlank()) {
                 setSeedUrls(getSeedUrls() + "\n" + gather.getAdditionalUrls());
             }
@@ -245,5 +247,13 @@ public class TitleEditForm {
 
     public void setActiveProfile(Profile activeProfile) {
         this.activeProfile = activeProfile;
+    }
+
+    public Scope getScope() {
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+        this.scope = scope;
     }
 }

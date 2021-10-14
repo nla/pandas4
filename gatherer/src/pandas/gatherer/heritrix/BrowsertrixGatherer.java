@@ -4,10 +4,7 @@ import org.apache.commons.io.file.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import pandas.gather.GatherMethod;
-import pandas.gather.Instance;
-import pandas.gather.InstanceService;
-import pandas.gather.State;
+import pandas.gather.*;
 import pandas.gatherer.core.Backend;
 import pandas.gatherer.core.GatherException;
 import pandas.gatherer.core.PywbService;
@@ -66,7 +63,12 @@ public class BrowsertrixGatherer implements Backend {
         Path logFile = workingDir.resolve("stdio.log");
 
         int limit = 1000;
-        int depth = 0;
+        int depth = -1;
+
+        Scope scope = instance.getTitle().getGather().getScope();
+        if (scope != null && scope.getDepth() != null) {
+            depth = scope.getDepth();
+        }
 
         var command = new ArrayList<String>();
         command.addAll(List.of("podman", "run", "--rm", "-v", workingDir + ":/crawls/"));

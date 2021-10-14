@@ -116,6 +116,10 @@ public class TitleGather {
                     @Index(name = "t_gather_arg_option_argument_id_index", columnList = "OPTION_ARGUMENT_ID") })
     private List<OptionArgument> arguments = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "SCOPE_ID")
+    private Scope scope;
+
     public TitleGather() {
     }
 
@@ -371,5 +375,13 @@ public class TitleGather {
         }
 
         return sb.toString();
+    }
+
+    public Scope getScope() {
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+        this.scope = scope;
     }
 }

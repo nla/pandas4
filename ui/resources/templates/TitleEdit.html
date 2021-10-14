@@ -48,9 +48,10 @@
             <div>
                 <label>What to collect
                     <div style="margin-top: 4px; display: flex; gap: 16px">
-                        <label><input type=radio name=scope checked>All pages on this website</label>
-                        <label><input type=radio name=scope>Just this page</label>
-                        <label><input type=radio name=scope>This page and the pages it links to</label>
+                        <label th:each="scope : ${allScopes}">
+                            <input type=radio name=scope th:checked="${form.scope == scope}" th:value="${scope.id}">
+                            <th:block th:text="${scope.name}">All pages on this website</th:block>
+                        </label>
                     </div>
                 </label>
             </div>

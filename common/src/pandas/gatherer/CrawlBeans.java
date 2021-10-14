@@ -9,6 +9,7 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.SAXException;
 import pandas.gather.Instance;
 import pandas.gather.Profile;
+import pandas.gather.Scope;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -69,10 +70,20 @@ public class CrawlBeans {
         if (gathererBindAddress != null) {
             setBeanProperty(doc, "fetchHttp", "httpBindAddress", gathererBindAddress);
         }
+
+        String overrides = "";
+
+        Scope scope = instance.getTitle().getGather().getScope();
+        if (scope != null && scope.getDepth() != null) {
+            overrides += "tooManyHopsDecideRule.maxHops=" + scope.getDepth() + "\n";
+        }
+
         Profile profile = instance.getTitle().getGather().getActiveProfile();
         if (profile != null && profile.getHeritrixConfig() != null) {
-            setBeanPropertyMultiline(doc, "simpleOverrides", "properties", profile.getHeritrixConfig());
+            overrides += profile.getHeritrixConfig();
         }
+
+        setBeanPropertyMultiline(doc, "simpleOverrides", "properties", overrides);
         xpath(doc, "/beans:beans/beans:bean[@id='seeds']/beans:property[@name='textSource']/beans:bean/beans:property[@name='value']/beans:value")
                 .setTextContent(String.join("\n", instance.getTitle().getAllSeeds()));
 
