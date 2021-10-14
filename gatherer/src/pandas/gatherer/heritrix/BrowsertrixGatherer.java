@@ -10,6 +10,7 @@ import pandas.gatherer.core.GatherException;
 import pandas.gatherer.core.PywbService;
 import pandas.gatherer.core.WorkingArea;
 import pandas.gatherer.repository.Repository;
+import pandas.util.Strings;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -62,7 +63,6 @@ public class BrowsertrixGatherer implements Backend {
 
         Path logFile = workingDir.resolve("stdio.log");
 
-        int limit = 1000;
         int depth = -1;
 
         Scope scope = instance.getTitle().getGather().getScope();
@@ -77,8 +77,14 @@ public class BrowsertrixGatherer implements Backend {
         }
         command.addAll(List.of("webrecorder/browsertrix-crawler",
                 "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
-                "--generatecdx", "--logging", "none", "--limit", String.valueOf(limit),
+                "--generatecdx", "--logging", "none", "--limit", String.valueOf(config.getPageLimit()),
                 "--depth", String.valueOf(depth)));
+
+        if (!Strings.isNullOrBlank(config.getUserAgentSuffix())) {
+            command.add("--userAgentSuffix");
+            command.add(config.getUserAgentSuffix());
+        }
+
         for (var seed : instance.getTitle().getAllSeeds()) {
             if (!seed.startsWith("http://") && !seed.startsWith("https://")) {
                 log.warn("Ignoring non http/https seed: {}", seed);
