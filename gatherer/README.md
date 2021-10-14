@@ -29,9 +29,22 @@ Configuration is specified through environment variables:
     HTTRACK_WORKERS=20
     HTTRACK_EXECUTABLE=/usr/bin/httrack
 
+Gather Methods
+--------------
+
+### Browsertrix setup
+
+PANDAS runs the browsertrix-crawler container using podman in rootless mode. This needs a little setup:
+~~~~
+    yum install -y podman
+    echo pandas:200000:65536 >> /etc/subuid
+    echo pandas:200000:65536 >> /etc/subgid
+    sudo -u pandas podman system migrate
+    sudo -u pandas podman pull webrecorder/browsertrix-crawler
+
 Architecture
 ------------
-There are separate backends for each of the [HTTrack](src/pandas/gatherer/httrack),
+~~~~There are separate backends for each of the [HTTrack](src/pandas/gatherer/httrack),
 [Heritrix](src/pandas/gatherer/heritrix) and [upload](src/pandas/gatherer/httrack/UploadGatherer.java) crawl methods
 plus a specialised ["scripter"](src/pandas/gatherer/scripter) module for other tasks like find and replace. Each
 backend has an associated thread pool. Worker threads poll the database for new jobs to do. The 
