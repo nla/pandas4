@@ -35,7 +35,7 @@ Gather Methods
 ### Browsertrix setup
 
 PANDAS runs the browsertrix-crawler container using podman in rootless mode. This needs a little setup:
-~~~~
+
     yum install -y podman
     echo pandas:200000:65536 >> /etc/subuid
     echo pandas:200000:65536 >> /etc/subgid
