@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class BrowsertrixConfig {
     private String podmanOptions;
     private int pageLimit = 1000;
-    private String userAgentSuffix = "National Library of Australia Legal Deposit Request; +http://www.nla.gov.au/legal-deposit/request";
+    private String userAgentSuffix = "nla.gov.au_bot (National Library of Australia Legal Deposit Request; +http://www.nla.gov.au/legal-deposit/request)";
 
     public String getPodmanOptions() {
         return podmanOptions;
