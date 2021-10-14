@@ -11,6 +11,7 @@ public class GatherMethod {
     public static final String HTTRACK = "HTTrack";
     public static final String UPLOAD = "Upload";
     public static final String HERITRIX = "Heritrix";
+    public static final String BROWSERTRIX = "Browsertrix";
 
     @Id
     @Column(name = "GATHER_METHOD_ID")

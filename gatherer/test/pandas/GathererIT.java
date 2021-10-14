@@ -172,6 +172,7 @@ public class GathererIT {
             Thread.sleep(100);
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
+
         assertEquals(State.GATHERED, instance.getState().getName());
 
         // archive the instance
@@ -184,6 +185,54 @@ public class GathererIT {
         }
         assertEquals(State.ARCHIVED, instance.getState().getName());
         assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
+    }
+
+    @Test
+//    @Timeout(value = 10)
+    public void testBrowsertrixCrawl() throws InterruptedException {
+        mockServer.when(request().withMethod("GET").withPath("/target/")).respond(response().withBody("test page"));
+        mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
+        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
+        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
+
+        TitleEditForm form = titleService.newTitleForm(List.of(), List.of());
+        form.setName("Browsertrix title");
+        form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.BROWSERTRIX).orElseThrow());
+        form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
+        form.setOneoffDates(List.of(Instant.now()));
+        Title title = titleService.save(form, null);
+
+        Tep tep = new Tep();
+        tep.setTitle(title);
+        title.setTep(tep);
+        titleRepository.save(title);
+
+        // wait for instance to be created
+        List<Instance> instances = instanceRepository.findByTitle(title);
+        while (instances.isEmpty()) {
+            Thread.sleep(100);
+            instances = instanceRepository.findByTitle(title);
+        }
+        Instance instance = instances.get(0);
+
+        // wait until gathering finishes
+        while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState().getName())) {
+            Thread.sleep(100);
+            instance = instanceRepository.findById(instance.getId()).orElseThrow();
+        }
+        assertEquals(State.GATHERED, instance.getState().getName());
+
+        // archive the instance
+        instanceService.updateState(instance, State.ARCHIVING);
+
+        // wait until archiving finishes
+        while (instance.getState().getName().equals(State.ARCHIVING)) {
+            Thread.sleep(100);
+            instance = instanceRepository.findById(instance.getId()).orElseThrow();
+        }
+        assertEquals(State.ARCHIVED, instance.getState().getName());
+        assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
+
     }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {

@@ -128,19 +128,14 @@ public class HttrackGatherer implements Backend {
 	}
 
 	@Override
-	public String version() {
-		try {
-			Process process = new ProcessBuilder(httrackConfig.getExecutable().toString(), "-#h")
-					.redirectOutput(ProcessBuilder.Redirect.PIPE)
-					.start();
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), UTF_8))) {
-				return reader.readLine();
-			} finally {
-				process.destroyForcibly();
-			}
-		} catch (IOException e) {
-			log.warn("Failed to get HTTrack version", e);
-			return "HTTrack version unknown";
+	public String version() throws IOException {
+		Process process = new ProcessBuilder(httrackConfig.getExecutable().toString(), "-#h")
+				.redirectOutput(ProcessBuilder.Redirect.PIPE)
+				.start();
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), UTF_8))) {
+			return reader.readLine();
+		} finally {
+			process.destroyForcibly();
 		}
 	}
 

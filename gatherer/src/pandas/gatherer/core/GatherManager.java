@@ -9,6 +9,7 @@ import pandas.gather.*;
 
 import javax.annotation.PreDestroy;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -170,8 +171,14 @@ public class GatherManager implements AutoCloseable {
 		if (version == null) {
 		    StringBuilder sb = new StringBuilder();
 		    for (Backend backend: backends) {
-		        sb.append(backend.version()).append("\n");
-            }
+				sb.append(backend.getGatherMethod() + " ");
+				try {
+					sb.append(backend.version()).append("\n");
+				} catch (IOException e) {
+					log.warn("Error getting " + backend.getGatherMethod() + " version", e);
+					sb.append("unknown\n");
+				}
+			}
             version = sb.toString();
 		}
 		return version;

@@ -143,13 +143,8 @@ public class HeritrixGatherer implements Backend {
     }
 
     @Override
-    public String version() {
-        try {
-            return "Heritrix version " + heritrix.getEngine().heritrixVersion;
-        } catch (IOException e) {
-            log.warn("Unable to get Heritrix version", e);
-            return "Heritrix version unknown";
-        }
+    public String version() throws IOException {
+        return heritrix.getEngine().heritrixVersion;
     }
 
     @Override

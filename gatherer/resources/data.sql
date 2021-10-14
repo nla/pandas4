@@ -2,7 +2,8 @@ insert into GATHER_METHOD (GATHER_METHOD_ID, METHOD_DESC, METHOD_NAME)
 values  (1, null, 'HTTrack'),
         (2, null, 'Upload'),
         (3, null, 'Heritrix'),
-        (4, null, 'Bulk');
+        (4, null, 'Bulk'),
+        (5, null, 'Browsertrix');
 
 insert into GATHER_SCHEDULE (GATHER_SCHEDULE_ID, SCHEDULE_NAME, YEARS, MONTHS, DAYS, DAYS_OF_WEEK, HOURS_OF_DAY)
 values  (1, 'None', 0, 0, 0, 0, 0),

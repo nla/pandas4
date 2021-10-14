@@ -15,7 +15,7 @@ public interface Backend {
 
     void delete(Instance instance) throws IOException;
 
-    String version();
+    String version() throws IOException;
 
     default void shutdown() {
     }

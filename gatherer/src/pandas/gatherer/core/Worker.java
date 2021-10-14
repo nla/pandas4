@@ -52,7 +52,7 @@ class Worker implements Runnable {
 			log.info(Thread.currentThread().getName() + " " + e2 + " in Gatherer " + Thread.currentThread().getName());
 			e2.printStackTrace();
 		}
-		log.info("Shutdown");
+		log.debug("Shutdown");
 	}
 	
 	/**
