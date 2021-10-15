@@ -5,6 +5,9 @@ import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Scope {
+    public static final long ALL_PAGES_ON_THIS_WEBSITE_ID = 1L;
+    public static final long DEFAULT_ID = ALL_PAGES_ON_THIS_WEBSITE_ID;
+
     @Id
     @Column(name = "SCOPE_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SCOPE_SEQ")

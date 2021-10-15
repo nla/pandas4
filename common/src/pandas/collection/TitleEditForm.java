@@ -4,7 +4,6 @@ import pandas.gather.*;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +17,12 @@ public class TitleEditForm {
     private String titleUrl;
     @NotBlank
     private String name;
-    @NotNull
     private GatherSchedule gatherSchedule;
 
     private GatherMethod gatherMethod;
 
     private List<Instant> oneoffDates = new ArrayList<>();
 
-    @NotNull
     private Format format;
     private String anbdNumber;
     private String localReference;
@@ -33,11 +30,11 @@ public class TitleEditForm {
     private List<Collection> collections;
     private List<Subject> subjects;
     @Column(name = "IS_CATALOGUING_NOT_REQ")
-    private boolean cataloguingNotRequired;
+    private boolean cataloguingNotRequired = true;
     private String notes;
     private String seedUrls;
     private Status status;
-    private boolean legalDeposit;
+    private boolean legalDeposit = true;
 
     private Publisher publisher;
     private String publisherName;
@@ -209,11 +206,11 @@ public class TitleEditForm {
         this.oneoffDates = oneoffDates;
     }
 
-    public boolean isLegalDeposit() {
+    public Boolean isLegalDeposit() {
         return legalDeposit;
     }
 
-    public void setLegalDeposit(boolean legalDeposit) {
+    public void setLegalDeposit(Boolean legalDeposit) {
         this.legalDeposit = legalDeposit;
     }
 

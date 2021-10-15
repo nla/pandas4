@@ -9,10 +9,7 @@ import pandas.agency.Agency;
 import pandas.core.Individual;
 import pandas.core.Organisation;
 import pandas.core.Utils;
-import pandas.gather.GatherMethodRepository;
-import pandas.gather.GatherScheduleRepository;
-import pandas.gather.TitleGather;
-import pandas.gather.TitleGatherRepository;
+import pandas.gather.*;
 import pandas.util.Strings;
 
 import java.time.Instant;
@@ -31,12 +28,13 @@ public class TitleService {
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
     private final PublisherRepository publisherRepository;
+    private final ScopeRepository scopeRepository;
 
     public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
                         StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
-                        GatherScheduleRepository gatherScheduleRepository, PublisherRepository publisherRepository) {
+                        GatherScheduleRepository gatherScheduleRepository, PublisherRepository publisherRepository, ScopeRepository scopeRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
@@ -46,6 +44,7 @@ public class TitleService {
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.publisherRepository = publisherRepository;
+        this.scopeRepository = scopeRepository;
     }
 
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
@@ -63,11 +62,12 @@ public class TitleService {
     public TitleEditForm newTitleForm(List<Collection> collections, List<Subject> subjects) {
         TitleEditForm form = new TitleEditForm();
         form.setCollections(collections);
-        form.setFormat(formatRepository.findById(Format.INTEGRATING_ID).orElseThrow());
-        form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
-        form.setGatherSchedule(gatherScheduleRepository.findByName("Annual").orElseThrow());
-        form.setSubjects(subjects);
+        form.setFormat(formatRepository.findById(Format.DEFAULT_ID).orElseThrow());
+        form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
+        form.setGatherSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
+        form.setScope(scopeRepository.findById(Scope.DEFAULT_ID).orElseThrow());
         form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+        form.setSubjects(subjects);
         form.setLegalDeposit(true);
         form.setCataloguingNotRequired(true);
 
@@ -94,13 +94,13 @@ public class TitleService {
         title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
         title.setCollections(form.getCollections());
-        title.setFormat(form.getFormat());
+        title.setFormat(form.getFormat() == null ? formatRepository.findById(Format.DEFAULT_ID).orElseThrow() : form.getFormat());
         title.setLegalDeposit(form.isLegalDeposit());
         title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
         title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
         title.setName(form.getName());
         title.setShortDisplayName(form.getName().length() > 60 ? (form.getName().substring(0, 60) + "...") : form.getName());
-        title.setNotes(form.getNotes());
+        title.setNotes(Strings.emptyToNull(form.getNotes()));
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
         boolean statusChanged = false;
@@ -109,7 +109,7 @@ public class TitleService {
             statusChanged = true;
         }
         if (title.getStatus() == null) {
-            title.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+            title.setStatus(statusRepository.findById(Status.NOMINATED_ID).orElseThrow());
             statusChanged = true;
         }
 
@@ -195,6 +195,11 @@ public class TitleService {
             titleGather.setAdditionalUrls(String.join(" ", Arrays.copyOfRange(seeds, 1, seeds.length)));
         } else {
             titleGather.setAdditionalUrls(null);
+        }
+
+        if (titleGather.getMethod() == null) {
+            titleGather.setMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
+            titleGather.setSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
         }
 
         titleGather.replaceOneoffDates(form.getOneoffDates());

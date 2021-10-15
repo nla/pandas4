@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Table(name = "FORMAT")
 public class Format {
     public static final long INTEGRATING_ID = 3;
+    public static final long DEFAULT_ID = INTEGRATING_ID;
 
     @Id
     @Column(name = "FORMAT_ID")

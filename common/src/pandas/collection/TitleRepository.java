@@ -156,4 +156,10 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     Optional<Title> findByPi(long pi);
 
     List<Title> findByTitleUrlIn(List<String> urls);
+
+    @Query("select t from Title t\n" +
+            " join t.statusHistories sh\n" +
+            " where sh.individual = :nominator and sh.status.name = 'nominated'\n" +
+            " order by t.regDate desc")
+    List<Title> findByNominator(@Param("nominator") Individual nominator, Pageable pageable);
 }

@@ -20,6 +20,8 @@ import static java.util.stream.Collectors.joining;
 @Entity
 @Table(name = "GATHER_SCHEDULE")
 public class GatherSchedule implements Comparable<GatherSchedule> {
+    public static final String ANNUAL = "Annual";
+    public static final String DEFAULT = ANNUAL;
     private static final ZonedDateTime referenceTime = ZonedDateTime.parse("2020-01-01T00:00:00Z");
 
     @Id

@@ -13,6 +13,8 @@ public class GatherMethod {
     public static final String HERITRIX = "Heritrix";
     public static final String BROWSERTRIX = "Browsertrix";
 
+    public static final String DEFAULT = HERITRIX;
+
     @Id
     @Column(name = "GATHER_METHOD_ID")
     @GenericField(aggregable = Aggregable.YES)
