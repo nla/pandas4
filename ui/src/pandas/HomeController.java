@@ -20,11 +20,6 @@ import java.util.Set;
 
 @Controller
 public class HomeController {
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "Dashboard";
-    }
-
     @GetMapping("/whoami")
     @ResponseBody
     public Principal whoami(Principal principal) {
