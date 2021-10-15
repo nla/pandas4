@@ -120,12 +120,12 @@ body > nav > header a:hover {
 }
 
 /* nav menu */
-body > nav > ul {
+body > nav ul {
     list-style: none;
     padding: 0;
 }
 
-body > nav > ul > li > a {
+body > nav ul > li > a {
     padding-left: var(--margin-width);
     padding-right: var(--margin-width);
     color: var(--color-dark-grey);
@@ -134,17 +134,17 @@ body > nav > ul > li > a {
     align-items: center;
 }
 
-body > nav > ul > li > a.active {
+body > nav ul > li > a.active {
     background: var(--color-light-grey);
     font-weight: bold;
 }
 
-body > nav > ul > li > a:hover {
+body > nav ul > li > a:hover {
     background: var(--color-sidebar-hover);
     text-decoration: none;
 }
 
-body > nav > ul > li > a > .icon {
+body > nav ul > li > a > .icon {
     margin-right: 8px;
 }
 
