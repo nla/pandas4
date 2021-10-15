@@ -65,7 +65,7 @@ public class TitleService {
         form.setFormat(formatRepository.findById(Format.DEFAULT_ID).orElseThrow());
         form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
         form.setGatherSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
-        form.setScope(scopeRepository.findById(Scope.DEFAULT_ID).orElseThrow());
+        form.setScope(scopeRepository.findById(Scope.DEFAULT_ID).orElse(null));
         form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
         form.setSubjects(subjects);
         form.setLegalDeposit(true);

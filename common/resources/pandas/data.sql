@@ -35,6 +35,11 @@ values  ('Government bodies and agencies', 'Government', 1),
         ('Use when unknown', 'Other', 6);
 alter sequence publisher_type_seq restart with 7;
 
+insert into SCOPE (SCOPE_ID, DEPTH, NAME)
+values  (1, null, 'All pages on this website'),
+        (2, 0, 'Just this page'),
+        (3, 1, 'This page and the pages it links to');
+
 insert into STATE (STATE_ID, STATE_NAME)
 values (1, 'archived'),
        (2, 'awaitGather'),

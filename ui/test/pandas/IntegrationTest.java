@@ -37,6 +37,7 @@ public abstract class IntegrationTest {
                                      @Autowired GatherMethodRepository gatherMethodRepository,
                                      @Autowired GatherScheduleRepository gatherScheduleRepository,
                                      @Autowired IndividualRepository individualRepository,
+                                     @Autowired ScopeRepository scopeRepository,
                                      @Autowired StateRepository stateRepository,
                                      @Autowired StatusRepository statusRepository) {
         if (individualRepository.findByUserid("user").isPresent()) {
@@ -46,6 +47,9 @@ public abstract class IntegrationTest {
         formatRepository.saveAll(List.of("Mono", "Serial", "Integrating").stream().map(Format::new).collect(toList()));
         gatherMethodRepository.saveAll(List.of(GatherMethod.HTTRACK, GatherMethod.UPLOAD, GatherMethod.HERITRIX).stream().map(GatherMethod::new).collect(toList()));
         gatherScheduleRepository.save(new GatherSchedule("Annual", 1, 0, 0));
+        scopeRepository.saveAll(List.of(new Scope("All pages on this website", null),
+                        new Scope("Just this page", 0),
+                        new Scope("This page and the pages it links to", 1)));
         stateRepository.saveAll(List.of("archived", "awaitGather", "checked", "checking", "creation", "deleted",
                 "deleting", "gatherPause", "gatherProcess", "gathered", "reserved11", "gathering", "archiving",
                 "failed").stream().map(State::new).collect(toList()));

@@ -21,6 +21,14 @@ public class Scope {
     @Column(name = "DEPTH")
     private Integer depth;
 
+    public Scope() {
+    }
+
+    public Scope(String name, Integer depth) {
+        this.name = name;
+        this.depth = depth;
+    }
+
     public Long getId() {
         return id;
     }
