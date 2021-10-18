@@ -21,11 +21,11 @@
         <li><a href="/"><i class="icon back"></i> To PANDAS 3</a></li>
     </ul>
     <ul>
-        <li><a th:href="@{/}" data-keybind=1 th:classappend="${#request.servletPath.matches('/$|/worktrays/.*') && !#request.servletPath.matches('/worktrays/[^/]*/gathered')}? 'active'"
+        <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a th:href="@{/}" data-keybind=1 th:classappend="${#request.servletPath.matches('/$|/worktrays/.*') && !#request.servletPath.matches('/worktrays/[^/]*/gathered')}? 'active'"
                href=worktrays/Worktrays.html>
             <i class="icon worktrays"></i>
             Worktrays</a>
-        <li><a th:href="@{/worktrays/{username}/gathered(username=${#authentication.name})}" data-keybind=2
+        <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a th:href="@{/worktrays/{username}/gathered(username=${#authentication.name})}" data-keybind=2
                th:classappend="${#request.servletPath.matches('/worktrays/[^/]*/gathered|/instances/[^/]+/process')}? 'active'"
                href=worktrays/Gathered.html>
            <i class="icon fact_check"></i>

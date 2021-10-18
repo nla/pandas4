@@ -95,7 +95,7 @@ public class TitleService {
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
         title.setCollections(form.getCollections());
         title.setFormat(form.getFormat() == null ? formatRepository.findById(Format.DEFAULT_ID).orElseThrow() : form.getFormat());
-        title.setLegalDeposit(form.isLegalDeposit());
+        title.setLegalDeposit(form.getLegalDeposit());
         title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
         title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
         title.setName(form.getName());

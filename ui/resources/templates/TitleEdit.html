@@ -11,7 +11,7 @@
 <main>
     <form method=post class=form th:object="${form}" th:action="@{/titles}" onsubmit="return !!window.loaded">
         <header>
-            <div>
+            <div th:if="${form.id != null}">
                 <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
                 <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
             </div>
@@ -22,7 +22,36 @@
         <input type=hidden th:field="*{id}">
         <input type=hidden name="backlink" th:value="${backlink}">
 
+        <div th:if="${form.id == null}">
+            <h2 style="margin-top: 0; margin-bottom: var(--gutter)">Archive an Australian Website</h2>
+            <p>
+                Use this form to add a website or web page to the Australian Web Archive.
+                <th:block sec:authorize="!hasAuthority('PRIV_SELECT_TITLES')">
+                    Submissions are reviewed by the web archiving team.
+                </th:block>
+            </p>
+
+            <div style="padding: var(--gutter); background: #f7f7f7">
+                Under legal deposit the National Library archives websites:
+                <ul>
+                    <li>That have a .au web address; or
+                    <li>That are published in Australia.
+                </ul>
+                We are unable to include in the web archive:
+                <ul style="margin-bottom: 0">
+                    <li>Sites that are predominantly audio-visual such as music or video streaming services.
+                    <li>Pages behind a login or otherwise not publicly accessible.
+                </ul>
+            </div>
+
+            <p style="margin-bottom: 0; color: #555"><span style="font-size: 140%; margin-top: -2px; float: left; margin-left: 4px; margin-right: 12px">🛈</span>
+                Due to technical and legal constraints, some websites or web pages may not be archived, may appear
+                incomplete or may not function exactly as the original.
+            </p>
+        </div>
+
         <fieldset>
+
             <div>
                 <label style="flex-grow: 1">
                     Web address (URL)
@@ -37,7 +66,9 @@
             <div id="fetchAlert" class="alert-warning" style="display: none"></div>
             <div id="duplicateAlert" class="alert-warning" style="display: none"></div>
             <div>
-                <label style="flex-grow: 1">Name <input th:field="*{name}" required class="form-control"></label>
+                <label style="flex-grow: 1">
+                    Name
+                    <input th:field="*{name}" required class="form-control"></label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Format
                     <select th:field="*{format}">
                         <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
@@ -57,29 +88,128 @@
             </div>
         </fieldset>
 
-        <div style="display: flex; gap: 12px">
-            <fieldset sec:authorize="hasRole('stduser')">
-                <legend>Gather</legend>
-
-                <div th:each="collection: ${form.collections}" th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
-                     style="color: #555; margin-bottom: 8px; font-style: italic; ">
-                    Also gathered <strong th:text="${collection.gatherSchedule.name}">Daily</strong> as part of
-                    <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" class="collection-link">Cool Sites</a>
+        <fieldset style="flex-grow: 1">
+            <legend>Metadata</legend>
+            <label>
+                Subjects
+                <select th:field="*{subjects}" id="subjects" multiple>
+                    <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
+                            th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                            th:data-fullname="${subject.fullName}">Arts
+                    </option>
+                </select>
+            </label>
+            <label>
+                Collections (optional)
+                <select th:field="*{collections}" id="collections" multiple>
+                    <option th:each="collection: ${form.collections}" th:value="${collection.id}"
+                            th:text="${collection.fullName}" selected>Arts
+                    </option>
+                </select>
+            </label>
+            <label sec:authorize="hasRole('stduser')">
+                Publisher
+                <input id="publisherId" type="hidden" name="publisher" th:value="*{publisher?.id}">
+                <input id="publisherName" type="hidden" name="publisherName">
+                <select id="publisher">
+                    <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}" th:value="${form.publisher.id}"></option>
+                </select>
+            </label>
+            <label id="publisherTypeLabel" style="display:none">
+                Publisher Type:
+                <select id="publisherType" name="publisherType">
+                    <option></option>
+                    <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
+                </select>
+            </label>
+            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
+            <details sec:authorize="hasRole('stduser')" th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
+                <summary>Cataloguing</summary>
+                <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
+                <div>
+                    <label>ANBD No. <input th:field="*{anbdNumber}"></label>
+                    <label>Local Reference No. <input th:field="*{localReference}"></label>
+                    <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
                 </div>
+            </details>
+        </fieldset>
 
-                <label>Method
-                    <select th:field="*{gatherMethod}">
-                        <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
-                            Heritrix
+        <fieldset sec:authorize="hasRole('stduser')">
+            <legend>Gather</legend>
+
+            <div th:each="collection: ${form.collections}" th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
+                 style="color: #555; margin-bottom: 8px; font-style: italic; ">
+                Also gathered <strong th:text="${collection.gatherSchedule.name}">Daily</strong> as part of
+                <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" class="collection-link">Cool Sites</a>
+            </div>
+
+            <div>
+                <label>Schedule
+                    <select th:field="*{gatherSchedule}">
+                        <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
+                                th:text="${schedule.name}">Weekly
                         </option>
                     </select>
                 </label>
-                <label>Schedule <select th:field="*{gatherSchedule}">
-                    <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
-                            th:text="${schedule.name}">Weekly
+                <label>One-off<br>
+                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
+                    <button onclick="addOneoffDate()" type=button>Add</button>
+                </label>
+            </div>
+            <ul id="oneoffDatesList" th:style="${form.oneoffDates.isEmpty() ? 'display:none' : 'display:block'}" >
+                <li th:each="date: *{oneoffDates}">
+                    <time th:datetime="${date}" th:text="${date}"></time>
+                    <button class="btn btn-danger" onclick="deleteOneoff(this.parentNode)" type=button>Remove</button>
+                    <input type=hidden name="oneoffDates" th:value="${date}">
+                </li>
+            </ul>
+            <script>
+                document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
+
+                function deleteOneoff(el) {
+                    el.remove();
+                    console.log(document.getElementById('oneoffDatesList').querySelector('li'));
+                    if (!document.getElementById('oneoffDatesList').querySelector('li')) {
+                        document.getElementById('oneoffDatesList').style.display = 'none';
+                    }
+                }
+
+                function addOneoffDate() {
+                    var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
+                    var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
+                    var date = new Date();
+                    date.setMilliseconds(0);
+                    if (dateInput) {
+                        date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
+                    }
+                    if (timeInput) {
+                        date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
+                    } else {
+                        date.setHours(0, 0, 0);
+                    }
+                    const iso = date.toISOString().replace(".000Z", "Z");
+                    if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
+                        return; // don't allow duplicates
+                    }
+                    document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
+                        '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
+                        '<button class="btn btn-danger" onclick="deleteOneoff(this.parentNode)" type=button>Remove</button>' +
+                        '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
+                    document.getElementById('oneoffDatesList').style.display = 'block';
+                }
+            </script>
+
+            <label>Method
+                <select th:field="*{gatherMethod}">
+                    <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
+                        Heritrix
                     </option>
-                </select></label>
-                <label>Profile
+                </select>
+            </label>
+
+            <details th:open="${form.seedUrls != form.titleUrl}">
+                <summary>Crawl options</summary>
+                <label style="margin: var(--gutter) 0">Profile
                     <select th:field="*{activeProfile}" id="activeProfile">
                         <option value=""></option>
                         <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}"
@@ -114,108 +244,32 @@
                     </script>
                 </label>
 
-                <label>One-off</label>
-
-                <ul id="oneoffDatesList">
-                    <li th:each="date: *{oneoffDates}">
-                        <time th:datetime="${date}" th:text="${date}"></time>
-                        <button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>
-                        <input type=hidden name="oneoffDates" th:value="${date}">
-                    </li>
-                </ul>
-
-                <div>
-                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
-                    <button onclick="addOneoffDate()" type=button>Add</button>
-                </div>
-
-                <script>
-                    document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
-
-                    function addOneoffDate() {
-                        var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
-                        var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
-                        var date = new Date();
-                        date.setMilliseconds(0);
-                        if (dateInput) {
-                            date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
-                        }
-                        if (timeInput) {
-                            date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
-                        } else {
-                            date.setHours(0, 0, 0);
-                        }
-                        const iso = date.toISOString().replace(".000Z", "Z");
-                        if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
-                            return; // don't allow duplicates
-                        }
-                        document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
-                            '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
-                            '<button class="btn btn-danger" onclick="this.parentNode.remove()" type=button>Remove</button>' +
-                            '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
-                    }
-                </script>
-
-                <details th:open="${form.seedUrls != form.titleUrl}" style="margin-top: 16px">
-                    <summary>Options</summary>
-                    <label>
-                        Seed URLs:
-                        <textarea th:field="*{seedUrls}"></textarea>
-                    </label>
-                </details>
-            </fieldset>
-
-            <fieldset style="flex-grow: 1">
-                <legend>Metadata</legend>
                 <label>
-                    Subjects
-                    <spanw class="help-text">Select up to three.</spanw>
-                    <select th:field="*{subjects}" id="subjects" multiple>
-                        <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
-                                th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
-                                th:data-fullname="${subject.fullName}">Arts
-                        </option>
-                    </select>
+                    Seed URLs:
+                    <textarea th:field="*{seedUrls}"></textarea>
                 </label>
-                <label>
-                    Collections
-                    <select th:field="*{collections}" id="collections" multiple>
-                        <option th:each="collection: ${form.collections}" th:value="${collection.id}"
-                                th:text="${collection.fullName}" selected>Arts
-                        </option>
-                    </select>
-                </label>
-                <label sec:authorize="hasRole('stduser')">
-                    Publisher
-                    <input id="publisherId" type="hidden" name="publisher" th:value="*{publisher?.id}">
-                    <input id="publisherName" type="hidden" name="publisherName">
-                    <select id="publisher">
-                        <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}" th:value="${form.publisher.id}"></option>
-                    </select>
-                </label>
-                <label id="publisherTypeLabel" style="display:none">
-                    Publisher Type:
-                    <select id="publisherType" name="publisherType">
-                        <option></option>
-                        <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
-                    </select>
-                </label>
-                <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
-                <details sec:authorize="hasRole('stduser')" th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
-                    <summary>Cataloguing</summary>
-                    <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
-                    <div>
-                        <label>ANBD No. <input th:field="*{anbdNumber}"></label>
-                        <label>Local Reference No. <input th:field="*{localReference}"></label>
-                        <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
-                    </div>
-                </details>
-            </fieldset>
-        </div>
-        <fieldset>
-            <label>Notes <textarea th:field="*{notes}" rows=10></textarea></label>
+            </details>
         </fieldset>
+        <style>
+            #oneoffDatesList:empty {
+                margin:0;
+            }
+            .help-text {
+                margin: 4px 0;
+            }
+        </style>
+        <label>
+            <th:block sec:authorize="hasAuthority('PRIV_SELECT_TITLES')">Notes</th:block>
+            <th:block sec:authorize="!hasAuthority('PRIV_SELECT_TITLES')">Note for the web archiving team</th:block>
+            <textarea th:field="*{notes}" rows=5></textarea>
+        </label>
 
+        <div th:if="${form.id == null}">
+            <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
+            <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
+            <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
+                    class="btn btn-danger float-right" style="float: right"><i class="icon delete"></i>Delete</button>
+        </div>
 
     </form>
 </main>

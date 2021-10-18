@@ -11,13 +11,13 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{/titles/new}" href="TitleEdit.html" class="btn btn-primary" data-keybind="t"><i class="icon title"></i> Nominate a website</a>
+            <a th:href="@{/titles/new}" href="TitleEdit.html" class="btn btn-primary" data-keybind="t"><i class="icon title"></i> Add a website</a>
             <a th:href="@{/collections/new}" href="TitleEdit.html" class="btn btn-secondary" data-keybind="t"><i class="icon collection"></i> Create a collection</a>
         </nav>
     </header>
 
     <section th:unless="${nominations.isEmpty()}">
-        <h2>My Nominations</h2>
+        <h2>Recently Added Websites</h2>
         <ul>
             <li th:each="title : ${nominations}"><a th:text="${title.name}" th:href="@{/titles/{id}(id=${title.id})}">Example website</a></li>
         </ul>

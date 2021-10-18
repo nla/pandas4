@@ -206,7 +206,7 @@ public class TitleEditForm {
         this.oneoffDates = oneoffDates;
     }
 
-    public Boolean isLegalDeposit() {
+    public Boolean getLegalDeposit() {
         return legalDeposit;
     }
 
