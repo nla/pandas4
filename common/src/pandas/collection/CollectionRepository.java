@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pandas.core.Individual;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -30,4 +32,6 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findTopLevelDisplayableCollectionsWithNumberNames(Pageable pageable);
 
     List<Collection> findByParentIsNullAndSubjectsContainsOrderByName(Subject subject);
+
+    List<Collection> findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(Individual creator, Instant dateLimit);
 }

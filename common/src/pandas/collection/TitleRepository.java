@@ -159,7 +159,17 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     @Query("select t from Title t\n" +
             " join t.statusHistories sh\n" +
-            " where sh.individual = :nominator and sh.status.name = 'nominated'\n" +
+            " where sh.individual = :nominator and " +
+            "       sh.status.name = 'nominated'\n and " +
+            "       sh.startDate > :dateLimit " +
             " order by t.regDate desc")
-    List<Title> findByNominator(@Param("nominator") Individual nominator, Pageable pageable);
+    List<Title> findByNominator(@Param("nominator") Individual nominator, @Param("dateLimit") Instant dateLimit);
+
+    @Query("select t from Title t\n" +
+            " join t.statusHistories sh\n" +
+            " where sh.individual = :selector and " +
+            "       sh.status.name = 'selected'\n and " +
+            "       sh.startDate > :dateLimit " +
+            " order by t.regDate desc")
+    List<Title> findBySelector(@Param("selector") Individual selector, @Param("dateLimit") Instant dateLimit);
 }

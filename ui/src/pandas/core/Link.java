@@ -5,6 +5,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.Agency;
+import pandas.collection.Collection;
 import pandas.collection.Publisher;
 import pandas.collection.Subject;
 import pandas.collection.Title;
@@ -65,6 +66,10 @@ public class Link {
 
     public String to(Agency agency) {
         return link("/agencies/" + agency.getOrganisation().getAlias());
+    }
+
+    public String to(Collection collection) {
+        return link("/collections/" + collection.getId());
     }
 
     public String to(Individual individual) {
