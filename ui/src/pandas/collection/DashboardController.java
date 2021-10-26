@@ -3,7 +3,10 @@ package pandas.collection;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import pandas.core.Individual;
+import pandas.core.IndividualRepository;
+import pandas.core.NotFoundException;
 import pandas.core.UserService;
 
 import java.time.DayOfWeek;
@@ -18,18 +21,25 @@ import java.util.Locale;
 @Controller
 public class DashboardController {
     private final CollectionRepository collectionRepository;
+    private final IndividualRepository individualRepository;
     private final TitleRepository titleRepository;
     private final UserService userService;
 
-    public DashboardController(CollectionRepository collectionRepository, TitleRepository titleRepository, UserService userService) {
+    public DashboardController(CollectionRepository collectionRepository, IndividualRepository individualRepository, TitleRepository titleRepository, UserService userService) {
         this.collectionRepository = collectionRepository;
+        this.individualRepository = individualRepository;
         this.titleRepository = titleRepository;
         this.userService = userService;
     }
 
     @GetMapping("/")
-    public String dashboard(Model model) {
-        Individual currentUser = userService.getCurrentUser();
+    public String dashboard(Model model, @RequestParam(value = "user", required = false) String username) {
+        Individual user;
+        if (username == null) {
+            user = userService.getCurrentUser();
+        } else {
+            user = individualRepository.findByUserid(username).orElseThrow(NotFoundException::new);
+        }
 
         var activityPeriods = createTimePeriods();
         Instant dateLimit = activityPeriods.get(activityPeriods.size() - 1).instant;
@@ -37,7 +47,7 @@ public class DashboardController {
         { // partition the nominations
             var periodIterator = activityPeriods.iterator();
             ActivityPeriod period = periodIterator.next();
-            outer: for (Title title : titleRepository.findByNominatorOrSelector(currentUser, dateLimit)) {
+            outer: for (Title title : titleRepository.findByNominatorOrSelector(user, dateLimit)) {
                 while (title.getRegDate().isBefore(period.instant)) {
                     if (!periodIterator.hasNext()) break outer;
                     period = periodIterator.next();
@@ -49,7 +59,7 @@ public class DashboardController {
         { // partition the collections
             var periodIterator = activityPeriods.iterator();
             ActivityPeriod period = periodIterator.next();
-            outer: for (var collection : collectionRepository.findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(currentUser, dateLimit)) {
+            outer: for (var collection : collectionRepository.findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(user, dateLimit)) {
                 while (collection.getCreatedDate().isBefore(period.instant)) {
                     if (!periodIterator.hasNext()) break outer;
                     period = periodIterator.next();
