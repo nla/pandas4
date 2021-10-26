@@ -94,6 +94,7 @@ public class Collection {
     private GatherSchedule gatherSchedule;
 
     @CreatedDate
+    @GenericField(sortable = Sortable.YES)
     private Instant createdDate;
 
     @LastModifiedDate

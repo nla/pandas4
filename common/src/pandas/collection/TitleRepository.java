@@ -157,13 +157,13 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     List<Title> findByTitleUrlIn(List<String> urls);
 
-    @Query("select t from Title t\n" +
+    @Query("select distinct t from Title t\n" +
             " join t.statusHistories sh\n" +
             " where sh.individual = :nominator and " +
-            "       sh.status.name = 'nominated'\n and " +
+            "       sh.status.name in ('nominated', 'selected')\n and " +
             "       sh.startDate > :dateLimit " +
             " order by t.regDate desc")
-    List<Title> findByNominator(@Param("nominator") Individual nominator, @Param("dateLimit") Instant dateLimit);
+    List<Title> findByNominatorOrSelector(@Param("nominator") Individual nominator, @Param("dateLimit") Instant dateLimit);
 
     @Query("select t from Title t\n" +
             " join t.statusHistories sh\n" +

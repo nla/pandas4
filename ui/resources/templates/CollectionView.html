@@ -10,9 +10,9 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary" data-keybind="e"><i class="icon edit"></i> Edit</a>
-            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary" data-keybind="t"><i class="icon title"></i> New Title</a>
-            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary" data-keybind="c"><i class="icon collection"></i> New Subcollection</a>
+            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary" data-keybind="e"><i class="icon edit"></i> Edit collection</a>
+            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary" data-keybind="t"><i class="icon title"></i> Add a website</a>
+            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary" data-keybind="c"><i class="icon collection"></i> Create a subcollection</a>
         </nav>
     </header>
 

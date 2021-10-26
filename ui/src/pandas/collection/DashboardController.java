@@ -27,7 +27,7 @@ public class DashboardController {
         this.userService = userService;
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/")
     public String dashboard(Model model) {
         Individual currentUser = userService.getCurrentUser();
 
@@ -37,24 +37,12 @@ public class DashboardController {
         { // partition the nominations
             var periodIterator = activityPeriods.iterator();
             ActivityPeriod period = periodIterator.next();
-            outer: for (Title title : titleRepository.findByNominator(currentUser, dateLimit)) {
+            outer: for (Title title : titleRepository.findByNominatorOrSelector(currentUser, dateLimit)) {
                 while (title.getRegDate().isBefore(period.instant)) {
                     if (!periodIterator.hasNext()) break outer;
                     period = periodIterator.next();
                 }
-                period.nominations.add(title);
-            }
-        }
-
-        { // partition the selections
-            var periodIterator = activityPeriods.iterator();
-            ActivityPeriod period = periodIterator.next();
-            outer: for (Title title : titleRepository.findBySelector(currentUser, dateLimit)) {
-                while (title.getRegDate().isBefore(period.instant)) {
-                    if (!periodIterator.hasNext()) break outer;
-                    period = periodIterator.next();
-                }
-                period.selections.add(title);
+                period.websites.add(title);
             }
         }
 
@@ -105,8 +93,7 @@ public class DashboardController {
     public static class ActivityPeriod {
         public final String name;
         public final Instant instant;
-        public final List<Title> nominations = new ArrayList<>();
-        public final List<Title> selections = new ArrayList<>();
+        public final List<Title> websites = new ArrayList<>();
         public final List<Collection> collections = new ArrayList<>();
 
         public ActivityPeriod(String name, LocalDate startDate) {
@@ -115,7 +102,7 @@ public class DashboardController {
         }
 
         public boolean isEmpty() {
-            return nominations.isEmpty() && selections.isEmpty() && collections.isEmpty();
+            return websites.isEmpty() && collections.isEmpty();
         }
     }
 

@@ -15,7 +15,7 @@
             <a th:href="@{/collections/new}" href="TitleEdit.html" class="btn btn-secondary" data-keybind="t"><i class="icon collection"></i> Create a collection</a>
         </nav>
         <form th:action="@{/titles}">
-            <input type=search name="q" placeholder="Search Titles" data-keybind="f">
+            <input type=search name="q" placeholder="Search websites" data-keybind="f">
         </form>
     </header>
 
@@ -27,22 +27,25 @@
 
             <p th:unless="${period.collections.isEmpty()}" th:with="count = ${period.collections.size()}">
                 Created <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
-                <th:block th:text="${count == 1 ? 'collection' : 'collections'}">collections</th:block><br>
-                <a th:each="collection : ${period.collections}" th:href="${@link.to(collection)}" th:text="${collection.name}"></a>
+                <th:block th:text="${count == 1 ? 'collection' : 'collections'}">collections</th:block>:
+                <ul>
+                    <li th:each="collection : ${period.collections}">
+                        <a th:href="${@link.to(collection)}" th:text="${collection.name}">A collection</a>
+                        <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
+                           th:text="${collection.titleCount}"
+                           href="TitleSearch.html">16</a>
+                    </li>
+                </ul>
             </p>
 
-            <p th:unless="${period.nominations.isEmpty()}" th:with="count = ${period.nominations.size()}">
-                Nominated <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
-                <th:block th:text="${count == 1 ? 'title' : 'titles'}">titles</th:block><br>
-                <a th:each="title : ${period.nominations}" th:href="${@link.to(title)}" th:title="${title.name}"><img
-                        th:src="${@link.thumbnail(title)}" width=100px height=75px></a>
-            </p>
-
-            <p th:unless="${period.selections.isEmpty()}" th:with="count = ${period.selections.size()}">
-                Selected <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
-                <th:block th:text="${count == 1 ? 'title' : 'titles'}">titles</th:block><br>
-                <a th:each="title : ${period.selections}" th:href="${@link.to(title)}" th:title="${title.name}"><img
-                        th:src="${@link.thumbnail(title)}" width=100px height=75px></a>
+            <p th:unless="${period.websites.isEmpty()}" th:with="count = ${period.websites.size()}">
+                Added <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
+                <th:block th:text="${count == 1 ? 'website' : 'websites'}">websites</th:block>:
+                <ul>
+                    <li th:each="title : ${period.websites}">
+                        <a th:href="${@link.to(title)}" th:text="${title.name}"></a>
+                    </li>
+                </ul>
             </p>
         </th:block>
     </section>

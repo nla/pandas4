@@ -74,7 +74,7 @@ public class WorktraysController {
         model.addAttribute("agencies", agencyRepository.findAllOrdered());
     }
 
-    @GetMapping(value = {"/", "/worktrays", "/worktrays/{alias}"})
+    @GetMapping(value = {"/worktrays", "/worktrays/{alias}"})
     public String all(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Model model) {
         Pageable pageable = PageRequest.of(0, 5);
         // Selection

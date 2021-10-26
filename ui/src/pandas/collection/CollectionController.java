@@ -50,7 +50,7 @@ public class CollectionController {
                     b.must(f.matchAll());
                     if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
                     mustMatchAny(f, b, "subjects.id", subjectIds);
-                })).sort(f -> q == null ? f.field("name_sort") : f.score());
+                })).sort(f -> q == null ? f.field("createdDate").desc() : f.score());
 
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         SearchResults<Collection> results = new SearchResults<>(result, null, pageable);

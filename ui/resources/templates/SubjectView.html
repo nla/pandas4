@@ -10,10 +10,10 @@
 <main>
     <header>
         <nav>
-            <a sec:authorize="hasAuthority('PRIV_EDIT_SUBJECTS')" th:href="@{/subjects/{id}/edit(id=${subject.id})}" href="SubjectEdit.html" data-keybind="e" class="btn btn-primary"><i class="icon edit"></i> Edit</a>
-            <a sec:authorize="hasAuthority('PRIV_NOMINATE_TITLES')" th:href="@{/titles/new(subject=${subject.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary"><i class="icon title"></i> New Title</a>
-            <a sec:authorize="hasAuthority('PRIV_EDIT_COLLECTIONS')" th:href="@{/collections/new(subject=${subject.id})}" href="CollectionEdit.html" data-keybind="c" class="btn btn-secondary"><i class="icon collection"></i> New Collection</a>
-            <a sec:authorize="hasAuthority('PRIV_EDIT_SUBJECTS')" th:href="@{/subjects/new(parent=${subject.id})}" href="SubjectEdit.html" data-keybind="s" class="btn btn-secondary"><i class="icon subject"></i> New Subcategory</a>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_SUBJECTS')" th:href="@{/subjects/{id}/edit(id=${subject.id})}" href="SubjectEdit.html" data-keybind="e" class="btn btn-primary"><i class="icon edit"></i> Edit subject</a>
+            <a sec:authorize="hasAuthority('PRIV_NOMINATE_TITLES')" th:href="@{/titles/new(subject=${subject.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary"><i class="icon title"></i> Add a website</a>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_COLLECTIONS')" th:href="@{/collections/new(subject=${subject.id})}" href="CollectionEdit.html" data-keybind="c" class="btn btn-secondary"><i class="icon collection"></i> Create a collection</a>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_SUBJECTS')" th:href="@{/subjects/new(parent=${subject.id})}" href="SubjectEdit.html" data-keybind="s" class="btn btn-secondary"><i class="icon subject"></i> Create a subcategory</a>
         </nav>
     </header>
 
