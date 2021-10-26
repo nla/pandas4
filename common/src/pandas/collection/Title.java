@@ -23,10 +23,7 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -456,6 +453,17 @@ public class Title {
 
     public List<Collection> getCollections() {
         return collections;
+    }
+
+    @IndexedEmbedded(includePaths = {"id", "name"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW, derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "collections"))})
+    public Set<Collection> getCollectionAncestry() {
+        var ancestry = new HashSet<Collection>();
+        for (Collection collection : getCollections()) {
+            ancestry.addAll(collection.getCollectionBreadcrumbs());
+            ancestry.add(collection);
+        }
+        return ancestry;
     }
 
     public void setCollections(List<Collection> collections) {
