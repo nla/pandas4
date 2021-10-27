@@ -49,6 +49,13 @@ public class PublisherController {
         return "redirect:/publishers/" + publisher.getId();
     }
 
+    @PostMapping("/publishers/{id}/delete")
+    @PreAuthorize("hasPermission(#publisher, 'edit')")
+    public String update(@PathVariable("id") Publisher publisher) {
+        publisherRepository.delete(publisher);
+        return "redirect:/";
+    }
+
     @GetMapping("/publishers")
     public String search(@RequestParam(value = "q", required = false) String rawQ, Pageable pageable, Model model) {
         String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
