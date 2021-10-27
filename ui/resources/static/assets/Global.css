@@ -305,9 +305,9 @@ button.btn-danger:hover, a.btn-danger:hover {
  * Badges
  */
 
-.title-count, .collection-count {
+.title-count, .collection-count, .instance-count {
     display: inline-block;
-    padding: .25em .4em;
+    padding: .25em 6px;
     font-size: 75%;
     font-weight: bold;
     white-space: nowrap;
@@ -322,6 +322,10 @@ button.btn-danger:hover, a.btn-danger:hover {
 .collection-count {
     color: var(--color-white);
     background-color: #17a2b8;
+}
+
+.instance-count {
+    background-color: #d2d2d2;
 }
 
 /*

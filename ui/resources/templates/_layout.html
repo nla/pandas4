@@ -29,8 +29,11 @@
                th:classappend="${#request.servletPath.matches('/worktrays/[^/]*/gathered|/instances/[^/]+/process')}? 'active'"
                href=worktrays/Gathered.html>
            <i class="icon fact_check"></i>
-            QA</a>
-        <li><a th:href="@{/titles}" data-keybind=3 th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
+            QA
+            <th:block th:with="count = ${@instanceRepository.countGatheredWorktray(@userService.currentUser.id)}">
+                <span style="margin-left: auto" th:if="${count > 0}" class="instance-count" th:text="${count}"></span></a>
+            </th:block>
+            <li><a th:href="@{/titles}" data-keybind=3 th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
                href=TitleSearch.html>
             <i class="icon title"></i>
             Titles</a>
