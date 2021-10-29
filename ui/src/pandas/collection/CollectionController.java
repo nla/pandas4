@@ -135,7 +135,7 @@ public class CollectionController {
         var search = Search.session(entityManager).search(Collection.class)
                 .where(f -> f.bool(b -> {
                     b.must(f.matchAll());
-                    if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
+                    if (q != null) b.must(f.simpleQueryString().field("fullName").matching(q).defaultOperator(AND));
                 }));
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         return result.hits();
