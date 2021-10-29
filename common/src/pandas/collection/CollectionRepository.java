@@ -34,4 +34,13 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsContainsOrderByName(Subject subject);
 
     List<Collection> findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(Individual creator, Instant dateLimit);
+
+    @Query("select c from StatusHistory sh " +
+            "join sh.title t " +
+            "join t.collections c " +
+            "where sh.individual = :user and " +
+            "sh.status.name in ('selected', 'nominated') " +
+            "group by c " +
+            "order by MAX(sh.startDate) desc")
+    List<Collection> findRecentlyUsed(@Param("user") Individual user, Pageable pageable);
 }

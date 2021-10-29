@@ -27,8 +27,8 @@ public class TitleEditForm {
     private String anbdNumber;
     private String localReference;
     private String localDatabaseNo;
-    private List<Collection> collections;
-    private List<Subject> subjects;
+    private List<Collection> collections = new ArrayList<>();
+    private List<Subject> subjects = new ArrayList<>();
     @Column(name = "IS_CATALOGUING_NOT_REQ")
     private boolean cataloguingNotRequired = true;
     private String notes;
@@ -147,7 +147,8 @@ public class TitleEditForm {
     }
 
     public void setCollections(List<Collection> collections) {
-        this.collections = collections;
+        this.collections.clear();
+        this.collections.addAll(collections);
     }
 
     public List<Subject> getSubjects() {
@@ -155,7 +156,8 @@ public class TitleEditForm {
     }
 
     public void setSubjects(List<Subject> subjects) {
-        this.subjects = subjects;
+        this.subjects.clear();
+        this.subjects.addAll(subjects);
     }
 
     public boolean isCataloguingNotRequired() {

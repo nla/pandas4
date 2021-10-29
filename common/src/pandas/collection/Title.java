@@ -131,7 +131,7 @@ public class Title {
                     @Index(name = "subject_titles_collection_id_index", columnList = "subject_id")})
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
-    private List<Subject> subjects;
+    private List<Subject> subjects = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "CURRENT_OWNER_ID")
@@ -162,7 +162,7 @@ public class Title {
                         @Index(name = "title_col_collection_id_index", columnList = "collection_id") })
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
-    private List<Collection> collections;
+    private List<Collection> collections = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "title")
     @IndexedEmbedded(includePaths = {"activeProfile.id", "schedule.id", "method.id", "notes", "nextGatherDate",
@@ -406,11 +406,12 @@ public class Title {
     }
 
     public List<Subject> getSubjects() {
-        return subjects;
+        return Collections.unmodifiableList(subjects);
     }
 
     public void setSubjects(List<Subject> subjects) {
-        this.subjects = subjects;
+        this.subjects.clear();
+        this.subjects.addAll(subjects);
     }
 
     public Tep getTep() {
@@ -452,7 +453,7 @@ public class Title {
     }
 
     public List<Collection> getCollections() {
-        return collections;
+        return Collections.unmodifiableList(collections);
     }
 
     @IndexedEmbedded(includePaths = {"id", "name"})
@@ -467,7 +468,8 @@ public class Title {
     }
 
     public void setCollections(List<Collection> collections) {
-        this.collections = collections;
+        this.collections.clear();
+        this.collections.addAll(collections);
     }
 
     @OneToMany(mappedBy = "title")
@@ -776,5 +778,9 @@ public class Title {
 
     public String getHumanId() {
         return "nla.arc-" + getPi();
+    }
+
+    public void removeCollection(Collection collection) {
+        collections.remove(collection);
     }
 }

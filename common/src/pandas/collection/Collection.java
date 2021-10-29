@@ -228,7 +228,7 @@ public class Collection {
     @PreRemove
     public void removeFromAllTitles() {
         for (var title : getTitles()) {
-            title.getCollections().remove(this);
+            title.removeCollection(this);
         }
     }
 

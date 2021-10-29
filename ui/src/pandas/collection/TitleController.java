@@ -65,8 +65,9 @@ public class TitleController {
     private final AgencyRepository agencyRepository;
     private final ProfileRepository profileRepository;
     private final ScopeRepository scopeRepository;
+    private final CollectionRepository collectionRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository) {
+    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository) {
         this.titleRepository = titleRepository;
         this.individualRepository = individualRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -85,6 +86,7 @@ public class TitleController {
         this.agencyRepository = agencyRepository;
         this.profileRepository = profileRepository;
         this.scopeRepository = scopeRepository;
+        this.collectionRepository = collectionRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -230,6 +232,15 @@ public class TitleController {
             form.setStatus(setStatus);
         }
 
+        String backlink = Requests.backlink();
+        if (backlink != null && !model.containsAttribute("backlink")) {
+            model.addAttribute("backlink", backlink);
+        }
+
+        return editForm(model, form);
+    }
+
+    private String editForm(Model model, TitleEditForm form) {
         model.addAttribute("form", form);
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
@@ -239,18 +250,21 @@ public class TitleController {
         model.addAttribute("allScopes", scopeRepository.findAll());
         model.addAttribute("allSubjects", classificationService.allSubjects());
 
-        var statusList = new ArrayList<Status>();
-        statusList.add(form.getStatus());
-        List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatus().getId(), emptyList());
-        statusRepository.findAllById(statusIds).forEach(statusList::add);
-        statusList.sort(Comparator.comparing(Status::getId));
-        model.addAttribute("statusList", statusList);
+        var suggestedCollections = collectionRepository.findRecentlyUsed(userService.getCurrentUser(), PageRequest.ofSize(20));
+        suggestedCollections.removeIf(new HashSet<>(form.getCollections())::contains);
+        model.addAttribute("suggestedCollections", suggestedCollections);
 
-        String backlink = Requests.backlink();
-        if (backlink != null) {
-            model.addAttribute("backlink", backlink);
+        if (form.getStatus() == null) {
+            model.addAttribute("statusList", statusRepository.findAllById(
+                    List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
+        } else {
+            var statusList = new ArrayList<Status>();
+            statusList.add(form.getStatus());
+            List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatus().getId(), emptyList());
+            statusRepository.findAllById(statusIds).forEach(statusList::add);
+            statusList.sort(Comparator.comparing(Status::getId));
+            model.addAttribute("statusList", statusList);
         }
-
         return "TitleEdit";
     }
 
@@ -295,34 +309,24 @@ public class TitleController {
     }
 
     @GetMapping("/titles/new")
-    public String newForm(@RequestParam(value = "collection", required = false) List<Collection> collections,
-                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
+    public String newForm(@RequestParam(value = "collection", defaultValue = "") List<Collection> collections,
+                          @RequestParam(value = "subject", defaultValue = "") List<Subject> subjects,
                           @RequestParam(value = "url", required = false) String url,
                           Model model) {
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         form.setTitleUrl(url);
-        model.addAttribute("form", form);
-        model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
-        model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
-        model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
-        model.addAttribute("allProfiles", profileRepository.findAllByOrderByName());
-        model.addAttribute("allPublisherTypes", publisherTypeRepository.findAll());
-        model.addAttribute("allScopes", scopeRepository.findAll());
-        model.addAttribute("allSubjects", classificationService.allSubjects());
-        model.addAttribute("statusList", statusRepository.findAllById(
-                List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
 
         String backlink;
-        if (collections != null && collections.size() == 1) {
+        if (collections.size() == 1) {
             backlink = "/collections/" + collections.get(0).getId();
-        } else if (subjects != null && subjects.size() == 1) {
+        } else if (subjects.size() == 1) {
             backlink = "/subjects/" + subjects.get(0).getId();
         } else {
             backlink = "";
         }
         model.addAttribute("backlink", backlink);
 
-        return "TitleEdit";
+        return editForm(model, form);
     }
 
     @PostMapping(value = "/titles", produces = "application/json")

@@ -106,6 +106,8 @@
                     <option th:each="collection: ${form.collections}" th:value="${collection.id}"
                             th:text="${collection.fullName}" selected>Arts
                     </option>
+                    <option th:each="collection: ${suggestedCollections}" th:value="${collection.id}"
+                            th:text="${collection.fullName}"></option>
                 </select>
             </label>
             <label sec:authorize="hasRole('stduser')">
