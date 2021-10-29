@@ -250,9 +250,9 @@ public class TitleController {
         model.addAttribute("allScopes", scopeRepository.findAll());
         model.addAttribute("allSubjects", classificationService.allSubjects());
 
-        var suggestedCollections = collectionRepository.findRecentlyUsed(userService.getCurrentUser(), PageRequest.ofSize(20));
-        suggestedCollections.removeIf(new HashSet<>(form.getCollections())::contains);
-        model.addAttribute("suggestedCollections", suggestedCollections);
+        var suggestedCollection = collectionRepository.findRecentlyUsed(userService.getCurrentUser(), PageRequest.ofSize(20));
+        suggestedCollection.removeIf(form.getCollections()::contains);
+        model.addAttribute("suggestedCollections", suggestedCollection);
 
         if (form.getStatus() == null) {
             model.addAttribute("statusList", statusRepository.findAllById(

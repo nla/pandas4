@@ -8,7 +8,10 @@ import org.springframework.stereotype.Repository;
 import pandas.core.Individual;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Repository
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
@@ -35,12 +38,26 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
 
     List<Collection> findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(Individual creator, Instant dateLimit);
 
-    @Query("select c from StatusHistory sh " +
+    // Oracle gives an error for "select c ... group by c" type queries and we can't join a subquery
+    // so as a workaround return the ids and then resolve them.
+    @Query("select c.id from StatusHistory sh " +
             "join sh.title t " +
             "join t.collections c " +
             "where sh.individual = :user and " +
             "sh.status.name in ('selected', 'nominated') " +
-            "group by c " +
+            "group by c.id " +
             "order by MAX(sh.startDate) desc")
-    List<Collection> findRecentlyUsed(@Param("user") Individual user, Pageable pageable);
+    List<Long> findRecentlyUsedIds(@Param("user") Individual user, Pageable pageable);
+
+    default List<Collection> findAllByIdPreserveOrder(List<Long> ids) {
+        var map = new HashMap<Long, Collection>();
+        for (var entity: findAllById(ids)) {
+            map.put(entity.getId(), entity);
+        }
+        return ids.stream().map(map::get).collect(toList());
+    }
+
+    default List<Collection> findRecentlyUsed(@Param("user") Individual user, Pageable pageable) {
+        return findAllByIdPreserveOrder(findRecentlyUsedIds(user, pageable));
+    }
 }
