@@ -44,6 +44,5 @@
         <module>gatherer</module>
         <module>cli</module>
         <module>delivery</module>
-        <module>nomination</module>
     </modules>
 </project>
