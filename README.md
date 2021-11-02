@@ -54,4 +54,9 @@ Set the following environment variables:
 #OIDC_URL=
 #OIDC_CLIENT_ID=
 #OIDC_CLIENT_SECRET=
-```
+
+## Browsertrix backend
+#BROWSERTRIX_WORKERS=4
+#BROWSERTRIX_PAGE_LIMIT=1000
+#BROWSERTRIX_USER_AGENT_SUFFIX=
+```~~~~

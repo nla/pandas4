@@ -192,6 +192,6 @@ public class BrowsertrixGatherer implements Backend {
 
     @Override
     public int getWorkerCount() {
-        return 1;
+        return config.getWorkers();
     }
 }

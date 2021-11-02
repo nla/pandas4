@@ -9,6 +9,7 @@ public class BrowsertrixConfig {
     private String podmanOptions;
     private int pageLimit = 1000;
     private String userAgentSuffix = "nla.gov.au_bot (National Library of Australia Legal Deposit Request; +http://www.nla.gov.au/legal-deposit/request)";
+    private int workers = 4;
 
     public String getPodmanOptions() {
         return podmanOptions;
@@ -32,5 +33,13 @@ public class BrowsertrixConfig {
 
     public void setUserAgentSuffix(String userAgentSuffix) {
         this.userAgentSuffix = userAgentSuffix;
+    }
+
+    public int getWorkers() {
+        return workers;
+    }
+
+    public void setWorkers(int workers) {
+        this.workers = workers;
     }
 }
