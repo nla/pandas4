@@ -98,8 +98,8 @@ public class TitleService {
         title.setLegalDeposit(form.getLegalDeposit());
         title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
         title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
-        title.setName(form.getName());
-        title.setShortDisplayName(form.getName().length() > 60 ? (form.getName().substring(0, 60) + "...") : form.getName());
+        title.setName(form.getName().trim());
+        title.setShortDisplayName(title.getName().length() > 60 ? (title.getName().substring(0, 60) + "...") : title.getName());
         title.setNotes(Strings.emptyToNull(form.getNotes()));
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
@@ -145,7 +145,7 @@ public class TitleService {
         Publisher publisher = form.getPublisher();
         if (publisher == null && form.getPublisherName() != null) { // create new
             Organisation organisation = new Organisation();
-            organisation.setName(form.getPublisherName());
+            organisation.setName(form.getPublisherName().trim());
             publisher = new Publisher();
             publisher.setOrganisation(organisation);
             publisher.setType(form.getPublisherType());
