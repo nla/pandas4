@@ -139,10 +139,17 @@
                 <bean class="org.archive.modules.deciderules.MatchesListRegexDecideRule">
                     <property name="decision" value="REJECT"/>
                     <!-- <property name="listLogicalOr" value="true" /> -->
-                    <!-- <property name="regexList">
-                          <list>
-                          </list>
-                         </property> -->
+                    <property name="regexList">
+                      <list>
+                          <!-- Wordpress comment reply forms -->
+                          <value>.*\?(?:.*&amp;)?replytocom=\d+</value>
+                          <!-- Wordpress sites often redirect to the homepage which in turn pulls in a lot
+                               of resources we don't want -->
+                          <value>https?://wordpress\.(?:com|org)/</value>
+                          <!-- Avoid Wordpress admin pages -->
+                          <value>https?://[^/]+/wp-admin/.*</value>
+                      </list>
+                    </property>
                 </bean>
                 <!-- ...and REJECT those with suspicious repeating path-segments... -->
                 <bean class="org.archive.modules.deciderules.PathologicalPathDecideRule">
