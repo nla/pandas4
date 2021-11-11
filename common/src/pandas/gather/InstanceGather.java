@@ -85,8 +85,8 @@ public class InstanceGather {
     }
 
     public String getTimeHuman() {
-        if (getTime() == null) return null;
-        return Duration.ofSeconds(getTime()).toString()
+        if (getStart() == null || getFinish() == null) return null;
+        return Duration.between(getStart(), getFinish()).toString()
                 .substring(2)
                 .replaceAll("(\\d[HMS])(?!$)", "$1 ")
                 .toLowerCase();
