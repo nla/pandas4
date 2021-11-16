@@ -10,6 +10,7 @@ import pandas.collection.Publisher;
 import pandas.collection.Subject;
 import pandas.collection.Title;
 import pandas.gather.Instance;
+import pandas.gather.PreviousGather;
 import pandas.util.DateFormats;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +65,10 @@ public class Link {
         return to(instance) + "/thumbnail?type=" + type;
     }
 
+    public String thumbnail(PreviousGather previousGather, String type) {
+        return to(previousGather) + "/thumbnail?type=" + type;
+    }
+
     public String to(Agency agency) {
         return link("/agencies/" + agency.getOrganisation().getAlias());
     }
@@ -78,6 +83,10 @@ public class Link {
 
     public String to(Instance instance) {
         return link("/instances/" + instance.getId());
+    }
+
+    public String to(PreviousGather previousGather) {
+        return link("/instances/" + previousGather.getId());
     }
 
     public String to(Publisher publisher) {
