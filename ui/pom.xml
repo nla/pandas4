@@ -217,7 +217,7 @@
         <dependency>
             <groupId>org.netpreserve</groupId>
             <artifactId>jwarc</artifactId>
-            <version>0.13.0</version>
+            <version>0.16.5</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
