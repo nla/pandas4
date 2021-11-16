@@ -9,31 +9,10 @@ import java.util.List;
 
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
-public class CollectionEditForm {
-    @NotBlank
-    private final String name;
-    private final List<Subject> subjects;
-    private final String description;
-    private final Integer startMonth;
-    private final Integer startYear;
-    private final Integer endMonth;
-    private final Integer endYear;
-    private final Collection parent;
-    private final GatherSchedule gatherSchedule;
-
-    public CollectionEditForm(String name, List<Subject> subjects, String description, Integer startMonth,
-                              Integer startYear, Integer endMonth, Integer endYear, Collection parent, GatherSchedule gatherSchedule) {
-        this.name = name;
-        this.subjects = subjects;
-        this.description = description;
-        this.startMonth = startMonth;
-        this.startYear = startYear;
-        this.endMonth = endMonth;
-        this.endYear = endYear;
-        this.parent = parent;
-        this.gatherSchedule = gatherSchedule;
-    }
-
+public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
+                                 String description, Integer startMonth,
+                                 Integer startYear, Integer endMonth, Integer endYear,
+                                 Collection parent, GatherSchedule gatherSchedule) {
     public static CollectionEditForm of(Collection collection) {
         Integer startMonth = null, startYear = null;
         if (collection.getStartDate() != null) {
@@ -66,41 +45,5 @@ public class CollectionEditForm {
                     .with(lastDayOfMonth())
                     .atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
         }
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public List<Subject> subjects() {
-        return subjects;
-    }
-
-    public String description() {
-        return description;
-    }
-
-    public Integer startMonth() {
-        return startMonth;
-    }
-
-    public Integer startYear() {
-        return startYear;
-    }
-
-    public Integer endMonth() {
-        return endMonth;
-    }
-
-    public Integer endYear() {
-        return endYear;
-    }
-
-    public Collection parent() {
-        return parent;
-    }
-
-    public GatherSchedule gatherSchedule() {
-        return gatherSchedule;
     }
 }
