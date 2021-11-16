@@ -146,7 +146,7 @@
                 <div th:each="instance : ${previousInstances}" >
                     <a th:href="${@link.delivery(instance)}"
                        th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)} + '&#10;' + ${instance.gather?.stats ?: ''}">
-                        <img th:src="@{|/instances/${instance.id}/thumbnail|}" width="150" height="100">
+                        <img th:src="${@link.thumbnail(instance, 'REPLAY')}" width="150" height="100">
                     </a>
                     <a th:href="${@link.to(instance)}"><datetime th:text="${@dateFormats.shortDate.format(instance.date)}">1 Jan 2012</datetime></a>
                 </div>
