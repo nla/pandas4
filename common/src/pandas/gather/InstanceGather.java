@@ -7,6 +7,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "INS_GATHER")
@@ -86,7 +87,7 @@ public class InstanceGather {
 
     public String getTimeHuman() {
         if (getStart() == null || getFinish() == null) return null;
-        return Duration.between(getStart(), getFinish()).toString()
+        return Duration.between(getStart(), getFinish()).truncatedTo(ChronoUnit.SECONDS).toString()
                 .substring(2)
                 .replaceAll("(\\d[HMS])(?!$)", "$1 ")
                 .toLowerCase();
