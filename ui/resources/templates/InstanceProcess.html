@@ -79,7 +79,8 @@
                     <div class="prev-instances-popup">
                         <strong>Other recent gathers:</strong><br>
                         <a th:each="instance : ${previousInstances}" th:href="${@link.to(instance)}"
-                        th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)}"><img th:src="@{|/instances/${instance.id}/thumbnail|}" width="200" height="150"></a>
+                        th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)}"><img
+                                th:src="${@link.thumbnail(instance, 'REPLAY')}" width="200" height="150"></a>
                     </div>
                 </span>
             </li>

@@ -67,7 +67,7 @@
                     <a>jsmith</a>
                 </td>
                 <td style="text-align: center">
-                    <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"><img th:src="${@link.thumbnail(instance)}" width=150 height=100></a><br>
+                    <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"><img th:src="${@link.thumbnail(instance, 'REPLAY')}" width=150 height=100></a><br>
                     <time th:text="${@dateFormats.shortDate(instance.date)}"></time><br>
                     <span class="gather-stats" th:if="${instance.gather != null}" th:text="${instance.gather.stats}">1,234 files 10 MB</span>
                 </td>
@@ -77,7 +77,7 @@
                 <td style="text-align: center">
                     <th:block th:if="${previousGather != null}">
                         <a th:href="@{/instances/{id}(id=${previousGather.id})}">
-                            <img th:src="@{/instances/{id}/thumbnail(id=${previousGather.id})}" width=150 height=100><br>
+                            <img th:src="${@link.thumbnail(previousGather, 'REPLAY')}" width=150 height=100><br>
                         </a>
                         <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
                         <span class="gather-stats" th:text="${previousGather.stats}">1,234 files 10 MB</span>
