@@ -251,6 +251,7 @@ public class TitleController {
         model.addAttribute("allSubjects", classificationService.allSubjects());
 
         var suggestedCollection = collectionRepository.findRecentlyUsed(userService.getCurrentUser(), PageRequest.ofSize(50));
+        suggestedCollection = new ArrayList<>(suggestedCollection);
         suggestedCollection.removeIf(form.getCollections()::contains);
         model.addAttribute("suggestedCollections", suggestedCollection);
 
