@@ -14,13 +14,12 @@ public record UserEditForm(
         @NotBlank String email,
         String phone,
         String mobilePhone,
-        String fax,
         Agency agency,
         String roleType) {
 
     public static UserEditForm of(Individual user) {
         return new UserEditForm(user.getUserid(), user.isActive(), user.getNameGiven(), user.getNameFamily(), user.getEmail(),
-                user.getPhone(), user.getMobilePhone(), user.getFax(), user.getAgency(),
+                user.getPhone(), user.getMobilePhone(), user.getAgency(),
                 user.getRole() == null ? null : user.getRole().getType());
     }
 
@@ -31,7 +30,6 @@ public record UserEditForm(
         user.setNameFamily(trimToNull(nameFamily));
         user.setEmail(trimToNull(email));
         user.setPhone(trimToNull(phone));
-        user.setFax(trimToNull(fax));
 
         if (agency != null || roleType != null) {
             Role role = user.getRole();

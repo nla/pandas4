@@ -25,7 +25,6 @@
         <label>Email: <input class="form-control" th:field="*{email}" required></label>
         <label>Phone: <input class="form-control" th:field="*{phone}"></label>
         <label>Mobile: <input class="form-control" th:field="*{mobilePhone}"></label>
-        <label>Fax: <input class="form-control" th:field="*{fax}"></label>
 
         <label sec:authorize="hasAuthority('PRIV_EDIT_ALL_USERS')">Agency
             <select th:field="*{agency}">
