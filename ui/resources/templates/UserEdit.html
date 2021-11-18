@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${user == null ? 'New User - PANDAS' : 'Edit User - PANDAS'}">Edit User - PANDAS</title>
@@ -27,16 +27,17 @@
         <label>Mobile: <input class="form-control" th:field="*{mobilePhone}"></label>
         <label>Fax: <input class="form-control" th:field="*{fax}"></label>
 
-        <label>Agency
+        <label sec:authorize="hasAuthority('PRIV_EDIT_ALL_USERS')">Agency
             <select th:field="*{agency}">
                 <option th:each="agency : ${@agencyRepository.findAllOrdered()}" th:value="${agency.id}"
                         th:text="${agency.name}">My Agency</option>
             </select>
         </label>
 
-        <label>Role
+        <!--/* Only show the role field if the current user is actually allowed to set them back to this access level */-->
+        <label th:if="${allowedRoles.containsKey(form.roleType())}">Role
             <select th:field="*{roleType}">
-                <option th:each="entry : ${roleNames.entrySet()}" th:value="${entry.key}"
+                <option th:each="entry : ${allowedRoles.entrySet()}" th:value="${entry.key}"
                         th:text="${entry.value}">Standard User</option>
             </select>
         </label>

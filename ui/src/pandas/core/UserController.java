@@ -42,7 +42,7 @@ public class UserController {
         Individual user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
         model.addAttribute("user", user);
         model.addAttribute("form", UserEditForm.of(user));
-        model.addAttribute("roleNames", getRoleNamesAllowedForCurrentUser());
+        model.addAttribute("allowedRoles", getRoleNamesAllowedForCurrentUser());
         return "UserEdit";
     }
 
@@ -50,10 +50,10 @@ public class UserController {
     @PreAuthorize("hasPermission(#collection, 'Individual', 'edit')")
     public String update(@PathVariable("userid") String userid, @Valid UserEditForm form, Authentication authentication) {
         Individual user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
-        if (!getRoleNamesAllowedForCurrentUser().containsKey(form.roleType())) {
+        if (form.roleType() != null && !getRoleNamesAllowedForCurrentUser().containsKey(form.roleType())) {
             throw new AccessDeniedException("cannot set access level higher than own level");
         }
-        if (!Objects.equals(form.agency().getId(), user.getAgency().getId()) &&
+        if (form.agency() != null && !Objects.equals(form.agency().getId(), user.getAgency().getId()) &&
                 !authentication.getAuthorities().contains(Privileges.EDIT_ALL_USERS)) {
             throw new AccessDeniedException("not allowed to change agency");
         }

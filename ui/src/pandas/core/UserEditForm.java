@@ -3,7 +3,6 @@ package pandas.core;
 import pandas.agency.Agency;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import static info.freelibrary.util.StringUtils.trimToNull;
 
@@ -16,8 +15,8 @@ public record UserEditForm(
         String phone,
         String mobilePhone,
         String fax,
-        @NotNull Agency agency,
-        @NotBlank String roleType) {
+        Agency agency,
+        String roleType) {
 
     public static UserEditForm of(Individual user) {
         return new UserEditForm(user.getUserid(), user.isActive(), user.getNameGiven(), user.getNameFamily(), user.getEmail(),
@@ -34,13 +33,19 @@ public record UserEditForm(
         user.setPhone(trimToNull(phone));
         user.setFax(trimToNull(fax));
 
-        Role role = user.getRole();
-        if (role == null) {
-            role = new Role();
-            user.setRole(role);
+        if (agency != null || roleType != null) {
+            Role role = user.getRole();
+            if (role == null) {
+                role = new Role();
+                user.setRole(role);
+            }
+            if (agency != null) {
+                role.setOrganisation(agency.getOrganisation());
+            }
+            if (roleType != null) {
+                role.setType(roleType);
+                role.setTitle(Role.titles.get(roleType));
+            }
         }
-        role.setOrganisation(agency.getOrganisation());
-        role.setType(roleType);
-        role.setTitle(Role.titles.get(roleType));
     }
 }
