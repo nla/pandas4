@@ -69,8 +69,7 @@ public class HeritrixClient {
         DigestChallenge challenge = lastChallenge.get();
         for (int tries = 0; tries < 3; tries++) {
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-            if (connection instanceof HttpsURLConnection) {
-                HttpsURLConnection https = (HttpsURLConnection) connection;
+            if (connection instanceof HttpsURLConnection https) {
                 https.setHostnameVerifier((hostname, session) -> true);
                 https.setSSLSocketFactory(socketFactory);
             }
