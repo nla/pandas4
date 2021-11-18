@@ -5,12 +5,27 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "ROLE", indexes = @Index(name = "role_individual_id_index", columnList = "individual_id"))
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role {
     public static final String TYPE_SYSADMIN = "SysAdmin";
+    public static final Map<String,String> titles = initTitlesMap();
+
+    private static Map<String, String> initTitlesMap() {
+        var map = new LinkedHashMap<String, String>();
+        map.put("SuppUser", "Support User");
+        map.put("InfoUser", "Informational User");
+        map.put("StdUser", "Standard User");
+        map.put("AgAdmin", "Agency Administrator");
+        map.put("PanAdmin", "Pandas Administrator");
+        map.put(TYPE_SYSADMIN, "System Administrator");
+        return Collections.unmodifiableMap(map);
+    }
 
     @Id
     @Column(name = "ROLE_ID")

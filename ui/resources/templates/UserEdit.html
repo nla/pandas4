@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${user == null ? 'New User - PANDAS' : 'Edit User - PANDAS'}">Edit User - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <button type="submit" data-keybind="s" class="btn btn-primary" form=editForm><i class="icon save"></i>Save</button>
+            <button onclick="history.back(); return false" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i> Cancel</button>
+        </nav>
+        <button th:if="${user != null}" type="submit" th:formaction="@{|/users/${user.userid}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
+    </header>
+    <form method=post class=form th:object="${form}" id=editForm th:action="@{''}">
+        <label>Username <input class="form-control" th:field="*{userid}" required></label>
+        <label><input type=checkbox th:field="*{active}"> Active</label>
+
+        <label>Given Names: <input class="form-control" th:field="*{nameGiven}" required></label>
+        <label>Family Names: <input class="form-control" th:field="*{nameFamily}" required></label>
+
+        <label>Email: <input class="form-control" th:field="*{email}" required></label>
+        <label>Phone: <input class="form-control" th:field="*{phone}"></label>
+        <label>Mobile: <input class="form-control" th:field="*{mobilePhone}"></label>
+        <label>Fax: <input class="form-control" th:field="*{fax}"></label>
+
+        <label>Agency
+            <select th:field="*{agency}">
+                <option th:each="agency : ${@agencyRepository.findAllOrdered()}" th:value="${agency.id}"
+                        th:text="${agency.name}">My Agency</option>
+            </select>
+        </label>
+
+        <label>Role
+            <select th:field="*{roleType}">
+                <option th:each="entry : ${roleNames.entrySet()}" th:value="${entry.key}"
+                        th:text="${entry.value}">Standard User</option>
+            </select>
+        </label>
+    </form>
+</main>

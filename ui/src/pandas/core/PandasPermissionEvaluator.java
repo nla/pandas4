@@ -93,7 +93,14 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 if (targetId == null) {
                     return authorities.contains(EDIT_ALL_USERS); // TODO: agadmins probably need to create users
                 }
-                Individual user = individualRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
+                Individual user;
+                if (targetId instanceof String userid) {
+                    user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
+                } else if (targetId instanceof Long individualId) {
+                    user = individualRepository.findById(individualId).orElseThrow(NotFoundException::new);
+                } else {
+                    throw new IllegalArgumentException("got " + targetId.getClass() + " targetId but expected String or Long");
+                }
                 return hasPermission(authentication, user, permission);
             }
             case "Publisher:edit":
