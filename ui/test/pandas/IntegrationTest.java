@@ -21,8 +21,6 @@ import pandas.gather.*;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -44,18 +42,18 @@ public abstract class IntegrationTest {
             return; // already setup
         }
 
-        formatRepository.saveAll(List.of("Mono", "Serial", "Integrating").stream().map(Format::new).collect(toList()));
-        gatherMethodRepository.saveAll(List.of(GatherMethod.HTTRACK, GatherMethod.UPLOAD, GatherMethod.HERITRIX).stream().map(GatherMethod::new).collect(toList()));
+        formatRepository.saveAll(List.of("Mono", "Serial", "Integrating").stream().map(Format::new).toList());
+        gatherMethodRepository.saveAll(List.of(GatherMethod.HTTRACK, GatherMethod.UPLOAD, GatherMethod.HERITRIX).stream().map(GatherMethod::new).toList());
         gatherScheduleRepository.save(new GatherSchedule("Annual", 1, 0, 0));
         scopeRepository.saveAll(List.of(new Scope("All pages on this website", null),
                         new Scope("Just this page", 0),
                         new Scope("This page and the pages it links to", 1)));
         stateRepository.saveAll(List.of("archived", "awaitGather", "checked", "checking", "creation", "deleted",
                 "deleting", "gatherPause", "gatherProcess", "gathered", "reserved11", "gathering", "archiving",
-                "failed").stream().map(State::new).collect(toList()));
+                "failed").stream().map(State::new).toList());
         statusRepository.saveAll(List.of("nominated", "rejected", "selected", "monitored", "permission requested",
                 "permission denied", "permission granted", "permission impossible", "reserved9", "reserved10",
-                "ceased").stream().map(Status::new).collect(toList()));
+                "ceased").stream().map(Status::new).toList());
 
         Organisation organisation = new Organisation();
         organisation.setName("Test Agency");

@@ -20,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static java.time.ZoneOffset.UTC;
 
@@ -51,7 +50,7 @@ public class InstanceThumbnailProcessor {
                 if (instances.isEmpty()) break;
 
                 threadPool.invokeAll(instances.stream().map(t -> (Callable<InstanceThumbnail>)(() -> processAndSave(t)))
-                        .collect(Collectors.toList()));
+                        .toList());
             }
             log.info("Done");
         } catch (InterruptedException e) {

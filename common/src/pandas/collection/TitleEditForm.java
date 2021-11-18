@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static pandas.util.Strings.emptyToNull;
 
 public class TitleEditForm {
@@ -70,7 +69,7 @@ public class TitleEditForm {
             setActiveProfile(gather.getActiveProfile());
             setGatherMethod(gather.getMethod());
             setGatherSchedule(gather.getSchedule());
-            setOneoffDates(gather.getOneoffDates().stream().map(GatherDate::getDate).collect(toList()));
+            setOneoffDates(gather.getOneoffDates().stream().map(GatherDate::getDate).toList());
             setScope(gather.getScope());
             if (gather.getAdditionalUrls() != null && !gather.getAdditionalUrls().isBlank()) {
                 setSeedUrls(getSeedUrls() + "\n" + gather.getAdditionalUrls());

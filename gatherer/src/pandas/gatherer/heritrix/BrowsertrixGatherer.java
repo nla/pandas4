@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
-import static java.util.stream.Collectors.toList;
 
 @Component
 public class BrowsertrixGatherer implements Backend {
@@ -138,9 +137,9 @@ public class BrowsertrixGatherer implements Backend {
         var warcs = Files.list(collectionDir)
                 .filter(f -> f.getFileName().toString().endsWith(".warc.gz"))
                 .map(this::renameWarcIfNecessary)
-                .collect(toList());
+                .toList();
         var artifacts = List.of(collectionDir.resolve("pages").resolve("pages.jsonl"),
-                        workingDir.resolve("stdio.log")).stream().filter(Files::exists).collect(toList());
+                        workingDir.resolve("stdio.log")).stream().filter(Files::exists).toList();
         repository.storeArtifactPaths(instance, artifacts);
         repository.storeWarcs(instance, warcs);
         delete(instance);

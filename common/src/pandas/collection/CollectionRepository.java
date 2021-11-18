@@ -11,8 +11,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @Repository
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsIsEmpty();
@@ -54,7 +52,7 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
         for (var entity: findAllById(ids)) {
             map.put(entity.getId(), entity);
         }
-        return ids.stream().map(map::get).collect(toList());
+        return ids.stream().map(map::get).toList();
     }
 
     default List<Collection> findRecentlyUsed(@Param("user") Individual user, Pageable pageable) {

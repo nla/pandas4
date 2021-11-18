@@ -10,7 +10,6 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -21,7 +20,7 @@ public class CdxClient {
 
     public Map<Instance,Decision> checkInstanceRestrictions(List<Instance> instances) {
         var map = new HashMap<Instance,Decision>();
-        var decisions = checkPermissions(instances.stream().map(Snapshot::new).collect(Collectors.toList()));
+        var decisions = checkPermissions(instances.stream().map(Snapshot::new).toList());
         var instanceIterator = instances.iterator();
         var decisionIterator = decisions.iterator();
         while (instanceIterator.hasNext() && decisionIterator.hasNext()) {

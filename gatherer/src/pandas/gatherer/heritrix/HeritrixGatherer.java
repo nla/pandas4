@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static pandas.gatherer.heritrix.HeritrixClient.State.*;
 
 @Component
@@ -110,7 +109,7 @@ public class HeritrixGatherer implements Backend {
         Path jobDir = jobDir(instance);
         List<Path> warcs = new ArrayList<>();
         List<Artifact> artifacts = new ArrayList<>();
-        for (Path file : Files.walk(jobDir).collect(toList())) {
+        for (Path file : Files.walk(jobDir).toList()) {
             Path relpath = jobDir.relativize(file);
             if (Files.isDirectory(file)) continue;
 

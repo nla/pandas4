@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ThumbnailProcessor {
@@ -42,7 +41,7 @@ public class ThumbnailProcessor {
                 List<Title> titles = titleRepository.findWithoutThumbnails(PageRequest.of(0, 100));
                 if (titles.isEmpty()) break;
                 threadPool.invokeAll(titles.stream().map(t -> (Callable<Thumbnail>)(() -> processAndSave(t)))
-                        .collect(Collectors.toList()));
+                        .toList());
             }
         } catch (InterruptedException e) {
             log.warn("ThumbnailProcessor interrupted", e);

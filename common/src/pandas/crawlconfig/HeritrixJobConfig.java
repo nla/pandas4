@@ -12,8 +12,6 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Properties;
 
-import static java.util.stream.Collectors.toList;
-
 public class HeritrixJobConfig {
     private final String name;
     private final String userAgent;
@@ -27,12 +25,12 @@ public class HeritrixJobConfig {
                 .map(seed -> parseAndCanonicalize(seed.getUrl()).toString())
                 .sorted()
                 .distinct()
-                .collect(toList());
+                .toList();
         surts = crawlConfig.getSeeds().stream()
                 .map(seed -> urlToSurt(seed.getUrl(), seed.getScope()))
                 .sorted()
                 .distinct()
-                .collect(toList());
+                .toList();
     }
 
     public static ParsedUrl parseAndCanonicalize(String url) {
