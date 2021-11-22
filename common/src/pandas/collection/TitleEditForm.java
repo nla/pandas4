@@ -33,6 +33,7 @@ public class TitleEditForm {
     private String notes;
     private String seedUrls;
     private Status status;
+    private Reason reason;
     private boolean legalDeposit = true;
 
     private Publisher publisher;
@@ -253,5 +254,13 @@ public class TitleEditForm {
 
     public void setScope(Scope scope) {
         this.scope = scope;
+    }
+
+    public Reason getReason() {
+        return reason;
+    }
+
+    public void setReason(Reason reason) {
+        this.reason = reason;
     }
 }

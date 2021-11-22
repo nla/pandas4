@@ -59,9 +59,41 @@
                     <input th:field="*{titleUrl}" required class="form-control">
                 </label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Status
-                    <select th:field="*{status}">
+                    <select th:field="*{status}" onchange="updateReasons()" th:data-current="${form.status.id}">
                         <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
                     </select>
+                </label>
+                <label style="display: none">Reason
+                    <select th:field="*{reason}" id=reason>
+                        <option th:each="reason: ${@reasonRepository.findAllByOrderByName()}" hidden
+                                th:text="${reason.name}" th:value="${reason.id}" th:data-status="${reason.status.id}"></option>
+                    </select>
+                    <script>
+                        function updateReasons() {
+                            let reasonSelect = document.getElementById("reason");
+                            let statusId = document.getElementById("status").value;
+                            reasonSelect.parentElement.style.display = 'none';
+
+                            // if the selected status is the current status, hide the reason field
+                            if (statusId === document.getElementById("status").dataset.current) {
+                                return;
+                            }
+
+                            // otherwise show only the relevant options
+                            for (let i = 0; i < reasonSelect.options.length; i++) {
+                                let option = reasonSelect.options[i];
+                                if (option.dataset.status === statusId) {
+                                    option.hidden = false;
+                                    reasonSelect.parentElement.style.display = '';
+                                    if (option.text === 'Other') {
+                                        reasonSelect.selectedIndex = i;
+                                    }
+                                } else {
+                                    option.hidden = true;
+                                }
+                            }
+                        }
+                    </script>
                 </label>
             </div>
             <div id="fetchAlert" class="alert-warning" style="display: none"></div>

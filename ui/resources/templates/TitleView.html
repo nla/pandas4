@@ -103,9 +103,10 @@
 
         <div>
             <h4>Status</h4>
-            <div th:text="${title.status.name}" style="text-transform: capitalize"></div>
-            <div>
+            <div th:text="${title.status.name}" style="text-transform: capitalize">
             </div>
+            <div th:if="${title.statusReason != null}" th:text="${title.statusReason.name}" style="color: #777"></div>
+            <p></p>
             <details>
                 <summary><span th:text="${title?.gather?.schedule?.name}"></span> <span
                         th:text="${title?.gather?.method?.name}"></span> gather

@@ -446,6 +446,11 @@ public class Title {
         this.status = status;
     }
 
+    public Reason getStatusReason() {
+        if (getStatusHistories().isEmpty()) return null;
+        return getStatusHistories().get(getStatusHistories().size() - 1).getReason();
+    }
+
     public String getThumbnailUrl() {
         return "https://pandas.nla.gov.au/api/image?url=" +
                 URLEncoder.encode("https://web.archive.org.au/awa-nobanner/29990730022559/" + getTitleUrl(), UTF_8) +

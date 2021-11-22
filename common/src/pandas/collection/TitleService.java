@@ -174,7 +174,7 @@ public class TitleService {
 
         // create a status history record if we changed it
         if (statusChanged) {
-            recordStatusChange(title, user, now);
+            recordStatusChange(title, user, now, form.getReason());
         }
 
         //
@@ -215,11 +215,12 @@ public class TitleService {
     /**
      * Create a new status history record for this title. Assumes the status has already been updated.
      */
-    private void recordStatusChange(Title title, Individual user, Instant now) {
+    private void recordStatusChange(Title title, Individual user, Instant now, Reason reason) {
         statusHistoryRepository.markPreviousEnd(title, now);
         var statusHistory = new StatusHistory();
         statusHistory.setStartDate(now);
         statusHistory.setStatus(title.getStatus());
+        statusHistory.setReason(reason);
         statusHistory.setIndividual(user);
         statusHistory.setTitle(title);
         statusHistoryRepository.save(statusHistory);
