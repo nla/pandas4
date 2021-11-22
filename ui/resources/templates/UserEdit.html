@@ -16,29 +16,48 @@
         <button th:if="${user != null}" type="submit" th:formaction="@{|/users/${user.userid}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
     </header>
     <form method=post class=form th:object="${form}" id=editForm th:action="@{''}">
-        <label>Username <input class="form-control" th:field="*{userid}" required></label>
-        <label><input type=checkbox th:field="*{active}"> Active</label>
+        <fieldset>
+            <div>
+                <label>Username <input th:field="*{userid}" required></label>
+                <label style="align-self: center"><br><input type=checkbox th:field="*{disabled}"> Account disabled</label>
+            </div>
+        </fieldset>
 
-        <label>Given Names: <input class="form-control" th:field="*{nameGiven}" required></label>
-        <label>Family Names: <input class="form-control" th:field="*{nameFamily}" required></label>
+        <fieldset>
+            <div>
+                <label>Given name(s) <input th:field="*{nameGiven}" required></label>
+                <label>Family name <input th:field="*{nameFamily}" required></label>
+            </div>
+            <div>
+                <label>Email <input th:field="*{email}" required></label>
+                <label>Phone <input th:field="*{phone}"></label>
+                <label>Mobile <input th:field="*{mobilePhone}"></label>
+            </div>
+        </fieldset>
 
-        <label>Email: <input class="form-control" th:field="*{email}" required></label>
-        <label>Phone: <input class="form-control" th:field="*{phone}"></label>
-        <label>Mobile: <input class="form-control" th:field="*{mobilePhone}"></label>
+        <fieldset>
+            <label>New password <input type=password name=newPassword autocomplete=new-password></label>
+            <label>Confirm password
+                <input type=password name=confirmPassword autocomplete=new-password
+                       oninput='this.setCustomValidity(this.value === this.form.elements.newPassword.value ? "" : "Passwords do not match")'>
+            </label>
+        </fieldset>
 
-        <label sec:authorize="hasAuthority('PRIV_EDIT_ALL_USERS')">Agency
-            <select th:field="*{agency}">
-                <option th:each="agency : ${@agencyRepository.findAllOrdered()}" th:value="${agency.id}"
-                        th:text="${agency.name}">My Agency</option>
-            </select>
-        </label>
+        <fieldset>
+            <label sec:authorize="hasAuthority('PRIV_EDIT_ALL_USERS')">Agency
+                <select th:field="*{agency}">
+                    <option th:each="agency : ${@agencyRepository.findAllOrdered()}" th:value="${agency.id}"
+                            th:text="${agency.name}">My Agency</option>
+                </select>
+            </label>
 
-        <!--/* Only show the role field if the current user is actually allowed to set them back to this access level */-->
-        <label th:if="${allowedRoles.containsKey(form.roleType())}">Role
-            <select th:field="*{roleType}">
-                <option th:each="entry : ${allowedRoles.entrySet()}" th:value="${entry.key}"
-                        th:text="${entry.value}">Standard User</option>
-            </select>
-        </label>
+            <!--/* Only show the role field if the current user is actually allowed to set them back to this access level */-->
+            <label th:if="${allowedRoles.containsKey(form.roleType())}">Role
+                <select th:field="*{roleType}">
+                    <option th:each="entry : ${allowedRoles.entrySet()}" th:value="${entry.key}"
+                            th:text="${entry.value}">Standard User</option>
+                </select>
+            </label>
+        </fieldset>
     </form>
 </main>

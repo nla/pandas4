@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import pandas.agency.Agency;
 
 import javax.persistence.*;
@@ -212,6 +213,7 @@ public class Individual {
     }
 
     public void setPassword(String password) {
+        setPwdigest(BCrypt.hashpw(password, BCrypt.gensalt()));
         this.password = password;
     }
 

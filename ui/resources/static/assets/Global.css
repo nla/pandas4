@@ -74,7 +74,7 @@ details > summary {
     cursor: pointer;
 }
 
-input:not([type]), input[type=text], select {
+input:not([type]), input[type=text], input[type=password], select {
     height: 32px;
     border-radius: .2rem;
     border: 1px solid #ccc;
@@ -451,7 +451,7 @@ button.btn-danger:hover, a.btn-danger:hover {
     display: block;
 }
 
-.form input:not([type]), .form textarea, .form select {
+.form input:not([type]), .form input[type=password], .form textarea, .form select {
     width: 100%;
     box-sizing: border-box;
 }
