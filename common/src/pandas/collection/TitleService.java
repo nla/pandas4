@@ -103,6 +103,8 @@ public class TitleService {
         title.setNotes(Strings.emptyToNull(form.getNotes()));
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
+
+
         boolean statusChanged = false;
         if (!Objects.equals(title.getStatus(), form.getStatus())) {
             title.setStatus(form.getStatus());
@@ -111,6 +113,19 @@ public class TitleService {
         if (title.getStatus() == null) {
             title.setStatus(statusRepository.findById(Status.NOMINATED_ID).orElseThrow());
             statusChanged = true;
+        }
+
+        // if transitioning to the selected status, try to move to the appropriate permission status if possible
+        if (statusChanged && title.getStatus().getId().equals(Status.SELECTED_ID) && title.getPermission() != null) {
+            Long newStatusId = switch (title.getPermission().getState().getName()) {
+                case PermissionState.GRANTED -> Status.PERMISSION_GRANTED_ID;
+                case PermissionState.DENIED -> Status.PERMISSION_DENIED_ID;
+                case PermissionState.IMPOSSIBLE -> Status.PERMISSION_IMPOSSIBLE_ID;
+                default -> null;
+            };
+            if (newStatusId != null) {
+                title.setStatus(statusRepository.findById(newStatusId).orElseThrow());
+            }
         }
 
         // set seed url

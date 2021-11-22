@@ -6,6 +6,10 @@ import java.util.Objects;
 @Entity
 @Table(name = "PERMISSION_STATE")
 public class PermissionState {
+    public static final String GRANTED = "Granted";
+    public static final String DENIED = "Denied";
+    public static final String IMPOSSIBLE = "Impossible";
+
     @Id
     @GeneratedValue
     @Column(name = "PERMISSION_STATE_ID", nullable = false, precision = 0)
