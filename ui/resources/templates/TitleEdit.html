@@ -73,6 +73,7 @@
                             let reasonSelect = document.getElementById("reason");
                             let statusId = document.getElementById("status").value;
                             reasonSelect.parentElement.style.display = 'none';
+                            reasonSelect.value = "";
 
                             // if the selected status is the current status, hide the reason field
                             if (statusId === document.getElementById("status").dataset.current) {
