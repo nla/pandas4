@@ -51,6 +51,9 @@ public class UserController {
     @PreAuthorize("hasPermission(#agency, 'create-user')")
     public String create(@Valid UserEditForm form, @RequestParam("agency") Agency agency, Authentication authentication) {
         Individual user = new Individual(agency);
+        if (individualRepository.findByUserid(form.userid()).isPresent()) {
+            throw new IllegalArgumentException("User already exists");
+        }
         return save(form, authentication, user);
     }
 
