@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import pandas.agency.Agency;
 import pandas.collection.TitleRepository;
 
 import javax.validation.Valid;
@@ -36,6 +38,22 @@ public class UserController {
         return "UserView";
     }
 
+    @GetMapping("/users/new")
+    @PreAuthorize("hasPermission(#agency, 'create-user')")
+    public String newForm(@RequestParam("agency") Agency agency, Model model) {
+        model.addAttribute("form", UserEditForm.of(new Individual(agency)));
+        model.addAttribute("allowedRoles", getRoleNamesAllowedForCurrentUser());
+        return "UserEdit";
+    }
+
+
+    @PostMapping("/users/new")
+    @PreAuthorize("hasPermission(#agency, 'create-user')")
+    public String create(@Valid UserEditForm form, @RequestParam("agency") Agency agency, Authentication authentication) {
+        Individual user = new Individual(agency);
+        return save(form, authentication, user);
+    }
+
     @GetMapping("/users/{userid}/edit")
     @PreAuthorize("hasPermission(#userid, 'Individual', 'edit')")
     public String edit(@PathVariable("userid") String userid, Model model) {
@@ -50,6 +68,18 @@ public class UserController {
     @PreAuthorize("hasPermission(#collection, 'Individual', 'edit')")
     public String update(@PathVariable("userid") String userid, @Valid UserEditForm form, Authentication authentication) {
         Individual user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
+        return save(form, authentication, user);
+    }
+
+    @PostMapping("/users/{userid}/delete")
+    @PreAuthorize("hasPermission(#collection, 'Individual', 'edit')")
+    public String delete(@PathVariable("userid") String userid) {
+        Individual user = individualRepository.findByUserid(userid).orElseThrow();
+        individualRepository.delete(user);
+        return "redirect:/agencies/" + user.getAgency().getOrganisation().getAlias();
+    }
+
+    private String save(UserEditForm form, Authentication authentication, Individual user) {
         if (form.roleType() != null && !getRoleNamesAllowedForCurrentUser().containsKey(form.roleType())) {
             throw new AccessDeniedException("cannot set access level higher than own level");
         }

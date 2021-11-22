@@ -29,6 +29,17 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Object target, Object permission) {
         var authorities = authentication.getAuthorities();
         switch (target.getClass().getSimpleName() + ":" + permission) {
+            case "Agency:create-user": {
+                if (authorities.contains(EDIT_ALL_USERS)) {
+                    return true;
+                }
+                Agency agency = (Agency) target;
+                Individual currentUser = individualRepository.findByUserid(authentication.getName()).orElseThrow();
+                if (authorities.contains(EDIT_AGENCY_USERS) && currentUser.getAgency().equals(agency)) {
+                    return true;
+                }
+                return false;
+            }
             case "Agency:edit": {
                 if (authorities.contains(EDIT_ALL_AGENCIES)) {
                     return true;
@@ -80,6 +91,10 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
         var authorities = authentication.getAuthorities();
         switch (targetType + ":" + permission) {
+            case "Agency:create-user": {
+                Agency agency = agencyRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
+                return hasPermission(authentication, agency, permission);
+            }
             case "Agency:edit": {
                 if (targetId == null) {
                     return authorities.contains(EDIT_ALL_AGENCIES);

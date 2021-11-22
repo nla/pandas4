@@ -92,6 +92,16 @@ public class Individual {
     @OneToOne(mappedBy = "individual", cascade = CascadeType.ALL)
     private Role role;
 
+    public Individual() {
+    }
+
+    public Individual(Agency agency) {
+        setActive(true);
+        getRole().setOrganisation(agency.getOrganisation());
+        getRole().setType("StdUser");
+        getRole().setTitle("Standard User");
+    }
+
     public String getFullName() {
         return getNameGiven() + " "  + getNameFamily();
     }
@@ -270,6 +280,9 @@ public class Individual {
     }
 
     public Role getRole() {
+        if (role == null) {
+            setRole(new Role());
+        }
         return role;
     }
 

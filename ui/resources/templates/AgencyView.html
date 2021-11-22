@@ -12,7 +12,8 @@
 <main>
     <header>
         <nav>
-            <a sec:authorize="hasPermission(#vars.agency, 'edit')" th:href="@{link.edit(agency)}" class="btn"><i class="icon edit"></i> Edit</a>
+            <a sec:authorize="hasPermission(#vars.agency, 'edit')" th:href="${@link.edit(agency)}" class="btn"><i class="icon edit"></i> Edit</a>
+            <a sec:authorize="hasPermission(#vars.agency, 'create-user')" th:href="@{/users/new(agency=${agency.id})}" class="btn btn-secondary"><i class="icon add"></i> New User</a>
         </nav>
     </header>
 

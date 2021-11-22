@@ -38,10 +38,6 @@ public record UserEditForm(
 
         if (agency != null || roleType != null) {
             Role role = user.getRole();
-            if (role == null) {
-                role = new Role();
-                user.setRole(role);
-            }
             if (agency != null) {
                 role.setOrganisation(agency.getOrganisation());
             }

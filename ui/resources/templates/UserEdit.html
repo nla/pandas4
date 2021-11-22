@@ -36,7 +36,8 @@
         </fieldset>
 
         <fieldset>
-            <label>New password <input type=password name=newPassword autocomplete=new-password></label>
+            <label>New password <input type=password name=newPassword autocomplete=new-password
+                                       th:required="${user == null}"></label>
             <label>Confirm password
                 <input type=password name=confirmPassword autocomplete=new-password
                        oninput='this.setCustomValidity(this.value === this.form.elements.newPassword.value ? "" : "Passwords do not match")'>
@@ -52,7 +53,7 @@
             </label>
 
             <!--/* Only show the role field if the current user is actually allowed to set them back to this access level */-->
-            <label th:if="${allowedRoles.containsKey(form.roleType())}">Role
+            <label th:if="${form.roleType() == null || allowedRoles.containsKey(form.roleType())}">Role
                 <select th:field="*{roleType}">
                     <option th:each="entry : ${allowedRoles.entrySet()}" th:value="${entry.key}"
                             th:text="${entry.value}">Standard User</option>
