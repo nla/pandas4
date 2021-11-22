@@ -110,16 +110,6 @@
                     </select>
                 </label>
             </div>
-            <div>
-                <label>What to collect
-                    <div style="margin-top: 4px; display: flex; gap: 16px">
-                        <label th:each="scope : ${allScopes}">
-                            <input type=radio name=scope th:checked="${form.scope == scope}" th:value="${scope.id}">
-                            <th:block th:text="${scope.name}">All pages on this website</th:block>
-                        </label>
-                    </div>
-                </label>
-            </div>
         </fieldset>
 
         <fieldset style="flex-grow: 1">
@@ -170,7 +160,7 @@
             </details>
         </fieldset>
 
-        <fieldset sec:authorize="hasRole('stduser')">
+        <fieldset>
             <legend>Gather</legend>
 
             <div th:each="collection: ${form.collections}" th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
@@ -179,112 +169,123 @@
                 <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" class="collection-link">Cool Sites</a>
             </div>
 
-            <div>
-                <label>Schedule
-                    <select th:field="*{gatherSchedule}">
-                        <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
-                                th:text="${schedule.name}">Weekly
-                        </option>
-                    </select>
-                </label>
-                <label>One-off<br>
-                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
-                    <button onclick="addOneoffDate()" type=button>Add</button>
-                </label>
-            </div>
-            <ul id="oneoffDatesList" th:style="${form.oneoffDates.isEmpty() ? 'display:none' : 'display:block'}" >
-                <li th:each="date: *{oneoffDates}">
-                    <time th:datetime="${date}" th:text="${date}"></time>
-                    <button class="btn btn-danger" onclick="deleteOneoff(this.parentNode)" type=button>Remove</button>
-                    <input type=hidden name="oneoffDates" th:value="${date}">
-                </li>
-            </ul>
-            <script>
-                document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
-
-                function deleteOneoff(el) {
-                    el.remove();
-                    console.log(document.getElementById('oneoffDatesList').querySelector('li'));
-                    if (!document.getElementById('oneoffDatesList').querySelector('li')) {
-                        document.getElementById('oneoffDatesList').style.display = 'none';
-                    }
-                }
-
-                function addOneoffDate() {
-                    var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
-                    var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
-                    var date = new Date();
-                    date.setMilliseconds(0);
-                    if (dateInput) {
-                        date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
-                    }
-                    if (timeInput) {
-                        date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
-                    } else {
-                        date.setHours(0, 0, 0);
-                    }
-                    const iso = date.toISOString().replace(".000Z", "Z");
-                    if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
-                        return; // don't allow duplicates
-                    }
-                    document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
-                        '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
-                        '<button class="btn btn-danger" onclick="deleteOneoff(this.parentNode)" type=button>Remove</button>' +
-                        '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
-                    document.getElementById('oneoffDatesList').style.display = 'block';
-                }
-            </script>
-
-            <label>Method
-                <select th:field="*{gatherMethod}">
-                    <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
-                        Heritrix
-                    </option>
-                </select>
+            <label>What to collect
+                <div style="margin-top: 4px; display: flex; gap: 16px">
+                    <label th:each="scope : ${allScopes}">
+                        <input type=radio name=scope th:checked="${form.scope == scope}" th:value="${scope.id}">
+                        <th:block th:text="${scope.name}">All pages on this website</th:block>
+                    </label>
+                </div>
             </label>
 
-            <details th:open="${form.seedUrls != form.titleUrl}">
-                <summary>Crawl options</summary>
-                <label style="margin: var(--gutter) 0">Profile
-                    <select th:field="*{activeProfile}" id="activeProfile">
-                        <option value=""></option>
-                        <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}"
-                                th:data-gathermethod="${profile.gatherMethod?.id}" th:data-default="${profile.default ? true : null}">
-                            Pandas Defaults
+            <th:block sec:authorize="hasRole('stduser')">
+                <div>
+                    <label>Schedule
+                        <select th:field="*{gatherSchedule}">
+                            <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
+                                    th:text="${schedule.name}">Weekly
+                            </option>
+                        </select>
+                    </label>
+                    <label>One-off<br>
+                        <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
+                        <button onclick="addOneoffDate()" type=button>Add</button>
+                    </label>
+                </div>
+                <ul id="oneoffDatesList" th:style="${form.oneoffDates.isEmpty() ? 'display:none' : 'display:block'}" >
+                    <li th:each="date: *{oneoffDates}">
+                        <time th:datetime="${date}" th:text="${date}"></time>
+                        <button class="btn btn-danger" onclick="deleteOneoff(this.parentNode)" type=button>Remove</button>
+                        <input type=hidden name="oneoffDates" th:value="${date}">
+                    </li>
+                </ul>
+                <script>
+                    document.querySelectorAll("#oneoffDatesList time").forEach(el => el.textContent = new Date(el.dateTime).toLocaleString());
+
+                    function deleteOneoff(el) {
+                        el.remove();
+                        console.log(document.getElementById('oneoffDatesList').querySelector('li'));
+                        if (!document.getElementById('oneoffDatesList').querySelector('li')) {
+                            document.getElementById('oneoffDatesList').style.display = 'none';
+                        }
+                    }
+
+                    function addOneoffDate() {
+                        var dateInput = document.getElementById('oneoffDateInput').valueAsDate;
+                        var timeInput = document.getElementById('oneoffTimeInput').valueAsDate;
+                        var date = new Date();
+                        date.setMilliseconds(0);
+                        if (dateInput) {
+                            date.setFullYear(dateInput.getUTCFullYear(), dateInput.getUTCMonth(), dateInput.getUTCDate());
+                        }
+                        if (timeInput) {
+                            date.setHours(timeInput.getUTCHours(), timeInput.getUTCMinutes(), timeInput.getUTCSeconds());
+                        } else {
+                            date.setHours(0, 0, 0);
+                        }
+                        const iso = date.toISOString().replace(".000Z", "Z");
+                        if (document.getElementById('oneoffDatesList').querySelector('time[datetime="' + iso +'"]')) {
+                            return; // don't allow duplicates
+                        }
+                        document.getElementById('oneoffDatesList').insertAdjacentHTML('beforeend',
+                            '<li><time datetime="' + iso + '">' + date.toLocaleString() + '</time> ' +
+                            '<button class="btn btn-danger" onclick="deleteOneoff(this.parentNode)" type=button>Remove</button>' +
+                            '<input type=hidden name=oneoffDates value="' + iso + '"></li>');
+                        document.getElementById('oneoffDatesList').style.display = 'block';
+                    }
+                </script>
+
+                <label>Method
+                    <select th:field="*{gatherMethod}">
+                        <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
+                            Heritrix
                         </option>
                     </select>
-                    <script>
-                        let profileSelect = document.getElementById("activeProfile");
-                        let gatherMethodSelect = document.getElementById("gatherMethod");
+                </label>
 
-                        // if gather method is changed to a method unsupported by current profile, select default profile
-                        gatherMethodSelect.addEventListener("change", function(event) {
-                            let profileGatherMethodId = profileSelect.selectedOptions[0].dataset.gathermethod;
-                            if (profileGatherMethodId && profileGatherMethodId !== gatherMethodSelect.value) {
-                                for (let option of profileSelect.options) {
-                                    if (option.dataset['default']) {
-                                        profileSelect.value = option.value;
-                                        break;
+                <details th:open="${form.seedUrls != form.titleUrl}">
+                    <summary>Crawl options</summary>
+                    <label style="margin: var(--gutter) 0">Profile
+                        <select th:field="*{activeProfile}" id="activeProfile">
+                            <option value=""></option>
+                            <option th:each="profile: ${allProfiles}" th:value="${profile.id}" th:text="${profile.name}"
+                                    th:data-gathermethod="${profile.gatherMethod?.id}" th:data-default="${profile.default ? true : null}">
+                                Pandas Defaults
+                            </option>
+                        </select>
+                        <script>
+                            let profileSelect = document.getElementById("activeProfile");
+                            let gatherMethodSelect = document.getElementById("gatherMethod");
+
+                            // if gather method is changed to a method unsupported by current profile, select default profile
+                            gatherMethodSelect.addEventListener("change", function(event) {
+                                let profileGatherMethodId = profileSelect.selectedOptions[0].dataset.gathermethod;
+                                if (profileGatherMethodId && profileGatherMethodId !== gatherMethodSelect.value) {
+                                    for (let option of profileSelect.options) {
+                                        if (option.dataset['default']) {
+                                            profileSelect.value = option.value;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
-                        });
+                            });
 
-                        // select the appropriate method for the selected profile
-                        profileSelect.addEventListener("change", function(event) {
-                            let methodId = event.target.selectedOptions[0].dataset.gathermethod;
-                            if (methodId) {
-                                document.getElementById('gatherMethod').value = methodId;
-                            }
-                        });
-                    </script>
-                </label>
+                            // select the appropriate method for the selected profile
+                            profileSelect.addEventListener("change", function(event) {
+                                let methodId = event.target.selectedOptions[0].dataset.gathermethod;
+                                if (methodId) {
+                                    document.getElementById('gatherMethod').value = methodId;
+                                }
+                            });
+                        </script>
+                    </label>
 
-                <label>
-                    Seed URLs:
-                    <textarea th:field="*{seedUrls}"></textarea>
-                </label>
-            </details>
+                    <label>
+                        Seed URLs:
+                        <textarea th:field="*{seedUrls}"></textarea>
+                    </label>
+                </details>
+            </th:block>
         </fieldset>
         <style>
             #oneoffDatesList:empty {
