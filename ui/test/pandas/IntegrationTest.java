@@ -9,12 +9,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
+import pandas.agency.User;
+import pandas.agency.UserRepository;
 import pandas.collection.Format;
 import pandas.collection.FormatRepository;
 import pandas.collection.Status;
 import pandas.collection.StatusRepository;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
 import pandas.core.Organisation;
 import pandas.core.Role;
 import pandas.gather.*;
@@ -34,11 +34,11 @@ public abstract class IntegrationTest {
                                      @Autowired FormatRepository formatRepository,
                                      @Autowired GatherMethodRepository gatherMethodRepository,
                                      @Autowired GatherScheduleRepository gatherScheduleRepository,
-                                     @Autowired IndividualRepository individualRepository,
+                                     @Autowired UserRepository userRepository,
                                      @Autowired ScopeRepository scopeRepository,
                                      @Autowired StateRepository stateRepository,
                                      @Autowired StatusRepository statusRepository) {
-        if (individualRepository.findByUserid("user").isPresent()) {
+        if (userRepository.findByUserid("user").isPresent()) {
             return; // already setup
         }
 
@@ -66,10 +66,10 @@ public abstract class IntegrationTest {
         role.setOrganisation(agency.getOrganisation());
         role.setType(Role.TYPE_SYSADMIN);
 
-        Individual user = new Individual();
+        User user = new User();
         user.setUserid("user");
         user.setActive(true);
         user.setRole(role);
-        individualRepository.save(user);
+        userRepository.save(user);
     }
 }

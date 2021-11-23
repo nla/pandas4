@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
-import pandas.core.Individual;
+import pandas.agency.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,10 +19,10 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "and (t.titleUrl is not null or t.seedUrl is not null)")
     List<Title> findWithoutThumbnails(Pageable pageable);
 
-    List<Title> findFirst20ByOwnerOrderByRegDateDesc(Individual owner);
+    List<Title> findFirst20ByOwnerOrderByRegDateDesc(User owner);
     List<Title> findFirst20ByAgencyOrderByRegDateDesc(Agency agency);
 
-    long countByOwner(Individual owner);
+    long countByOwner(User owner);
 
     long countByAgency(Agency agency);
 
@@ -159,17 +159,17 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     @Query("select distinct t from Title t\n" +
             " join t.statusHistories sh\n" +
-            " where sh.individual = :nominator and " +
+            " where sh.user = :nominator and " +
             "       sh.status.name in ('nominated', 'selected')\n and " +
             "       sh.startDate > :dateLimit " +
             " order by t.regDate desc")
-    List<Title> findByNominatorOrSelector(@Param("nominator") Individual nominator, @Param("dateLimit") Instant dateLimit);
+    List<Title> findByNominatorOrSelector(@Param("nominator") User nominator, @Param("dateLimit") Instant dateLimit);
 
     @Query("select t from Title t\n" +
             " join t.statusHistories sh\n" +
-            " where sh.individual = :selector and " +
+            " where sh.user = :selector and " +
             "       sh.status.name = 'selected'\n and " +
             "       sh.startDate > :dateLimit " +
             " order by t.regDate desc")
-    List<Title> findBySelector(@Param("selector") Individual selector, @Param("dateLimit") Instant dateLimit);
+    List<Title> findBySelector(@Param("selector") User selector, @Param("dateLimit") Instant dateLimit);
 }

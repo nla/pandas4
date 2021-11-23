@@ -1,6 +1,6 @@
-package pandas.core;
+package pandas.agency;
 
-import pandas.agency.Agency;
+import pandas.core.Role;
 
 import javax.validation.constraints.NotBlank;
 
@@ -19,13 +19,13 @@ public record UserEditForm(
         String newPassword,
         String confirmPassword) {
 
-    public static UserEditForm of(Individual user) {
+    public static UserEditForm of(User user) {
         return new UserEditForm(user.getUserid(), !user.isActive(), user.getNameGiven(), user.getNameFamily(), user.getEmail(),
                 user.getPhone(), user.getMobilePhone(), user.getAgency(),
                 user.getRole() == null ? null : user.getRole().getType(), null, null);
     }
 
-    public void applyTo(Individual user) {
+    public void applyTo(User user) {
         user.setUserid(trimToNull(userid));
         user.setActive(!disabled);
         user.setNameGiven(trimToNull(nameGiven));

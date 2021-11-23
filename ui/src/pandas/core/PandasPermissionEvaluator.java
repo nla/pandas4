@@ -5,6 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
+import pandas.agency.User;
+import pandas.agency.UserRepository;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 
@@ -16,12 +18,12 @@ import static pandas.core.Privileges.*;
 @Component
 public class PandasPermissionEvaluator implements PermissionEvaluator {
     private final AgencyRepository agencyRepository;
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final TitleRepository titleRepository;
 
-    public PandasPermissionEvaluator(AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository) {
+    public PandasPermissionEvaluator(AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository) {
         this.agencyRepository = agencyRepository;
-        this.individualRepository = individualRepository;
+        this.userRepository = userRepository;
         this.titleRepository = titleRepository;
     }
 
@@ -34,7 +36,7 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                     return true;
                 }
                 Agency agency = (Agency) target;
-                Individual currentUser = individualRepository.findByUserid(authentication.getName()).orElseThrow();
+                User currentUser = userRepository.findByUserid(authentication.getName()).orElseThrow();
                 if (authorities.contains(EDIT_AGENCY_USERS) && currentUser.getAgency().equals(agency)) {
                     return true;
                 }
@@ -45,7 +47,7 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                     return true;
                 }
                 Agency agency = (Agency) target;
-                Individual currentUser = individualRepository.findByUserid(authentication.getName()).orElseThrow();
+                User currentUser = userRepository.findByUserid(authentication.getName()).orElseThrow();
                 if (authorities.contains(EDIT_OWN_AGENCY) && currentUser.getAgency().equals(agency)) {
                     return true;
                 }
@@ -53,20 +55,6 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
             }
             case "Collection:edit":
                 return authorities.contains(EDIT_COLLECTIONS);
-            case "Individual:edit": {
-                if (authorities.contains(EDIT_ALL_USERS)) {
-                    return true;
-                }
-                Individual targetUser = (Individual) target;
-                if (targetUser.getUserid() == null) {
-                    return false; // not an actual user
-                }
-                Individual currentUser = individualRepository.findByUserid(authentication.getName()).orElseThrow();
-                if (authorities.contains(EDIT_AGENCY_USERS) && currentUser.getAgency().equals(targetUser.getAgency())) {
-                    return true;
-                }
-                return false;
-            }
             case "Publisher:edit":
                 return authorities.contains(EDIT_PUBLISHERS);
             case "Subject:edit":
@@ -75,11 +63,25 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 if (authorities.contains(EDIT_ALL_TITLES))
                     return true;
                 Title title = (Title) target;
-                var user = individualRepository.findByUserid(authentication.getName()).orElseThrow();
+                var user = userRepository.findByUserid(authentication.getName()).orElseThrow();
                 if (authorities.contains(EDIT_OWN_TITLES) && title.isOwnedBy(user))
                     return true;
                 if (authorities.contains(EDIT_AGENCY_TITLES) && title.isOwnedBy(user.getAgency()))
                     return true;
+                return false;
+            }
+            case "User:edit": {
+                if (authorities.contains(EDIT_ALL_USERS)) {
+                    return true;
+                }
+                User targetUser = (User) target;
+                if (targetUser.getUserid() == null) {
+                    return false; // not an actual user
+                }
+                User currentUser = userRepository.findByUserid(authentication.getName()).orElseThrow();
+                if (authorities.contains(EDIT_AGENCY_USERS) && currentUser.getAgency().equals(targetUser.getAgency())) {
+                    return true;
+                }
                 return false;
             }
             default:
@@ -104,20 +106,6 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
             }
             case "Collection:edit":
                 return authorities.contains(EDIT_COLLECTIONS);
-            case "Individual:edit": {
-                if (targetId == null) {
-                    return authorities.contains(EDIT_ALL_USERS); // TODO: agadmins probably need to create users
-                }
-                Individual user;
-                if (targetId instanceof String userid) {
-                    user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
-                } else if (targetId instanceof Long individualId) {
-                    user = individualRepository.findById(individualId).orElseThrow(NotFoundException::new);
-                } else {
-                    throw new IllegalArgumentException("got " + targetId.getClass() + " targetId but expected String or Long");
-                }
-                return hasPermission(authentication, user, permission);
-            }
             case "Publisher:edit":
                 return authorities.contains(EDIT_PUBLISHERS);
             case "Subject:edit":
@@ -127,6 +115,20 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                     return authorities.contains(NOMINATE_TITLES);
                 Title title = titleRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
                 return hasPermission(authentication, title, permission);
+            }
+            case "User:edit": {
+                if (targetId == null) {
+                    return authorities.contains(EDIT_ALL_USERS); // TODO: agadmins probably need to create users
+                }
+                User user;
+                if (targetId instanceof String userid) {
+                    user = userRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
+                } else if (targetId instanceof Long individualId) {
+                    user = userRepository.findById(individualId).orElseThrow(NotFoundException::new);
+                } else {
+                    throw new IllegalArgumentException("got " + targetId.getClass() + " targetId but expected String or Long");
+                }
+                return hasPermission(authentication, user, permission);
             }
             default:
                 throw new IllegalArgumentException("Unknown permission " + targetType + "(" + targetId + "):" + permission);

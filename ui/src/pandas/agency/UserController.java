@@ -1,4 +1,4 @@
-package pandas.core;
+package pandas.agency;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import pandas.agency.Agency;
 import pandas.collection.TitleRepository;
+import pandas.core.NotFoundException;
+import pandas.core.Privileges;
+import pandas.core.Role;
 
 import javax.validation.Valid;
 import java.util.LinkedHashMap;
@@ -19,19 +21,19 @@ import java.util.Objects;
 
 @Controller
 public class UserController {
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final TitleRepository titleRepository;
     private final UserService userService;
 
-    public UserController(IndividualRepository individualRepository, TitleRepository titleRepository, UserService userService) {
-        this.individualRepository = individualRepository;
+    public UserController(UserRepository userRepository, TitleRepository titleRepository, UserService userService) {
+        this.userRepository = userRepository;
         this.titleRepository = titleRepository;
         this.userService = userService;
     }
 
     @GetMapping("/users/{userid}")
     public String view(@PathVariable("userid") String userid, Model model) {
-        Individual user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
+        User user = userRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
         model.addAttribute("user", user);
         model.addAttribute("titles", titleRepository.findFirst20ByOwnerOrderByRegDateDesc(user));
         model.addAttribute("titleCount", titleRepository.countByOwner(user));
@@ -41,7 +43,7 @@ public class UserController {
     @GetMapping("/users/new")
     @PreAuthorize("hasPermission(#agency, 'create-user')")
     public String newForm(@RequestParam("agency") Agency agency, Model model) {
-        model.addAttribute("form", UserEditForm.of(new Individual(agency)));
+        model.addAttribute("form", UserEditForm.of(new User(agency)));
         model.addAttribute("allowedRoles", getRoleNamesAllowedForCurrentUser());
         return "UserEdit";
     }
@@ -50,17 +52,17 @@ public class UserController {
     @PostMapping("/users/new")
     @PreAuthorize("hasPermission(#agency, 'create-user')")
     public String create(@Valid UserEditForm form, @RequestParam("agency") Agency agency, Authentication authentication) {
-        Individual user = new Individual(agency);
-        if (individualRepository.findByUserid(form.userid()).isPresent()) {
+        User user = new User(agency);
+        if (userRepository.findByUserid(form.userid()).isPresent()) {
             throw new IllegalArgumentException("User already exists");
         }
         return save(form, authentication, user);
     }
 
     @GetMapping("/users/{userid}/edit")
-    @PreAuthorize("hasPermission(#userid, 'Individual', 'edit')")
+    @PreAuthorize("hasPermission(#userid, 'User', 'edit')")
     public String edit(@PathVariable("userid") String userid, Model model) {
-        Individual user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
+        User user = userRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
         model.addAttribute("user", user);
         model.addAttribute("form", UserEditForm.of(user));
         model.addAttribute("allowedRoles", getRoleNamesAllowedForCurrentUser());
@@ -68,21 +70,21 @@ public class UserController {
     }
 
     @PostMapping("/users/{userid}/edit")
-    @PreAuthorize("hasPermission(#collection, 'Individual', 'edit')")
+    @PreAuthorize("hasPermission(#collection, 'User', 'edit')")
     public String update(@PathVariable("userid") String userid, @Valid UserEditForm form, Authentication authentication) {
-        Individual user = individualRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
+        User user = userRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
         return save(form, authentication, user);
     }
 
     @PostMapping("/users/{userid}/delete")
-    @PreAuthorize("hasPermission(#collection, 'Individual', 'edit')")
+    @PreAuthorize("hasPermission(#collection, 'User', 'edit')")
     public String delete(@PathVariable("userid") String userid) {
-        Individual user = individualRepository.findByUserid(userid).orElseThrow();
-        individualRepository.delete(user);
+        User user = userRepository.findByUserid(userid).orElseThrow();
+        userRepository.delete(user);
         return "redirect:/agencies/" + user.getAgency().getOrganisation().getAlias();
     }
 
-    private String save(UserEditForm form, Authentication authentication, Individual user) {
+    private String save(UserEditForm form, Authentication authentication, User user) {
         if (form.roleType() != null && !getRoleNamesAllowedForCurrentUser().containsKey(form.roleType())) {
             throw new AccessDeniedException("cannot set access level higher than own level");
         }
@@ -91,7 +93,7 @@ public class UserController {
             throw new AccessDeniedException("not allowed to change agency");
         }
         form.applyTo(user);
-        individualRepository.save(user);
+        userRepository.save(user);
         return "redirect:/users/" + user.getUserid();
     }
 

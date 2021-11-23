@@ -14,7 +14,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import pandas.core.Individual;
+import pandas.agency.User;
 import pandas.core.View;
 import pandas.gather.GatherSchedule;
 import pandas.util.TimeFrame;
@@ -104,12 +104,12 @@ public class Collection {
     @CreatedBy
     @ManyToOne
     @JoinColumn(name = "CREATED_BY")
-    private Individual createdBy;
+    private User createdBy;
 
     @LastModifiedBy
     @ManyToOne
     @JoinColumn(name = "LAST_MODIFIED_BY")
-    private Individual lastModifiedBy;
+    private User lastModifiedBy;
 
     public Long getId() {
         return id;
@@ -288,19 +288,19 @@ public class Collection {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Individual getCreatedBy() {
+    public User getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Individual createdBy) {
+    public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
     }
 
-    public Individual getLastModifiedBy() {
+    public User getLastModifiedBy() {
         return lastModifiedBy;
     }
 
-    public void setLastModifiedBy(Individual lastModifiedBy) {
+    public void setLastModifiedBy(User lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 

@@ -1,6 +1,6 @@
 package pandas.collection;
 
-import pandas.core.Individual;
+import pandas.agency.User;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
 
@@ -16,7 +16,7 @@ public class TitleBulkEditForm {
     private GatherSchedule schedule;
 
     private boolean editOwner;
-    private Individual owner;
+    private User owner;
 
     private boolean editAnbdNumber;
     private String anbdNumber;
@@ -89,11 +89,11 @@ public class TitleBulkEditForm {
         this.editOwner = editOwner;
     }
 
-    public Individual getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(Individual owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 

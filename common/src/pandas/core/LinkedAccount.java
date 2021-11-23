@@ -4,6 +4,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import pandas.agency.User;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -26,7 +27,7 @@ public class LinkedAccount {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "INDIVIDUAL_ID", nullable = false)
-    private Individual individual;
+    private User user;
 
     /**
      * An identifier authentication provider. For OIDC this currently means the Spring Security client registration id.
@@ -60,12 +61,12 @@ public class LinkedAccount {
         this.id = id;
     }
 
-    public Individual getIndividual() {
-        return individual;
+    public User getUser() {
+        return user;
     }
 
-    public void setIndividual(Individual individual) {
-        this.individual = individual;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Instant getCreatedDate() {

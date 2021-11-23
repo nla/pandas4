@@ -8,12 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import pandas.agency.Agency;
-import pandas.agency.AgencyRepository;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
+import pandas.agency.*;
 import pandas.core.NotFoundException;
-import pandas.core.UserService;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
 import pandas.gather.PreviousGather;
@@ -33,15 +29,15 @@ public class WorktraysController {
     private final InstanceRepository instanceRepository;
     private final UserService userService;
     private final AgencyRepository agencyRepository;
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final ReportRepository reportRepository;
 
-    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, UserService userService, AgencyRepository agencyRepository, IndividualRepository individualRepository, ReportRepository reportRepository) {
+    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, ReportRepository reportRepository) {
         this.titleRepository = titleRepository;
         this.instanceRepository = instanceRepository;
         this.userService = userService;
         this.agencyRepository = agencyRepository;
-        this.individualRepository = individualRepository;
+        this.userRepository = userRepository;
         this.reportRepository = reportRepository;
     }
 
@@ -49,9 +45,9 @@ public class WorktraysController {
     public void commonAttributes(@PathVariable(name = "alias", required = false) String alias, Model model) {
         Long agencyId = null;
         Long ownerId = null;
-        Individual currentUser = userService.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (alias == null || alias.isBlank()) {
-            Individual user = currentUser;
+            User user = currentUser;
             alias = user.getUserid();
             ownerId = user.getId();
         } else {
@@ -59,7 +55,7 @@ public class WorktraysController {
             if (agency.isPresent()) {
                 agencyId = agency.get().getId();
             } else {
-                ownerId = individualRepository.findByUserid(alias).orElseThrow(NotFoundException::new).getId();
+                ownerId = userRepository.findByUserid(alias).orElseThrow(NotFoundException::new).getId();
             }
         }
         if (agencyId == null && ownerId == null) {
@@ -104,7 +100,7 @@ public class WorktraysController {
     public String nominated(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
         // nominated worktray always displays all titles from their agency regardless of owner
         if (agencyId == null && ownerId != null) {
-            agencyId = individualRepository.findById(ownerId).orElseThrow().getAgency().getId();
+            agencyId = userRepository.findById(ownerId).orElseThrow().getAgency().getId();
         }
         model.addAttribute("nominatedTitles", titleRepository.worktrayNominated(agencyId, null, pageable));
         return "worktrays/Nominated";

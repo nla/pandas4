@@ -11,13 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import pandas.agency.Agency;
-import pandas.agency.AgencyRepository;
+import pandas.agency.*;
 import pandas.collection.TitleRepository;
 import pandas.core.Config;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
-import pandas.core.UserService;
 import pandas.util.DateFormats;
 import pandas.util.Requests;
 
@@ -39,16 +35,16 @@ public class InstanceController {
     private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final StateHistoryRepository stateHistoryRepository;
     private final AgencyRepository agencyRepository;
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
         this.instanceRepository = instanceRepository;
         this.stateHistoryRepository = stateHistoryRepository;
         this.agencyRepository = agencyRepository;
-        this.individualRepository = individualRepository;
+        this.userRepository = userRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
     }
 
@@ -72,9 +68,9 @@ public class InstanceController {
 
         if (worktray != null) {
             Agency agency = agencyRepository.findByAlias(worktray).orElse(null);
-            Individual individual = individualRepository.findByUserid(worktray).orElse(null);
-            Page<Instance> prev = instanceRepository.prevInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
-            Page<Instance> next = instanceRepository.nextInGatheredWorktray(agency, individual, instance.getId(), PageRequest.of(0, 1));
+            User user = userRepository.findByUserid(worktray).orElse(null);
+            Page<Instance> prev = instanceRepository.prevInGatheredWorktray(agency, user, instance.getId(), PageRequest.of(0, 1));
+            Page<Instance> next = instanceRepository.nextInGatheredWorktray(agency, user, instance.getId(), PageRequest.of(0, 1));
             model.addAttribute("worktrayPosition", prev.getTotalElements() + 1);
             model.addAttribute("worktrayLength", prev.getTotalElements() + next.getTotalElements() + 1);
             model.addAttribute("prevInstance", prev.isEmpty() ? null : prev.iterator().next());

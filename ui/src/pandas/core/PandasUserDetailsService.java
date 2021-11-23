@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Service;
+import pandas.agency.User;
+import pandas.agency.UserRepository;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -15,25 +17,25 @@ import java.util.Set;
 
 @Service
 public class PandasUserDetailsService implements UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final Set<String> ALLOWED_LOGIN_ROLE_TYPES = Set.of("PanAdmin", "SysAdmin", "AgAdmin", "StdUser", "SuppUser", "InfoUser");
 
-    public PandasUserDetailsService(IndividualRepository individualRepository) {
-        this.individualRepository = individualRepository;
+    public PandasUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Individual individual = individualRepository.findByUserid(username).orElseThrow(() -> new UsernameNotFoundException(username + " has no individual record"));
-        if (individual == null || individual.getRole() == null || !ALLOWED_LOGIN_ROLE_TYPES.contains(individual.getRole().getType())) {
+        User user = userRepository.findByUserid(username).orElseThrow(() -> new UsernameNotFoundException(username + " has no individual record"));
+        if (user == null || user.getRole() == null || !ALLOWED_LOGIN_ROLE_TYPES.contains(user.getRole().getType())) {
             throw new UsernameNotFoundException(username);
         }
-        return new PandasUser(individual, null, authoritiesFor(individual));
+        return new PandasUserDetails(user, null, authoritiesFor(user));
     }
 
-    static Collection<? extends GrantedAuthority> authoritiesFor(Individual individual) {
+    static Collection<? extends GrantedAuthority> authoritiesFor(User user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        switch (individual.getRole().getType()) {
+        switch (user.getRole().getType()) {
             case "SysAdmin":
                 authorities.add(new SimpleGrantedAuthority("ROLE_sysadmin"));
                 authorities.addAll(Privileges.byRole.get("sysadmin"));
@@ -59,7 +61,7 @@ public class PandasUserDetailsService implements UserDetailsService, Authenticat
                 authorities.addAll(Privileges.byRole.get("infouser"));
                 break;
             default:
-                throw new IllegalStateException("Unknown role type: " + individual.getRole().getType());
+                throw new IllegalStateException("Unknown role type: " + user.getRole().getType());
         }
         return authorities;
     }

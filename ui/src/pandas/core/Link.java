@@ -5,6 +5,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.Agency;
+import pandas.agency.User;
 import pandas.collection.Collection;
 import pandas.collection.Publisher;
 import pandas.collection.Subject;
@@ -41,8 +42,8 @@ public class Link {
         return to(agency) + "/edit";
     }
 
-    public String edit(Individual individual) {
-        return to(individual) + "/edit";
+    public String edit(User user) {
+        return to(user) + "/edit";
     }
 
     public String edit(Title title) {
@@ -77,8 +78,8 @@ public class Link {
         return link("/collections/" + collection.getId());
     }
 
-    public String to(Individual individual) {
-        return link("/users/" + encodePathSegment(individual.getUserid(), UTF_8));
+    public String to(User user) {
+        return link("/users/" + encodePathSegment(user.getUserid(), UTF_8));
     }
 
     public String to(Instance instance) {

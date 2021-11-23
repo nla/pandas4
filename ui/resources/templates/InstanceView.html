@@ -53,7 +53,7 @@
         <tr th:each="event : ${stateHistory}">
             <td style="text-align: right" th:text="${dateFormat.format(event.startDate)}"></td>
             <td th:text="${event.state.name}"></td>
-            <td th:text="${event.individual?.userid ?: '(system)'}"></td>
+            <td th:text="${event.user?.userid ?: '(system)'}"></td>
         </tr>
     </table>
 

@@ -28,6 +28,8 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.AgencyRepository;
+import pandas.agency.User;
+import pandas.agency.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
@@ -47,17 +49,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final LinkedAccountRepository linkedAccountRepository;
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final AgencyRepository agencyRepository;
 
 
     public SecurityConfig(PandasUserDetailsService pandasUserDetailsService, Config config,
-                          @Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository, LinkedAccountRepository linkedAccountRepository, IndividualRepository individualRepository, AgencyRepository agencyRepository) {
+                          @Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository, LinkedAccountRepository linkedAccountRepository, UserRepository userRepository, AgencyRepository agencyRepository) {
         this.pandasUserDetailsService = pandasUserDetailsService;
         this.config = config;
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.linkedAccountRepository = linkedAccountRepository;
-        this.individualRepository = individualRepository;
+        this.userRepository = userRepository;
         this.agencyRepository = agencyRepository;
         if (config.getAutologin() != null) {
             log.warn("DANGER! Running with auto-login as user '{}'. This should never be used in production.", config.getAutologin());
@@ -156,8 +158,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             if (linkedAccount != null) {
                 linkedAccount.setLastLoginDate(Instant.now());
                 linkedAccountRepository.save(linkedAccount);
-                mappedAuthorities.addAll(PandasUserDetailsService.authoritiesFor(linkedAccount.getIndividual()));
-                return new PandasUser(linkedAccount.getIndividual(), oidcUser, mappedAuthorities);
+                mappedAuthorities.addAll(PandasUserDetailsService.authoritiesFor(linkedAccount.getUser()));
+                return new PandasUserDetails(linkedAccount.getUser(), oidcUser, mappedAuthorities);
             }
 
             String userid = oidcUser.getPreferredUsername().toLowerCase(Locale.ROOT);
@@ -166,13 +168,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             if (!provider.equals("shire") && !provider.equals("oidc")) {
                 throw new OAuth2AuthenticationException("Account auto-linking only enabled for 'oidc' and 'shire' providers");
             }
-            Individual user = individualRepository.findByUserid(userid).orElse(null);
-            if (linkedAccountRepository.existsByIndividualAndProvider(user, provider)) {
+            User user = userRepository.findByUserid(userid).orElse(null);
+            if (linkedAccountRepository.existsByUserAndProvider(user, provider)) {
                 throw new OAuth2AuthenticationException("Username already linked to a different account");
             }
 
             if (user == null) {
-                    user = new Individual();
+                    user = new User();
                     user.setUserid(userid);
                     user.setNameGiven(userRequest.getIdToken().getGivenName());
                     user.setNameFamily(userRequest.getIdToken().getFamilyName());
@@ -184,18 +186,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     role.setOrganisation(agencyRepository.findById(1L).orElseThrow().getOrganisation());
                     role.setType("InfoUser");
                     role.setTitle("Informational User");
-                    user = individualRepository.save(user);
+                    user = userRepository.save(user);
             }
 
             linkedAccount = new LinkedAccount();
-            linkedAccount.setIndividual(user);
+            linkedAccount.setUser(user);
             linkedAccount.setProvider(provider);
             linkedAccount.setExternalId(userRequest.getIdToken().getSubject());
             linkedAccount.setLastLoginDate(Instant.now());
             linkedAccountRepository.save(linkedAccount);
 
             mappedAuthorities.addAll(PandasUserDetailsService.authoritiesFor(user));
-            return new PandasUser(user, oidcUser, mappedAuthorities);
+            return new PandasUserDetails(user, oidcUser, mappedAuthorities);
         };
     }
 }

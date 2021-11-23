@@ -3,7 +3,7 @@ package pandas.collection;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import pandas.agency.Agency;
-import pandas.core.Individual;
+import pandas.agency.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -43,7 +43,7 @@ public class OwnerHistory {
      */
     @ManyToOne
     @JoinColumn(name = "INDIVIDUAL_ID")
-    private Individual individual;
+    private User user;
 
     /**
      * Note written by the user who was transferring the title to another user.
@@ -56,7 +56,7 @@ public class OwnerHistory {
      */
     @ManyToOne
     @JoinColumn(name = "TRANSFERRER_ID")
-    private Individual transferrer;
+    private User transferrer;
 
     public String getNote() {
         return this.note;
@@ -82,12 +82,12 @@ public class OwnerHistory {
         this.agency = agency;
     }
 
-    public Individual getIndividual() {
-        return individual;
+    public User getUser() {
+        return user;
     }
 
-    public void setIndividual(Individual individual) {
-        this.individual = individual;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Title getTitle() {
@@ -98,11 +98,11 @@ public class OwnerHistory {
         this.title = title;
     }
 
-    public Individual getTransferrer() {
+    public User getTransferrer() {
         return transferrer;
     }
 
-    public void setTransferrer(Individual transferrer) {
+    public void setTransferrer(User transferrer) {
         this.transferrer = transferrer;
     }
 

@@ -32,7 +32,7 @@
         <tr th:each="event: ${history}">
             <td th:text="${dateFormat.format(event.date)}">Today</td>
             <td th:text="${timeFormat.format(event.date)}">Today</td>
-            <td th:text="${event.individual?.userid}">jsmith</td>
+            <td th:text="${event.user?.userid}">jsmith</td>
             <td th:text="${event.agency?.organisation?.alias}">NLA</td>
             <td th:text="${event.transferrer?.userid}">somebody</td>
             <td th:text="${event.note}">Bulk change</td>

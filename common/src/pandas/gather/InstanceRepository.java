@@ -8,8 +8,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
+import pandas.agency.User;
 import pandas.collection.Title;
-import pandas.core.Individual;
 
 import java.util.List;
 
@@ -79,7 +79,7 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             "and (:owner is null or i.title.owner = :owner)\n" +
             "and i.id < :instanceId\n" +
             "order by i.id desc")
-    Page<Instance> nextInGatheredWorktray(@Param("agency") Agency agency, @Param("owner") Individual owner,
+    Page<Instance> nextInGatheredWorktray(@Param("agency") Agency agency, @Param("owner") User owner,
                                               @Param("instanceId") long instanceId, Pageable pageable);
 
     @Query("select i from Instance i\n" +
@@ -89,7 +89,7 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             "and (:owner is null or i.title.owner = :owner)\n" +
             "and i.id > :instanceId\n" +
             "order by i.id asc")
-    Page<Instance> prevInGatheredWorktray(@Param("agency") Agency agency, @Param("owner") Individual owner,
+    Page<Instance> prevInGatheredWorktray(@Param("agency") Agency agency, @Param("owner") User owner,
                                               @Param("instanceId") long instanceId, Pageable pageable);
 
     @Query("select new pandas.gather.PreviousGather(cur.id, prev.id, prev.date, prev.gather.files, prev.gather.size) " +

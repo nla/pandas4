@@ -3,9 +3,9 @@ package pandas.gather;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pandas.agency.User;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
-import pandas.core.Individual;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -72,12 +72,12 @@ public class InstanceService {
         return instance;
     }
 
-    private void insertStateHistory(Instance instance, State state, Instant now, Individual user) {
+    private void insertStateHistory(Instance instance, State state, Instant now, User user) {
         StateHistory stateHistory = new StateHistory();
         stateHistory.setInstance(instance);
         stateHistory.setState(state);
         stateHistory.setStartDate(now);
-        stateHistory.setIndividual(user);
+        stateHistory.setUser(user);
         stateHistoryReposistory.save(stateHistory);
     }
 
@@ -87,7 +87,7 @@ public class InstanceService {
     }
 
     @Transactional
-    public void updateState(Instance instance, String stateName, Individual user) {
+    public void updateState(Instance instance, String stateName, User user) {
         Instant now = Instant.now();
         State state = stateRepository.findByName(stateName).orElseThrow();
         instance.setState(state);
@@ -137,7 +137,7 @@ public class InstanceService {
 
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
-    public void archive(Instance instance, Individual user, boolean publish) {
+    public void archive(Instance instance, User user, boolean publish) {
         if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
         updateState(instance, State.ARCHIVING, user);
         if (publish) {
@@ -158,7 +158,7 @@ public class InstanceService {
 
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
-    public void delete(Instance instance, Individual currentUser) {
+    public void delete(Instance instance, User currentUser) {
         updateState(instance, State.DELETING, currentUser);
     }
 }

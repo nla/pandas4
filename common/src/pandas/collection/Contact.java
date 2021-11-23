@@ -1,6 +1,6 @@
 package pandas.collection;
 
-import pandas.core.Individual;
+import pandas.agency.User;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -32,7 +32,7 @@ public class Contact {
      */
     @ManyToOne
     @JoinColumn(name = "INDIVIDUAL_ID", nullable = false)
-    private Individual contactPerson;
+    private ContactPerson contactPerson;
 
     /**
      * A note on what this communication was about
@@ -56,7 +56,7 @@ public class Contact {
 
     @ManyToOne
     @JoinColumn(name = "USER_ID", nullable = true)
-    private Individual user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "CONTACT_METHOD_ID", referencedColumnName = "CONTACT_METHOD_ID")
@@ -114,19 +114,19 @@ public class Contact {
         this.publisher = publisher;
     }
 
-    public Individual getContactPerson() {
+    public ContactPerson getContactPerson() {
         return contactPerson;
     }
 
-    public void setContactPerson(Individual contactPerson) {
+    public void setContactPerson(ContactPerson contactPerson) {
         this.contactPerson = contactPerson;
     }
 
-    public Individual getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(Individual user) {
+    public void setUser(User user) {
         this.user = user;
     }
 }

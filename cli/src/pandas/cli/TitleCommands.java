@@ -2,10 +2,10 @@ package pandas.cli;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import pandas.agency.UserRepository;
 import pandas.collection.OwnerHistory;
 import pandas.collection.OwnerHistoryRepository;
 import pandas.collection.TitleRepository;
-import pandas.core.IndividualRepository;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,12 +13,12 @@ import java.util.Arrays;
 
 @ShellComponent
 public class TitleCommands {
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final TitleRepository titleRepository;
     private final OwnerHistoryRepository ownerHistoryRepository;
 
-    public TitleCommands(IndividualRepository individualRepository, TitleRepository titleRepository, OwnerHistoryRepository ownerHistoryRepository) {
-        this.individualRepository = individualRepository;
+    public TitleCommands(UserRepository userRepository, TitleRepository titleRepository, OwnerHistoryRepository ownerHistoryRepository) {
+        this.userRepository = userRepository;
         this.titleRepository = titleRepository;
         this.ownerHistoryRepository = ownerHistoryRepository;
     }
@@ -26,7 +26,7 @@ public class TitleCommands {
     @ShellMethod(value = "Create owner history records")
     public String createOwnerHistory(String date, long ownerId, Long[] titleIds) {
         var instant = Instant.parse(date);
-        var owner = individualRepository.findById(ownerId).orElseThrow();
+        var owner = userRepository.findById(ownerId).orElseThrow();
         var titles = titleRepository.findAllById(Arrays.asList(titleIds));
         var histories = new ArrayList<OwnerHistory>();
         for (var title: titles) {
@@ -34,7 +34,7 @@ public class TitleCommands {
             oh.setTitle(title);
             oh.setNote("Bulk change");
             oh.setTransferrer(owner);
-            oh.setIndividual(owner);
+            oh.setUser(owner);
             oh.setAgency(title.getAgency());
             oh.setDate(instant);
             histories.add(oh);

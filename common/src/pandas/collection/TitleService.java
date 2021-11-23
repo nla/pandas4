@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.agency.Agency;
-import pandas.core.Individual;
+import pandas.agency.User;
 import pandas.core.Organisation;
 import pandas.core.Utils;
 import pandas.gather.*;
@@ -85,7 +85,7 @@ public class TitleService {
 
     @Transactional
     @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
-    public Title save(TitleEditForm form, Individual user) {
+    public Title save(TitleEditForm form, User user) {
         Instant now = Instant.now();
         Title title = form.getId() == null ? new Title() : titleRepository.findById(form.getId()).orElseThrow();
         if (form.getId() == null) {
@@ -180,7 +180,7 @@ public class TitleService {
         if (form.getId() == null && (title.getOwner() != null || title.getAgency() != null)) {
             OwnerHistory ownerHistory = new OwnerHistory();
             ownerHistory.setTitle(title);
-            ownerHistory.setIndividual(title.getOwner());
+            ownerHistory.setUser(title.getOwner());
             ownerHistory.setAgency(title.getAgency());
             ownerHistory.setNote("Created new title");
             ownerHistory.setDate(now);
@@ -230,20 +230,20 @@ public class TitleService {
     /**
      * Create a new status history record for this title. Assumes the status has already been updated.
      */
-    private void recordStatusChange(Title title, Individual user, Instant now, Reason reason) {
+    private void recordStatusChange(Title title, User user, Instant now, Reason reason) {
         statusHistoryRepository.markPreviousEnd(title, now);
         var statusHistory = new StatusHistory();
         statusHistory.setStartDate(now);
         statusHistory.setStatus(title.getStatus());
         statusHistory.setReason(reason);
-        statusHistory.setIndividual(user);
+        statusHistory.setUser(user);
         statusHistory.setTitle(title);
         statusHistoryRepository.save(statusHistory);
     }
 
     @Transactional
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
-    public void bulkEdit(TitleBulkEditForm form, Individual currentUser) {
+    public void bulkEdit(TitleBulkEditForm form, User currentUser) {
         log.info("Applying bulk change {}", form.toString());
         Instant now = Instant.now();
         List<TitleGather> gathers = new ArrayList<>();
@@ -256,7 +256,7 @@ public class TitleService {
                     OwnerHistory ownerHistory = new OwnerHistory();
                     ownerHistory.setTitle(title);
                     ownerHistory.setDate(now);
-                    ownerHistory.setIndividual(form.getOwner());
+                    ownerHistory.setUser(form.getOwner());
                     ownerHistory.setAgency(title.getAgency());
                     ownerHistory.setTransferrer(currentUser);
                     ownerHistory.setNote("Bulk change");
@@ -289,11 +289,11 @@ public class TitleService {
     }
 
     @Transactional
-    public void transferOwnership(Title title, Agency newAgency, Individual newOwner, String note, Individual currentUser) {
+    public void transferOwnership(Title title, Agency newAgency, User newOwner, String note, User currentUser) {
         OwnerHistory ownerHistory = new OwnerHistory();
         ownerHistory.setTitle(title);
         ownerHistory.setDate(Instant.now());
-        ownerHistory.setIndividual(newOwner);
+        ownerHistory.setUser(newOwner);
         ownerHistory.setAgency(newAgency);
         ownerHistory.setTransferrer(currentUser);
         ownerHistory.setNote(note);

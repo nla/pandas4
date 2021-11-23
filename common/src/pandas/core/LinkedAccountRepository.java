@@ -2,6 +2,7 @@ package pandas.core;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import pandas.agency.User;
 
 import java.util.Optional;
 
@@ -9,5 +10,5 @@ import java.util.Optional;
 public interface LinkedAccountRepository extends CrudRepository<LinkedAccount, Long> {
     Optional<LinkedAccount> findByProviderAndExternalId(String provider, String externalId);
 
-    boolean existsByIndividualAndProvider(Individual individual, String provider);
+    boolean existsByUserAndProvider(User user, String provider);
 }

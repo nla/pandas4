@@ -1,8 +1,8 @@
 package pandas.report;
 
 import pandas.agency.Agency;
+import pandas.agency.User;
 import pandas.collection.PublisherType;
-import pandas.core.Individual;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -18,7 +18,7 @@ public class Report {
      */
     @ManyToOne
     @JoinColumn(name = "INDIVIDUAL_ID", nullable = false)
-    private Individual owner;
+    private User owner;
 
     /**
      * Agency that this report covers.
@@ -166,12 +166,12 @@ public class Report {
         this.schedule = schedule;
     }
 
-    public Individual getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(Individual individual) {
-        this.owner = individual;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public Agency getAgency() {

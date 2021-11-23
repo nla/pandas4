@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import pandas.IntegrationTest;
+import pandas.agency.UserService;
 import pandas.collection.Title;
 import pandas.collection.TitleService;
-import pandas.core.UserService;
 
 import java.util.Collections;
 

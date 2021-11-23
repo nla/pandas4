@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pandas.core.Individual;
+import pandas.agency.User;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -34,18 +34,18 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
 
     List<Collection> findByParentIsNullAndSubjectsContainsOrderByName(Subject subject);
 
-    List<Collection> findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(Individual creator, Instant dateLimit);
+    List<Collection> findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(User creator, Instant dateLimit);
 
     // Oracle gives an error for "select c ... group by c" type queries and we can't join a subquery
     // so as a workaround return the ids and then resolve them.
     @Query("select c.id from StatusHistory sh " +
             "join sh.title t " +
             "join t.collections c " +
-            "where sh.individual = :user and " +
+            "where sh.user = :user and " +
             "sh.status.name in ('selected', 'nominated') " +
             "group by c.id " +
             "order by MAX(sh.startDate) desc")
-    List<Long> findRecentlyUsedIds(@Param("user") Individual user, Pageable pageable);
+    List<Long> findRecentlyUsedIds(@Param("user") User user, Pageable pageable);
 
     default List<Collection> findAllByIdPreserveOrder(List<Long> ids) {
         var map = new HashMap<Long, Collection>();
@@ -55,7 +55,7 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
         return ids.stream().map(map::get).toList();
     }
 
-    default List<Collection> findRecentlyUsed(@Param("user") Individual user, Pageable pageable) {
+    default List<Collection> findRecentlyUsed(@Param("user") User user, Pageable pageable) {
         return findAllByIdPreserveOrder(findRecentlyUsedIds(user, pageable));
     }
 }

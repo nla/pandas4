@@ -4,10 +4,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import pandas.core.Individual;
-import pandas.core.IndividualRepository;
+import pandas.agency.User;
+import pandas.agency.UserRepository;
+import pandas.agency.UserService;
 import pandas.core.NotFoundException;
-import pandas.core.UserService;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -21,24 +21,24 @@ import java.util.Locale;
 @Controller
 public class DashboardController {
     private final CollectionRepository collectionRepository;
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final TitleRepository titleRepository;
     private final UserService userService;
 
-    public DashboardController(CollectionRepository collectionRepository, IndividualRepository individualRepository, TitleRepository titleRepository, UserService userService) {
+    public DashboardController(CollectionRepository collectionRepository, UserRepository userRepository, TitleRepository titleRepository, UserService userService) {
         this.collectionRepository = collectionRepository;
-        this.individualRepository = individualRepository;
+        this.userRepository = userRepository;
         this.titleRepository = titleRepository;
         this.userService = userService;
     }
 
     @GetMapping("/")
     public String dashboard(Model model, @RequestParam(value = "user", required = false) String username) {
-        Individual user;
+        User user;
         if (username == null) {
             user = userService.getCurrentUser();
         } else {
-            user = individualRepository.findByUserid(username).orElseThrow(NotFoundException::new);
+            user = userRepository.findByUserid(username).orElseThrow(NotFoundException::new);
         }
 
         var activityPeriods = createTimePeriods();

@@ -8,18 +8,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.collection.TitleRepository;
-import pandas.core.IndividualRepository;
 import pandas.core.NotFoundException;
 
 @Controller
 public class AgencyController {
     private final AgencyRepository agencyRepository;
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final TitleRepository titleRepository;
 
-    public AgencyController(AgencyRepository agencyRepository, IndividualRepository individualRepository, TitleRepository titleRepository) {
+    public AgencyController(AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository) {
         this.agencyRepository = agencyRepository;
-        this.individualRepository = individualRepository;
+        this.userRepository = userRepository;
         this.titleRepository = titleRepository;
     }
 
@@ -33,7 +32,7 @@ public class AgencyController {
     public String view(@PathVariable("alias") String alias, Model model) {
         Agency agency = agencyRepository.findByAlias(alias).orElseThrow(NotFoundException::new);
         model.addAttribute("agency", agency);
-        model.addAttribute("users", individualRepository.findUsersByAgency(agency));
+        model.addAttribute("users", userRepository.findUsersByAgency(agency));
         model.addAttribute("titleCount", titleRepository.countByAgency(agency));
         model.addAttribute("titles", titleRepository.findFirst20ByAgencyOrderByRegDateDesc(agency));
         return "AgencyView";

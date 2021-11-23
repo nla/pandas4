@@ -8,7 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import pandas.core.Individual;
+import pandas.agency.User;
 import pandas.core.View;
 
 import javax.persistence.*;
@@ -47,7 +47,7 @@ public class DiscoverySource {
     @ManyToOne
     @JoinColumn(name = "CREATED_BY")
     @JsonIgnore
-    private Individual createdBy;
+    private User createdBy;
 
     @LastModifiedDate
     private Instant lastModifiedDate;
@@ -56,7 +56,7 @@ public class DiscoverySource {
     @ManyToOne
     @JoinColumn(name = "LAST_MODIFIED_BY")
     @JsonIgnore
-    private Individual lastModifiedBy;
+    private User lastModifiedBy;
 
     public DiscoverySourceForm toForm() {
         return new DiscoverySourceForm(name, url, itemQuery, itemNameQuery, itemLinkQuery, itemDescriptionQuery, linkQuery);
@@ -144,11 +144,11 @@ public class DiscoverySource {
         this.createdDate = createdDate;
     }
 
-    public Individual getCreatedBy() {
+    public User getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Individual createdBy) {
+    public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -160,11 +160,11 @@ public class DiscoverySource {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Individual getLastModifiedBy() {
+    public User getLastModifiedBy() {
         return lastModifiedBy;
     }
 
-    public void setLastModifiedBy(Individual lastModifiedBy) {
+    public void setLastModifiedBy(User lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 }

@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-import pandas.agency.Agency;
-import pandas.agency.AgencyRepository;
-import pandas.core.*;
+import pandas.agency.*;
+import pandas.core.Config;
+import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.search.*;
 
@@ -39,7 +39,7 @@ public class TitleSearcher {
     private final Facet[] facets;
     private final Map<String, Function<SearchSortFactory, SortFinalStep>> orderings;
 
-    public TitleSearcher(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, IndividualRepository individualRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService, OwnerHistoryRepository ownerHistoryRepository, GatherDateRepository gatherDateRepository, ProfileRepository profileRepository) {
+    public TitleSearcher(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, UserRepository userRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService, OwnerHistoryRepository ownerHistoryRepository, GatherDateRepository gatherDateRepository, ProfileRepository profileRepository) {
         this.facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
                 new EntityFacet<>("Collection", "collection", "collectionAncestry.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
@@ -51,7 +51,7 @@ public class TitleSearcher {
                 new DateFacet("First Gather Date", "firstgather", "gather.firstGatherDate"),
                 new DateFacet("Last Gather Date", "lastgather", "gather.lastGatherDate"),
                 new DateFacet("Next Gather Date", "nextgather", "gather.nextGatherDate"),
-                new EntityFacet<>("Owner", "owner", "owner.id", individualRepository::findAllById, Individual::getId, Individual::getName, List.of("owner.nameGiven", "owner.nameFamily", "owner.userid")),
+                new EntityFacet<>("Owner", "owner", "owner.id", userRepository::findAllById, User::getId, User::getName, List.of("owner.nameGiven", "owner.nameFamily", "owner.userid")),
                 new EntityFacet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName, List.of("publisher.organisation.name")),
                 new EntityFacet<>("Publisher Type", "publisher.type", "publisher.type.id", publisherTypeRepository::findAllById, PublisherType::getId, PublisherType::getName),
                 new EntityFacet<>("Status", "status", "status.id", statusRepository::findAllById, Status::getId, Status::getName),

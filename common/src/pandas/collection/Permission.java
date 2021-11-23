@@ -28,7 +28,7 @@ public class Permission {
      */
     @ManyToOne
     @JoinColumn(name = "INDIVIDUAL_ID")
-    private Individual individual;
+    private ContactPerson contactPerson;
 
     @Column(name = "IS_BLANKET")
     private Boolean isBlanket;
@@ -193,11 +193,11 @@ public class Permission {
         this.title = title;
     }
 
-    public Individual getIndividual() {
-        return individual;
+    public Individual getContactPerson() {
+        return contactPerson;
     }
 
-    public void setIndividual(Individual individual) {
-        this.individual = individual;
+    public void setContactPerson(ContactPerson contactPerson) {
+        this.contactPerson = contactPerson;
     }
 }

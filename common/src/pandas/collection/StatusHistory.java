@@ -1,6 +1,6 @@
 package pandas.collection;
 
-import pandas.core.Individual;
+import pandas.agency.User;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -24,7 +24,7 @@ public class StatusHistory {
 
     @ManyToOne
     @JoinColumn(name="INDIVIDUAL_ID")
-    private Individual individual;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name="REASON_ID")
@@ -76,12 +76,12 @@ public class StatusHistory {
         this.status = status;
     }
 
-    public Individual getIndividual() {
-        return individual;
+    public User getUser() {
+        return user;
     }
 
-    public void setIndividual(Individual individual) {
-        this.individual = individual;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Reason getReason() {

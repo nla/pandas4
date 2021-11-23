@@ -12,7 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.Agency;
-import pandas.core.Individual;
+import pandas.agency.User;
 import pandas.core.View;
 import pandas.gather.Instance;
 import pandas.gather.TitleGather;
@@ -137,7 +137,7 @@ public class Title {
     @JoinColumn(name = "CURRENT_OWNER_ID")
     @IndexedEmbedded(includePaths = {"id", "nameGiven", "nameFamily", "userid"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
-    private Individual owner;
+    private User owner;
 
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date")
@@ -311,7 +311,7 @@ public class Title {
     @JoinTable(name = "TITLE_INDIVIDUAL",
             joinColumns = @JoinColumn(name = "TITLE_ID"),
             inverseJoinColumns = @JoinColumn(name = "INDIVIDUAL_ID"))
-    private List<Individual> contactPeople = new ArrayList<>();
+    private List<User> contactPeople = new ArrayList<>();
 
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date desc")
@@ -430,11 +430,11 @@ public class Title {
         return getTep() != null && getTep().getDoCollection() != null && getTep().getDoCollection();
     }
 
-    public Individual getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(Individual owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 
@@ -710,11 +710,11 @@ public class Title {
         return ownerHistories;
     }
 
-    public Individual getNominator() {
+    public User getNominator() {
         if (getOwnerHistories().isEmpty()) {
             return null;
         }
-        return getOwnerHistories().get(0).getIndividual();
+        return getOwnerHistories().get(0).getUser();
     }
 
     public List<Contact> getContactEvents() {
@@ -725,7 +725,7 @@ public class Title {
         this.contactEvents = contactEvents;
     }
 
-    public List<Individual> getContactPeople() {
+    public List<User> getContactPeople() {
         return contactPeople;
     }
 
@@ -738,7 +738,7 @@ public class Title {
     /**
      * Returns true if the given user is the owner of this title.
      */
-    public boolean isOwnedBy(Individual user) {
+    public boolean isOwnedBy(User user) {
         if (getOwner() == null || user == null) return false;
         if (user == getOwner()) return true;
         return user.getId() != null && user.getId().equals(getOwner().getId());

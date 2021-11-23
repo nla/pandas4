@@ -17,9 +17,10 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-import pandas.agency.Agency;
-import pandas.agency.AgencyRepository;
-import pandas.core.*;
+import pandas.agency.*;
+import pandas.core.Config;
+import pandas.core.Link;
+import pandas.core.View;
 import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
 import pandas.util.DateFormats;
@@ -48,7 +49,7 @@ import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 @Controller
 public class TitleController {
     private final TitleRepository titleRepository;
-    private final IndividualRepository individualRepository;
+    private final UserRepository userRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
     private final TitleService titleService;
@@ -67,9 +68,9 @@ public class TitleController {
     private final ScopeRepository scopeRepository;
     private final CollectionRepository collectionRepository;
 
-    public TitleController(TitleRepository titleRepository, IndividualRepository individualRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository) {
+    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository) {
         this.titleRepository = titleRepository;
-        this.individualRepository = individualRepository;
+        this.userRepository = userRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.titleService = titleService;
@@ -134,7 +135,7 @@ public class TitleController {
         var results = titleSearcher.search(params, PageRequest.of(0, 10000));
         var form = titleService.newBulkEditForm(results.getContent());
         model.addAttribute("form", form);
-        model.addAttribute("allUsers", individualRepository.findByUseridIsNotNull());
+        model.addAttribute("allUsers", userRepository.findByActiveIsTrueOrderByNameGivenAscNameFamilyAsc());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
         return "TitleBulkEdit";
@@ -142,7 +143,7 @@ public class TitleController {
 
     @PostMapping("/titles/bulkchange")
     public String bulkEditPerform(TitleBulkEditForm form, Model model, Principal principal) {
-        Individual user = individualRepository.findByUserid(principal.getName()).orElse(null);
+        User user = userRepository.findByUserid(principal.getName()).orElse(null);
         titleService.bulkEdit(form, user);
         model.addAttribute("count", form.getTitles().size());
         return "TitleBulkChangeComplete";
@@ -286,16 +287,16 @@ public class TitleController {
         model.addAttribute("title", title);
         model.addAttribute("newAgency", newAgency);
         model.addAttribute("allAgencies", agencyRepository.findAllOrdered());
-        model.addAttribute("agencyUsers", individualRepository.findActiveUsersByAgency(newAgency));
+        model.addAttribute("agencyUsers", userRepository.findActiveUsersByAgency(newAgency));
         return "TitleTransfer";
     }
 
     @PostMapping("/titles/{id}/transfer")
     @PreAuthorize("hasPermission(#title, 'edit')")
     public String transfer(@PathVariable("id") Title title, @RequestParam("newAgency") Agency newAgency,
-                           @RequestParam("newOwner") Individual newOwner, @RequestParam("note") String note,
+                           @RequestParam("newOwner") User newOwner, @RequestParam("note") String note,
                            Principal principal) {
-        Individual currentUser = individualRepository.findByUserid(principal.getName()).orElse(null);
+        User currentUser = userRepository.findByUserid(principal.getName()).orElse(null);
         titleService.transferOwnership(title, newAgency, newOwner, note, currentUser);
         return "redirect:/titles/" + title.getId();
     }

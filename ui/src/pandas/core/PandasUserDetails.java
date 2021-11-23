@@ -5,24 +5,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import pandas.agency.User;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public class PandasUser implements UserDetails, OidcUser {
+public class PandasUserDetails implements UserDetails, OidcUser {
     private final Long individualId;
     private final String username;
     private transient final String password;
     private final OidcUser oidcUser;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public PandasUser(Individual individual, OidcUser oidcUser, Collection<? extends GrantedAuthority> authorities) {
-        this.individualId = individual.getId();
-        this.username = individual.getUserid();
+    public PandasUserDetails(User user, OidcUser oidcUser, Collection<? extends GrantedAuthority> authorities) {
+        this.individualId = user.getId();
+        this.username = user.getUserid();
         this.oidcUser = oidcUser;
         this.authorities = authorities;
-        this.password = oidcUser == null ? individual.getPassword() : null;
+        this.password = oidcUser == null ? user.getPassword() : null;
     }
 
     @Override
