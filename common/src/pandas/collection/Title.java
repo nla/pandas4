@@ -305,7 +305,7 @@ public class Title {
 
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date")
-    private List<Contact> contactEvents = new ArrayList<>();
+    private List<ContactEvent> contactEvents = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "TITLE_INDIVIDUAL",
@@ -717,11 +717,11 @@ public class Title {
         return getOwnerHistories().get(0).getUser();
     }
 
-    public List<Contact> getContactEvents() {
+    public List<ContactEvent> getContactEvents() {
         return contactEvents;
     }
 
-    public void setContactEvents(List<Contact> contactEvents) {
+    public void setContactEvents(List<ContactEvent> contactEvents) {
         this.contactEvents = contactEvents;
     }
 
@@ -730,7 +730,7 @@ public class Title {
     }
 
     public Instant getLastContactDate() {
-        List<Contact> events = getContactEvents();
+        List<ContactEvent> events = getContactEvents();
         if (events.isEmpty()) return null;
         return events.get(events.size() - 1).getDate();
     }

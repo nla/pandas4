@@ -9,7 +9,8 @@ import java.time.Instant;
  * A communication (contact event) between a PANDAS user and a contact person for a publishing agency or title.
  */
 @Entity
-public class Contact {
+@Table(name = "CONTACT")
+public class ContactEvent {
     @Id
     @Column(name = "CONTACT_ID", nullable = false, precision = 0)
     private Long id;
