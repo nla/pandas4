@@ -97,6 +97,7 @@ public class SubjectController {
                 response.setContentType(mimeType);
             }
             response.setContentLengthLong(subject.getIcon().length());
+            response.addHeader("Cache-Control", "max-age=86400");
             ServletOutputStream outputStream = response.getOutputStream();
             outputStream.write(buffer, 0, n);
             stream.transferTo(outputStream);
