@@ -9,6 +9,7 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 
 import javax.persistence.*;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,6 +66,9 @@ public class Subject {
 
     @Formula("(select count(*) from COL_SUBS cs where cs.SUBJECT_ID = SUBJECT_ID)")
     private long collectionCount;
+
+    @Lob
+    private Blob icon;
 
     static boolean isInRange(long id) {
         return id >= CATEGORY_ID_RANGE_START && id <= CATEGORY_ID_RANGE_END;
@@ -203,5 +207,13 @@ public class Subject {
             }
         }
         return false;
+    }
+
+    public Blob getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Blob icon) {
+        this.icon = icon;
     }
 }

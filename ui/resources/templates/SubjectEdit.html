@@ -17,9 +17,7 @@
                 class="btn btn-danger float-right" form=form><i class="icon delete"></i> Delete
         </button>
     </header>
-    <form method=post class=form th:action="@{/subjects}" th:object="${subject}" id=form>
-        <input type=hidden th:field="*{id}">
-
+    <form method=post class=form th:object="${form}" th:action="@{''}" enctype=multipart/form-data id=form>
         <fieldset>
             <label>Parent Subject
                 <select th:field="*{parent}">
@@ -33,6 +31,33 @@
 
             <label>Name <input class="form-control" th:field="*{name}" required></label>
             <label>Description <textarea class="form-control" rows="3" th:field="*{description}"></textarea></label>
+
+            <label>Icon</label>
+            <input id="removeIcon" name="removeIcon" value="false" type=hidden>
+            <div>
+                <div style="text-align: center">
+                    <img id=iconPreview th:src="${@link.icon(subject)}" th:if="${subject.icon != null}"><br>
+                    <input type=button value=Remove id=removeIconButton th:style="${subject.icon == null ? 'display: none' : ''}">
+                </div>
+                <div style="align-self: end">
+                    <input id="icon" type=file name=icon accept="image/*">
+                </div>
+                <script>
+                    icon.addEventListener('change', function() {
+                        iconPreview.src = window.URL.createObjectURL(this.files[0]);
+                        removeIconButton.style.display = '';
+                        removeIcon.value = false;
+                    });
+
+                    removeIconButton.addEventListener('click', function() {
+                        iconPreview.src = '';
+                        removeIconButton.style.display = 'none';
+                        removeIcon.value = true;
+                        icon.value = '';
+                        return false;
+                    });
+                </script>
+            </div>
         </fieldset>
     </form>
 </main>

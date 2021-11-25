@@ -25,7 +25,10 @@
         </ol>
     </nav>
 
-    <h1 th:text="${subject.name}">Dance & Fashion</h1>
+    <h1 style="display: flex; align-items: center; gap: 12px">
+        <img th:src="${@link.icon(subject)}" th:if="${subject.icon != null}" height="32px">
+        <th:block th:text="${subject.name}">Dance & Fashion</th:block>
+    </h1>
 
     <section>
         <h5>Subcategories</h5>

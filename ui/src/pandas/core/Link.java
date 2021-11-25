@@ -50,6 +50,10 @@ public class Link {
         return to(title) + "/edit";
     }
 
+    public String icon(Subject subject) {
+        return to(subject) + "/icon";
+    }
+
     public String logo(Agency agency) {
         return to(agency) + "/logo";
     }
