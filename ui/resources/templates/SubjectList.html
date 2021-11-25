@@ -26,7 +26,7 @@
     <ul class="subcategories" style="column-count: 3">
         <li th:each="subject: ${subjects}">
             <a th:href="@{/subjects/{id}(id=${subject.id})}" href="SubjectView.html">
-                <img th:src="${@link.icon(subject)}" th:if="${subject.icon != null}" width=16px height=16px>
+                <img th:src="${@link.icon(subject)}" th:if="${subject.icon != null}" height=16px>
                 <th:block th:text="${subject.name}">Arts</th:block>
             </a>
             <a class="title-count"  th:if="${subject.titleCount > 0}" th:href="@{/titles(subject=${subject.id})}" th:text="${subject.titleCount}"
