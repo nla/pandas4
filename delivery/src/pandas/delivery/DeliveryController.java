@@ -5,17 +5,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.collection.*;
 import pandas.delivery.util.CountingSet;
+import pandas.util.ServletUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +75,13 @@ public class DeliveryController {
         titles.forEach(title -> agencies.add(title.getAgency()));
         model.addAttribute("agencies", agencies.listByFrequencyDecreasing());
         return "Subject";
+    }
+
+    @GetMapping("/subject/{id}/icon")
+    @Transactional
+    public void subjectIcon(@PathVariable("id") Subject subject, HttpServletResponse response) throws IOException, SQLException {
+        if (subject.getIcon() == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        ServletUtils.sendBlobAsImage(subject.getIcon(), response);
     }
 
     @GetMapping({"/alpha/{letter}", "/alpha/{letter}/{page}"})

@@ -1,11 +1,10 @@
 package pandas.util;
 
-import org.springframework.security.crypto.codec.Hex;
-
 import java.util.Arrays;
 import java.util.List;
 
 public class MimeTypeSniffer {
+    // https://mimesniff.spec.whatwg.org/#matching-an-image-type-pattern
     private final static List<MimeTypeSniffer> imageSniffers = List.of(
             new MimeTypeSniffer("image/gif", "47 49 46 38 39 61"),
             new MimeTypeSniffer("image/gif", "47 49 46 38 37 61"),
@@ -21,15 +20,25 @@ public class MimeTypeSniffer {
 
     public MimeTypeSniffer(String mimeType, String signature, String mask) {
         this.mimeType = mimeType;
-        this.signature = Hex.decode(signature.replace(" ", ""));
-        this.mask = Hex.decode(mask.replace(" ", ""));
+        this.signature = decodeHex(signature);
+        this.mask = decodeHex(mask);
     }
 
     public MimeTypeSniffer(String mimeType, String signature) {
         this.mimeType = mimeType;
-        this.signature = Hex.decode(signature.replace(" ", ""));
+        this.signature = decodeHex(signature);
         this.mask = new byte[this.signature.length];
         Arrays.fill(mask, (byte) 0xff);
+    }
+
+    private static byte[] decodeHex(String hex) {
+        hex = hex.replace(" ", "");
+        byte[] bytes = new byte[hex.length() / 2];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte)(Character.digit(hex.charAt(i * 2), 16) << 4 |
+                    Character.digit(hex.charAt(i * 2 + 1), 16));
+        }
+        return bytes;
     }
 
     public boolean matches(byte[] buffer) {

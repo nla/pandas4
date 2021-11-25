@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import pandas.core.NotFoundException;
-import pandas.util.MimeTypeSniffer;
+import pandas.util.ServletUtils;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -89,18 +88,6 @@ public class SubjectController {
     @Transactional
     public void icon(@PathVariable("id") Subject subject, HttpServletResponse response) throws IOException, SQLException {
         if (subject.getIcon() == null) throw new NotFoundException();
-        try (var stream = subject.getIcon().getBinaryStream()) {
-            byte[] buffer = new byte[(int)Math.min(8192, subject.getIcon().length())];
-            int n = stream.read(buffer);
-            String mimeType = MimeTypeSniffer.sniffImageType(buffer);
-            if (mimeType != null) {
-                response.setContentType(mimeType);
-            }
-            response.setContentLengthLong(subject.getIcon().length());
-            response.addHeader("Cache-Control", "max-age=86400");
-            ServletOutputStream outputStream = response.getOutputStream();
-            outputStream.write(buffer, 0, n);
-            stream.transferTo(outputStream);
-        }
+        ServletUtils.sendBlobAsImage(subject.getIcon(), response);
     }
 }

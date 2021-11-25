@@ -2,6 +2,28 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 <head th:replace="_delivery.html :: head('PANDORA Web Archive')"></head>
 
+<style>
+    div.browseSubjects li a {
+        display: flex;
+        align-items: center;
+        border-radius: 4px;
+        flex-basis: 0;
+        gap: 4px;
+    }
+
+    div.browseSubjects a:hover {
+        background: inherit;
+    }
+
+    div.browseSubjects a:hover .text {
+        background: #AEB0D0;
+    }
+
+    div.browseSubjects span {
+        display: inline;
+    }
+</style>
+
 <body>
 
 <th:block th:replace="_delivery.html :: body"></th:block>
@@ -20,7 +42,14 @@
 </h1>
 <div class="browseSubjects">
     <ul>
-        <li th:each="subject: ${topLevelSubjects}"><a th:href="@{|${prefix}/subject/${subject.id}|}" th:text="${subject.name}"></a> </li>
+        <li th:each="subject: ${topLevelSubjects}">
+            <a th:href="@{|${prefix}/subject/${subject.id}|}">
+                <span style="width: 24px; display: inline-block; text-align: center">
+                    <img th:src="@{/subject/{id}/icon(id=${subject.id})}" th:if="${subject.icon != null}" height=18px>
+                </span>
+                <span th:text="${subject.name}" class=text></span>
+            </a>
+        </li>
     </ul>
 </div>
 
