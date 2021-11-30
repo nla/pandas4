@@ -2,14 +2,21 @@ package pandas.gather;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import pandas.core.Config;
 
 import java.net.URI;
 
 @Service
 public class InstanceUrls {
+    private final Config config;
+
+    public InstanceUrls(Config config) {
+        this.config = config;
+    }
+
     @NotNull
     private String workingAreaBase(Instance instance) {
-        return "https://pandas.nla.gov.au/view/" + instance.getPi() + "/" + instance.getDateString();
+        return config.getWorkingAreaUrl() + instance.getPi() + "/" + instance.getDateString();
     }
 
     @NotNull
@@ -28,7 +35,7 @@ public class InstanceUrls {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9]+/[0-9-]+/", "/");
         }
-        return "https://pwb.archive.org.au/" + instance.getPi() + "-" + instance.getDateString() + "/mp_/" +
+        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/mp_/" +
                 instance.getGatheredUrl();
     }
 
@@ -37,7 +44,7 @@ public class InstanceUrls {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + url.replaceFirst("^https?://", "/");
         }
-        return "https://pwb.archive.org.au/" + instance.getPi() + "-" + instance.getDateString() + "/mp_/" + url;
+        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/mp_/" + url;
     }
 
     public String reports(Instance instance) {

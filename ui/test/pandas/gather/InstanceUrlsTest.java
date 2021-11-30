@@ -2,6 +2,7 @@ package pandas.gather;
 
 import org.junit.Test;
 import pandas.collection.Title;
+import pandas.core.Config;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class InstanceUrlsTest {
     @Test
     public void httrackInstanceUrls() {
-        var urls = new InstanceUrls();
+        var urls = new InstanceUrls(new Config());
         var instance = new Instance();
         Title title = new Title();
         title.setPi(1234L);
