@@ -5,10 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pandas.gather.*;
-import pandas.gatherer.core.Backend;
-import pandas.gatherer.core.GatherException;
-import pandas.gatherer.core.PywbService;
-import pandas.gatherer.core.WorkingArea;
+import pandas.gatherer.core.*;
 import pandas.gatherer.repository.Repository;
 import pandas.util.Strings;
 
@@ -33,14 +30,16 @@ public class BrowsertrixGatherer implements Backend {
     private final PywbService pywbService;
     private final WorkingArea workingArea;
     private final Repository repository;
+    private final ThumbnailGenerator thumbnailGenerator;
     private volatile boolean shutdown;
 
-    public BrowsertrixGatherer(BrowsertrixConfig config, InstanceService instanceService, PywbService pywbService, WorkingArea workingArea, Repository repository) {
+    public BrowsertrixGatherer(BrowsertrixConfig config, InstanceService instanceService, PywbService pywbService, WorkingArea workingArea, Repository repository, ThumbnailGenerator thumbnailGenerator) {
         this.config = config;
         this.instanceService = instanceService;
         this.pywbService = pywbService;
         this.workingArea = workingArea;
         this.repository = repository;
+        this.thumbnailGenerator = thumbnailGenerator;
     }
 
     @Override
@@ -128,6 +127,7 @@ public class BrowsertrixGatherer implements Backend {
 
     @Override
     public void postprocess(Instance instance) throws IOException, InterruptedException {
+        thumbnailGenerator.generateReplayThumbnail(instance, pywbService.replayUrlFor(instance));
     }
 
     @Override
