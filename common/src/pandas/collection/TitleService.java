@@ -231,6 +231,12 @@ public class TitleService {
      * Create a new status history record for this title. Assumes the status has already been updated.
      */
     private void recordStatusChange(Title title, User user, Instant now, Reason reason) {
+        // ensure reason is actually applicable for this status
+        if (reason != null && !reason.getStatus().equals(title.getStatus())) {
+            reason = null;
+            log.warn("Tried to set inapplicable reason {} for status {}", reason.getName(), title.getStatus().getName());
+        }
+
         statusHistoryRepository.markPreviousEnd(title, now);
         var statusHistory = new StatusHistory();
         statusHistory.setStartDate(now);

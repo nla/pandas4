@@ -65,6 +65,7 @@
                 </label>
                 <label style="display: none">Reason
                     <select th:field="*{reason}" id=reason>
+                        <option hidden value=""></option>
                         <option th:each="reason: ${@reasonRepository.findAllByOrderByName()}" hidden
                                 th:text="${reason.name}" th:value="${reason.id}" th:data-status="${reason.status.id}"></option>
                     </select>
