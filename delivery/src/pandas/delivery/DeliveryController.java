@@ -139,17 +139,14 @@ public class DeliveryController {
                 .body(agency.getLogo());
     }
 
-    private static String frontpageData;
-
     private String getFrontpageData() {
-        if (frontpageData == null) {
-            String url = "https://pandora.nla.gov.au/frontpage.html";
-            try {
-                frontpageData = new String(new URL(url).openStream().readAllBytes(), UTF_8);
-            } catch (IOException e) {
-                log.warn("Unable to fetch " + url, e);
-                frontpageData = "";
-            }
+        String url = "https://pandora.nla.gov.au/frontpage.html";
+        String frontpageData;
+        try {
+            frontpageData = new String(new URL(url).openStream().readAllBytes(), UTF_8);
+        } catch (IOException e) {
+            log.warn("Unable to fetch " + url, e);
+            frontpageData = "";
         }
         return frontpageData;
     }
