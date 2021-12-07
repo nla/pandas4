@@ -49,7 +49,7 @@ public class Collection {
     @Type(type = "org.hibernate.type.TextType")
     private String displayComment;
     private Integer displayOrder;
-    private boolean isDisplayed;
+    private boolean isDisplayed = true;
     private String thumbnailUrl;
 
     @FullTextField(analyzer = "english")
