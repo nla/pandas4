@@ -137,12 +137,16 @@ public class InstanceService {
 
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
-    public void archive(Instance instance, User user, boolean publish) {
+    public void archive(Instance instance, User user) {
         if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
         updateState(instance, State.ARCHIVING, user);
-        if (publish) {
+
+        // display the new instance immediately unless the title has issues in which case the curator will need to
+        // set them up through the publish worktray
+        if (!titleRepository.hasIssues(instance.getTitle())) {
             instance.setIsDisplayed(1L);
         }
+
         instanceRepository.save(instance);
     }
 

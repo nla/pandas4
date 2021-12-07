@@ -36,13 +36,8 @@
         <header>
             <nav>
                 <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
-                        th:formaction="@{|/instances/${instance.id}/archive|}" type=submit name=publish value=true
-                        class="btn btn-primary" title="Archive and Publish Immediately (Ctrl+Enter)" data-keybind="Ctrl+Enter">
-                    <i class="icon archive"></i> Archive + Publish
-                </button>
-                <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
-                        th:formaction="@{|/instances/${instance.id}/archive|}" type=submit class="btn btn-secondary"
-                        title="Archive Without Publishing (Ctrl+Shift+Enter)" data-keybind="Ctrl+Shift+Enter">
+                        th:formaction="@{|/instances/${instance.id}/archive|}" type=submit
+                        class="btn btn-primary" title="Archive (Ctrl+Enter)" data-keybind="Ctrl+Enter">
                     <i class="icon archive"></i> Archive
                 </button>
             </nav>

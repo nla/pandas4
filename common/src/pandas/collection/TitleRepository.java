@@ -172,4 +172,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "       sh.startDate > :dateLimit " +
             " order by t.regDate desc")
     List<Title> findBySelector(@Param("selector") User selector, @Param("dateLimit") Instant dateLimit);
+
+    @Query("select true from Issue i where i.group.tep.title = :title")
+    boolean hasIssues(Title title);
 }
