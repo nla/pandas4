@@ -35,15 +35,21 @@ public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
         collection.setSubjects(subjects);
         collection.setDescription(description != null && !description.isBlank() ? description.trim() : null);
         collection.setParent(parent);
-        collection.setGatherSchedule(gatherSchedule);
+        if (gatherSchedule != null) {
+            collection.setGatherSchedule(gatherSchedule);
+        }
         if (startYear != null) {
             collection.setStartDate(LocalDate.of(startYear, startMonth == null ? 1 : startMonth, 1)
                     .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } else {
+            collection.setStartDate(null);
         }
         if (endYear != null) {
             collection.setEndDate(LocalDate.of(endYear, endMonth == null ? 12 : endMonth, 1)
                     .with(lastDayOfMonth())
                     .atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+        } else {
+            collection.setEndDate(null);
         }
     }
 }

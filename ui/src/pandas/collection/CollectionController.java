@@ -71,6 +71,17 @@ public class CollectionController {
         return "CollectionView";
     }
 
+    @GetMapping("/collections/new")
+    @PreAuthorize("hasAuthority('PRIV_EDIT_COLLECTIONS')")
+    public String newForm(@RequestParam(value = "parent", required = false) Collection parent,
+                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
+                          Model model) {
+        Collection collection = new Collection();
+        collection.setParent(parent);
+        collection.setSubjects(subjects);
+        return edit(collection, model);
+    }
+
     @GetMapping("/collections/{id}/edit")
     @PreAuthorize("hasPermission(#collection, 'edit')")
     public String edit(@PathVariable("id") Collection collection, Model model) {
@@ -99,20 +110,6 @@ public class CollectionController {
     public String delete(@PathVariable("id") Collection collection) {
         collectionRepository.delete(collection);
         return "redirect:/collections";
-    }
-
-    @GetMapping("/collections/new")
-    @PreAuthorize("hasAuthority('PRIV_EDIT_COLLECTIONS')")
-    public String newForm(@RequestParam(value = "parent", required = false) Collection parent,
-                          @RequestParam(value = "subject", required = false) List<Subject> subjects,
-                          Model model) {
-        Collection collection = new Collection();
-        collection.setParent(parent);
-        collection.setSubjects(subjects);
-        model.addAttribute("form", CollectionEditForm.of(collection));
-        model.addAttribute("allSubjects", sortBy(subjectRepository.findAll(), Subject::getFullName));
-        model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
-        return "CollectionEdit";
     }
 
     @PostMapping("/collections/new")

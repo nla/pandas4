@@ -2,7 +2,7 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${collection == null ? 'New Collection - PANDAS' : 'Edit Collection - PANDAS'}">Edit Collection - PANDAS</title>
+    <title th:text="${collection.id == null ? 'New Collection - PANDAS' : 'Edit Collection - PANDAS'}">Edit Collection - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
@@ -13,7 +13,7 @@
             <button type="submit" data-keybind="s" class="btn btn-primary" form=editForm><i class="icon save"></i>Save</button>
             <button onclick="history.back(); return false" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i> Cancel</button>
         </nav>
-        <button th:if="${collection != null}" type="submit" th:formaction="@{|/collections/${collection.id}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
+        <button th:if="${collection.id != null}" type="submit" th:formaction="@{|/collections/${collection.id}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
     </header>
     <form method=post class=form th:object="${form}" id=editForm th:action="@{''}">
         <fieldset>
