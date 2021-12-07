@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pandas.core.NotFoundException;
 import pandas.core.View;
+import pandas.gather.GatherSchedule;
+import pandas.gather.GatherScheduleRepository;
 import pandas.gather.GatherService;
 import pandas.search.SearchResults;
 
@@ -30,12 +32,14 @@ public class CollectionController {
     private final EntityManager entityManager;
     private final SubjectRepository subjectRepository;
     private final GatherService gatherService;
+    private final GatherScheduleRepository gatherScheduleRepository;
 
-    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository, GatherService gatherService) {
+    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository, GatherService gatherService, GatherScheduleRepository gatherScheduleRepository) {
         this.collectionRepository = collectionRepository;
         this.entityManager = entityManager;
         this.subjectRepository = subjectRepository;
         this.gatherService = gatherService;
+        this.gatherScheduleRepository = gatherScheduleRepository;
     }
 
     @GetMapping("/collections")
@@ -115,6 +119,7 @@ public class CollectionController {
     @PreAuthorize("hasAuthority('PRIV_EDIT_COLLECTIONS')")
     public String create(@Valid CollectionEditForm form) {
         Collection collection = new Collection();
+        collection.setGatherSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
         form.applyTo(collection);
         collection = collectionRepository.save(collection);
         return "redirect:/collections/" + collection.getId();

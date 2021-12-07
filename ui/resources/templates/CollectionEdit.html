@@ -56,7 +56,7 @@
             </span>
         </fieldset>
 
-        <fieldset>
+        <fieldset sec:authorize="hasRole('stduser')">
             <label>Gather schedule
                 <div class="hint-text">Applied in addition to any schedules set at the title level. (Optional)</div>
                 <select th:field="*{gatherSchedule}">
