@@ -5,6 +5,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Information about, or to be displayed on, a Title Entry Page (TEP)
@@ -12,7 +13,8 @@ import java.util.List;
 @Entity
 public class Tep {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "TEP_SEQ")
+    @SequenceGenerator(name = "TEP_SEQ", sequenceName = "TEP_SEQ", allocationSize = 1)
     @Column(name = "TEP_ID", nullable = false, precision = 0)
     private Long id;
 
@@ -259,5 +261,18 @@ public class Tep {
 
     public List<IssueGroup> getIssueGroups() {
         return issueGroups;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tep tep = (Tep) o;
+        return Objects.equals(id, tep.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

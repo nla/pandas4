@@ -4,6 +4,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.agency.User;
+import pandas.collection.Tep;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 
@@ -138,16 +139,24 @@ public class InstanceService {
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
     public void archive(Instance instance, User user) {
+        instance = instanceRepository.findById(instance.getId()).orElseThrow(() -> new IllegalStateException("instance doesn't exist"));
         if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
         updateState(instance, State.ARCHIVING, user);
 
         // display the new instance immediately unless the title has issues in which case the curator will need to
         // set them up through the publish worktray
-        if (!titleRepository.hasIssues(instance.getTitle())) {
+        Title title = instance.getTitle();
+        if (titleRepository.countIssues(title) == 0) {
             instance.setIsDisplayed(1L);
         }
 
         instanceRepository.save(instance);
+
+        // create a TEP too if needed
+        if (title.getTep() == null) {
+            title.setTep(new Tep());
+            titleRepository.save(title);
+        }
     }
 
     @Transactional

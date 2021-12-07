@@ -774,7 +774,9 @@ public class Title {
     }
 
     public void setTep(Tep tep) {
+        if (Objects.equals(this.tep, tep)) return;
         this.tep = tep;
+        tep.setTitle(this);
     }
 
     public List<StatusHistory> getStatusHistories() {
