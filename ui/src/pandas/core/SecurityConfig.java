@@ -174,19 +174,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             }
 
             if (user == null) {
-                    user = new User();
-                    user.setUserid(userid);
-                    user.setNameGiven(userRequest.getIdToken().getGivenName());
-                    user.setNameFamily(userRequest.getIdToken().getFamilyName());
-                    user.setEmail(userRequest.getIdToken().getEmail());
-                    user.setPhone(userRequest.getIdToken().getPhoneNumber());
-                    user.setActive(true);
+                Role role = new Role();
+                role.setOrganisation(agencyRepository.findById(1L).orElseThrow().getOrganisation());
+                role.setType("InfoUser");
+                role.setTitle("Informational User");
 
-                    Role role = new Role();
-                    role.setOrganisation(agencyRepository.findById(1L).orElseThrow().getOrganisation());
-                    role.setType("InfoUser");
-                    role.setTitle("Informational User");
-                    user = userRepository.save(user);
+                user = new User();
+                user.setUserid(userid);
+                user.setNameGiven(userRequest.getIdToken().getGivenName());
+                user.setNameFamily(userRequest.getIdToken().getFamilyName());
+                user.setEmail(userRequest.getIdToken().getEmail());
+                user.setPhone(userRequest.getIdToken().getPhoneNumber());
+                user.setActive(true);
+                user.setRole(role);
+                user = userRepository.save(user);
             }
 
             linkedAccount = new LinkedAccount();
