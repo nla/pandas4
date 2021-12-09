@@ -28,11 +28,11 @@ public class IssueGroup {
     @Column(name = "ISSUE_GROUP_ORDER", nullable = true, precision = 0)
     private Integer order;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("order")
     private Collection<Issue> issues = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEP_ID", referencedColumnName = "TEP_ID")
     private Tep tep;
 

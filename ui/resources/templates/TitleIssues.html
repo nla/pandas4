@@ -98,7 +98,7 @@
                     <button type=button class="add-issue-group-button btn btn-secondary btn-compact"><i class="icon add"></i> Add group</button>
                 </td>
             </tr>
-            <th:block th:if="${title.tep != null}" th:each="group: ${title.tep.issueGroups}">
+            <th:block th:if="${title.tep != null}" th:each="group: ${issueGroups}">
                 <tr class="issue-group" th:unless="${group.isNone()}">
                     <td class="drag-handle">⠿</td>
                     <td colspan=2>

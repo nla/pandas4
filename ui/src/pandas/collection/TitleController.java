@@ -103,6 +103,7 @@ public class TitleController {
                 groupingBy(i -> i.getDate().atZone(ZoneId.systemDefault()).getYear(),
                 () -> new TreeMap<>(comparator.reversed()), toList())));
         model.addAttribute("deletedInstancesCount", title.getInstances().stream().filter(instance -> instance.getState().isDeleted()).count());
+        model.addAttribute("issueGroups", issueGroupRepository.findByTepTitleOrderByOrder(title));
         return "TitleView";
     }
 
@@ -229,6 +230,7 @@ public class TitleController {
     @PreAuthorize("hasPermission(#title, 'edit')")
     public String issues(@PathVariable("id") Title title, Model model) {
         model.addAttribute("title", title);
+        model.addAttribute("issueGroups", issueGroupRepository.findByTepTitleOrderByOrder(title));
         return "TitleIssues";
     }
 
@@ -246,7 +248,7 @@ public class TitleController {
         Map<Long, IssueGroup> groupMap = new HashMap<>();
         Map<Long, Issue> issueMap = new HashMap<>();
         IssueGroup theNoneGroup = IssueGroup.newNoneGroup();
-        for (IssueGroup group : tep.getIssueGroups()) {
+        for (IssueGroup group : issueGroupRepository.findByTepTitleOrderByOrder(title)) {
             if (group.isNone()) {
                 theNoneGroup = group;
             } else {

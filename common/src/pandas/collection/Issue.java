@@ -35,7 +35,7 @@ public class Issue {
     @JoinColumn(name = "ISSUE_GROUP_ID", referencedColumnName = "ISSUE_GROUP_ID")
     private IssueGroup group;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INSTANCE_ID")
     private Instance instance;
 
