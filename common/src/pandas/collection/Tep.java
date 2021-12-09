@@ -4,6 +4,8 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -112,9 +114,9 @@ public class Tep {
     @JoinColumn(name = "COPYRIGHT_TYPE_ID")
     private CopyrightType copyrightType;
 
-    @OneToMany(mappedBy = "tep")
+    @OneToMany(mappedBy = "tep", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("order, id desc")
-    private List<IssueGroup> issueGroups;
+    private List<IssueGroup> issueGroups = new ArrayList<>();
 
     public Tep() {
         doCollection = true;
@@ -260,7 +262,7 @@ public class Tep {
     }
 
     public List<IssueGroup> getIssueGroups() {
-        return issueGroups;
+        return Collections.unmodifiableList(issueGroups);
     }
 
     @Override
@@ -274,5 +276,14 @@ public class Tep {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void removeAllIssueGroups() {
+        issueGroups.clear();
+    }
+
+    public void addIssueGroup(IssueGroup group) {
+        issueGroups.add(group);
+        group.setTep(this);
     }
 }

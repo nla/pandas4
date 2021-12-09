@@ -12,7 +12,8 @@ import javax.persistence.*;
 @Table(name = "ARCH_ISSUE")
 public class Issue {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "ARCH_ISSUE_SEQ")
+    @SequenceGenerator(name = "ARCH_ISSUE_SEQ", sequenceName = "ARCH_ISSUE_SEQ", allocationSize = 1)
     @Column(name = "ISSUE_ID", nullable = false, precision = 0)
     private Long id;
 
@@ -22,7 +23,7 @@ public class Issue {
 
     @Basic
     @Column(name = "ISSUE_ORDER", nullable = true, precision = 0)
-    private Long order;
+    private Integer order;
 
     @Column(name = "TITLE", nullable = true, length = 1024)
     private String name;
@@ -54,11 +55,11 @@ public class Issue {
         isDisplayed = displayed;
     }
 
-    public Long getOrder() {
+    public Integer getOrder() {
         return order;
     }
 
-    public void setOrder(Long order) {
+    public void setOrder(Integer order) {
         this.order = order;
     }
 

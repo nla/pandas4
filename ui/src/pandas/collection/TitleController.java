@@ -222,7 +222,71 @@ public class TitleController {
         return "ok";
     }
 
+    @GetMapping("/titles/{id}/issues")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String issues(@PathVariable("id") Title title, Model model) {
+        model.addAttribute("title", title);
+        return "TitleIssues";
+    }
+
+    @PostMapping("/titles/{titleId}/issues")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String updateIssues(@PathVariable("titleId") Title title,
+                               @RequestParam("type") String[] types,
+                               @RequestParam("id") Long[] ids,
+                               @RequestParam("name") ArrayDeque<String> names,
+                               @RequestParam("url") ArrayDeque<String> urls) {
+        Tep tep = title.getTep();
+
+        // First, build an index of all the existing groups and issues.
+        Map<Long, IssueGroup> groupMap = new HashMap<>();
+        Map<Long, Issue> issueMap = new HashMap<>();
+        IssueGroup theNoneGroup = IssueGroup.newNoneGroup();
+        for (IssueGroup group : tep.getIssueGroups()) {
+            if (group.isNone()) {
+                theNoneGroup = group;
+            } else {
+                groupMap.put(group.getId(), group);
+            }
+            for (Issue issue : group.getIssues()) {
+                issueMap.put(issue.getId(), issue);
+            }
+        }
+
+        // Remove all the groups except for the -None- group.
+        tep.removeAllIssueGroups();
+        theNoneGroup.setOrder(0);
+        tep.addIssueGroup(theNoneGroup);
+
+        // Add all the new and updated groups and issues back in.
+        IssueGroup group = theNoneGroup;
+        for (int i = 0; i < types.length; i++) {
+            Long id = ids[i];
+            switch (types[i]) {
+                case "IssueGroup" -> {
+                    group = id == null ? new IssueGroup() : groupMap.get(id);
+                    group.setName(names.pop());
+                    group.setOrder(tep.getIssueGroups().size());
+                    group.removeAllIssues();
+                    tep.addIssueGroup(group);
+                }
+                case "Issue" -> {
+                    Issue issue = id == null ? new Issue() : issueMap.get(id);
+                    issue.setName(names.pop());
+                    issue.setUrl(urls.pop());
+                    issue.setOrder(group.getIssues().size());
+                    group.addIssue(issue);
+                }
+            }
+        }
+
+        titleRepository.save(title);
+
+        return "redirect:/titles/" + title.getId();
+    }
+
     @GetMapping("/titles/{id}/edit")
+    @PreAuthorize("hasPermission(#title, 'edit')")
     public String edit(@PathVariable("id") Title title,
                        @RequestParam(value = "setStatus", required = false) Status setStatus,
                        HttpServletRequest request,

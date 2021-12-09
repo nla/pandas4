@@ -6,10 +6,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.Agency;
 import pandas.agency.User;
-import pandas.collection.Collection;
-import pandas.collection.Publisher;
-import pandas.collection.Subject;
-import pandas.collection.Title;
+import pandas.collection.*;
 import pandas.gather.Instance;
 import pandas.gather.PreviousGather;
 import pandas.util.DateFormats;
@@ -36,6 +33,10 @@ public class Link {
     public String delivery(Instance instance) {
         return "https://webarchive.nla.gov.au/awa/" + DateFormats.ARC_DATE.format(instance.getDate()) + "/" +
                 instance.getTepUrlAbsolute();
+    }
+
+    public String delivery(Issue issue) {
+        return issue.getUrl();
     }
 
     public String edit(Agency agency) {

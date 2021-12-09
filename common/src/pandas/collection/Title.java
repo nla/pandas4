@@ -415,6 +415,9 @@ public class Title {
     }
 
     public Tep getTep() {
+        if (tep == null) {
+            setTep(new Tep());
+        }
         return tep;
     }
 

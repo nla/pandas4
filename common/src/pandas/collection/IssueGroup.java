@@ -1,7 +1,9 @@
 package pandas.collection;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * A label under which to group issues on the title's TEP.
@@ -9,8 +11,11 @@ import java.util.Collection;
 @Entity
 @Table(name = "ISSUE_GROUP")
 public class IssueGroup {
+    public static final String NONE_GROUP_NAME = "-None-";
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "ISSUE_GROUP_SEQ")
+    @SequenceGenerator(name = "ISSUE_GROUP_SEQ", sequenceName = "ISSUE_GROUP_SEQ", allocationSize = 1)
     @Column(name = "ISSUE_GROUP_ID", nullable = false, precision = 0)
     private Long id;
 
@@ -21,18 +26,24 @@ public class IssueGroup {
     private String notes;
 
     @Column(name = "ISSUE_GROUP_ORDER", nullable = true, precision = 0)
-    private Long order;
+    private Integer order;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("order")
-    private Collection<Issue> issues;
+    private Collection<Issue> issues = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "TEP_ID", referencedColumnName = "TEP_ID")
     private Tep tep;
 
+    public static IssueGroup newNoneGroup() {
+        IssueGroup group = new IssueGroup();
+        group.setName(NONE_GROUP_NAME);
+        return group;
+    }
+
     public boolean isNone() {
-        return "-None-".equals(getName());
+        return NONE_GROUP_NAME.equals(getName());
     }
 
     public Long getId() {
@@ -59,20 +70,25 @@ public class IssueGroup {
         this.notes = notes;
     }
 
-    public Long getOrder() {
+    public Integer getOrder() {
         return order;
     }
 
-    public void setOrder(Long order) {
+    public void setOrder(Integer order) {
         this.order = order;
     }
 
     public Collection<Issue> getIssues() {
-        return issues;
+        return Collections.unmodifiableCollection(issues);
     }
 
-    public void setIssues(Collection<Issue> issues) {
-        this.issues = issues;
+    public void removeAllIssues() {
+        issues.clear();
+    }
+
+    public void addIssue(Issue issue) {
+        issues.add(issue);
+        issue.setGroup(this);
     }
 
     public Tep getTep() {

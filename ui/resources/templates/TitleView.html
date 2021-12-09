@@ -66,6 +66,7 @@
         <nav>
             <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/edit|}" class="btn"><i class="icon edit"></i> Edit</a>
             <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/transfer|}" class="btn btn-secondary"> Transfer ownership</a>
+            <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/issues|}" class="btn btn-secondary"> Edit issues</a>
         </nav>
         <a th:href="@{|/titles/${title.id}/p3|}" class="btn btn-secondary">View in PANDAS 3</a>
     </header>
@@ -142,6 +143,7 @@
             <div th:if="${title.owner != null}">
                 Owner: <a th:href="${@link.to(title.owner)}" th:text="${title?.owner?.fullName}"></a>
                 <a th:href="${@link.to(title) + '/ownerhistory'}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
+                <a th:href="@{|/titles/${title.id}/transfer|}"><i class="icon edit"></i></a>
             </div>
             <div>Agency: <a th:href="${@link.to(title.agency)}" th:text="${title.agency.name}">National Library</a></div>
             <div>Registered: <span th:text="${dateFormat.format(title.regDate)}"></span></div>
@@ -151,6 +153,17 @@
             <h4>Notes</h4>
             <div th:text="${title.notes}" style="white-space: pre-wrap"></div>
         </div>
+
+
+        <div th:if="${title.tep != null}">
+            <h4>Issues <a th:href="@{|/titles/${title.id}/issues|}"><i class="icon edit"></i></a></h4>
+            <section th:if="${title.tep != null}" th:each="issueGroup: ${title.tep.issueGroups}">
+                <h5 th:if="${issueGroup.name != '-None-'}" th:text="${issueGroup.name}">Issue Group</h5>
+                <ul>
+                    <li th:each="issue: ${issueGroup.issues}"><a th:href="${@link.delivery(issue)}" th:text="${issue.name}">Volume 1</a></li>
+                </ul>
+            </section>
+        </div>
     </div>
 
     <div class="panel-instance-list">
@@ -158,7 +171,7 @@
             <tr>
                 <td></td>
                 <td th:if="${deletedInstancesCount > 0}" style="padding-bottom: 32px"><label><input id="showDeletedCheckbox" type="checkbox"> Show
-                    deleted (<th:block th:text="${deletedInstancesCount}"/>) </label></td>
+                    deleted instances (<th:block th:text="${deletedInstancesCount}"/>) </label></td>
             </tr>
             <tr th:each="year : ${instancesByYear}">
                 <td class="instance-year" th:text="${year.key}">2021</td>
