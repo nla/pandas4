@@ -13,6 +13,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -67,8 +68,9 @@ public class TitleController {
     private final ProfileRepository profileRepository;
     private final ScopeRepository scopeRepository;
     private final CollectionRepository collectionRepository;
+    private final IssueGroupRepository issueGroupRepository;
 
-    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository) {
+    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueGroupRepository issueGroupRepository) {
         this.titleRepository = titleRepository;
         this.userRepository = userRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -88,6 +90,7 @@ public class TitleController {
         this.profileRepository = profileRepository;
         this.scopeRepository = scopeRepository;
         this.collectionRepository = collectionRepository;
+        this.issueGroupRepository = issueGroupRepository;
     }
 
     @GetMapping("/titles/{id}")
@@ -231,6 +234,7 @@ public class TitleController {
 
     @PostMapping("/titles/{titleId}/issues")
     @PreAuthorize("hasPermission(#title, 'edit')")
+    @Transactional
     public String updateIssues(@PathVariable("titleId") Title title,
                                @RequestParam("type") String[] types,
                                @RequestParam("id") Long[] ids,
@@ -269,6 +273,13 @@ public class TitleController {
                     group.setOrder(tep.getIssueGroups().size());
                     group.removeAllIssues();
                     tep.addIssueGroup(group);
+                    // If this a new group we need to save it before moving existing issues to it or we get an
+                    // "object references an unsaved transient instance" error.
+                    // I think this is an ordering issue where if the cascade gets to the old group before the new group
+                    // it'll try to save the issue even though it's no longer in the old group.
+                    if (group.getId() == null) {
+                        group = issueGroupRepository.save(group);
+                    }
                 }
                 case "Issue" -> {
                     Issue issue = id == null ? new Issue() : issueMap.get(id);
