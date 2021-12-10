@@ -13,6 +13,7 @@ import java.util.Objects;
  * Information about, or to be displayed on, a Title Entry Page (TEP)
  */
 @Entity
+@Table(indexes = {@Index(name="tep_title_id_index", columnList = "title_id")})
 public class Tep {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "TEP_SEQ")

@@ -9,7 +9,8 @@ import javax.persistence.*;
  * instance's main entry URL.
  */
 @Entity
-@Table(name = "ARCH_ISSUE")
+@Table(name = "ARCH_ISSUE",
+        indexes = {@Index(name = "issue_issue_group_id_order_index", columnList = "issue_group_id, issue_order")})
 public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "ARCH_ISSUE_SEQ")

@@ -9,7 +9,8 @@ import java.util.Collections;
  * A label under which to group issues on the title's TEP.
  */
 @Entity
-@Table(name = "ISSUE_GROUP")
+@Table(name = "ISSUE_GROUP",
+        indexes = {@Index(name = "issue_group_tep_id_order_index", columnList = "tep_id, issue_group_order")})
 public class IssueGroup {
     public static final String NONE_GROUP_NAME = "-None-";
 
