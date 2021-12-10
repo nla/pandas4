@@ -19,18 +19,22 @@ import java.sql.SQLException;
 @Component
 public class RequestLogger {
     private ThreadLocal<Context> context = ThreadLocal.withInitial(Context::new);
+    private static final long SLOW_QUERY_NANOS = 25*1000*1000; // 25 ms
+    private static final int EXTRA_LINES_MAX_LENGTH = 16 * 1024;
 
     public static class Context {
         long startTime;
         long dbTimeNanos;
         long queries;
         long rows;
+        StringBuilder extraLines = new StringBuilder();
 
         public void beforeRequest(HttpServletRequest request, HttpServletResponse response) {
             startTime = System.currentTimeMillis();
             queries = 0;
             dbTimeNanos = 0;
             rows = 0;
+            extraLines.setLength(0);
         }
 
         public void afterRequest(HttpServletRequest request, HttpServletResponse response, Exception ex) {
@@ -42,12 +46,16 @@ public class RequestLogger {
                     " queries=" + queries +
                     " rows=" + rows +
                     " user=" + (principal == null ? "" : principal.getName()) +
-                    " " + request.getMethod() + " " + request.getRequestURI());
+                    " " + request.getMethod() + " " + request.getRequestURI() + extraLines.toString());
         }
 
         public void afterSqlExecute(StatementInformation statementInformation, long timeElapsedNanos, SQLException e) {
             queries++;
             dbTimeNanos += timeElapsedNanos;
+            if (timeElapsedNanos > SLOW_QUERY_NANOS && extraLines.length() < EXTRA_LINES_MAX_LENGTH) {
+                extraLines.append("\n    SLOW (").append(timeElapsedNanos / 1000 / 1000).append("ms): ")
+                        .append(statementInformation.getSqlWithValues());
+            }
         }
 
         public void afterResultSetNext(ResultSetInformation resultSetInformation, long timeElapsedNanos, boolean hasNext, SQLException e) {
