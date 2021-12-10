@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
+@Table(indexes = {@Index(name = "thubmnail_title_id_index", columnList = "title_id")})
 public class Thumbnail {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "THUMBNAIL_SEQ")
