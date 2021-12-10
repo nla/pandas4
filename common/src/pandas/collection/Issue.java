@@ -20,7 +20,7 @@ public class Issue {
 
     @Basic
     @Column(name = "IS_DISPLAYED", nullable = true, precision = 0)
-    private Boolean isDisplayed;
+    private Boolean isDisplayed = true;
 
     @Basic
     @Column(name = "ISSUE_ORDER", nullable = true, precision = 0)
