@@ -238,11 +238,16 @@ public class TitleController {
     @PreAuthorize("hasPermission(#title, 'edit')")
     @Transactional
     public String updateIssues(@PathVariable("titleId") Title title,
-                               @RequestParam("type") String[] types,
-                               @RequestParam("id") Long[] ids,
-                               @RequestParam("name") ArrayDeque<String> names,
-                               @RequestParam("url") ArrayDeque<String> urls) {
+                               @RequestParam(value = "type", defaultValue = "") String[] types,
+                               @RequestParam(value = "id", defaultValue = "") Long[] ids,
+                               @RequestParam(value = "name", defaultValue = "") ArrayDeque<String> names,
+                               @RequestParam(value = "url", defaultValue = "") ArrayDeque<String> urls) {
         Tep tep = title.getTep();
+
+        // workaround @RequestParam turning a single ?id= into [] instead of [null]
+        if (ids.length == 0) {
+            ids = new Long[]{null};
+        }
 
         // First, build an index of all the existing groups and issues.
         Map<Long, IssueGroup> groupMap = new HashMap<>();
@@ -262,6 +267,7 @@ public class TitleController {
         // Remove all the groups except for the -None- group.
         tep.removeAllIssueGroups();
         theNoneGroup.setOrder(0);
+        theNoneGroup.removeAllIssues();
         tep.addIssueGroup(theNoneGroup);
 
         // Add all the new and updated groups and issues back in.
