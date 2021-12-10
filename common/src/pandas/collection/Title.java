@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
@@ -172,9 +171,6 @@ public class Title {
             inversePath = @ObjectPath( @PropertyValue( propertyName = "title" ) )
     )
     private TitleGather gather;
-
-    @Formula("(select MIN(i.INSTANCE_DATE) from INSTANCE i where i.TITLE_ID = TITLE_ID)")
-    private Instant firstInstanceDate;
 
     /**
      * Internal notes about this title.
@@ -516,7 +512,8 @@ public class Title {
     }
 
     public Instant getFirstInstanceDate() {
-        return firstInstanceDate;
+        if (getInstances().isEmpty()) return null;
+        return getInstances().get(0).getDate();
     }
 
     public String getNotes() {
