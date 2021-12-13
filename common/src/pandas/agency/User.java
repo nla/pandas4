@@ -4,10 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import pandas.core.Individual;
+import pandas.core.LinkedAccount;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 public class User extends Individual {
@@ -38,6 +43,9 @@ public class User extends Individual {
     @Column(name = "PWDIGEST")
     @JsonIgnore
     private String pwdigest;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LinkedAccount> linkedAccounts;
 
     public User() {
     }
@@ -125,5 +133,9 @@ public class User extends Individual {
             return null;
         }
         return getAuditCreateDate().atZone(ZoneId.systemDefault()).getYear();
+    }
+
+    public List<LinkedAccount> getLinkedAccounts() {
+        return Collections.unmodifiableList(linkedAccounts);
     }
 }
