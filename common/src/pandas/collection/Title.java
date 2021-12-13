@@ -104,8 +104,7 @@ public class Title {
     /**
      * The corresponding Title Entry Page used by the display system.
      */
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "TEP_ID")
+    @OneToOne(mappedBy = "title", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Tep tep;
 
     @ManyToOne
