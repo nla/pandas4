@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.collection.TitleRepository;
 import pandas.core.NotFoundException;
 
@@ -22,10 +21,10 @@ public class AgencyController {
         this.titleRepository = titleRepository;
     }
 
-    @GetMapping("agencies")
-    @ResponseBody
-    public Iterable<Agency> list() {
-        return agencyRepository.findAll();
+    @GetMapping("/agencies")
+    public String list(Model model) {
+        model.addAttribute("agencies", agencyRepository.summarizeAllOrdered());
+        return "AgencyList";
     }
 
     @GetMapping("/agencies/{alias}")
@@ -53,5 +52,13 @@ public class AgencyController {
             }
         }
         return ResponseEntity.ok().contentType(type).body(logo);
+    }
+
+    @GetMapping("/agencies/{alias}/edit")
+    public String edit(@PathVariable("alias") String alias, Model model) {
+        Agency agency = agencyRepository.findByAlias(alias).orElseThrow(NotFoundException::new);
+        model.addAttribute("agency", agency);
+        model.addAttribute("form", AgencyEditForm.of(agency));
+        return "AgencyEdit";
     }
 }

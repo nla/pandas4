@@ -1,5 +1,6 @@
 package pandas;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
@@ -11,6 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.unbescape.html.HtmlEscape;
+import org.unbescape.html.HtmlEscapeLevel;
+import org.unbescape.html.HtmlEscapeType;
 import pandas.core.Privileges;
 
 import java.security.Principal;
@@ -24,6 +28,16 @@ public class HomeController {
     @ResponseBody
     public Principal whoami(Principal principal) {
         return principal;
+    }
+
+    public String formatStackTrace(String trace) {
+        return trace.replaceAll("(?m)^\\s+at (javax\\.servlet|org\\.springframework|org\\.thymeleaf|org\\.apache|org\\.attoparser)\\..*\n", "")
+                .replaceAll("(?m)^\\s+... \\d+ more\n", "");
+    }
+
+    @NotNull
+    private String escapeHtml(String text) {
+        return HtmlEscape.escapeHtml(text, HtmlEscapeType.HEXADECIMAL_REFERENCES, HtmlEscapeLevel.LEVEL_2_ALL_NON_ASCII_PLUS_MARKUP_SIGNIFICANT);
     }
 
     /**

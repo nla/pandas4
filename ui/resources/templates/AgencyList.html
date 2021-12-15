@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Agencies - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+
+    <style>
+        .user-table th {
+            text-align: left;
+        }
+        .user-table > tbody > tr > td:nth-child(3), .user-table > tbody > tr > td:nth-child(4) {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_ALL_AGENCIES')"
+               th:href="@{/agency/new}" class="btn btn-secondary"><i class="icon add"></i> New Agency</a>
+        </nav>
+    </header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li class="active" style="font-weight: bold">Agencies</li>
+        </ol>
+    </nav>
+
+
+    <table class="user-table">
+        <tr>
+            <th>Name</th>
+            <th>Alias</th>
+            <th>Users</th>
+            <th>Titles</th>
+        </tr>
+        <tr th:each="agency : ${agencies}">
+            <td><a th:href="@{/agencies/{alias}(alias=${agency.alias})}" th:text="${agency.name}">National Library</a></td>
+            <td th:text="${agency.alias}"></td>
+            <td th:text="${#numbers.formatInteger(agency.userCount, 0, 'COMMA')}">5</td>
+            <td><a class="title-count" th:href="@{/titles(agency=${agency.id},sort='Newest')}" th:text="${#numbers.formatInteger(agency.titleCount, 0, 'COMMA')}">10</a></td>
+        </tr>
+    </table>
+</main>

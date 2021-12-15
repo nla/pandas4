@@ -6,7 +6,12 @@
 </head>
 <h1 th:text="${status + ' ' + error}">400 Bad Request</h1>
 
-<p th:text="${trace}" style="white-space: pre-wrap; word-wrap: anywhere">Stacktrace</p>
+<p id="trace" th:text="${@homeController.formatStackTrace(trace)}" style="white-space: pre-wrap; word-wrap: anywhere">Stacktrace</p>
+
+<details>
+    <summary style="user-select: none">Full stacktrace</summary>
+    <p th:text="${trace}" style="white-space: pre-wrap; word-wrap: anywhere">Stacktrace</p>
+</details>
 
 <!--/*
 <table border=1>

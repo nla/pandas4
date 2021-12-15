@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Agency - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+        <nav>
+            <button type="submit" data-keybind="s" class="btn btn-primary" form=form><i class="icon save"></i> Save</button>
+            <a href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary" form=form><i class="icon cancel"></i> Cancel</a>
+        </nav>
+        <button th:if="${agency.id != null}" type="submit" th:formaction="@{|/agencies/${agency.organisation.alias}/delete|}"
+                class="btn btn-danger float-right" form=form><i class="icon delete"></i> Delete
+        </button>
+    </header>
+    <form method=post class=form th:object="${form}" th:action="@{''}" enctype=multipart/form-data id=form>
+        <fieldset>
+
+            <div>
+                <label style="flex-grow: 1">Name <input class="form-control" th:field="*{name}" required></label>
+                <label style="width: 100px">Abbreviation <input th:field="*{alias}" required> </label>
+            </div>
+
+            <label>Logo</label>
+            <input id="removeIcon" name="removeIcon" value="false" type=hidden>
+            <div>
+                <div style="text-align: center">
+                    <img id=iconPreview th:src="${@link.logo(agency)}" th:if="${agency.logo != null}"><br>
+                    <input type=button value=Remove id=removeIconButton th:style="${agency.logo == null ? 'display: none' : ''}">
+                </div>
+                <div style="align-self: end">
+                    <input id="icon" type=file name=icon accept="image/*">
+                </div>
+                <script>
+                    icon.addEventListener('change', function() {
+                        iconPreview.src = window.URL.createObjectURL(this.files[0]);
+                        removeIconButton.style.display = '';
+                        removeIcon.value = false;
+                    });
+
+                    removeIconButton.addEventListener('click', function() {
+                        iconPreview.src = '';
+                        removeIconButton.style.display = 'none';
+                        removeIcon.value = true;
+                        icon.value = '';
+                        return false;
+                    });
+                </script>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Communication</legend>
+            <label>URL <input th:field="*{url}"> </label>
+            <label>Public contact email <input th:field="*{externalEmail}"></label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Configuration</legend>
+            <label>Local reference prefix <input th:field="*{localReferencePrefix}" required></label>
+            <label>Local database prefix <input th:field="*{localDatabasePrefix}" required></label>
+        </fieldset>
+    </form>
+</main>
