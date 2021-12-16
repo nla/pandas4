@@ -81,7 +81,7 @@ public class UserController {
     public String delete(@PathVariable("userid") String userid) {
         User user = userRepository.findByUserid(userid).orElseThrow();
         userRepository.delete(user);
-        return "redirect:/agencies/" + user.getAgency().getOrganisation().getAlias();
+        return "redirect:/agencies/" + user.getAgency().getId();
     }
 
     private String save(UserEditForm form, Authentication authentication, User user) {

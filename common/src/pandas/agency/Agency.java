@@ -54,7 +54,7 @@ public class Agency {
      */
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ORGANISATION_ID")
-    private Organisation organisation;
+    private Organisation organisation = new Organisation();
 
     /**
      * This agency's logo image file.

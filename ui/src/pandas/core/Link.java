@@ -5,6 +5,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.Agency;
+import pandas.agency.AgencySummary;
 import pandas.agency.User;
 import pandas.collection.*;
 import pandas.gather.Instance;
@@ -75,8 +76,12 @@ public class Link {
         return to(previousGather) + "/thumbnail?type=" + type;
     }
 
+    public String to(AgencySummary agencySummary) {
+        return link("/agencies/" + agencySummary.getId());
+    }
+
     public String to(Agency agency) {
-        return link("/agencies/" + agency.getOrganisation().getAlias());
+        return link("/agencies/" + agency.getId());
     }
 
     public String to(Collection collection) {

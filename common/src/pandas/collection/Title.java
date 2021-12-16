@@ -107,6 +107,12 @@ public class Title {
     @OneToOne(mappedBy = "title", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Tep tep;
 
+    // this exists for backwards compatiblity with PANDAS 3 which had a foreign key
+    // in both tables for some reason
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TEP_ID")
+    private Tep legacyTepRelation;
+
     @ManyToOne
     @JoinColumn(name = "AGENCY_ID", referencedColumnName = "AGENCY_ID")
     @IndexedEmbedded(includePaths = {"id"})
@@ -788,5 +794,13 @@ public class Title {
 
     public void removeCollection(Collection collection) {
         collections.remove(collection);
+    }
+
+    public Tep getLegacyTepRelation() {
+        return legacyTepRelation;
+    }
+
+    public void setLegacyTepRelation(Tep legacyTepRelation) {
+        this.legacyTepRelation = legacyTepRelation;
     }
 }

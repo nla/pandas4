@@ -104,6 +104,8 @@ public class TitleService {
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
 
+        title.getTep(); // ensure we have a tep
+
 
         boolean statusChanged = false;
         if (!Objects.equals(title.getStatus(), form.getStatus())) {
@@ -223,6 +225,12 @@ public class TitleService {
         titleGather.setGatherCommand(titleGather.buildHttrackCommand());
 
         titleGatherRepository.save(titleGather);
+
+        // create legacy tep relation if needed
+        if (title.getLegacyTepRelation() == null) {
+            title.setLegacyTepRelation(title.getTep());
+            titleRepository.save(title);
+        }
 
         return title;
     }

@@ -22,7 +22,7 @@
     <header>
         <nav>
             <a sec:authorize="hasAuthority('PRIV_EDIT_ALL_AGENCIES')"
-               th:href="@{/agency/new}" class="btn btn-secondary"><i class="icon add"></i> New Agency</a>
+               th:href="@{/agencies/new}" class="btn btn-primary"><i class="icon add"></i> New Agency</a>
         </nav>
     </header>
 
@@ -32,7 +32,6 @@
         </ol>
     </nav>
 
-
     <table class="user-table">
         <tr>
             <th>Name</th>
@@ -41,7 +40,7 @@
             <th>Titles</th>
         </tr>
         <tr th:each="agency : ${agencies}">
-            <td><a th:href="@{/agencies/{alias}(alias=${agency.alias})}" th:text="${agency.name}">National Library</a></td>
+            <td><a th:href="${@link.to(agency)}" th:text="${agency.name}">National Library</a></td>
             <td th:text="${agency.alias}"></td>
             <td th:text="${#numbers.formatInteger(agency.userCount, 0, 'COMMA')}">5</td>
             <td><a class="title-count" th:href="@{/titles(agency=${agency.id},sort='Newest')}" th:text="${#numbers.formatInteger(agency.titleCount, 0, 'COMMA')}">10</a></td>

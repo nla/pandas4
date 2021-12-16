@@ -2,12 +2,16 @@ package pandas.agency;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import pandas.collection.TitleRepository;
-import pandas.core.NotFoundException;
+
+import javax.validation.Valid;
+import java.io.IOException;
 
 @Controller
 public class AgencyController {
@@ -27,9 +31,8 @@ public class AgencyController {
         return "AgencyList";
     }
 
-    @GetMapping("/agencies/{alias}")
-    public String view(@PathVariable("alias") String alias, Model model) {
-        Agency agency = agencyRepository.findByAlias(alias).orElseThrow(NotFoundException::new);
+    @GetMapping("/agencies/{agencyId}")
+    public String view(@PathVariable("agencyId") Agency agency, Model model) {
         model.addAttribute("agency", agency);
         model.addAttribute("users", userRepository.findUsersByAgency(agency));
         model.addAttribute("titleCount", titleRepository.countByAgency(agency));
@@ -37,9 +40,8 @@ public class AgencyController {
         return "AgencyView";
     }
 
-    @GetMapping("/agencies/{alias}/logo")
-    public ResponseEntity<byte[]> logo(@PathVariable("alias") String alias) {
-        Agency agency = agencyRepository.findByAlias(alias).orElseThrow(NotFoundException::new);
+    @GetMapping("/agencies/{agencyId}/logo")
+    public ResponseEntity<byte[]> logo(@PathVariable("agencyId") Agency agency) {
         byte[] logo = agency.getLogo();
         MediaType type = MediaType.APPLICATION_OCTET_STREAM;
         if (logo.length > 0) {
@@ -54,11 +56,43 @@ public class AgencyController {
         return ResponseEntity.ok().contentType(type).body(logo);
     }
 
-    @GetMapping("/agencies/{alias}/edit")
-    public String edit(@PathVariable("alias") String alias, Model model) {
-        Agency agency = agencyRepository.findByAlias(alias).orElseThrow(NotFoundException::new);
+    @GetMapping("/agencies/new")
+    @PreAuthorize("hasAuthority('PRIV_EDIT_ALL_AGENCIES')")
+    public String newForm(Model model) {
+        return edit(new Agency(), model);
+    }
+
+    @GetMapping("/agencies/{agencyId}/edit")
+    @PreAuthorize("hasPermission(#agency, 'edit')")
+    public String edit(@PathVariable("agencyId") Agency agency, Model model) {
         model.addAttribute("agency", agency);
         model.addAttribute("form", AgencyEditForm.of(agency));
         return "AgencyEdit";
+    }
+
+    @PostMapping("/agencies/{agencyId}/edit")
+    @PreAuthorize("hasPermission(#agency, 'edit')")
+    public String update(@PathVariable("agencyId") Agency agency, @Valid AgencyEditForm form) throws IOException {
+        form.applyTo(agency);
+        agencyRepository.save(agency);
+        return "redirect:/agencies/" + agency.getId();
+    }
+
+    @PostMapping("/agencies/new")
+    @PreAuthorize("hasAuthority('PRIV_EDIT_ALL_AGENCIES')")
+    public String create(@Valid AgencyEditForm form) throws IOException {
+        Agency agency = new Agency();
+        form.applyTo(agency);
+        agency = agencyRepository.save(agency);
+        agency.getOrganisation().setAgency(agency);
+        agencyRepository.save(agency);
+        return "redirect:/agencies/" + agency.getId();
+    }
+
+    @PostMapping("/agencies/{agencyId}/delete")
+    @PreAuthorize("hasPermission(#agency, 'edit')")
+    public String delete(@PathVariable("agencyId") Agency agency) throws IOException {
+        agencyRepository.delete(agency);
+        return "redirect:/agencies";
     }
 }
