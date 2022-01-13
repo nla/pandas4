@@ -118,7 +118,8 @@ public class TitleService {
         }
 
         // if transitioning to the selected status, try to move to the appropriate permission status if possible
-        if (statusChanged && title.getStatus().getId().equals(Status.SELECTED_ID) && title.getPermission() != null) {
+        if (statusChanged && title.getStatus().getId().equals(Status.SELECTED_ID) && title.getPermission() != null
+            && title.getPermission().getState() != null) {
             Long newStatusId = switch (title.getPermission().getState().getName()) {
                 case PermissionState.GRANTED -> Status.PERMISSION_GRANTED_ID;
                 case PermissionState.DENIED -> Status.PERMISSION_DENIED_ID;
