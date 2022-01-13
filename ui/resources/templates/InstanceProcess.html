@@ -67,6 +67,8 @@
                 <a th:href="${@link.to(instance.title)}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a>
                 <strong th:if="${instance.title.status.isCeased()}">(Ceased)</strong>
+                <span th:if="${!instance.title.status.isCeased() && !instance.title.gather.schedule.isNone()}"
+                        th:text="'(' + ${instance.title.gather.schedule.name} + ')'">(Monthly)</span>
             </li>
             <li><span th:text="${instance.gatherMethodName}"></span> gather from
 
