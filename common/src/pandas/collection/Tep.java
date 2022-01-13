@@ -41,6 +41,8 @@ public class Tep {
 
     /**
      * The title/heading to be displayed on the TEP.
+     *
+     * Legacy P3 field.
      */
     @Column(name = "DISPLAY_TITLE", nullable = true, length = 4000)
     private String displayTitle;

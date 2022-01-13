@@ -104,8 +104,8 @@ public class TitleService {
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
 
-        title.getTep(); // ensure we have a tep
-
+        Tep tep = title.getTep(); // ensure we have a tep
+        title.getTep().setDisplayTitle(title.getName());
 
         boolean statusChanged = false;
         if (!Objects.equals(title.getStatus(), form.getStatus())) {
