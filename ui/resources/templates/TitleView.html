@@ -109,8 +109,8 @@
             <div th:if="${title.statusReason != null}" th:text="${title.statusReason.name}" style="color: #777"></div>
             <p></p>
             <details>
-                <summary><span th:text="${title?.gather?.schedule?.name}"></span> <span
-                        th:text="${title?.gather?.method?.name}"></span> gather
+                <summary>Schedule: <span th:text="${title?.gather?.schedule?.name}">Weekly</span> <span
+                        th:text="${title?.gather?.method?.name}">Heritrix</span> gather
                 </summary>
                 <div th:if="${title?.gather?.nextGatherDate != null}">Next gather date:
                     <time th:text="${dateFormat.format(title.gather.nextGatherDate)}"></time>
