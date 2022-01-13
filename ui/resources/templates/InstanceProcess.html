@@ -63,8 +63,11 @@
 
     <nav class="breadcrumb">
         <ol>
-            <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
-                   th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
+            <li>
+                <a th:href="${@link.to(instance.title)}" href="TitleView.html"
+                   th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a>
+                <strong th:if="${instance.title.status.isCeased()}">(Ceased)</strong>
+            </li>
             <li><span th:text="${instance.gatherMethodName}"></span> gather from
 
                 <span class="prev-instances-container">
