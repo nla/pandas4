@@ -328,4 +328,15 @@ public class Collection {
     public int hashCode() {
         return Objects.hash(getId());
     }
+
+    /**
+     * Returns "" for top-level collections, "sub" for subcollections, "subsub" for subsubcollections.
+     */
+    public String getDepthPrefix() {
+        StringBuilder builder = new StringBuilder();
+        for (Collection ancester = getParent(); ancester != null; ancester = ancester.getParent()) {
+            builder.append("sub");
+        }
+        return builder.toString();
+    }
 }
