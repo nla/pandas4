@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -91,7 +92,7 @@ public class BrowsertrixGatherer implements Backend {
             command.add("--url");
             command.add(seed);
         }
-        Files.writeString(logFile, String.join(" ", command) + "\n", APPEND, CREATE);
+        Files.writeString(logFile, encodeShellCommandForLogging(command) + "\n", APPEND, CREATE);
         log.info("Executing {}", String.join(" ", command));
 
         Process process = new ProcessBuilder(command)
@@ -119,6 +120,17 @@ public class BrowsertrixGatherer implements Backend {
                 process.destroyForcibly();
             }
         }
+    }
+
+    private static final Pattern SHELL_SPECIAL_CHAR = Pattern.compile("[|&;<>()$`\\\\\"' \t\r\n*?\\[#~=%]");
+
+    static String encodeShellCommandForLogging(List<String> args) {
+        StringBuilder builder = new StringBuilder();
+        for (String arg : args) {
+            if (!builder.isEmpty()) builder.append(' ');
+            builder.append(SHELL_SPECIAL_CHAR.matcher(arg).replaceAll("\\\\$0"));
+        }
+        return builder.toString();
     }
 
     private String collectionName(Instance instance) {
