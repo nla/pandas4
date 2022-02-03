@@ -76,6 +76,9 @@
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
     new SlimSelect({
         select: '#parent',
+        searchFilter: function (option, search) {
+            return true; // leave filtering to backend
+        },
         ajax: function (search, callback) {
             if (!search) return callback(false);
             fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
