@@ -328,6 +328,9 @@
     });
     new SlimSelect({
         select: '#collections',
+        searchFilter: function (option, search) {
+            return true; // leave filtering to the backend
+        },
         ajax: function (search, callback) {
             if (!search) return callback(false);
             fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
@@ -348,6 +351,9 @@
                     text: value,
                     value: "new" // I'd prefer to use null/empty-string but slim-js then overrides it with the text
                 };
+            },
+            searchFilter: function (option, search) {
+                return true; // leave filtering to the backend
             },
             ajax: function (search, callback) {
                 if (!search) {
