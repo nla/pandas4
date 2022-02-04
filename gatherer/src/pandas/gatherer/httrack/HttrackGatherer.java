@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -192,20 +191,15 @@ public class HttrackGatherer implements Backend {
 
 		void stop() {
 			// HTTrack shuts down cleanly with SIGINT, but that's tricky to send from Java
-			Long pid = pid();
-			if (pid != null) {
-				log.info("Sending SIGINT to HTTrack {} (pid={})", instance.getHumanId(), pid);
-				try {
-					new ProcessBuilder("kill", "-INT", pid.toString()).inheritIO().start();
-				} catch (Exception e) {
-					log.warn("kill -INT " + pid + " failed", e);
-					pid = null;
-				}
-			}
+			long pid = process.pid();
+			log.info("Sending SIGINT to HTTrack {} (pid={})", instance.getHumanId(), pid);
+			try {
+				new ProcessBuilder("kill", "-INT", Long.toString(pid)).inheritIO().start();
+			} catch (Exception e) {
+				log.warn("kill -INT " + pid + " failed", e);
 
-			if (pid == null) { // fallback if SIGINT failed
 				// HTTrack's SIGTERM handling is buggy. Send two as it'll probably ignore the first.
-				log.info("PID unavailable. Sending SIGTERM to HTTrack {}", instance.getHumanId());
+				log.info("kill -INT failed. Sending SIGTERM to HTTrack {}", instance.getHumanId());
 				process.destroy();
 				process.destroy();
 			}
@@ -228,16 +222,6 @@ public class HttrackGatherer implements Backend {
 			log.info("HTTrack {} exited.", instance.getHumanId());
 		}
 
-		private Long pid() {
-			// once we upgrade to Java 9+ we can use Process.pid() :-)
-			try {
-				Field field = process.getClass().getDeclaredField("pid");
-				field.setAccessible(true);
-				return field.getLong(process);
-			} catch (NoSuchFieldException | IllegalAccessException e) {
-				return null;
-			}
-		}
 	}
 
 }
