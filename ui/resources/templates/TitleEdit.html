@@ -22,6 +22,10 @@
         <input type=hidden th:field="*{id}">
         <input type=hidden name="backlink" th:value="${backlink}">
 
+        <div th:if="${created != null}" class="alert-warning">
+            <a th:text="${created.name}" th:href="${@link.to(created)}">Example Site</a> has been saved
+        </div>
+
         <div th:if="${form.id == null}">
             <h2 style="margin-top: 0; margin-bottom: var(--gutter)">Archive an Australian Website</h2>
             <p>
@@ -304,9 +308,8 @@
 
         <div th:if="${form.id == null}">
             <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
-            <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
-            <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
-                    class="btn btn-danger float-right" style="float: right"><i class="icon delete"></i>Delete</button>
+            <button type="submit" class="btn btn-secondary" name="action" value="saveAndAddAnother">Save and add another</button>
+            <button style="float: right" onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
         </div>
 
     </form>

@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -320,6 +321,7 @@ public class TitleController {
         if (backlink != null && !model.containsAttribute("backlink")) {
             model.addAttribute("backlink", backlink);
         }
+        model.addAttribute("created", null);
 
         return editForm(model, form);
     }
@@ -397,7 +399,16 @@ public class TitleController {
     public String newForm(@RequestParam(value = "collection", defaultValue = "") List<Collection> collections,
                           @RequestParam(value = "subject", defaultValue = "") List<Subject> subjects,
                           @RequestParam(value = "url", required = false) String url,
+                          @RequestParam(value = "created", required = false) Title created,
                           Model model) {
+
+        // If the user pressed "Save and add another" copy the subjects & collections to the new form
+        model.addAttribute("created", created);
+        if (created != null) {
+            subjects = created.getSubjects();
+            collections = created.getCollections();
+        }
+
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         form.setTitleUrl(url);
 
@@ -415,9 +426,18 @@ public class TitleController {
     }
 
     @PostMapping(value = "/titles", produces = "application/json")
-    public String update(@RequestParam(value = "backlink", required = false) String backlink, @Valid TitleEditForm form) {
+    public String update(
+            @RequestParam(value = "action", required = false) String action,
+            @RequestParam(value = "backlink", required = false) String backlink,
+            @Valid TitleEditForm form) {
         Title title = titleService.save(form, userService.getCurrentUser());
-        if (backlink != null && backlink.startsWith("/")) {
+        if (action != null && action.equals("saveAndAddAnother")) {
+            String target = "redirect:/titles/new?created=" + title.getId();
+            if (backlink != null) {
+                target += "&backlink=" + URLEncoder.encode(backlink, UTF_8);
+            }
+            return target;
+        } else if (backlink != null && backlink.startsWith("/")) {
             return "redirect:" + backlink;
         } else {
             return "redirect:/titles/" + title.getId();
