@@ -36,7 +36,7 @@ public class DeliveryRequestLogger {
         long queries;
         long rows;
         StringBuilder extraLines = new StringBuilder();
-        Map<String,Long> traces = new HashMap<>();
+        Map<String, Long> traces = new HashMap<>();
         Map<String, List<String>> traceSql = new HashMap<>();
 
         public void beforeRequest(HttpServletRequest request, HttpServletResponse response) {

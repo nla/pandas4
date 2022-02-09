@@ -39,7 +39,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     List<Title> fetchNewGathers(String gatherMethod, Instant now, Instant startOfThisMinute);
 
     String PUBLISH_CONDITIONS = "t.agency.id <> 3\n" +
-            "and t.status.name not in ('nominated', 'monitored', 'rejeceted')\n" +
+            "and t.status.name not in ('nominated', 'monitored', 'rejected')\n" +
             "and (t.legalDeposit = true or t.permission.stateName not in ('Denied', 'Unknown'))\n";
 
     String SUBJECT_CONDITIONS = PUBLISH_CONDITIONS + "AND t.tep.doSubject = true\n";
@@ -63,15 +63,17 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     @Query("select " + NEW_TITLE_BRIEF + " from Title t\n" +
             "where upper(coalesce(t.tep.displayTitle, t.name)) like :pattern\n" +
+            "and (t.agency = :agency or :agency is null)\n" +
             "and " + SUBJECT_CONDITIONS +
             "order by coalesce(t.tep.displayTitle, t.name)")
-    Page<TitleBrief> findDisplayableTitlesNamedLike(@Param("pattern") String pattern, Pageable page);
+    Page<TitleBrief> findDisplayableTitlesNamedLike(@Param("pattern") String pattern, @Param("agency") Agency agency, Pageable page);
 
     @Query("select " + NEW_TITLE_BRIEF + " from Title t\n" +
             "where coalesce(t.tep.displayTitle, t.name) < 'A'\n" +
+            "and (t.agency = :agency or :agency is null)\n" +
             "and " + SUBJECT_CONDITIONS +
             "order by coalesce(t.tep.displayTitle, t.name)")
-    Page<TitleBrief> findDisplayableTitlesWithNumberNames(Pageable page);
+    Page<TitleBrief> findDisplayableTitlesWithNumberNames(@Param("agency") Agency agency, Pageable page);
 
 
     List<Title> findByStatusId(long statusId);

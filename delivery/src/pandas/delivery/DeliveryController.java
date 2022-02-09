@@ -68,12 +68,14 @@ public class DeliveryController {
                           @PathVariable("page") Optional<Integer> page, Model model) {
         var pageable = PageRequest.of(page.orElse(1) - 1, 100);
         model.addAttribute("subject", subject);
-        model.addAttribute("collections", collectionRepository.findByParentIsNullAndSubjectsContainsOrderByName(subject));
+        model.addAttribute("collections", collectionRepository.listBySubjectForDelivery(subject, agencyFilter));
         Page<TitleBrief> titles = titleRepository.findPublishedTitlesInSubject(subject, agencyFilter, pageable);
         model.addAttribute("titles", titles);
         var agencies = new CountingSet<Agency>();
         titles.forEach(title -> agencies.add(title.getAgency()));
         model.addAttribute("agencies", agencies.listByFrequencyDecreasing());
+        var subcategories = subjectRepository.listChildrenForDelivery(subject, agencyFilter);
+        model.addAttribute("subcategories", subcategories);
         return "Subject";
     }
 
@@ -85,18 +87,19 @@ public class DeliveryController {
     }
 
     @GetMapping({"/alpha/{letter}", "/alpha/{letter}/{page}"})
-    public String alpha(@PathVariable("letter") String letter,
+    public String alpha(@ModelAttribute("agencyFilter") Agency agencyFilter,
+                        @PathVariable("letter") String letter,
                         @PathVariable("page") Optional<Integer> page, Model model) {
         var pageable = PageRequest.of(page.orElse(1) - 1, 100);
         Page<TitleBrief> titles;
         if (letter.equals("1-9")) {
-            titles = titleRepository.findDisplayableTitlesWithNumberNames(pageable);
+            titles = titleRepository.findDisplayableTitlesWithNumberNames(agencyFilter, pageable);
             model.addAttribute("collections", collectionRepository.findTopLevelDisplayableCollectionsWithNumberNames(pageable));
         } else {
             if ("ALL".equals(letter)) letter = "%";
             else if (letter.contains("%")) throw new IllegalArgumentException();
             else if (letter.length() != 1) throw new IllegalArgumentException();
-            titles = titleRepository.findDisplayableTitlesNamedLike(letter + "%", pageable);
+            titles = titleRepository.findDisplayableTitlesNamedLike(letter + "%", agencyFilter, pageable);
             model.addAttribute("collections", collectionRepository.findTopLevelDisplayableCollectionsNamedLike(letter + "%", pageable));
         }
         var agencies = new CountingSet<Agency>();

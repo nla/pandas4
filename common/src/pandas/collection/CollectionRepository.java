@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pandas.agency.Agency;
 import pandas.agency.User;
 
 import java.time.Instant;
@@ -58,4 +59,14 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
     default List<Collection> findRecentlyUsed(@Param("user") User user, Pageable pageable) {
         return findAllByIdPreserveOrder(findRecentlyUsedIds(user, pageable));
     }
+
+    @Query("select new pandas.collection.CollectionBrief(c.id, c.name, " +
+           "(select count(*) from Title t, Collection c2 " +
+           "where c2 member of t.collections " +
+           " and (c = c2 or c2.parent = c) " +
+           " and (t.agency = :agency or :agency is null) and " +
+           TitleRepository.SUBJECT_CONDITIONS + ")) " +
+           "from Collection c where :subject member of c.subjects and c.parent is null " +
+           "order by name")
+    List<CollectionBrief> listBySubjectForDelivery(@Param("subject") Subject subject, @Param("agency") Agency agency);
 }

@@ -19,11 +19,11 @@
         (<em th:text="${titles.totalElements + collections.size()}"></em>)
     </div>
 
-    <div class="subcategories" th:unless="${subject.children.isEmpty()}">
+    <div class="subcategories" th:unless="${subcategories.isEmpty()}">
         <h2><span>Subcategories</span></h2>
         <ul>
-            <li th:each="child : ${subject.children}"><a th:href="@{|${prefix}/subject/${child.id}|}" th:text="${child.name}">Child</a>
-                (<em th:text="${child.titleCount}">0</em>)
+            <li th:each="child : ${subcategories}"><a th:href="@{|${prefix}/subject/${child.id}|}" th:text="${child.name}">Child</a>
+                (<em th:text="${child.titleCount + child.collectionCount}">0</em>)
             </li>
         </ul>
     </div>
