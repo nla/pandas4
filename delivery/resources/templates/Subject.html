@@ -48,7 +48,7 @@
     <div class="itemlist" th:unless="${titles.isEmpty()}">
         <ul>
             <li th:each="title : ${titles}">
-                <a th:href="@{/tep/{pi}(pi=${title.pi})}" th:text="${title.displayName}">Title</a>
+                <a th:href="@{/tep/{pi}(pi=${title.pi})}" th:text="${title.name}">Title</a>
             </li>
         </ul>
     </div>

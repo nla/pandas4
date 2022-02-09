@@ -44,13 +44,13 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     String SUBJECT_CONDITIONS = PUBLISH_CONDITIONS + "AND t.tep.doSubject = true\n";
 
-    @Query("select t from Subject s\n" +
-            "join s.titles t\n" +
-            "where s = :subject\n" +
-            "and (:agency is null or t.agency = :agency)\n" +
-            "and " + SUBJECT_CONDITIONS +
-            "order by coalesce(t.tep.displayTitle, t.name)")
-    Page<Title> findPublishedTitlesInSubject(@Param("subject") Subject subject, @Param("agency") Agency agency, Pageable pageable);
+    @Query("select new pandas.collection.TitleBrief(t.id, t.pi, coalesce(t.tep.displayTitle, t.name), t.agency) from Title t\n" +
+           "join t.subjects s\n" +
+           "where s = :subject\n" +
+           "and (:agency is null or t.agency = :agency)\n" +
+           "and " + SUBJECT_CONDITIONS +
+           "order by coalesce(t.tep.displayTitle, t.name)")
+    Page<TitleBrief> findPublishedTitlesInSubject(@Param("subject") Subject subject, @Param("agency") Agency agency, Pageable pageable);
 
     @Query("select t from Collection c\n" +
             "join c.titles t\n" +

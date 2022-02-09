@@ -15,6 +15,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DeliveryRequestLogger {
@@ -28,6 +32,8 @@ public class DeliveryRequestLogger {
         long queries;
         long rows;
         StringBuilder extraLines = new StringBuilder();
+        Map<String,Long> traces = new HashMap<>();
+        Map<String, List<String>> traceSql = new HashMap<>();
 
         public void beforeRequest(HttpServletRequest request, HttpServletResponse response) {
             startTime = System.currentTimeMillis();
@@ -35,6 +41,8 @@ public class DeliveryRequestLogger {
             dbTimeNanos = 0;
             rows = 0;
             extraLines.setLength(0);
+            traces.clear();
+            traceSql.clear();
         }
 
         public void afterRequest(HttpServletRequest request, HttpServletResponse response, Exception ex) {
@@ -47,6 +55,28 @@ public class DeliveryRequestLogger {
                     " rows=" + rows +
                     " ip=" + request.getRemoteAddr() +
                     " " + request.getMethod() + " " + request.getRequestURI() + extraLines.toString());
+
+            for (var entry : traces.entrySet()) {
+                if (entry.getValue() > 10) {
+                    System.out.println(entry.getValue() + " " + entry.getKey().substring(100) + " ");
+                    int i = 0;
+                    for (String sql: traceSql.get(entry.getKey())) {
+                        System.out.println("SQL" + i + " " + sql);
+                        i++;
+                        if (i > 10) break;
+                    }
+                }
+            }
+        }
+
+        private static String guesstimateSourceLocation() {
+            for (var entry : Thread.currentThread().getStackTrace()) {
+                String className = entry.getClassName();
+                if (className.startsWith("pandas.") && !className.contains("RequestLogger")) {
+                    return entry.toString();
+                }
+            }
+            return "";
         }
 
         public void afterSqlExecute(StatementInformation statementInformation, long timeElapsedNanos, SQLException e) {
@@ -54,8 +84,21 @@ public class DeliveryRequestLogger {
             dbTimeNanos += timeElapsedNanos;
             if (timeElapsedNanos > SLOW_QUERY_NANOS && extraLines.length() < EXTRA_LINES_MAX_LENGTH) {
                 extraLines.append("\n    SLOW (").append(timeElapsedNanos / 1000 / 1000).append("ms): ")
+                        .append(guesstimateSourceLocation()).append(" ")
                         .append(statementInformation.getSqlWithValues());
             }
+
+            var sb = new StringBuilder();
+            for (var element : Thread.currentThread().getStackTrace()) {
+                sb.append(element.toString()).append("\n");
+            }
+            var stacktrace = sb.toString();
+            long count = traces.getOrDefault(stacktrace, 0L);
+            count += 1;
+            traces.put(stacktrace, count);
+
+            var list = traceSql.computeIfAbsent(stacktrace, k -> new ArrayList<>());
+            list.add(statementInformation.getSqlWithValues());
         }
 
         public void afterResultSetNext(ResultSetInformation resultSetInformation, long timeElapsedNanos, boolean hasNext, SQLException e) {

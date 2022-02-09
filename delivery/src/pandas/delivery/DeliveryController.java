@@ -69,7 +69,7 @@ public class DeliveryController {
         var pageable = PageRequest.of(page.orElse(1) - 1, 100);
         model.addAttribute("subject", subject);
         model.addAttribute("collections", collectionRepository.findByParentIsNullAndSubjectsContainsOrderByName(subject));
-        Page<Title> titles = titleRepository.findPublishedTitlesInSubject(subject, agencyFilter, pageable);
+        Page<TitleBrief> titles = titleRepository.findPublishedTitlesInSubject(subject, agencyFilter, pageable);
         model.addAttribute("titles", titles);
         var agencies = new CountingSet<Agency>();
         titles.forEach(title -> agencies.add(title.getAgency()));
