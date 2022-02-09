@@ -88,7 +88,7 @@ public class DeliveryController {
     public String alpha(@PathVariable("letter") String letter,
                         @PathVariable("page") Optional<Integer> page, Model model) {
         var pageable = PageRequest.of(page.orElse(1) - 1, 100);
-        Page<Title> titles;
+        Page<TitleBrief> titles;
         if (letter.equals("1-9")) {
             titles = titleRepository.findDisplayableTitlesWithNumberNames(pageable);
             model.addAttribute("collections", collectionRepository.findTopLevelDisplayableCollectionsWithNumberNames(pageable));

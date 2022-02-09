@@ -44,7 +44,9 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     String SUBJECT_CONDITIONS = PUBLISH_CONDITIONS + "AND t.tep.doSubject = true\n";
 
-    @Query("select new pandas.collection.TitleBrief(t.id, t.pi, coalesce(t.tep.displayTitle, t.name), t.agency) from Title t\n" +
+    String NEW_TITLE_BRIEF = "new pandas.collection.TitleBrief(t.id, t.pi, coalesce(t.tep.displayTitle, t.name), t.agency)";
+
+    @Query("select " + NEW_TITLE_BRIEF + " from Title t\n" +
            "join t.subjects s\n" +
            "where s = :subject\n" +
            "and (:agency is null or t.agency = :agency)\n" +
@@ -59,17 +61,17 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "order by coalesce(t.tep.displayTitle, t.name)")
     List<Title> findPublishedTitlesInCollection(@Param("collection") Collection collection);
 
-    @Query("select t from Title t\n" +
+    @Query("select " + NEW_TITLE_BRIEF + " from Title t\n" +
             "where upper(coalesce(t.tep.displayTitle, t.name)) like :pattern\n" +
             "and " + SUBJECT_CONDITIONS +
             "order by coalesce(t.tep.displayTitle, t.name)")
-    Page<Title> findDisplayableTitlesNamedLike(@Param("pattern") String pattern, Pageable page);
+    Page<TitleBrief> findDisplayableTitlesNamedLike(@Param("pattern") String pattern, Pageable page);
 
-    @Query("select t from Title t\n" +
+    @Query("select " + NEW_TITLE_BRIEF + " from Title t\n" +
             "where coalesce(t.tep.displayTitle, t.name) < 'A'\n" +
             "and " + SUBJECT_CONDITIONS +
             "order by coalesce(t.tep.displayTitle, t.name)")
-    Page<Title> findDisplayableTitlesWithNumberNames(Pageable page);
+    Page<TitleBrief> findDisplayableTitlesWithNumberNames(Pageable page);
 
 
     List<Title> findByStatusId(long statusId);

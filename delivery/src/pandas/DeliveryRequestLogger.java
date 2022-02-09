@@ -13,7 +13,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +24,11 @@ public class DeliveryRequestLogger {
     private ThreadLocal<Context> context = ThreadLocal.withInitial(Context::new);
     private static final long SLOW_QUERY_NANOS = 25*1000*1000; // 25 ms
     private static final int EXTRA_LINES_MAX_LENGTH = 16 * 1024;
+
+    /**
+     * Detailed query logging when a single java method generates more than the given number of queries.
+     */
+    public static int logExcessiveQueries = 0;
 
     public static class Context {
         long startTime;
@@ -41,14 +45,15 @@ public class DeliveryRequestLogger {
             dbTimeNanos = 0;
             rows = 0;
             extraLines.setLength(0);
-            traces.clear();
-            traceSql.clear();
+            if (logExcessiveQueries > 0) {
+                traces = new HashMap<>();
+                traceSql = new HashMap<>();
+            }
         }
 
         public void afterRequest(HttpServletRequest request, HttpServletResponse response, Exception ex) {
             if (request.getRequestURI().contains("/assets/")) return; // don't both logging static files
             long elapsed = System.currentTimeMillis() - startTime;
-            Principal principal = request.getUserPrincipal();
             System.out.println("time=" + elapsed + "ms" +
                     " dbtime=" + dbTimeNanos / 1000000 + "ms" +
                     " queries=" + queries +
@@ -56,14 +61,16 @@ public class DeliveryRequestLogger {
                     " ip=" + request.getRemoteAddr() +
                     " " + request.getMethod() + " " + request.getRequestURI() + extraLines.toString());
 
-            for (var entry : traces.entrySet()) {
-                if (entry.getValue() > 10) {
-                    System.out.println(entry.getValue() + " " + entry.getKey().substring(100) + " ");
-                    int i = 0;
-                    for (String sql: traceSql.get(entry.getKey())) {
-                        System.out.println("SQL" + i + " " + sql);
-                        i++;
-                        if (i > 10) break;
+            if (logExcessiveQueries > 0) {
+                for (var entry : traces.entrySet()) {
+                    if (entry.getValue() > logExcessiveQueries) {
+                        System.out.println(entry.getValue() + " " + entry.getKey().substring(100) + " ");
+                        int i = 0;
+                        for (String sql : traceSql.get(entry.getKey())) {
+                            System.out.println("SQL" + i + " " + sql);
+                            i++;
+                            if (i > 10) break;
+                        }
                     }
                 }
             }
@@ -88,17 +95,19 @@ public class DeliveryRequestLogger {
                         .append(statementInformation.getSqlWithValues());
             }
 
-            var sb = new StringBuilder();
-            for (var element : Thread.currentThread().getStackTrace()) {
-                sb.append(element.toString()).append("\n");
-            }
-            var stacktrace = sb.toString();
-            long count = traces.getOrDefault(stacktrace, 0L);
-            count += 1;
-            traces.put(stacktrace, count);
+            if (logExcessiveQueries > 0) {
+                var sb = new StringBuilder();
+                for (var element : Thread.currentThread().getStackTrace()) {
+                    sb.append(element.toString()).append("\n");
+                }
+                var stacktrace = sb.toString();
+                long count = traces.getOrDefault(stacktrace, 0L);
+                count += 1;
+                traces.put(stacktrace, count);
 
-            var list = traceSql.computeIfAbsent(stacktrace, k -> new ArrayList<>());
-            list.add(statementInformation.getSqlWithValues());
+                var list = traceSql.computeIfAbsent(stacktrace, k -> new ArrayList<>());
+                list.add(statementInformation.getSqlWithValues());
+            }
         }
 
         public void afterResultSetNext(ResultSetInformation resultSetInformation, long timeElapsedNanos, boolean hasNext, SQLException e) {
