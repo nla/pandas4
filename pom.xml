@@ -36,6 +36,11 @@
                 <artifactId>owasp-java-html-sanitizer</artifactId>
                 <version>20211018.1</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.gavlyukovskiy</groupId>
+                <artifactId>p6spy-spring-boot-starter</artifactId>
+                <version>1.7.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
