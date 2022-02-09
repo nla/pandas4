@@ -106,7 +106,7 @@
         </nav>
         <input id="url-bar" style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
         <nav style="margin-left: 4px">
-            <a id="openInNewTab" class="btn btn-secondary btn-compact" href="#" target=_blank title="Open in New Tab"
+            <a id="openInNewTabButton" class="btn btn-secondary btn-compact" href="#" target=_blank title="Open in New Tab"
                th:href="${@instanceUrls.qa(instance)}"
                th:data-baseurl="${@instanceUrls.qaReplayBase(instance)}"><i class="icon open_in_full"></i></a>
             <button id="toggleScreenshotSidebar" class="btn btn-secondary btn-compact btn-pressed"><i class="icon image"></i></button>
