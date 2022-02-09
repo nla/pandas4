@@ -68,7 +68,7 @@
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a>
                 <strong th:if="${instance.title.status.isCeased()}">(Ceased)</strong>
                 <span th:if="${!instance.title.status.isCeased() && !instance.title.gather.schedule.isNone()}"
-                        th:text="'(' + ${instance.title.gather.schedule.name} + ')'">(Monthly)</span>
+                      th:text="'(' + ${instance.title.gather.schedule.name} + ')'">(Monthly)</span>
             </li>
             <li><span th:text="${instance.gatherMethodName}"></span> gather from
 
@@ -79,7 +79,7 @@
                     <div class="prev-instances-popup">
                         <strong>Other recent gathers:</strong><br>
                         <a th:each="instance : ${previousInstances}" th:href="${@link.to(instance)}"
-                        th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)}"><img
+                           th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)}"><img
                                 th:src="${@link.thumbnail(instance, 'REPLAY')}" width="200" height="150"></a>
                     </div>
                 </span>
@@ -106,6 +106,9 @@
         </nav>
         <input id="url-bar" style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
         <nav style="margin-left: 4px">
+            <a id="openInNewTab" class="btn btn-secondary btn-compact" href="#" target=_blank title="Open in New Tab"
+               th:href="${@instanceUrls.qa(instance)}"
+               th:data-baseurl="${@instanceUrls.qaReplayBase(instance)}"><i class="icon open_in_full"></i></a>
             <button id="toggleScreenshotSidebar" class="btn btn-secondary btn-compact btn-pressed"><i class="icon image"></i></button>
         </nav>
     </div>
@@ -123,9 +126,21 @@
             }
         });
 
+        /*[- Pywb passes a message when the framed document loads containing:
+         *      {"icons": [{"rel":"shortcut icon","href":"..."},...],
+         *       "url": "https://www.example.com/",
+         *       "ts": "20220203130023",
+         *       "request_ts": "",
+         *       "is_live": false,
+         *       "title": "Example page",
+         *       "readyState": "interactive",
+         *       "wb_type": "load"}
+         * -]*/
         window.addEventListener("message", (event) => {
             if (event.data.wb_type !== "load") return;
             document.getElementById("url-bar").value = event.data.url;
+            let openInNewTabButton = document.getElementById("openInNewTabButton");
+            openInNewTabButton.href = openInNewTabButton.dataset['baseurl'] + '/' + event.data.ts + '/' + event.data.url;
         }, false);
     </script>
 

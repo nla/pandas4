@@ -44,7 +44,12 @@ public class InstanceUrls {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + url.replaceFirst("^https?://", "/");
         }
-        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/mp_/" + url;
+        return qaReplayBase(instance) + url;
+    }
+
+    @NotNull
+    public String qaReplayBase(Instance instance) {
+        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/mp_/";
     }
 
     public String reports(Instance instance) {
