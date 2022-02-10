@@ -28,6 +28,7 @@ public interface SubjectRepository extends CrudRepository<Subject, Long> {
            TitleRepository.SUBJECT_CONDITIONS + "), " +
            "(select count(*) from Collection c where child member of c.subjects and c.isDisplayed = true)" +
            ")\n" +
-           "from Subject child where child.parent = :subject")
+           "from Subject child where child.parent = :subject\n" +
+           "order by name")
     List<SubjectBrief> listChildrenForDelivery(@Param("subject") Subject subject, @Param("agency") Agency agency);
 }
