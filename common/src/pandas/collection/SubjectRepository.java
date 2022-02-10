@@ -26,7 +26,7 @@ public interface SubjectRepository extends CrudRepository<Subject, Long> {
     @Query("select new pandas.collection.SubjectBrief(child.id, child.name,\n" +
            "(select count(*) from Title t where child member of t.subjects and (t.agency = :agency or :agency is null) and " +
            TitleRepository.SUBJECT_CONDITIONS + "), " +
-           "(select count(*) from Collection c where child member of c.subjects and c.isDisplayed = true)" +
+           "(select count(*) from Collection c where child member of c.subjects and c.isDisplayed = true and c.parent is null)" +
            ")\n" +
            "from Subject child where child.parent = :subject\n" +
            "order by name")
