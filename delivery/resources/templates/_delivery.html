@@ -104,12 +104,12 @@
             </h2>
         </td>
         <td id="alignright">
-            <a th:if="${page.hasPrevious()}" th:href="@{${url}(page=${page.previousPageable().pageNumber + 1})}"><img th:src="@{/images/leftarrow.gif}"></a>
+            <a th:if="${page.hasPrevious()}" th:href="@{${url}(page=${page.previousPageable().pageNumber + 1})}"><img th:src="@{/assets/images/leftarrow.gif}"></a>
             <th:block th:each="n : ${#numbers.sequence(0, page.totalPages - 1)}">
                 <a th:unless="${n == page.number}" th:text="${n + 1}" th:href="@{${url}(page=${n + 1})}" class="alphabetical">1</a>
                 <span th:if="${n == page.number}" class="alphabeticalSelected" th:text="${n + 1}">2</span>
             </th:block>
-            <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.nextPageable().pageNumber + 1})}"><img th:src="@{/images/rightarrow.gif}"></a>
+            <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.nextPageable().pageNumber + 1})}"><img th:src="@{/assets/images/rightarrow.gif}"></a>
         </td></tr></tbody></table>
 </div>
 

@@ -66,7 +66,7 @@
         <tbody>
         <tr th:each="instance : ${instances}" th:if="${instance.isDisplayed == 1}">
             <td width="20px">
-                <img th:unless="${restrictions.get(instance).allowed ?: true}" th:src="@{/images/lock.png}" tile="Restricted">
+                <img th:unless="${restrictions.get(instance).allowed ?: true}" th:src="@{/assets/images/lock.png}" tile="Restricted">
             </td>
             <td>Archived <a th:href="${instance.getTepUrlAbsolute()}" th:text="${dateTimeFormat.format(instance.date)}"></a>
                 <!-- TODO: <%= render :partial => "hovernotes", :locals => { :instance =>instance } %> -->
@@ -94,7 +94,7 @@
 
             <tr th:each="issue : ${group.issues}">
                 <td width="20px">
-                    <img th:unless="${restrictions.get(issue.instance).allowed ?: true}" th:src="@{/images/lock.png}" tile="Issue restricted">
+                    <img th:unless="${restrictions.get(issue.instance).allowed ?: true}" th:src="@{/assets/images/lock.png}" tile="Issue restricted">
                 </td>
                 <td>
                     <a th:text="${issue.name}" th:href="${issue.url}" target="_blank">An issue</a></li> archived
