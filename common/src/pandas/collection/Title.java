@@ -803,4 +803,19 @@ public class Title {
     public void setLegacyTepRelation(Tep legacyTepRelation) {
         this.legacyTepRelation = legacyTepRelation;
     }
+
+    public boolean isDeliverable() {
+        if (getAgency() != null && getAgency().getId().equals(Agency.PADI_ID))
+            return false;
+        if (getStatus().getId().equals(Status.NOMINATED_ID) ||
+            getStatus().getId().equals(Status.REJECTED_ID) ||
+            getStatus().getId().equals(Status.MONITORED_ID))
+            return false;
+        if (getLegalDeposit())
+            return true;
+        if (getPermission() == null || getPermission().getState() == null)
+            return false;
+        return !getPermission().getState().getName().equals(PermissionState.DENIED) &&
+               !getPermission().getState().getName().equals(PermissionState.UNKNOWN);
+    }
 }

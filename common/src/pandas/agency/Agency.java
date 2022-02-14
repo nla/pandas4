@@ -17,6 +17,8 @@ import java.util.Objects;
 @Table(name = "AGENCY")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Agency {
+    public static final long PADI_ID = 3;
+
     @Id
     @Column(name = "AGENCY_ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "AGENCY_SEQ")

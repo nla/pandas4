@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pandas.collection.Collection;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +27,14 @@ public interface AgencyRepository extends PagingAndSortingRepository<Agency, Lon
             order by org.name
             """)
     List<AgencySummary> summarizeAllOrdered();
+
+    @Query("""
+        select a from Title t
+        join t.agency a
+        join t.collections c
+        where c = :collection
+        and exists (select i from Instance i where i.title = t and i.state.id = 1)
+        group by a
+        order by count(t) desc""")
+    List<Agency> findByCollection(@Param("collection") Collection collection);
 }

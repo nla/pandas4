@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
 import pandas.agency.User;
+import pandas.collection.Collection;
 import pandas.collection.Title;
 
 import java.util.List;
@@ -101,4 +102,19 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             "                   and i.state.name = 'archived') " +
             "where cur in (:instances)")
     List<PreviousGather> findPreviousStats(@Param("instances") List<Instance> instances);
+
+    @Query("""
+        select instance
+        from Instance instance
+        join instance.title title
+        join title.collections col
+        where col = :collection
+        and instance.id = (select min(i.id) from Instance i
+                    where i.title.id = title.id 
+                    and i.state.id = 1
+                    and (col.startDate is null or i.date >= col.startDate)
+                    and (col.endDate is null or i.date <= col.endDate)) 
+        order by title.name 
+        """)
+    List<Instance> findByCollection(@Param("collection") Collection collection);
 }

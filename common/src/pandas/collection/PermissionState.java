@@ -9,6 +9,7 @@ public class PermissionState {
     public static final String GRANTED = "Granted";
     public static final String DENIED = "Denied";
     public static final String IMPOSSIBLE = "Impossible";
+    public static final String UNKNOWN = "Unknown";
 
     @Id
     @GeneratedValue
