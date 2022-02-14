@@ -145,7 +145,8 @@ public class ApiController {
     public CollectionDetailsJson collection(@PathVariable("id") long id) {
         Collection collection = collectionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
         if (!collection.isDisplayed()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
-        List<Agency> agencies = agencyRepository.findByCollection(collection);
+        List<Long> agencyIds = agencyRepository.findIdsByCollection(collection);
+        List<Agency> agencies = agencyRepository.findAllByIdPreserveOrder(agencyIds);
         List<Instance> snapshots = instanceRepository.findByCollection(collection);
         return new CollectionDetailsJson(collection, agencies, snapshots);
     }

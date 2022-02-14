@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.collection.Collection;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,13 +29,22 @@ public interface AgencyRepository extends PagingAndSortingRepository<Agency, Lon
             """)
     List<AgencySummary> summarizeAllOrdered();
 
+    // Due to HHH-1615 we can't group by an entity so we have to return a list of IDs instead.
     @Query("""
-        select a from Title t
+        select a.id from Title t
         join t.agency a
         join t.collections c
         where c = :collection
         and exists (select i from Instance i where i.title = t and i.state.id = 1)
-        group by a
+        group by a.id
         order by count(t) desc""")
-    List<Agency> findByCollection(@Param("collection") Collection collection);
+    List<Long> findIdsByCollection(@Param("collection") Collection collection);
+
+    default List<Agency> findAllByIdPreserveOrder(List<Long> ids) {
+        var map = new HashMap<Long, Agency>();
+        for (var entity: findAllById(ids)) {
+            map.put(entity.getId(), entity);
+        }
+        return ids.stream().map(map::get).toList();
+    }
 }
