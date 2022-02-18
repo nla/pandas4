@@ -24,6 +24,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -37,17 +38,19 @@ public class ApiController {
     private final static long TOP_COLLECTION_ID = 0;
     private final static String TOP_COLLECTION_NAME = "Archived Websites";
 
-    private final TitleRepository titleRepository;
-    private final CollectionRepository collectionRepository;
     private final AgencyRepository agencyRepository;
+    private final CollectionRepository collectionRepository;
     private final InstanceRepository instanceRepository;
+    private final SubjectRepository subjectRepository;
+    private final TitleRepository titleRepository;
     private final AccessChecker accessChecker;
 
-    public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository, AccessChecker accessChecker) {
-        this.titleRepository = titleRepository;
-        this.collectionRepository = collectionRepository;
+    public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository, AccessChecker accessChecker, SubjectRepository subjectRepository) {
         this.agencyRepository = agencyRepository;
+        this.collectionRepository = collectionRepository;
         this.instanceRepository = instanceRepository;
+        this.subjectRepository = subjectRepository;
+        this.titleRepository = titleRepository;
         this.accessChecker = accessChecker;
     }
 
@@ -66,7 +69,7 @@ public class ApiController {
         var types = new TreeSet<Class<?>>(Comparator.comparing(Class::getSimpleName));
         types.add(AgencyJson.class);
         types.add(BreadcrumbJson.class);
-        types.add(CollectionJson.class);
+        types.add(LegacyCollectionJson.class);
         types.add(CollectionDetailsJson.class);
         types.add(TitleHistoryJson.class);
         types.add(InstanceJson.class);
@@ -143,12 +146,31 @@ public class ApiController {
     @GetMapping(value = "/api/collection/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public CollectionDetailsJson collection(@PathVariable("id") long id) {
-        Collection collection = collectionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
-        if (!collection.isDisplayed()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
-        List<Long> agencyIds = agencyRepository.findIdsByCollection(collection);
-        List<Agency> agencies = agencyRepository.findAllByIdPreserveOrder(agencyIds);
-        List<Instance> snapshots = instanceRepository.findByCollection(collection);
-        return new CollectionDetailsJson(collection, agencies, snapshots);
+        if (id == TOP_COLLECTION_ID) {
+            return topCollection();
+        } else if (id >= SUBJECT_RANGE_START && id <= SUBJECT_RANGE_END) {
+            Subject subject = subjectRepository.findById(id - SUBJECT_RANGE_START).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
+            return new CollectionDetailsJson(subject);
+        } else {
+            Collection collection = collectionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
+            if (!collection.isDisplayed()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
+            List<Long> agencyIds = agencyRepository.findIdsByCollection(collection);
+            List<Agency> agencies = agencyRepository.findAllByIdPreserveOrder(agencyIds);
+            List<Instance> snapshots = instanceRepository.findByCollection(collection);
+            // FIXME: top-level collection
+            // FIXME: subjects
+            return new CollectionDetailsJson(collection, agencies, snapshots);
+        }
+    }
+
+    private CollectionDetailsJson topCollection() {
+        return new CollectionDetailsJson(
+                TOP_COLLECTION_ID,
+                TOP_COLLECTION_NAME,
+                "The <strong>Australian Web Archive</strong> captures over twenty years of our cultural and social " +
+                "history in the form of billions of webpage snapshots. " +
+                "<a href='https://trove.nla.gov.au/help/categories/websites-category'>Learn more</a>.",
+                subjectRepository.findByParentIsNullOrderByName());
     }
 
     public static class TitleJson {
@@ -167,7 +189,7 @@ public class ApiController {
 
     public static class TitleDetailsJson extends TitleJson {
         public final List<AgencyJson> agencies;
-        public final List<CollectionJson> collections;
+        public final List<LegacyCollectionJson> collections;
         public final String contentWarning;
         public final List<TitleHistoryJson> continuedBy;
         public final List<TitleHistoryJson> continues;
@@ -185,7 +207,8 @@ public class ApiController {
                     .filter(oh -> oh.getAgency() != null && distinctAgencyIds.add(oh.getAgency().getId()))
                     .map(oh -> new AgencyJson(oh.getAgency(), oh.getDate()))
                     .toList();
-            collections = title.getCollections().stream().map(CollectionJson::new).toList();
+            // FIXME: collections should include subjects
+            collections = title.getCollections().stream().map(LegacyCollectionJson::new).toList();
             contentWarning = title.getContentWarning();
             continuedBy = title.getContinuedBy().stream().map(th -> new TitleHistoryJson(th, title.getName())).toList();
             continues = title.getContinues().stream().map(th -> new TitleHistoryJson(th, title.getName())).toList();
@@ -231,11 +254,40 @@ public class ApiController {
     public static class CollectionJson {
         public final long id;
         public final String name;
-        public final Long parentId;
-        public final String parentName;
-        public final long numberOfItems;
+        public final Long numberOfItems;
+        public final Long thumbnailCollectionId;
+        public final String thumbnailUrl;
+
+        public CollectionJson(long id, String name) {
+            this.id = id;
+            this.name = name;
+            this.numberOfItems = null;
+            this.thumbnailCollectionId = null;
+            this.thumbnailUrl = null;
+        }
+
+        public CollectionJson(Subject subject) {
+            this(subject.getId() + SUBJECT_RANGE_START, subject.getName());
+            assert id < SUBJECT_RANGE_END;
+        }
 
         public CollectionJson(Collection collection) {
+            id = collection.getId();
+            name = collection.getName();
+            numberOfItems = collection.getTitleCount(); // FIXME: only count deliverable titles
+            this.thumbnailCollectionId = null; // FIXME
+            this.thumbnailUrl = null; // FIXME
+        }
+    }
+
+    public static class LegacyCollectionJson {
+        public final long id;
+        public final String name;
+        public final Long parentId;
+        public final String parentName;
+        public final Long numberOfItems;
+
+        public LegacyCollectionJson(Collection collection) {
             id = collection.getId();
             name = collection.getName();
             if (collection.getParent() == null) {
@@ -247,6 +299,15 @@ public class ApiController {
             }
             numberOfItems = collection.getTitleCount(); // FIXME: only count deliverable titles
         }
+
+        public LegacyCollectionJson(long id, String name) {
+            this.id = id;
+            this.name = name;
+            parentId = null;
+            parentName = null;
+            numberOfItems = null;
+        }
+
     }
 
     public static class CollectionDetailsJson extends CollectionJson {
@@ -254,7 +315,7 @@ public class ApiController {
         public final Date endDate;
         public final String description;
         public final List<CollectionJson> subcollections;
-        public final List<CollectionJson> related;
+        public final List<LegacyCollectionJson> related;
         public final List<BreadcrumbJson> breadcrumbs;
         public final List<AgencyJson> agencies;
         public final List<InstanceJson> snapshots;
@@ -269,6 +330,39 @@ public class ApiController {
             breadcrumbs = buildBreadcrumbList(collection);
             this.agencies = agencies.stream().map(a -> new AgencyJson(a, null)).toList();
             this.snapshots = snapshots.stream().map(i -> new InstanceJson(i, i.getTitle().getName())).toList();
+        }
+
+        public CollectionDetailsJson(long id, String name, String description, List<Subject> topLevelSubjects) {
+            super(id, name);
+            this.description = description;
+            breadcrumbs = List.of(new BreadcrumbJson(id, name));
+
+            startDate = null;
+            endDate = null;
+            related = Collections.emptyList();
+            agencies = Collections.emptyList();
+            snapshots = Collections.emptyList();
+            subcollections = topLevelSubjects.stream().map(CollectionJson::new).toList();
+        }
+
+        public CollectionDetailsJson(Subject subject) {
+            super(subject);
+            description = subject.getDescription();
+            breadcrumbs = buildBreadcrumbList(subject);
+
+            subcollections = Stream.concat(
+                    subject.getChildren().stream().map(CollectionJson::new),
+                    subject.getCollections().stream()
+                            .filter(collection -> collection.isDisplayed() && collection.getParent() == null)
+                            .map(CollectionJson::new))
+                    .sorted(Comparator.comparing(c -> c.name))
+                    .toList();
+
+            startDate = null;
+            endDate = null;
+            related = Collections.emptyList();
+            agencies = Collections.emptyList();
+            snapshots = Collections.emptyList();
         }
     }
 
@@ -287,6 +381,20 @@ public class ApiController {
             }
 
             collection = collection.getParent();
+        }
+
+        breadcrumbs.add(new BreadcrumbJson(TOP_COLLECTION_ID, TOP_COLLECTION_NAME));
+
+        Collections.reverse(breadcrumbs);
+        return Collections.unmodifiableList(breadcrumbs);
+    }
+
+    public static List<BreadcrumbJson> buildBreadcrumbList(Subject subject) {
+        var breadcrumbs = new ArrayList<BreadcrumbJson>();
+
+        while (subject != null) {
+            breadcrumbs.add(new BreadcrumbJson(subject));
+            subject = subject.getParent();
         }
 
         breadcrumbs.add(new BreadcrumbJson(TOP_COLLECTION_ID, TOP_COLLECTION_NAME));
