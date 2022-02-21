@@ -179,4 +179,14 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     @Query("select count(*) from Issue i where i.group.tep.title = :title")
     long countIssues(@Param("title") Title title);
+
+    @Query("select max(title.pi) from Title title")
+    Long maxPi();
+
+    @Query("""
+            select title from Title title
+             where title.id in (select instance.title.id from Instance instance where instance.tepUrl = :url)
+                   or title.id in (select issue.instance.title.id from Issue issue where issue.url = :url)
+            """)
+    List<Title> findByUrl(@Param("url") String url);
 }

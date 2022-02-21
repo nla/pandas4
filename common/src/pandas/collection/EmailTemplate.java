@@ -23,7 +23,7 @@ public class EmailTemplate {
     @Column(name = "NAME", nullable = false, length = 256)
     private String name;
 
-    @Column(name = "TEMPLATE", nullable = true)
+    @Column(name = "TEMPLATE", nullable = true, length = 1000000)
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String template;

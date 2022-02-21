@@ -267,7 +267,7 @@ public class Title {
 
     @OneToMany(mappedBy = "title")
     @OrderBy("date")
-    private List<Instance> instances;
+    private List<Instance> instances = new ArrayList<>();
 
     /**
      * Foreign key to the old Pv2 standing for this title
@@ -320,11 +320,11 @@ public class Title {
 
     @OneToMany(mappedBy = "ceased")
     @OrderBy("date")
-    private List<TitleHistory> continuedBy;
+    private List<TitleHistory> continuedBy = new ArrayList<>();
 
     @OneToMany(mappedBy = "continues")
     @OrderBy("date")
-    private List<TitleHistory> continues;
+    private List<TitleHistory> continues = new ArrayList<>();
 
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();

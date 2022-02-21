@@ -1,9 +1,13 @@
 package pandas.api;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import pandas.agency.Agency;
@@ -18,14 +22,19 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.comparingLong;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
@@ -143,6 +152,34 @@ public class ApiController {
         return titleDetailsJson;
     }
 
+    @GetMapping(value = "/api/tep/max-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Long tepMaxId() {
+        return titleRepository.maxPi();
+    }
+
+    @GetMapping(value = "/api/collection", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<BreadcrumbJson> collectionList(@RequestParam(value = "startId", required = false) Long startId,
+                                                @RequestParam(value = "endId", required = false) Long endId,
+                                                @RequestParam(value = "limit", defaultValue = "100") int limit) {
+        if (startId == null) startId = Long.MIN_VALUE;
+        if (endId == null) endId = Long.MAX_VALUE;
+        List<BreadcrumbJson> collections = new ArrayList<>();
+        if (startId <= TOP_COLLECTION_ID && TOP_COLLECTION_ID <= endId) {
+            collections.add(new BreadcrumbJson(TOP_COLLECTION_ID, TOP_COLLECTION_NAME));
+        }
+        for (var subject: subjectRepository.findAll()) {
+            if (startId <= subject.getId() && subject.getId() <= endId) {
+                collections.add(new BreadcrumbJson(subject));
+            }
+        }
+        collectionRepository.findByIdBetween(startId, endId, Pageable.ofSize(limit))
+                .stream().map(BreadcrumbJson::new).forEach(collections::add);
+        collections.sort(comparingLong(c -> c.id));
+        return collections.subList(0, Integer.min(collections.size(), limit));
+    }
+
     @GetMapping(value = "/api/collection/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public CollectionDetailsJson collection(@PathVariable("id") long id) {
@@ -157,10 +194,86 @@ public class ApiController {
             List<Long> agencyIds = agencyRepository.findIdsByCollection(collection);
             List<Agency> agencies = agencyRepository.findAllByIdPreserveOrder(agencyIds);
             List<Instance> snapshots = instanceRepository.findByCollection(collection);
-            // FIXME: top-level collection
-            // FIXME: subjects
             return new CollectionDetailsJson(collection, agencies, snapshots);
         }
+    }
+
+    @GetMapping(value = "/api/collection/max-id", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Long collectionMaxId() {
+        return collectionRepository.maxId();
+    }
+
+    @GetMapping("/api/logo/{agencyId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> agencyLogo(@PathVariable long agencyId) {
+        var agency = agencyRepository.findById(agencyId).orElseThrow();
+        byte[] logo = agency.getLogo();
+        return ResponseEntity.ok()
+                .contentType(switch (logo[0]) {
+                    case 'G' -> MediaType.IMAGE_GIF;
+                    case (byte) 0xff -> MediaType.IMAGE_JPEG;
+                    case (byte) 0x89 -> MediaType.IMAGE_PNG;
+                    default -> MediaType.APPLICATION_OCTET_STREAM;
+                })
+                .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
+                .body(logo);
+    }
+
+    private static Pattern urlPattern = Pattern.compile("http://pandora.nla.gov.au/pan/([0-9]+)/([0-9-]+)/(.*)");
+
+    @GetMapping(value = "/api/capture", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public CaptureDetailsJson capture(@RequestParam("url") String url, @RequestParam("date") String dateParam) throws IOException {
+        Instant date;
+        if (dateParam.contains("T")) {
+            date = Instant.parse(dateParam);
+        } else {
+            date = DateFormats.ARC_DATE.parse(dateParam, Instant::from);
+        }
+
+        Map<Long, Title> titles = new HashMap<>();
+        CrawlJson crawl = null;
+
+
+        Matcher m = urlPattern.matcher(url);
+        if (m.matches()) {
+            long pi = Long.parseLong(m.group(1));
+            String instanceDate = m.group(2);
+
+            if (instanceDate.length() <= 8) {
+                instanceDate += "-0000";
+            }
+            LocalDateTime localDate = LocalDateTime.parse(instanceDate, DateFormats.PANDAS_DATE);
+
+            crawl = new CrawlJson(pi, Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant()));
+            var title = titleRepository.findByPi(pi).orElse(null);
+            if (title != null) {
+                titles.put(title.getId(), title);
+            }
+        }
+
+        titleRepository.findByUrl(url).forEach(title -> titles.put(title.getId(), title));
+
+        var collections = titles.values().stream()
+                .flatMap(title -> title.getCollections().stream())
+                .distinct()
+                .sorted(comparing(Collection::getFullName))
+                .map(LegacyCollectionJson::new)
+                .toList();
+
+        var agencies = titles.values().stream()
+                .flatMap(title -> AgencyJson.fromOwnershipHistory(title).stream())
+                .collect(Collectors.toList());
+
+        // checkAccessBulk(singletonList(capture));
+
+        var jsonTitles = titles.values().stream().sorted(comparing(Title::getName)).map(TitleJson::new).toList();
+
+        CaptureDetailsJson captureDetailsJson = new CaptureDetailsJson(url, date, crawl, jsonTitles, collections, agencies);
+        accessChecker.checkAccessBulk(List.of(captureDetailsJson));
+
+        return captureDetailsJson;
     }
 
     private CollectionDetailsJson topCollection() {
@@ -171,6 +284,49 @@ public class ApiController {
                 "history in the form of billions of webpage snapshots. " +
                 "<a href='https://trove.nla.gov.au/help/categories/websites-category'>Learn more</a>.",
                 subjectRepository.findByParentIsNullOrderByName());
+    }
+
+    public static class CaptureDetailsJson implements AccessChecker.Restrictable {
+        public final String url;
+        public final Date date;
+        public final CrawlJson crawl;
+        public final List<TitleJson> titles;
+        public final List<LegacyCollectionJson> collections;
+        public final List<AgencyJson> agencies;
+
+        public boolean restricted;
+        public String restrictionMessage;
+
+        public CaptureDetailsJson(String url, Instant date, CrawlJson crawl, List<TitleJson> titles,
+                                  List<LegacyCollectionJson> collections, List<AgencyJson> agencies) {
+            this.url = url;
+            this.date = Date.from(date);
+            this.crawl = crawl;
+            this.titles = titles;
+            this.collections = collections;
+            this.agencies = agencies;
+        }
+
+        @Override
+        public AccessChecker.Query toAccessQuery() {
+            return new AccessChecker.Query(url, date.toInstant());
+        }
+
+        @Override
+        public void handleAccessDecision(AccessChecker.Decision decision) {
+            restricted = !decision.isAllowed();
+            restrictionMessage = decision.getRule().getPublicMessage();
+        }
+    }
+
+    public static class CrawlJson {
+        public final long titleId;
+        public final Date date;
+
+        public CrawlJson(long titleId, Date date) {
+            this.titleId = titleId;
+            this.date = date;
+        }
     }
 
     public static class TitleJson {
@@ -202,12 +358,7 @@ public class ApiController {
 
         public TitleDetailsJson(Title title) {
             super(title);
-            var distinctAgencyIds = new HashSet<Long>();
-            agencies = title.getOwnerHistories().stream()
-                    .filter(oh -> oh.getAgency() != null && distinctAgencyIds.add(oh.getAgency().getId()))
-                    .map(oh -> new AgencyJson(oh.getAgency(), oh.getDate()))
-                    .toList();
-            // FIXME: collections should include subjects
+            agencies = AgencyJson.fromOwnershipHistory(title);
             collections = title.getCollections().stream().map(LegacyCollectionJson::new).toList();
             contentWarning = title.getContentWarning();
             continuedBy = title.getContinuedBy().stream().map(th -> new TitleHistoryJson(th, title.getName())).toList();
@@ -236,6 +387,16 @@ public class ApiController {
             alias = agency.getOrganisation().getAlias();
             this.ownershipDate = ownershipDate == null ? null : Date.from(ownershipDate);
             url = agency.getOrganisation().getUrl();
+        }
+
+        public static List<AgencyJson> fromOwnershipHistory(Title title) {
+            final List<AgencyJson> agencies;
+            var distinctAgencyIds = new HashSet<Long>();
+            agencies = title.getOwnerHistories().stream()
+                    .filter(oh -> oh.getAgency() != null && distinctAgencyIds.add(oh.getAgency().getId()))
+                    .map(oh -> new AgencyJson(oh.getAgency(), oh.getDate()))
+                    .toList();
+            return agencies;
         }
     }
 

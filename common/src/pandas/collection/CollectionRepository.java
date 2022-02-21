@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -69,4 +70,9 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
            "from Collection c where :subject member of c.subjects and c.parent is null " +
            "order by name")
     List<CollectionBrief> listBySubjectForDelivery(@Param("subject") Subject subject, @Param("agency") Agency agency);
+
+    @Query("select max(collection.id) from Collection collection")
+    Long maxId();
+
+    Page<Collection> findByIdBetween(long startId, long endId, Pageable pageable);
 }

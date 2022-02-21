@@ -20,6 +20,8 @@ public class DateFormats {
     public static final DateTimeFormatter SHORT_DATE = DateTimeFormatter.ofPattern("d MMM y").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter SHORT_DATE_TIME = DateTimeFormatter.ofPattern("d MMM y h:mma").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter MONTH_YEAR = DateTimeFormatter.ofPattern("MMMM yyyy").withZone(ZoneId.systemDefault());
+    public static final DateTimeFormatter PANDAS_DATE = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm");
+    ;
 
     public DateTimeFormatter getDayDateTime() {
         return DAY_DATE_TIME;
