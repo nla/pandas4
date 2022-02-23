@@ -14,8 +14,7 @@ Array.from(document.querySelectorAll('#search a > h3')).forEach(h3 => {
             } else {
                 titles.forEach(title => {
                     let a = document.createElement("a");
-                    a.innerText = "nla.arc-" + title.pi;
-                    a.title = title.name;
+                    a.innerText = "[nla.arc-" + title.pi + '] ' + title.name;
                     a.href = pandasUrl + "/titles/" + title.id;
                     div.appendChild(a);
                     div.appendChild(document.createElement("br"));
