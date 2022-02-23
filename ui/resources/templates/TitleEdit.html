@@ -322,7 +322,9 @@
 <script th:inline="javascript">
     var titleCheckEndpoint = /*[[@{/titles/check}]]*/ '../titles/check';
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
-    var publishersEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
+    var publisherJsonEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
+    var publishersEndpoint = /*[[@{/publishers}]]*/ '../publishers';
+    var titlesEndpoint = /*[[@{/titles}]]*/ '../titles';
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
     const thisTitleId = /*[[${form.id ?: null}]]*/ null;
 
@@ -372,7 +374,7 @@
                     callback(false);
                     return;
                 }
-                fetch(publishersEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                fetch(publisherJsonEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
                     .then(response => response.json())
                     .then(results => {
                         callback(results.map(publisher => {
@@ -380,7 +382,7 @@
                                 value: publisher.id,
                                 text: publisher.name,
                                 innerHTML: ('<span class=publisher-select-item>' + escapeHtml(publisher.name) +
-                                    ' <a class=title-count href=../../publishers/' + publisher.id + ' target=_blank>'
+                                    ' <a class=title-count href=' + publishersEndpoint + '/' + publisher.id + ' target=_blank>'
                                     + publisher.titleCount + '</a></span>')
                             }
                         }));
@@ -461,7 +463,7 @@
                 warningDiv.appendChild(list);
                 for (let title of titles) {
                     let link = document.createElement("a");
-                    link.href = "../titles/" + title.id;
+                    link.href = titlesEndpoint + "/" + title.id;
                     link.innerText = title.name;
                     link.target = "_blank";
                     let item = document.createElement("li");
@@ -470,7 +472,7 @@
                 }
 
                 let link = document.createElement("a");
-                link.href = "../titles?q=" + encodeURIComponent(titleUrlField.value);
+                link.href = titlesEndpoint + "?q=" + encodeURIComponent(titleUrlField.value);
                 link.innerText = "More...";
                 link.target = "_blank";
                 warningDiv.appendChild(link);
