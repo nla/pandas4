@@ -6,7 +6,6 @@ Array.from(document.querySelectorAll('#search a > h3')).forEach(h3 => {
         .then(r => r.json())
         .then(titles => {
             let div = document.createElement('div');
-            div.style.cssText = "position: absolute";
             if (titles.length === 0) {
                 let a = document.createElement("a");
                 a.innerText = "[New Title]";
@@ -24,10 +23,9 @@ Array.from(document.querySelectorAll('#search a > h3')).forEach(h3 => {
             }
             let div2 = document.createElement('div');
             div2.classList.add('pandas-div');
-            div2.style.cssText = "position: relative; left: -120px; width: 112px; top: 0px";
             div2.innerHTML = '';
             div2.appendChild(div);
-            let container = link.parentNode.parentNode;
-            container.insertBefore(div2, container.childNodes[0]);
+            let container = link.parentNode;
+            container.insertBefore(div2, container.childNodes[0].nextSibling);
         });
 })
