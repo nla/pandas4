@@ -4,6 +4,7 @@ import pandas.agency.User;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TitleBulkEditForm {
@@ -23,6 +24,8 @@ public class TitleBulkEditForm {
 
     private boolean editAddNote;
     private String addNote;
+
+    private List<Collection> collectionsToAdd = new ArrayList<>();
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -127,5 +130,13 @@ public class TitleBulkEditForm {
 
     public void setAddNote(String addNote) {
         this.addNote = addNote;
+    }
+
+    public List<Collection> getCollectionsToAdd() {
+        return collectionsToAdd;
+    }
+
+    public void setCollectionsToAdd(List<Collection> collectionsToAdd) {
+        this.collectionsToAdd = collectionsToAdd;
     }
 }

@@ -74,6 +74,14 @@
             <label for=editAddNote>Add Note:</label>
             <textarea id=addNote th:field="*{addNote}"></textarea>
 
+            <span></span>
+            <label for=collectionsToAdd>Add Collections:</label>
+            <select th:field="*{collectionsToAdd}" id="collectionsToAdd" multiple>
+                <option th:each="collection: ${form.collectionsToAdd}" th:value="${collection.id}"
+                        th:text="${collection.fullName}" selected>Arts
+                </option>
+            </select>
+
 
         </p>
 
@@ -86,7 +94,25 @@
             }
         </style>
 
-        <script>
+        <link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.css">
+        <script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
+        <script th:inline="javascript">
+            var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
+
+            new SlimSelect({
+                select: '#collectionsToAdd',
+                searchFilter: function (option, search) {
+                    return true; // leave filtering to the backend
+                },
+                ajax: function (search, callback) {
+                    if (!search) return callback(false);
+                    fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                        .then(response => response.json())
+                        .then(results => callback(results.map(collection => ({value: collection.id, text: collection.fullName}))))
+                        .catch(error => callback(false));
+                },
+            });
+
             document.querySelectorAll("input[type=checkbox][id^=edit]").forEach(checkbox => {
                 const inputId = checkbox.id.substr(4, 1).toLowerCase() + checkbox.id.substr(5);
                 const input = document.getElementById(inputId);

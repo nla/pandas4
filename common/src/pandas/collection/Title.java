@@ -484,6 +484,10 @@ public class Title {
         this.collections.addAll(collections);
     }
 
+    public void addCollection(Collection collection) {
+        collections.add(collection);
+    }
+
     @OneToMany(mappedBy = "title")
     private java.util.Collection<Thumbnail> thumbnails;
 

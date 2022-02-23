@@ -14,6 +14,7 @@ import pandas.util.Strings;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TitleService {
@@ -292,6 +293,15 @@ public class TitleService {
                 if (form.isEditSchedule()) gather.setSchedule(form.getSchedule());
                 if (form.isEditMethod()) gather.setMethod(form.getMethod());
                 gathers.add(gather);
+            }
+
+            if (!form.getCollectionsToAdd().isEmpty()) {
+                Set<Long> existingCollectionIds = title.getCollections().stream().map(Collection::getId).collect(Collectors.toSet());
+                for (Collection collection : form.getCollectionsToAdd()) {
+                    if (!existingCollectionIds.contains(collection.getId())) {
+                        title.addCollection(collection);
+                    }
+                }
             }
         }
         titleRepository.saveAll(form.getTitles());
