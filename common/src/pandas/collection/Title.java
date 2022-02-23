@@ -417,7 +417,8 @@ public class Title {
 
     public Tep getTep() {
         if (tep == null) {
-            setTep(new Tep());
+            tep = new Tep();
+            tep.setTitle(this);
         }
         return tep;
     }

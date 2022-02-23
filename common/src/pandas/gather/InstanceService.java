@@ -4,7 +4,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.agency.User;
-import pandas.collection.Tep;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 
@@ -153,8 +152,7 @@ public class InstanceService {
         instanceRepository.save(instance);
 
         // create a TEP too if needed
-        if (title.getTep() == null) {
-            title.setTep(new Tep());
+        if (title.getTep().getId() == null) {
             titleRepository.save(title);
         }
     }

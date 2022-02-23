@@ -155,11 +155,6 @@ public class GathererIT {
         form.setOneoffDates(List.of(Instant.now()));
         Title title = titleService.save(form, null);
 
-        Tep tep = new Tep();
-        tep.setTitle(title);
-        title.setTep(tep);
-        titleRepository.save(title);
-
         // wait for instance to be created
         List<Instance> instances = instanceRepository.findByTitle(title);
         while (instances.isEmpty()) {
@@ -202,11 +197,6 @@ public class GathererIT {
         form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
         form.setOneoffDates(List.of(Instant.now()));
         Title title = titleService.save(form, null);
-
-        Tep tep = new Tep();
-        tep.setTitle(title);
-        title.setTep(tep);
-        titleRepository.save(title);
 
         // wait for instance to be created
         List<Instance> instances = instanceRepository.findByTitle(title);
