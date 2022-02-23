@@ -38,7 +38,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Table(indexes = {
         @Index(name = "title_last_modified_date_title_id_index", columnList = "last_modified_date, title_id"),
         @Index(name = "title_agency_id_current_status_id_index", columnList = "agency_id, current_status_id"),
-        @Index(name = "title_current_owner_id_current_status_id_index", columnList = "current_owner_id, current_status_id")})
+        @Index(name = "title_current_owner_id_current_status_id_index", columnList = "current_owner_id, current_status_id"),
+        @Index(name = "title_publisher_index", columnList = "publisher_id"),
+})
 public class Title {
     @Id
     @Column(name = "TITLE_ID")

@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
@@ -106,5 +107,13 @@ public class Publisher {
 
     public void setTitles(Collection<Title> titles) {
         this.titles = titles;
+    }
+
+    @Formula("(select count(*) from title t where t.publisher_id = publisher_id)")
+    private Long titleCount;
+
+    @JsonView(View.Summary.class)
+    public Long getTitleCount() {
+        return titleCount;
     }
 }

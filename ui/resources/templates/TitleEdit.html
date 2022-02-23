@@ -5,6 +5,9 @@
     <title th:text="${form.id == null ? 'New Title - PANDAS' : 'Edit Title - PANDAS'}">Edit Title - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .publisher-select-item { gap: 4px; }
+    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
@@ -145,6 +148,7 @@
                 <select id="publisher">
                     <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}" th:value="${form.publisher.id}"></option>
                 </select>
+                <a href="#">7 other titles</a>
             </label>
             <label id="publisherTypeLabel" style="display:none">
                 Publisher Type:
@@ -344,6 +348,12 @@
     });
     let titleUrlField = document.getElementById("titleUrl");
 
+    function escapeHtml(text) {
+        var element = document.createElement('p');
+        element.appendChild(document.createTextNode(text));
+        return element.innerHTML;
+    }
+
     let publisherSelect = null;
     if (document.getElementById("publisher")) {
         publisherSelect = new SlimSelect({
@@ -369,7 +379,10 @@
                         callback(results.map(publisher => {
                             return {
                                 value: publisher.id,
-                                text: publisher.name
+                                text: publisher.name,
+                                innerHTML: ('<span class=publisher-select-item>' + escapeHtml(publisher.name) +
+                                    ' <a class=title-count href=../../publishers/' + publisher.id + ' target=_blank>'
+                                    + publisher.titleCount + '</a></span>')
                             }
                         }));
                     }).catch(error => {
