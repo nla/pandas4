@@ -63,6 +63,8 @@
                 line1 = line2;
                 line2 = "";
             }
+            line1 = line1.replace(/,* *$/, "");
+            line2 = line2.replace(/,* *$/, "");
             document.getElementById("addressLine1").value = line1.trim();
             document.getElementById("addressLine2").value = line2.trim();
             document.getElementById("locality").value = match[3].trim();
