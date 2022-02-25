@@ -111,6 +111,9 @@ public class Collection {
     @JoinColumn(name = "LAST_MODIFIED_BY")
     private User lastModifiedBy;
 
+    @GenericField
+    private boolean closed;
+
     public Long getId() {
         return id;
     }
@@ -338,5 +341,24 @@ public class Collection {
             builder.append("sub");
         }
         return builder.toString();
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+    @GenericField
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath(@PropertyValue(propertyName = "closed")),
+            @ObjectPath(@PropertyValue(propertyName = "parent"))})
+    public boolean isAncestorClosed() {
+        for (var col = this; col != null; col = col.getParent()) {
+            if (col.isClosed()) return true;
+        }
+        return false;
     }
 }

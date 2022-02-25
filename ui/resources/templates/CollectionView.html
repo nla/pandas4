@@ -24,9 +24,11 @@
             <li th:each="breadcrumb: ${collection.collectionBreadcrumbs}">
                 <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}" href="CollectionView.html">Australian
                     Broadcasting Corporation (ABC)</a>
+                <strong th:if="${breadcrumb.closed}">(Closed)</strong>
             </li>
             <li class="active"><th:block th:text="${collection.name}">Television shows</th:block>
                 <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
+                <strong th:if="${collection.closed}">(Closed)</strong>
             </li>
         </ol>
     </nav>

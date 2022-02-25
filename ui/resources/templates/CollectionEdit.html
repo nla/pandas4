@@ -54,6 +54,10 @@
                     <input type=number min=1000 max=2999 th:field="*{endYear}" placeholder=YYYY size=4>
                 </div>
             </span>
+
+            <label>
+                <input type="checkbox" th:field="*{closed}"> Closed to new additions
+            </label>
         </fieldset>
 
         <fieldset sec:authorize="hasRole('stduser')">

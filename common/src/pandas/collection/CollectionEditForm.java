@@ -12,7 +12,8 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
                                  String description, Integer startMonth,
                                  Integer startYear, Integer endMonth, Integer endYear,
-                                 Collection parent, GatherSchedule gatherSchedule) {
+                                 Collection parent, GatherSchedule gatherSchedule,
+                                 boolean closed) {
     public static CollectionEditForm of(Collection collection) {
         Integer startMonth = null, startYear = null;
         if (collection.getStartDate() != null) {
@@ -27,7 +28,8 @@ public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
             endYear = endDate.getYear();
         }
         return new CollectionEditForm(collection.getName(), collection.getSubjects(), collection.getDescription(),
-                startMonth, startYear, endMonth, endYear, collection.getParent(), collection.getGatherSchedule());
+                startMonth, startYear, endMonth, endYear, collection.getParent(), collection.getGatherSchedule(),
+                collection.isClosed());
     }
 
     public void applyTo(Collection collection) {
@@ -51,5 +53,6 @@ public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
         } else {
             collection.setEndDate(null);
         }
+        collection.setClosed(closed);
     }
 }
