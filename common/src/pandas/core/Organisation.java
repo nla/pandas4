@@ -5,11 +5,14 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import pandas.agency.Agency;
+import pandas.util.Strings;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -274,5 +277,22 @@ public class Organisation implements Serializable {
 
     public void setAbn(String abn) {
         this.abn = abn;
+    }
+
+    public String getAddressAsOneLine() {
+        if (Strings.isNullOrBlank(locality) && Strings.isNullOrBlank(postcode) && Strings.isNullOrBlank(line1)) return null;
+        List<String> line3Segments = new ArrayList<>();
+        if (!Strings.isNullOrBlank(locality)) line3Segments.add(locality);
+        if (!Strings.isNullOrBlank(postcode)) line3Segments.add(postcode);
+        if (!Strings.isNullOrBlank(longstate)) line3Segments.add(longstate);
+
+        List<String> lines = new ArrayList<>();
+        if (!Strings.isNullOrBlank(line1)) lines.add(line1);
+        if (!Strings.isNullOrBlank(line2)) lines.add(line2);
+        if (!line3Segments.isEmpty()) lines.add(String.join(" ", line3Segments));
+        if (!Strings.isNullOrBlank(longcountry)) lines.add(longcountry);
+        if (lines.isEmpty()) return null;
+
+        return String.join(", ", lines);
     }
 }

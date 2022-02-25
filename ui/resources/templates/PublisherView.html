@@ -25,9 +25,14 @@
     <section class="details-table">
         <table>
             <tr><th>Type:</th><td th:text="${publisher.type.name}"></td></tr>
-            <tr><th>Homepage:</th><td><a th:href="${publisher.organisation.url}" th:text="${publisher.organisation.url}"></a></td></tr>
+            <tr th:unless="${#strings.isEmpty(publisher.organisation.url)}"><th>Homepage:</th><td><a th:href="${publisher.organisation.url}" th:text="${publisher.organisation.url}"></a></td></tr>
             <tr th:unless="${#strings.isEmpty(publisher.organisation.abn)}"><th>ABN:</th><td><a th:href="@{https://abr.business.gov.au/ABN/View(id=${publisher.organisation.abn})}" th:text="${publisher.organisation.abn}"></a></td></tr>
             <tr th:unless="${#strings.isEmpty(publisher.localReference)}"><th>Local Reference No:</th><td th:text="${publisher.localReference}"></td></tr>
+            <tr th:unless="${#strings.isEmpty(publisher.organisation.addressAsOneLine)}">
+                <th>Address:</th>
+                <td><a th:href="@{https://www.google.com/maps/search/(api=1,query=${publisher.organisation.addressAsOneLine})}"
+                       th:text="${publisher.organisation.addressAsOneLine}">123 Example St, Exampleton 2600 ACT Australia</a></td>
+            </tr>
         </table>
         <div th:unless="${#strings.isEmpty(publisher.notes)}">
             <strong>Notes:</strong><br>
