@@ -160,7 +160,12 @@ public class Collection {
     @KeywordField(name="name_sort", sortable = Sortable.YES)
     @IndexingDependency(derivedFrom = {
             @ObjectPath(@PropertyValue(propertyName = "name")),
-            @ObjectPath(@PropertyValue(propertyName = "parent"))})
+            @ObjectPath({@PropertyValue(propertyName = "parent")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "name")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "name")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "name")})})
     @JsonView(View.Summary.class)
     public String getFullName() {
         if (fullName == null) {
@@ -354,7 +359,12 @@ public class Collection {
     @GenericField
     @IndexingDependency(derivedFrom = {
             @ObjectPath(@PropertyValue(propertyName = "closed")),
-            @ObjectPath(@PropertyValue(propertyName = "parent"))})
+            @ObjectPath({@PropertyValue(propertyName = "parent")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "closed")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "closed")}),
+            @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "closed")})})
     public boolean isAncestorClosed() {
         for (var col = this; col != null; col = col.getParent()) {
             if (col.isClosed()) return true;
