@@ -39,14 +39,37 @@
 
         <fieldset>
             <legend>Address</legend>
-            <label><input th:field="*{addressLine1}"></label>
-            <label><input th:field="*{addressLine2}"></label>
+            <label><input th:field="*{addressLine1}" id="addressLine1"></label>
+            <label><input th:field="*{addressLine2}" id="addressLine2"></label>
             <div>
-                <label>Locality <input th:field="*{locality}"></label>
-                <label>State <input th:field="*{state}"></label>
-                <label>Postcode <input th:field="*{postcode}"></label>
-                <label>Country <input th:field="*{country}"></label>
+                <label>Locality <input th:field="*{locality}" id="locality"></label>
+                <label>State <input th:field="*{state}" id="state"></label>
+                <label>Postcode <input th:field="*{postcode}" id="postcode"></label>
+                <label>Country <input th:field="*{country}" id="country"></label>
             </div>
         </fieldset>
     </form>
+
+    <script>
+        let addressRegex = /(.*, )?([^,]+),* ([^,]+),* (ACT|NT|QLD|NSW|SA|WA|VIC),* ([0-9]{4})(?:,* *(Australia))?/i;
+        document.getElementById("addressLine1").addEventListener("paste", function(event) {
+            let text = (event.clipboardData || window.clipboardData).getData('text');
+            text = text.replaceAll("\n", ", ").replaceAll(",,", ",");
+            let match = text.match(addressRegex);
+            if (!match) return;
+            let line1 = match[1];
+            let line2 = match[2];
+            if (!line1 && line2) {
+                line1 = line2;
+                line2 = "";
+            }
+            document.getElementById("addressLine1").value = line1.trim();
+            document.getElementById("addressLine2").value = line2.trim();
+            document.getElementById("locality").value = match[3].trim();
+            document.getElementById("state").value = match[4].trim();
+            document.getElementById("postcode").value = match[5].trim();
+            document.getElementById("country").value = match[6] || 'Australia';
+            event.preventDefault();
+        });
+    </script>
 </main>
