@@ -44,6 +44,7 @@
                                    th:text="${collection.fullName}" href="TitleView.html">Developing
                             Canberra</a></strong>
                         <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
+                        <strong th:if="${collection.ancestorClosed}">(Closed)</strong>
                         <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
                            th:text="${collection.titleCount}" href="TitleSearch.html">16</a>
                     </header>
