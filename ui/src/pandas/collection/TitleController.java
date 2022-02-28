@@ -365,14 +365,19 @@ public class TitleController {
     @GetMapping("/titles/{id}/transfer")
     @PreAuthorize("hasPermission(#title, 'edit')")
     public String transferForm(@PathVariable("id") Title title,
-                               @RequestParam(value = "newAgency", required = false) Agency newAgency, Model model) {
+                               @RequestParam(value = "newAgency", required = false) Agency newAgency, Principal principal, Model model) {
+        User newOwner;
         if (newAgency == null) {
-            newAgency = title.getAgency();
+            newOwner = userRepository.findByUserid(principal.getName()).orElse(title.getOwner());
+            newAgency = newOwner.getAgency();
+        } else {
+            newOwner = null;
         }
         model.addAttribute("title", title);
-        model.addAttribute("newAgency", newAgency);
         model.addAttribute("allAgencies", agencyRepository.findAllOrdered());
         model.addAttribute("agencyUsers", userRepository.findActiveUsersByAgency(newAgency));
+        model.addAttribute("newAgency", newAgency);
+        model.addAttribute("newOwner", newOwner);
         return "TitleTransfer";
     }
 

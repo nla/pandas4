@@ -5,6 +5,11 @@
     <title th:text="${'Transfer Ownership - ' + title.name + ' - PANDAS'}">Transfer Ownership - Example Title - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .current-details-table th {
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
@@ -16,25 +21,38 @@
         </nav>
     </header>
 
-    <h1 th:text="${'Transfer Ownership - ' + title.name}">Transfer Ownership - Example Title</h1>
+    <h1>Transfer Ownership</h1>
 
-    <form method=post id=form th:action="@{''}">
-        <div class="form-group">
-            <label for=newAgency>New agency</label>
-            <select id=newAgency name=newAgency onchange="window.location.replace('?newAgency=' + this.value)">
-                <option th:each="agency : ${allAgencies}" th:text="${agency.name}" th:value="${agency.id}"
-                        th:selected="${agency.id == newAgency.id}"></option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for=newOwner>New owner</label>
-            <select id=newOwner name=newOwner>
-                <option th:each="user : ${agencyUsers}" th:text="${user.name}" th:value="${user.id}"></option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for=note>Transfer note</label>
-            <textarea id="note" name="note"></textarea>
-        </div>
+    <form method=post id=form class=form th:action="@{''}">
+        <fieldset>
+            <div>
+                <a th:href="${@link.to(title)}"><img th:src="${@link.thumbnail(title)}" width="150" height="100" alt=""></a>
+                <div>
+                    <table class="current-details-table">
+                        <tr><th>Title:</th><td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a> <span th:text="${'(nla.arc-' + title.pi + ')'}">(nla.arc-1234)</span></td>
+                        <tr><th>Agency:</th><td><a th:if="${title.agency != null}" th:text="${title.agency.name}" th:href="${@link.to(title.agency)}">Example agency</a></td></tr>
+                        <tr><th>Owner:</th><td><a th:if="${title.owner != null}" th:text="${title.owner.fullName}" th:href="${@link.to(title.owner)}">Example owner</a></td></tr>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Transfer to</legend>
+            <label>New agency
+                <select name=newAgency onchange="window.location.replace('?newAgency=' + this.value)">
+                    <option th:each="agency : ${allAgencies}" th:text="${agency.name}" th:value="${agency.id}"
+                            th:selected="${agency.id == newAgency.id}"></option>
+                </select>
+            </label>
+            <label>New owner
+                <select id=newOwner name=newOwner>
+                    <option th:each="user : ${agencyUsers}" th:text="${user.name}" th:value="${user.id}"
+                            th:selected="${user.id == newOwner.id}"></option>
+                </select>
+            </label>
+            <label>Transfer note
+                <textarea id="note" name="note" rows="5"></textarea>
+            </label>
+        </fieldset>
     </form>
 </main>
