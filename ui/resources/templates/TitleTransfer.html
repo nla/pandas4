@@ -6,7 +6,11 @@
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
+        .current-details-table td {
+            vertical-align: top;
+        }
         .current-details-table th {
+            vertical-align: top;
             text-align: right;
         }
     </style>
@@ -20,8 +24,6 @@
             <a href="javascript:history.back()" class="btn btn-secondary"><i class="icon cancel"></i> Cancel</a>
         </nav>
     </header>
-
-    <h1>Transfer Ownership</h1>
 
     <form method=post id=form class=form th:action="@{''}">
         <fieldset>
@@ -47,7 +49,7 @@
             <label>New owner
                 <select id=newOwner name=newOwner>
                     <option th:each="user : ${agencyUsers}" th:text="${user.name}" th:value="${user.id}"
-                            th:selected="${user.id == newOwner.id}"></option>
+                            th:selected="${newOwner != null && user.id == newOwner.id}"></option>
                 </select>
             </label>
             <label>Transfer note
