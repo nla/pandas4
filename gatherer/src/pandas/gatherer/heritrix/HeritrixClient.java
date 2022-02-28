@@ -1,6 +1,7 @@
 package pandas.gatherer.heritrix;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,8 +137,28 @@ public class HeritrixClient {
         callJob(jobName, "action", "build");
     }
 
+    @SuppressWarnings("BusyWait")
     void launchJob(String jobName) throws IOException {
-        callJob(jobName, "action", "launch");
+        int tries = 0;
+        while (true) {
+            try {
+                callJob(jobName, "action", "launch");
+                break;
+            } catch (JsonParseException e) {
+                if (tries >= 3) {
+                    throw e;
+                }
+                tries++;
+                long delay = 5000L * tries;
+                log.warn("Failed to launch " + jobName + " waiting " + delay + "ms to retry (attempt " + tries + ")");
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
     }
 
     void unpauseJob(String jobName) throws IOException {
