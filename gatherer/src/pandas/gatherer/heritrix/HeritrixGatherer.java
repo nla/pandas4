@@ -112,6 +112,7 @@ public class HeritrixGatherer implements Backend {
         for (Path file : Files.walk(jobDir).toList()) {
             Path relpath = jobDir.relativize(file);
             if (Files.isDirectory(file)) continue;
+            if (Files.isSymbolicLink(file)) continue;
 
             String filename = relpath.getFileName().toString();
             if (filename.endsWith(".lck")) continue;
