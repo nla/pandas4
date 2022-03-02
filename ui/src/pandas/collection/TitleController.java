@@ -403,6 +403,7 @@ public class TitleController {
     @GetMapping("/titles/new")
     public String newForm(@RequestParam(value = "collection", defaultValue = "") List<Collection> collections,
                           @RequestParam(value = "subject", defaultValue = "") List<Subject> subjects,
+                          @RequestParam(value = "publisher", required = false) Publisher publisher,
                           @RequestParam(value = "url", required = false) String url,
                           @RequestParam(value = "created", required = false) Title created,
                           Model model) {
@@ -416,6 +417,10 @@ public class TitleController {
 
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         form.setTitleUrl(url);
+
+        if (publisher != null) {
+            form.setPublisher(publisher);
+        }
 
         String backlink;
         if (collections.size() == 1) {

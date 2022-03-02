@@ -12,6 +12,7 @@
         <nav>
             <a sec:authorize="hasPermission(#vars.publisher, 'edit')"  th:href="@{/publishers/{id}/edit(id=${publisher.id})}" href="PublisherEdit.html" class="btn btn-primary"
                data-keybind="e"><i class="icon edit"></i> Edit</a>
+            <a sec:authorize="hasAuthority('PRIV_NOMINATE_TITLES')" th:href="@{/titles/new(publisher=${publisher.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary"><i class="icon title"></i> Add a website</a>
         </nav>
     </header>
 
