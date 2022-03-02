@@ -406,6 +406,7 @@ public class TitleController {
                           @RequestParam(value = "publisher", required = false) Publisher publisher,
                           @RequestParam(value = "url", required = false) String url,
                           @RequestParam(value = "created", required = false) Title created,
+                          @RequestParam(value = "backlink", required = false) String backlink,
                           Model model) {
 
         // If the user pressed "Save and add another" copy the subjects & collections to the new form
@@ -413,6 +414,9 @@ public class TitleController {
         if (created != null) {
             subjects = created.getSubjects();
             collections = created.getCollections();
+            if (backlink != null && backlink.startsWith("/publishers/") && publisher == null) {
+                publisher = created.getPublisher();
+            }
         }
 
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
@@ -422,13 +426,16 @@ public class TitleController {
             form.setPublisher(publisher);
         }
 
-        String backlink;
-        if (collections.size() == 1) {
-            backlink = "/collections/" + collections.get(0).getId();
-        } else if (subjects.size() == 1) {
-            backlink = "/subjects/" + subjects.get(0).getId();
-        } else {
-            backlink = "";
+        if (backlink == null) {
+            if (collections.size() == 1) {
+                backlink = "/collections/" + collections.get(0).getId();
+            } else if (subjects.size() == 1) {
+                backlink = "/subjects/" + subjects.get(0).getId();
+            } else if (publisher != null) {
+                backlink = "/publishers/" + publisher.getId();
+            } else {
+                backlink = "";
+            }
         }
         model.addAttribute("backlink", backlink);
 
