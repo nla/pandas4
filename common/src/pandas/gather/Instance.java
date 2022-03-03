@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -95,7 +96,7 @@ public class Instance {
     private InstanceGather gather;
 
     @OneToMany(mappedBy = "instance")
-    private List<PandasExceptionLog> exceptions;
+    private List<PandasExceptionLog> exceptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "instance")
     private List<InstanceThumbnail> thumbnails;

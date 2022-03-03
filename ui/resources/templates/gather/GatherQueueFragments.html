@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<tr th:fragment="instanceRow(instance, actions)">
+    <td>
+        <a th:href="${instance.gatheredUrl}" href="http://example.com/">
+            <img th:src="${@link.thumbnail(instance, 'LIVE')}" width=67 height=50>
+        </a>
+    </td>
+    <td>
+        <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="../TitleView.html"
+           class="title-link">Fishes of Australia</a><br>
+        <span class="title-details">
+                    <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
+                    <span th:text="${instance.title.owner.userid}">ckent</span>
+                    <span th:text="${instance.title.agency?.organisation?.alias}">NLA</span>
+                </span>
+    </td>
+    <td align="center">
+        <span th:text="${instance.gatherMethodName}" class="gather-method">Heritrix</span><br>
+        <span th:text="${instance.state.name}" class="gather-state" th:classappend="${'gather-state-' + instance.state.name}">Gathering</span>
+    </td>
+    <td class="start-time">
+        ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">1 hour ago</time><br>
+        📈 <span th:text="${instance.gather.stats}">1,234 files 20 MB</span>
+    </td>
+    <td th:replace="${actions}"></td>
+</tr>
+
+</body>
+</html>

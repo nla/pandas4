@@ -20,6 +20,9 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             "'archiving', 'deleting') order by i.date")
     List<Instance> findGathering();
 
+    @Query("select i from Instance i where i.state.name = 'failed' order by i.date")
+    List<Instance> findFailed();
+
     @Query("select i from Instance i where i.state.id in (12, 9, 7, 13) and i.gatherMethodName = ?1")
     List<Instance> findIncomplete(String gatherMethodName);
 

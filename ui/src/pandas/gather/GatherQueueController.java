@@ -21,6 +21,7 @@ public class GatherQueueController {
         Instant endOfToday = LocalDateTime.of(LocalDate.now(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant();
         model.addAttribute("queuedGathers", titleGatherRepository.findQueuedBefore(endOfToday));
         model.addAttribute("gatheringInstances", instanceRepository.findGathering());
+        model.addAttribute("failedInstances", instanceRepository.findFailed());
         return "gather/GatherQueue";
     }
 

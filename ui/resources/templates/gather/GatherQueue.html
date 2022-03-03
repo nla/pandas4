@@ -78,31 +78,16 @@
     <span th:if="${gatheringInstances.isEmpty()}">Nothing is currently gathering.</span>
     <form method=post th:action="@{/queue}">
     <table class="table gather-queue-table">
-        <tr th:each="instance: ${gatheringInstances}">
-            <td>
-                <a th:href="${instance.gatheredUrl}" href="http://example.com/">
-                    <img th:src="${@link.thumbnail(instance, 'LIVE')}" width=67 height=50>
-                </a>
-            </td>
-            <td>
-                <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="../TitleView.html"
-                   class="title-link">Fishes of Australia</a><br>
-                <span class="title-details">
-                    <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
-                    <span th:text="${instance.title.owner.userid}">ckent</span>
-                    <span th:text="${instance.title.agency?.organisation?.alias}">NLA</span>
-                </span>
-            </td>
-            <td align="center">
-                <span th:text="${instance.gatherMethodName}" class="gather-method">Heritrix</span><br>
-                <span th:text="${instance.state.name}" class="gather-state" th:classappend="${'gather-state-' + instance.state.name}">Gathering</span>
-            </td>
-            <td class="start-time">
-                ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">1 hour ago</time><br>
-                📈 <span th:text="${instance.gather.stats}">1,234 files 20 MB</span>
-            </td>
-            <td><button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i class="icon stop"></i> Stop</button></td>
-        </tr>
+        <th:block th:each="instance: ${gatheringInstances}">
+            <tr th:replace="gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .actions})">
+                <td class="actions">
+                    <button sec:authorize="hasPermission(#vars.instance.title, 'edit')"
+                            th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i
+                            class="icon stop"></i> Stop
+                    </button>
+                </td>
+            </tr>
+        </th:block>
     </table>
     </form>
 
@@ -132,6 +117,29 @@
                             th:title="${'Scheduled for ' + @dateFormats.dayDateTime.format(gather.nextGatherDate)}">1 hour ago</time><br>
                 </td>
             </tr>
+        </table>
+    </section>
+
+    <section>
+        <h2>Failed</h2>
+        <table>
+            <th:block th:each="instance: ${failedInstances}">
+                <tr th:replace="gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions})">
+                    <td class="failed-gather-actions">
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td colspan="3">
+                        <div style="background: #ffdddd; padding: 4px; margin-bottom: 4px" th:each="exception: ${instance.exceptions}">
+                            <strong th:text="${@dateFormats.shortDateTime.format(exception.date)}"></strong>
+                            <span style="color: #990000" th:text="${exception.summary + '.'}"></span>
+                            <span th:text="${exception.detail}"></span>
+                            <span style="color: #990000" th:text="${'[' + exception.originator + ']'}"></span>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
         </table>
     </section>
 
