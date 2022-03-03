@@ -15,7 +15,7 @@
         <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="../TitleView.html"
            class="title-link">Fishes of Australia</a><br>
         <span class="title-details">
-                    <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
+                    <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
                     <span th:text="${instance.title.owner.userid}">ckent</span>
                     <span th:text="${instance.title.agency?.organisation?.alias}">NLA</span>
                 </span>
