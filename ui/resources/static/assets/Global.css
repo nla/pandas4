@@ -401,6 +401,14 @@ button.btn-danger:hover, a.btn-danger:hover {
     color: var(--color-black);
 }
 
+.under-breadcrumbs {
+    font-size: 60%;
+}
+
+.under-breadcrumbs a {
+    color: #666;
+}
+
 /*
  * Alerts
  */

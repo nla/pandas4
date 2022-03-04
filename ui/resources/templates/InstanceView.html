@@ -22,14 +22,14 @@
 
     <nav class="breadcrumb">
         <ol>
-            <li><a th:href="@{/titles}" href="TitleSearch.html" style="font-weight: bold">Titles</a></li>
             <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
-            <li class="active">Instance <span th:text="${instance.dateString}"></span></li>
+            <li class="active"><span th:text="${instance.gatherMethodName}"></span> gather from <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></li>
         </ol>
+        <div class="under-breadcrumbs">
+            <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
+        </div>
     </nav>
-
-    <h1 th:text="${'Instance ' + instance.dateString}">Instance 20120402-0944</h1>
 
     <a th:href="${@link.delivery(instance)}">
         <img th:src="@{|/instances/${instance.id}/thumbnail|}" style="float:left; margin-right: 8px; margin-bottom: 16px; width: 200px; height: 150px">
