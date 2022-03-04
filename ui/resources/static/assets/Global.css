@@ -403,6 +403,7 @@ button.btn-danger:hover, a.btn-danger:hover {
 
 .under-breadcrumbs {
     font-size: 60%;
+    color: #666;
 }
 
 .under-breadcrumbs a {

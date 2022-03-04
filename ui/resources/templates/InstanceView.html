@@ -27,7 +27,7 @@
             <li class="active"><span th:text="${instance.gatherMethodName}"></span> gather from <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></li>
         </ol>
         <div class="under-breadcrumbs">
-            <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
+            <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</>
         </div>
     </nav>
 
