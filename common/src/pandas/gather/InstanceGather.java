@@ -9,6 +9,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
+
 @Entity
 @Table(name = "INS_GATHER")
 @DynamicUpdate
@@ -87,7 +90,10 @@ public class InstanceGather {
 
     public String getTimeHuman() {
         if (getStart() == null || getFinish() == null) return null;
-        return Duration.between(getStart(), getFinish()).truncatedTo(ChronoUnit.SECONDS).toString()
+
+        Duration duration = Duration.between(getStart(), getFinish());
+        ChronoUnit precision = duration.compareTo(Duration.ofHours(1)) >= 0 ? MINUTES : SECONDS;
+        return duration.truncatedTo(precision).toString()
                 .substring(2)
                 .replaceAll("(\\d[HMS])(?!$)", "$1 ")
                 .toLowerCase();

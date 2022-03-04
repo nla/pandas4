@@ -25,6 +25,19 @@
             border: 1px solid #777;
             border-radius: .5rem;
         }
+
+        .under-breadcrumbs {
+            font-size: 60%;
+        }
+
+        .under-breadcrumbs a {
+            color: #666;
+        }
+
+        .crawl-stats {
+            float: right;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -85,12 +98,16 @@
                 </span>
             </li>
         </ol>
-        <span style="float: right">
+        <span class="crawl-stats">
             <span th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></span> files,
             <span th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></span>,
             <span th:text="${instance?.gather?.timeHuman}"></span>
         </span>
+        <div class="under-breadcrumbs">
+            <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
+        </div>
     </nav>
+
 
     <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center">
         <nav class="btn-group">
