@@ -3,6 +3,7 @@ package pandas.render;
 import org.attoparser.AbstractMarkupHandler;
 import org.attoparser.ParseException;
 import org.attoparser.util.TextUtil;
+import org.jsoup.parser.Parser;
 
 public class PageInfo {
     private final int status;
@@ -44,7 +45,7 @@ public class PageInfo {
         @Override
         public void handleText(char[] buffer, int offset, int len, int line, int col) throws ParseException {
             if (withinTitle && title == null) {
-                title = new String(buffer, offset, Math.min(len, maxLen));
+                title = Parser.unescapeEntities(new String(buffer, offset, Math.min(len, maxLen)), false);
             }
         }
     }
