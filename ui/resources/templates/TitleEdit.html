@@ -189,17 +189,37 @@
             <th:block sec:authorize="hasRole('stduser')">
                 <div>
                     <label>Schedule
-                        <select th:field="*{gatherSchedule}">
+                        <select th:field="*{gatherSchedule}" id="gatherSchedule">
                             <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
-                                    th:text="${schedule.name}">Weekly
+                                    th:text="${schedule.name}" th:data-nextdate="${schedule.calculateNextTimeLocal()}">Weekly
                             </option>
                         </select>
                     </label>
-                    <label>One-off<br>
-                        <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
-                        <button onclick="addOneoffDate()" type=button>Add</button>
+                    <label id="scheduledDateLabel" th:style="${form.gatherSchedule == null || form.gatherSchedule.isNone() ? 'display: none' : ''}">Next recurring<br>
+                        <input th:field="*{scheduledDate}" id="scheduledDate" type="date" th:required="${form.scheduledDate != null}">
+                        <input th:field="*{scheduledTime}" id="scheduledTime" type="time" th:required="${form.scheduledTime != null}">
                     </label>
                 </div>
+                <script>
+                    document.getElementById('gatherSchedule').addEventListener('change', function() {
+                        let option = this.selectedOptions[0];
+                        if (!option || !option.dataset.nextdate) {
+                            document.getElementById('scheduledDateLabel').style.display = 'none';
+                            document.getElementById('scheduledDate').required = false;
+                            document.getElementById('scheduledTime').required = false;
+                            return;
+                        }
+                        document.getElementById('scheduledDate').value = option.dataset.nextdate.substring(0, 10);
+                        document.getElementById('scheduledTime').value = option.dataset.nextdate.substring(11, 16);
+                        document.getElementById('scheduledDate').required = true;
+                        document.getElementById('scheduledTime').required = true;
+                        document.getElementById('scheduledDateLabel').style.display = '';
+                    });
+                </script>
+                <label>One-off<br>
+                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
+                    <button onclick="addOneoffDate()" type=button>Add</button>
+                </label>
                 <ul id="oneoffDatesList" th:style="${form.oneoffDates.isEmpty() ? 'display:none' : 'display:block'}" >
                     <li th:each="date: *{oneoffDates}">
                         <time th:datetime="${date}" th:text="${date}"></time>

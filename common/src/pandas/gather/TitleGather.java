@@ -88,6 +88,10 @@ public class TitleGather {
     @Column(name = "IS_SCHEDULED")
     private Long isScheduled;
 
+    /**
+     * The next recurring date for titles with a recurring schedule set. Note: This does not include one-off gather
+     * dates (see nextGatherDate for the actual next gather date including one-offs).
+     */
     @Column(name = "SCHEDULED_DATE")
     private Instant scheduledDate;
 
@@ -323,9 +327,13 @@ public class TitleGather {
 
         // next try the title-level scheduled date
         if (getSchedule() != null) {
-            Instant date = getSchedule().calculateNextTime(getLastGatherDate());
-            setScheduledDate(date);
-            if (date != null && date.isBefore(next)) next = date;
+            Instant scheduledDate = getScheduledDate();
+            // if we don't have a scheduled date or its out of date then recalculate it
+            if (scheduledDate == null || (getLastGatherDate() != null && !scheduledDate.isAfter(getLastGatherDate()))) {
+                scheduledDate = getSchedule().calculateNextTime(getLastGatherDate());
+                setScheduledDate(scheduledDate);
+            }
+            if (scheduledDate != null && scheduledDate.isBefore(next)) next = scheduledDate;
         }
 
         // now see if any collections have schedules

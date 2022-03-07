@@ -4,10 +4,7 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 import javax.persistence.*;
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
@@ -150,6 +147,11 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
     @Override
     public int compareTo(GatherSchedule o) {
         return this.calculateNextTime(referenceTime).compareTo(o.calculateNextTime(referenceTime));
+    }
+
+    public LocalDateTime calculateNextTimeLocal() {
+        Instant instant = calculateNextTime((Instant) null);
+        return instant == null ? null : instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     public Instant calculateNextTime(Instant prev) {

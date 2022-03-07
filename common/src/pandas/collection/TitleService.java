@@ -226,6 +226,7 @@ public class TitleService {
             titleGather.setSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
         }
 
+        titleGather.setScheduledDate(form.getScheduledInstant());
         titleGather.replaceOneoffDates(form.getOneoffDates());
 
         titleGather.calculateNextGatherDate();

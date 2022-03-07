@@ -1,10 +1,11 @@
 package pandas.collection;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import pandas.gather.*;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
-import java.time.Instant;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,10 @@ public class TitleEditForm {
     @NotBlank
     private String name;
     private GatherSchedule gatherSchedule;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate scheduledDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+    private LocalTime scheduledTime;
 
     private GatherMethod gatherMethod;
 
@@ -72,9 +77,27 @@ public class TitleEditForm {
             setGatherSchedule(gather.getSchedule());
             setOneoffDates(gather.getOneoffDates().stream().map(GatherDate::getDate).toList());
             setScope(gather.getScope());
+            setScheduledInstant(gather.getScheduledDate());
             if (gather.getAdditionalUrls() != null && !gather.getAdditionalUrls().isBlank()) {
                 setSeedUrls(getSeedUrls() + "\n" + gather.getAdditionalUrls());
             }
+        }
+    }
+
+    public Instant getScheduledInstant() {
+        if (scheduledDate == null) return null;
+        return LocalDateTime.of(scheduledDate, scheduledTime == null ? LocalTime.MIDNIGHT : scheduledTime)
+                .atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    public void setScheduledInstant(Instant instant) {
+        if (instant != null) {
+            ZonedDateTime scheduledDateZoned = instant.atZone(ZoneId.systemDefault());
+            setScheduledDate(scheduledDateZoned.toLocalDate());
+            setScheduledTime(scheduledDateZoned.toLocalTime());
+        } else {
+            setScheduledDate(null);
+            setScheduledTime(null);
         }
     }
 
@@ -262,5 +285,21 @@ public class TitleEditForm {
 
     public void setReason(Reason reason) {
         this.reason = reason;
+    }
+
+    public LocalDate getScheduledDate() {
+        return scheduledDate;
+    }
+
+    public void setScheduledDate(LocalDate scheduledDate) {
+        this.scheduledDate = scheduledDate;
+    }
+
+    public LocalTime getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(LocalTime scheduledTime) {
+        this.scheduledTime = scheduledTime;
     }
 }
