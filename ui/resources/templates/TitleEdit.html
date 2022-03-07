@@ -197,7 +197,7 @@
                     </label>
                     <label id="scheduledDateLabel" th:style="${form.gatherSchedule == null || form.gatherSchedule.isNone() ? 'display: none' : ''}">Next recurring<br>
                         <input th:field="*{scheduledDate}" id="scheduledDate" type="date" th:required="${form.scheduledDate != null}">
-                        <input th:field="*{scheduledTime}" id="scheduledTime" type="time" th:required="${form.scheduledTime != null}">
+                        <input th:field="*{scheduledTime}" id="scheduledTime" type="time" th:required="${form.scheduledTime != null}" readonly>
                     </label>
                 </div>
                 <script>
