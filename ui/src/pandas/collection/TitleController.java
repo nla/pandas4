@@ -330,7 +330,7 @@ public class TitleController {
         model.addAttribute("form", form);
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
-        model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
+        model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
         model.addAttribute("allProfiles", profileRepository.findAllByOrderByName());
         model.addAttribute("allPublisherTypes", publisherTypeRepository.findAll());
         model.addAttribute("allScopes", scopeRepository.findAll());

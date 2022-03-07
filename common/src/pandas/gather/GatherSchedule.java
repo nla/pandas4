@@ -146,6 +146,13 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
 
     @Override
     public int compareTo(GatherSchedule o) {
+        if (isNone()) {
+            if (o.isNone()) {
+                return 0;
+            } else {
+                return -1;
+            }
+        }
         return this.calculateNextTime(referenceTime).compareTo(o.calculateNextTime(referenceTime));
     }
 
