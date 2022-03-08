@@ -134,11 +134,13 @@ public class HeritrixClient {
     }
 
     void buildJob(String jobName) throws IOException {
+        log.info("HeritrixClient.buildJob(\"{}\")", jobName);
         callJob(jobName, "action", "build");
     }
 
     @SuppressWarnings("BusyWait")
     void launchJob(String jobName) throws IOException {
+        log.info("HeritrixClient.launchJob(\"{}\")", jobName);
         int tries = 0;
         while (true) {
             try {
@@ -162,10 +164,12 @@ public class HeritrixClient {
     }
 
     void unpauseJob(String jobName) throws IOException {
+        log.info("HeritrixClient.unpauseJob(\"{}\")", jobName);
         callJob(jobName, "action", "unpause");
     }
 
     void teardownJob(String jobName) throws IOException {
+        log.info("HeritrixClient.teardownJob(\"{}\")", jobName);
         for (int tries = 0; tries < 10; tries++) {
             try {
                 if (getJob(jobName).crawlControllerState != State.STOPPING) {
