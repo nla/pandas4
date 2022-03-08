@@ -471,6 +471,15 @@
             titleUrlField.value = "http://" + titleUrlField.value;
         }
         titleUrlField.value = titleUrlField.value.replace(/^https?:\/\/(nitter\.net|nitter\.mstdn\.social|mobile\.twitter\.com|twitter\.com)\//, "https://nitter.archive.org.au/");
+        /* ensure all pages on this website can't be selected for nitter */
+        if (titleUrlField.value.startsWith("https://nitter.archive.org.au/")) {
+            if (!document.querySelectorAll("input[type=radio][name=scope]")[2].checked) {
+                document.querySelectorAll("input[type=radio][name=scope]")[1].checked = true;
+            }
+            document.querySelectorAll("input[type=radio][name=scope]")[0].disabled = true;
+        } else {
+            document.querySelectorAll("input[type=radio][name=scope]")[1].disabled = false;
+        }
 
         fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
             .then(response => response.json())
