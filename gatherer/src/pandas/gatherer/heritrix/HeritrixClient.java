@@ -170,6 +170,8 @@ public class HeritrixClient {
             try {
                 if (getJob(jobName).crawlControllerState != State.STOPPING) {
                     callJob(jobName, "action", "teardown");
+                } else {
+                    log.warn("Heritrix " + jobName + " already STOPPING, ignoring teardownJob request.");
                 }
                 break;
             } catch (IOException e) {
