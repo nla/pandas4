@@ -470,6 +470,7 @@
         if (!titleUrlField.value.match(/^[a-z]+:\/\//)) {
             titleUrlField.value = "http://" + titleUrlField.value;
         }
+        titleUrlField.value = titleUrlField.value.replace(/^https?:\/\/(nitter\.net|nitter\.mstdn\.social|mobile\.twitter\.com|twitter\.com)\//, "https://nitter.archive.org.au/");
 
         fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
             .then(response => response.json())
