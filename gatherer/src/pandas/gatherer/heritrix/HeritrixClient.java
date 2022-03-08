@@ -8,10 +8,7 @@ import org.slf4j.LoggerFactory;
 import pandas.gatherer.core.FileStats;
 
 import javax.net.ssl.*;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -32,6 +29,8 @@ public class HeritrixClient {
     private final AtomicReference<DigestChallenge> lastChallenge = new AtomicReference<>();
     private final String username;
     private final String password;
+    private int pollDelay = 1000;
+    private int timeoutMillis = 60000;
 
     public HeritrixClient(String url, String username, String password) {
         if (!url.endsWith("/")) {
@@ -168,16 +167,26 @@ public class HeritrixClient {
         callJob(jobName, "action", "unpause");
     }
 
+    @SuppressWarnings("BusyWait")
     void teardownJob(String jobName) throws IOException {
         log.info("HeritrixClient.teardownJob(\"{}\")", jobName);
         for (int tries = 0; tries < 10; tries++) {
             try {
-                if (getJob(jobName).crawlControllerState != State.STOPPING) {
-                    callJob(jobName, "action", "teardown");
-                } else {
-                    log.warn("Heritrix " + jobName + " already STOPPING, ignoring teardownJob request.");
+                long delay = 100;
+                while (getJob(jobName).crawlControllerState == State.STOPPING) {
+                    log.warn("Teardown requested but Heritrix " + jobName + " STOPPING, waiting " + delay + "ms");
+                    try {
+                        Thread.sleep(delay);
+                        delay *= 2;
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
+                callJob(jobName, "action", "teardown");
                 break;
+            } catch (FileNotFoundException e) {
+                log.warn("Job not found for teardown: {}", jobName);
+                return;
             } catch (IOException e) {
                 if (e.getMessage().contains("500 for URL")) {
                     try {
@@ -208,17 +217,17 @@ public class HeritrixClient {
                 break;
             } else if (state != allowed) {
                 throw new IllegalStateException("Heritrix job " + jobName + " in state " + state + " but expected " + target + " or " + allowed);
-            } else if (System.currentTimeMillis() - start > 60000) {
+            } else if (System.currentTimeMillis() - start > timeoutMillis) {
                 throw new RuntimeException("Timed out waiting for Heritrix to prepapre job " + jobName);
             }
-            Thread.sleep(100);
+            Thread.sleep(pollDelay);
         }
     }
 
     public static void main(String args[]) throws Exception {
-        HeritrixClient heritrix = new HeritrixClient("https://localhost:8443/engine", "admin", "admin");
+        HeritrixClient heritrix = new HeritrixClient("https://localhost:8444/engine", "admin", "admin");
 
-        System.out.println(heritrix.getEngine().heritrixVersion);
+        System.out.println(heritrix.getJob("bogus"));
 
     }
 
