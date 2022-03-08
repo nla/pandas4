@@ -613,6 +613,11 @@ ul.subject-list li + li:before {
     font-variant: small-caps;
 }
 
+.unable-to-archive {
+    font-variant: small-caps;
+    color: darkred;
+}
+
 .status-selected, .status-permission-granted { color: #1c7430; }
 .status-rejected { color: darkred; }
 .status-permission-impossible, .status-permission-denied { color: midnightblue; }

@@ -104,7 +104,11 @@
 
         <div>
             <h4>Status</h4>
-            <div th:text="${title.status.name}" style="text-transform: capitalize">
+            <div>
+                <span class="status" th:text="${title.status.name}" th:classappend="${'status-' + title.status.name.replace(' ','-')}">ceased</span>
+                <th:block th:if="${title.unableToArchive}">
+                    · <span class="unable-to-archive">unable to archive</span>
+                </th:block>
             </div>
             <div th:if="${title.statusReason != null}" th:text="${title.statusReason.name}" style="color: #777"></div>
             <p></p>

@@ -156,7 +156,8 @@
                     <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
                 </select>
             </label>
-            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label><br>
+            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label>
+            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{unableToArchive}"> Was unable to be archived</label>
             <details sec:authorize="hasRole('stduser')" th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
                 <summary>Cataloguing</summary>
                 <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>

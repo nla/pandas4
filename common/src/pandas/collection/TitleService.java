@@ -108,6 +108,7 @@ public class TitleService {
         title.setNotes(Strings.emptyToNull(form.getNotes()));
         title.setSubjects(form.getSubjects());
         title.setTitleUrl(form.getTitleUrl());
+        title.setUnableToArchive(form.isUnableToArchive());
 
         Tep tep = title.getTep(); // ensure we have a tep
         title.getTep().setDisplayTitle(title.getName());

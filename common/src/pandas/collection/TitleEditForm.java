@@ -40,6 +40,7 @@ public class TitleEditForm {
     private Status status;
     private Reason reason;
     private boolean legalDeposit = true;
+    private boolean unableToArchive;
 
     private Publisher publisher;
     private String publisherName;
@@ -69,6 +70,7 @@ public class TitleEditForm {
         } else {
             setSeedUrls(title.getTitleUrl());
         }
+        setUnableToArchive(title.isUnableToArchive());
 
         TitleGather gather = title.getGather();
         if (gather != null) {
@@ -301,5 +303,13 @@ public class TitleEditForm {
 
     public void setScheduledTime(LocalTime scheduledTime) {
         this.scheduledTime = scheduledTime;
+    }
+
+    public boolean isUnableToArchive() {
+        return unableToArchive;
+    }
+
+    public void setUnableToArchive(boolean unableToArchive) {
+        this.unableToArchive = unableToArchive;
     }
 }
