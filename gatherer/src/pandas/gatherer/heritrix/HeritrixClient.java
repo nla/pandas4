@@ -168,7 +168,9 @@ public class HeritrixClient {
     void teardownJob(String jobName) throws IOException {
         for (int tries = 0; tries < 10; tries++) {
             try {
-                callJob(jobName, "action", "teardown");
+                if (getJob(jobName).crawlControllerState != State.STOPPING) {
+                    callJob(jobName, "action", "teardown");
+                }
                 break;
             } catch (IOException e) {
                 if (e.getMessage().contains("500 for URL")) {
