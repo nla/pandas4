@@ -282,10 +282,10 @@
 <!--            <ref bean="extractorChromeTooManyHopsDecideRule" />-->
 <!--        </property>-->
 <!--    </bean>-->
-    <bean id="extractorRobotsTxt" class="org.archive.modules.extractor.ExtractorRobotsTxt">
-    </bean>
-    <bean id="extractorSitemap" class="org.archive.modules.extractor.ExtractorSitemap">
-    </bean>
+<!--    <bean id="extractorRobotsTxt" class="org.archive.modules.extractor.ExtractorRobotsTxt">-->
+<!--    </bean>-->
+<!--    <bean id="extractorSitemap" class="org.archive.modules.extractor.ExtractorSitemap">-->
+<!--    </bean>-->
     <bean id="extractorHtml" class="org.archive.modules.extractor.ExtractorHTML">
         <!-- <property name="extractJavascript" value="true" /> -->
         <!-- <property name="extractValueAttributes" value="true" /> -->
@@ -320,10 +320,10 @@
                 <ref bean="extractorHttp"/>
                 <!-- NLA: load in headless browser -->
 <!--                <ref bean="extractorChrome"/>-->
-                <!-- ...extract sitemap urls from robots.txt... -->
-                <ref bean="extractorRobotsTxt"/>
-                <!-- ...extract links from sitemaps... -->
-                <ref bean="extractorSitemap"/>
+<!--                &lt;!&ndash; ...extract sitemap urls from robots.txt... &ndash;&gt;-->
+<!--                <ref bean="extractorRobotsTxt"/>-->
+<!--                &lt;!&ndash; ...extract links from sitemaps... &ndash;&gt;-->
+<!--                <ref bean="extractorSitemap"/>-->
                 <!-- ...extract outlinks from HTML content... -->
                 <ref bean="extractorHtml"/>
                 <!-- ...extract outlinks from CSS content... -->
