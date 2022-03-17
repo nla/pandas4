@@ -11,7 +11,10 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import pandas.collection.*;
+import pandas.collection.Title;
+import pandas.collection.TitleEditForm;
+import pandas.collection.TitleRepository;
+import pandas.collection.TitleService;
 import pandas.gather.*;
 import pandas.gatherer.heritrix.HeritrixClient;
 
@@ -47,8 +50,6 @@ public class GathererIT {
     @Autowired GatherMethodRepository gatherMethodRepository;
     @Autowired
     TitleRepository titleRepository;
-    @Autowired
-    TepRepository tepRepository;
     @Autowired
     InstanceRepository instanceRepository;
     @Autowired
