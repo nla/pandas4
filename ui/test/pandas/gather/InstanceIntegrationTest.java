@@ -10,7 +10,7 @@ import pandas.collection.TitleService;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,7 +21,7 @@ public class InstanceIntegrationTest extends IntegrationTest {
     @Autowired UserService userService;
 
     @Test
-    @WithUserDetails
+    @WithUserDetails("admin")
     public void testArchiveSelected() throws Exception {
         Title title = createTitle();
         Instance instance1 = instanceService.createInstance(GatherMethod.HERITRIX, title);
@@ -37,7 +37,7 @@ public class InstanceIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithUserDetails
+    @WithUserDetails("admin")
     public void testDeleteSelected() throws Exception {
         Title title = createTitle();
         Instance instance1 = instanceService.createInstance(GatherMethod.HERITRIX, title);
@@ -56,7 +56,6 @@ public class InstanceIntegrationTest extends IntegrationTest {
         var titleForm = titleService.newTitleForm(Collections.emptyList(), Collections.emptyList());
         titleForm.setTitleUrl("http://example.org/");
         titleForm.setName("Test Title");
-        Title title = titleService.save(titleForm, userService.getCurrentUser());
-        return title;
+        return titleService.save(titleForm, userService.getCurrentUser());
     }
 }

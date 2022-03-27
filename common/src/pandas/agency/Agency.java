@@ -131,6 +131,7 @@ public class Agency {
 
     public void setOrganisation(Organisation organisation) {
         this.organisation = organisation;
+        organisation.setAgency(this);
     }
 
     public byte[] getLogo() {
