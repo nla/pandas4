@@ -124,7 +124,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             });
         }
         if (oidcIssuerUri == null && config.getAutologin() == null) {
-                auth.and().formLogin().defaultSuccessUrl("/test")
+                auth.and().formLogin().defaultSuccessUrl("/")
                     .and().httpBasic().realmName("PANDAS");
         }
     }
