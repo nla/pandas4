@@ -50,8 +50,8 @@ public class DatabaseInit {
 
         if (gatherMethodRepository.count() == 0) {
             log.info("Populating gather_method table");
-            gatherMethodRepository.saveAll(Stream.of(GatherMethod.HTTRACK, GatherMethod.UPLOAD, GatherMethod.HERITRIX)
-                    .map(GatherMethod::new).toList());
+            gatherMethodRepository.saveAll(Stream.of(GatherMethod.HTTRACK, GatherMethod.UPLOAD, GatherMethod.HERITRIX,
+                    GatherMethod.BROWSERTRIX).map(GatherMethod::new).toList());
         }
 
         if (gatherScheduleRepository.count() == 0) {
