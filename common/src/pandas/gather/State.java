@@ -46,4 +46,15 @@ public class State {
     public boolean isDeleted() {
         return getName().equals(DELETED) || getName().equals(DELETING);
     }
+
+    public boolean isFailed() {
+        return getName().equals(FAILED);
+    }
+
+    public boolean canBeRetried() {
+        return switch (getName()) {
+            case ARCHIVING, DELETING, GATHER_PROCESS, GATHERING -> true;
+            default -> false;
+        };
+    }
 }

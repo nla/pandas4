@@ -101,6 +101,10 @@ public class Instance {
     @OneToMany(mappedBy = "instance")
     private List<InstanceThumbnail> thumbnails;
 
+    @OneToMany(mappedBy = "instance")
+    @OrderBy("id")
+    private List<StateHistory> stateHistory = new ArrayList<>();
+
     public State getState() {
         return this.state;
     }
@@ -386,6 +390,21 @@ public class Instance {
         for (var thumbnail : thumbnails) {
             if (thumbnail.getType() == InstanceThumbnail.Type.LIVE) {
                 return thumbnail;
+            }
+        }
+        return null;
+    }
+
+    public List<StateHistory> getStateHistory() {
+        return stateHistory;
+    }
+
+    public State getStateBeforeFailure() {
+        if (!getState().isFailed()) return null;
+        for (int i = getStateHistory().size() - 1; i >= 0; i--) {
+            var state = getStateHistory().get(i).getState();
+            if (!state.isFailed()) {
+                return state;
             }
         }
         return null;

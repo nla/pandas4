@@ -2,6 +2,7 @@ package pandas.gather;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.agency.User;
 import pandas.collection.Title;
@@ -171,5 +172,13 @@ public class InstanceService {
     @Transactional
     public void delete(Instance instance, User currentUser) {
         updateState(instance, State.DELETING, currentUser);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void retryAfterFailure(Instance instance, User currentUser) {
+        if (!instance.getState().isFailed()) return;
+        State stateBeforeFailure = instance.getStateBeforeFailure();
+        if (!stateBeforeFailure.canBeRetried()) return;
+        updateState(instance, stateBeforeFailure.getName(), currentUser);
     }
 }
