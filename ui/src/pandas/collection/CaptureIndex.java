@@ -18,33 +18,35 @@ public class CaptureIndex {
     private String baseUrl = "http://winch.nla.gov.au:9901/trove";
 
     public List<Capture> query(String q) {
-        StringBuilder url = new StringBuilder();
+        List<String> urls = new ArrayList<>();
         Set<String> digests = new HashSet<>();
         for (String word : q.split(" ")) {
             if (word.startsWith("digest:")) {
                 digests.add(word.substring("digest:".length()));
             } else {
-                if (url.length() > 0) url.append(" ");
-                url.append(word);
+                urls.add(word);
             }
         }
 
-        String qUrl = baseUrl + "?url=" + URLEncoder.encode(url.toString(), UTF_8);
-        try (var reader = new BufferedReader(new InputStreamReader(new URL(qUrl).openStream(), UTF_8))) {
-            List<Capture> captures = new ArrayList<>();
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) break;
-                Capture capture = new Capture(line);
-                if (!digests.isEmpty() && !digests.contains(capture.getDigest())) continue;
-                captures.add(capture);
+        List<Capture> captures = new ArrayList<>();
+        for (String url : urls) {
+            String qUrl = baseUrl + "?url=" + URLEncoder.encode(url.toString(), UTF_8);
+            try (var reader = new BufferedReader(new InputStreamReader(new URL(qUrl).openStream(), UTF_8))) {
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null) break;
+                    Capture capture = new Capture(line);
+                    if (!digests.isEmpty() && !digests.contains(capture.getDigest())) continue;
+                    captures.add(capture);
+                }
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
-            Collections.reverse(captures);
-            return captures;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        captures.sort(Comparator.comparing(Capture::getUrl)
+                .thenComparing(Comparator.comparing(Capture::getDate).reversed()));
+        return captures;
     }
 }

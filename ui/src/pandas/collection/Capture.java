@@ -6,6 +6,7 @@ import pandas.util.DateFormats;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Capture {
@@ -101,5 +102,18 @@ public class Capture {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    Pattern piMatcher = Pattern.compile("(http://pandora\\.nla\\.gov\\.au/pan/[0-9]+/).*");
+
+    public String getDigestQuery() {
+        if (getHost() == null) return null;
+        if (getDigest() == null) return null;
+        String pandoraBit = "";
+        Matcher m = piMatcher.matcher(url);
+        if (m.matches()) {
+            pandoraBit = m.group(1) + "* ";
+        }
+        return pandoraBit + getHost() + "/* digest:" + getDigest();
     }
 }

@@ -61,7 +61,7 @@
             <td th:text="${capture.contentType}">text/html</td>
             <td>
                 <a th:if="${capture.host != null && capture.digest != null}"
-                   th:href="@{/pages(url=${capture.host + '/* digest:' + capture.digest})}"
+                   th:href="@{/pages(url=${capture.digestQuery})}"
                    th:title="${capture.digest}" th:text="${capture.digest.substring(0,8)}"
                    style="font-family: monospace">EF7YLJG</a>
                 <a th:unless="${capture.host != null && capture.digest != null}"
