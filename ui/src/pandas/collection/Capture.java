@@ -3,7 +3,10 @@ package pandas.collection;
 import org.springframework.http.HttpStatus;
 import pandas.util.DateFormats;
 
+import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
+import java.util.regex.Pattern;
 
 public class Capture {
 
@@ -89,5 +92,14 @@ public class Capture {
 
     public String getFile() {
         return file;
+    }
+
+    public String getHost() {
+        try {
+            return URI.create(url.replaceFirst("^http://pandora\\.nla\\.gov\\.au/pan/\\d+/[0-9-]+/", "http://"))
+                    .getHost();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
