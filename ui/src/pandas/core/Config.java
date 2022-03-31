@@ -15,7 +15,8 @@ public class Config {
     private String autologin;
     private String workingAreaUrl = "https://pandas.nla.gov.au/view/";
     private String qaReplayUrl = "https://pwb.archive.org.au/";
-    private Path working = Paths.get("data/working");
+    private Path dataPath;
+    private Path working;
 
     public String getAutologin() {
         return autologin;
@@ -66,10 +67,19 @@ public class Config {
     }
 
     public Path getWorking() {
+        if (working == null) return getDataPath().resolve("working");
         return working;
     }
 
     public void setWorking(Path working) {
         this.working = working;
+    }
+
+    public Path getDataPath() {
+        return dataPath;
+    }
+
+    public void setDataPath(Path dataPath) {
+        this.dataPath = dataPath;
     }
 }

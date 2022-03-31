@@ -182,7 +182,7 @@ public class InstanceController {
                         @RequestParam(name = "q", defaultValue = "") String q,
                         @RequestParam MultiValueMap<String, String> params,
                         Model model) throws IOException, ParseException {
-        Path indexDir = Paths.get("data/filedex/" + instance.getId());
+        Path indexDir = config.getDataPath().resolve("fileindex").resolve(instance.getHumanId());
         var index = new FileSeacher(indexDir);
         FileSeacher.Results results;
         try {
