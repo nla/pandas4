@@ -36,12 +36,31 @@
     </a>
 
     <table>
-        <tr><th>State:</th><td th:text="${instance.state.name}">gathered</td></tr>
-        <tr><th>Method:</th><td th:text="${instance.gatherMethodName}">HTTrack</td></tr>
-        <tr><th>Size:</th><td th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></td></tr>
-        <tr><th>Files:</th><td th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></td></tr>
-        <tr><th>Time:</th><td th:text="${instance?.gather?.timeHuman}"></td></tr>
-        <tr><th>TEP URL:</th><td th:text="${instance.tepUrl}"></td></tr>
+        <tr>
+            <th>State:</th>
+            <td th:text="${instance.state.name}">gathered</td>
+        </tr>
+        <tr>
+            <th>Method:</th>
+            <td th:text="${instance.gatherMethodName}">HTTrack</td>
+        </tr>
+        <tr>
+            <th>Size:</th>
+            <td th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></td>
+        </tr>
+        <tr>
+            <th>Files:</th>
+            <td><a th:href="${@link.files(instance)}"
+                   th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></a></td>
+        </tr>
+        <tr>
+            <th>Time:</th>
+            <td th:text="${instance?.gather?.timeHuman}"></td>
+        </tr>
+        <tr>
+            <th>TEP URL:</th>
+            <td th:text="${instance.tepUrl}"></td>
+        </tr>
     </table>
 
     <style>

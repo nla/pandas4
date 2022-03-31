@@ -2,6 +2,10 @@ package pandas.core;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import pandas.gather.Instance;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Configuration
 @ConfigurationProperties(prefix = "pandas")
@@ -11,6 +15,7 @@ public class Config {
     private String autologin;
     private String workingAreaUrl = "https://pandas.nla.gov.au/view/";
     private String qaReplayUrl = "https://pwb.archive.org.au/";
+    private Path working = Paths.get("data/working");
 
     public String getAutologin() {
         return autologin;
@@ -54,5 +59,17 @@ public class Config {
 
     public void setWorkingAreaUrl(String workingAreaUrl) {
         this.workingAreaUrl = workingAreaUrl;
+    }
+
+    public Path getWorkingDir(Instance instance) {
+        return getWorking().resolve(String.valueOf(instance.getPi())).resolve(instance.getDateString());
+    }
+
+    public Path getWorking() {
+        return working;
+    }
+
+    public void setWorking(Path working) {
+        this.working = working;
     }
 }

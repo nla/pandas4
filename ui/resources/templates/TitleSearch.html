@@ -28,26 +28,32 @@
         <input type=search name="q" th:value="${q}" placeholder="Search Titles" data-keybind="f" form=sf>
     </header>
 
-    <aside class="facets">
+    <aside class="facets" th:fragment="facets">
         <header>
             <h3>Filters</h3>
             <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
         </header>
-        <details th:each="facet: ${facets}" th:if="${facet.visible}" th:open="${facet.active}" open>
-            <summary ><th:block th:text="${facet.name}">Subject</th:block><input form="sf" type="search" th:if="${facet.searchable}" th:value="${facet.search}" th:name="|${facet.param}.name|" placeholder="Search..."></summary>
-            <fieldset th:if="${facet.type == 'date'}" class="date-range">
+        <details th:each="filter: ${facets}" th:if="${filter.visible}" th:open="${filter.active}" open>
+            <summary>
+                <th:block th:text="${filter.name}">Subject</th:block>
+                <input form="sf" type="search" th:if="${filter.searchable}" th:value="${filter.search}"
+                       th:name="|${filter.param}.name|" placeholder="Search..."></summary>
+            <fieldset th:if="${filter.type == 'date'}" class="date-range">
                 <!--suppress ThymeleafVariablesResolveInspection -->
-                <input form="sf" th:name="${facet.param + '.start'}" th:value="${facet.start}" type=date>
+                <input form="sf" th:name="${filter.param + '.start'}" th:value="${filter.start}" type=date>
                 <span>&mdash;</span>
                 <!--suppress ThymeleafVariablesResolveInspection -->
-                <input form="sf"  th:name="${facet.param + '.end'}" th:value="${facet.end}" type=date>
+                <input form="sf" th:name="${filter.param + '.end'}" th:value="${filter.end}" type=date>
                 <button form="sf" type=submit class="btn btn-primary btn-sm">Apply</button>
             </fieldset>
-            <fieldset th:if="${facet.type == 'entity'}">
-                <label th:each="entry: ${facet.entries}">
-                    <input form="sf" type=checkbox th:name="${facet.param}" th:value="${entry.id}" th:checked="${entry.active}">
+            <fieldset th:if="${filter.type == 'entity'}">
+                <label th:each="entry: ${filter.entries}">
+                    <input form="sf" type=checkbox th:name="${filter.param}" th:value="${entry.id}"
+                           th:checked="${entry.active}">
                     <th:block th:text="${entry.name}">Sport</th:block>
-                    <th:block th:if="${entry.count != null}" th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)</th:block>
+                    <th:block th:if="${entry.count != null}"
+                              th:text="|(${#numbers.formatInteger(entry.count, 0, 'COMMA')})|">(2,321)
+                    </th:block>
                 </label>
             </fieldset>
         </details>
@@ -161,25 +167,5 @@
                     th:disabled="${!results.hasNext()}">Next<i class="icon icon-right next"></i></button>
         </nav>
     </section>
-    <script>
-        // omit empty/default fields from the query string for cleaner URLs
-        function omitEmptyFields() {
-            document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => { if (!field.value) { field.name = ""; }});
-            document.querySelectorAll('select.auto-submit').forEach(field => { if (field.value === field.dataset.default) { field.name = ""; }});
-        }
-        document.getElementById("sf").onsubmit = omitEmptyFields;
-
-        // clear all
-        document.getElementById("filter-clear-button").onclick = function() {
-            document.querySelectorAll('.facets input[type=checkbox]').forEach(cb => cb.checked = false);
-            document.querySelectorAll('.facets input[type=date], .facets input[type=search]').forEach(field => field.value = "");
-            omitEmptyFields();
-            this.form.submit();
-        }
-
-        // auto-submit when checkboxes are clicked
-        document.querySelectorAll(".facets input[type='checkbox'], .auto-submit").forEach(field =>
-            field.onchange = function() { omitEmptyFields(); this.form.submit(); });
-
-    </script>
 </main>
+<script th:src="@{/assets/Search.js}" src="../static/assets/Search.js"></script>

@@ -73,7 +73,7 @@ public class EntityFacet<T> extends Facet {
         List<FacetEntry> entries = new ArrayList<>();
         for (T entity : lookupFunction.apply(idSet)) {
             Long id = idFunction.apply(entity);
-            entries.add(new FacetEntry(id, nameFunction.apply(entity), counts.get(id), activeIds.contains(id)));
+            entries.add(new FacetEntry(id.toString(), nameFunction.apply(entity), counts.get(id), activeIds.contains(id)));
         }
         entries.sort(comparing(FacetEntry::isActive)
                 .thenComparing(FacetEntry::getCount, nullsFirst(naturalOrder()))

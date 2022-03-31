@@ -67,9 +67,12 @@
                     <a>jsmith</a>
                 </td>
                 <td style="text-align: center">
-                    <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"><img th:src="${@link.thumbnail(instance, 'REPLAY')}" width=150 height=100></a><br>
-                    <time th:text="${@dateFormats.shortDate(instance.date)}"></time><br>
-                    <span class="gather-stats" th:if="${instance.gather != null}" th:text="${instance.gather.stats}">1,234 files 10 MB</span>
+                    <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"><img
+                            th:src="${@link.thumbnail(instance, 'REPLAY')}" width=150 height=100></a><br>
+                    <time th:text="${@dateFormats.shortDate(instance.date)}"></time>
+                    <br>
+                    <a class="gather-stats" th:if="${instance.gather != null}" th:href="${@link.files(instance)}"
+                       th:text="${instance.gather.stats}">1,234 files 10 MB</a>
                 </td>
                 <td style="text-align: center; vertical-align: top">
                     <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>

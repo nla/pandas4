@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .vsplitter {
+            display: flex;
+        }
+
+        .vsplitter > div {
+            box-sizing: border-box;
+            flex: 1 1 auto;
+        }
+
+        .vsplitter > .handle {
+            cursor: ew-resize;
+            flex: 0 0 auto;
+            background: #ccc;
+            width: 5px;
+            border: 1px solid #999;
+        }
+
+        table td {
+            background: #ddd;
+            padding: 0px 2px;
+        }
+
+        summary {
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="vsplitter">
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <td>Time</td>
+                <td>Status</td>
+                <td>Size</td>
+                <td>URL</td>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="handle"></div>
+    <div>
+        <details>
+            <summary>Type</summary>
+            <table>
+                <tr>
+                    <td><label><input type="checkbox"> HTML</label></td>
+                    <td>50</td>
+                    <td>1 MB</td>
+                </tr>
+                <tr>
+                    <td><label><input type="checkbox"> Images</label></td>
+                    <td>50</td>
+                    <td>1 MB</td>
+                </tr>
+            </table>
+        </details>
+        <details>
+            <summary>Status</summary>
+            <table>
+                <tr>
+                    <td><label><input type="checkbox"> 200 OK</label></td>
+                    <td>50</td>
+                    <td>1 MB</td>
+                </tr>
+                <tr>
+                    <td><label><input type="checkbox"> 404 Not Found</label></td>
+                    <td>50</td>
+                    <td>1 MB</td>
+                </tr>
+            </table>
+        </details>
+    </div>
+</div>
+
+<script>
+    let activeDragHandle;
+    document.querySelectorAll('.vsplitter > .handle').forEach(dragHandle => {
+        dragHandle.addEventListener('mousedown', function (e) {
+            activeDragHandle = dragHandle;
+        });
+    });
+    document.addEventListener('mouseup', function (e) {
+        activeDragHandle = null;
+    });
+    document.addEventListener('mousemove', function (event) {
+        if (!activeDragHandle) return false;
+        let splitter = activeDragHandle.parentElement;
+        let width = event.clientX - splitter.offsetLeft - activeDragHandle.clientWidth / 2;
+        let pane = activeDragHandle.previousElementSibling;
+        pane.style.flexGrow = 0;
+        pane.style.width = width + 'px';
+    });
+</script>
+
+</body>
+</html>

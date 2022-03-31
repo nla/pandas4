@@ -52,6 +52,10 @@ public class Link {
         return to(title) + "/edit";
     }
 
+    public String files(Instance instance) {
+        return to(instance) + "/files";
+    }
+
     public String icon(Subject subject) {
         return to(subject) + "/icon";
     }

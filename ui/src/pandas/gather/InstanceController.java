@@ -1,5 +1,9 @@
 package pandas.gather;
 
+import org.apache.lucene.index.IndexNotFoundException;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -7,16 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
 import pandas.agency.*;
 import pandas.collection.TitleRepository;
 import pandas.core.Config;
+import pandas.search.FileSeacher;
 import pandas.util.DateFormats;
 import pandas.util.Requests;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +43,7 @@ public class InstanceController {
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, InstanceThumbnailProcessor thumbnailProcessor, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
@@ -164,4 +170,48 @@ public class InstanceController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/instances/{id}/log")
+    public String log(@PathVariable("id") Instance instance, Model model) throws IOException, ParseException {
+        model.addAttribute("instance", instance);
+        return "InstanceFiles";
+    }
+
+    @GetMapping("/instances/{id}/files")
+    public String files(@PathVariable("id") Instance instance,
+                        @RequestParam(name = "q", defaultValue = "") String q,
+                        @RequestParam MultiValueMap<String, String> params,
+                        Model model) throws IOException, ParseException {
+        Path indexDir = Paths.get("data/filedex/" + instance.getId());
+        var index = new FileSeacher(indexDir);
+        FileSeacher.Results results;
+        try {
+            results = index.search(q, params);
+        } catch (IndexNotFoundException e) {
+            index.indexRecursively(config.getWorkingDir(instance));
+            results = index.search(q, params);
+        }
+
+        model.addAttribute("instance", instance);
+        model.addAttribute("results", results);
+        model.addAttribute("facets", results.facets());
+        return "InstanceFiles";
+    }
+
+    public record Hit(String url) {
+    }
+
+    @GetMapping(value = "/instances/{id}/crawl.log", produces = "text/plain")
+    @ResponseBody
+    public FileSystemResource crawlLog(@PathVariable("id") Instance instance) {
+        return new FileSystemResource(getCrawlLog(instance));
+    }
+
+    @NotNull
+    private Path getCrawlLog(Instance instance) {
+        return Paths.get("data/working/" + instance.getPi() + "/" +
+                instance.getDateString() + "/nla.arc-" + instance.getPi() + "-" +
+                instance.getDateString() + "/latest/logs/crawl.log");
+    }
+
 }
