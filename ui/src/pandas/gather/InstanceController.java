@@ -185,12 +185,8 @@ public class InstanceController {
         Path indexDir = config.getDataPath().resolve("fileindex").resolve(instance.getHumanId());
         var index = new FileSeacher(indexDir);
         FileSeacher.Results results;
-        try {
-            results = index.search(q, params);
-        } catch (IndexNotFoundException e) {
-            index.indexRecursively(config.getWorkingDir(instance));
-            results = index.search(q, params);
-        }
+        index.indexRecursively(config.getWorkingDir(instance));
+        results = index.search(q, params);
 
         model.addAttribute("instance", instance);
         model.addAttribute("results", results);

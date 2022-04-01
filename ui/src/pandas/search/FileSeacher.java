@@ -1,5 +1,7 @@
 package pandas.search;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
@@ -19,6 +21,7 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
+import org.h2.index.Index;
 import org.jetbrains.annotations.NotNull;
 import org.netpreserve.jwarc.MediaType;
 import org.netpreserve.jwarc.WarcReader;
@@ -30,13 +33,17 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,32 +56,81 @@ public class FileSeacher {
             new Filter("Content Type", "mime"),
             new Filter("Host", "host"));
     private static final Set<String> facetFields = FILTERS.stream().map(Filter::field).collect(Collectors.toUnmodifiableSet());
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger log = LoggerFactory.getLogger(FileSeacher.class);
     private final Directory directory;
     private final Analyzer analyzer = new StandardAnalyzer();
     private final FacetsConfig facetsConfig = new FacetsConfig();
+    private final File stateFile;
 
     public FileSeacher(Path index) throws IOException {
         this.directory = new MMapDirectory(index);
+        stateFile = index.resolve("state.json").toFile();
+    }
+
+    private static boolean isWarcFile(Path path) {
+        String filename = path.getFileName().toString();
+        return filename.endsWith(".warc.gz") || filename.endsWith(".warc.gz.open");
     }
 
     public void indexRecursively(Path warcDirectory) throws IOException {
         long start = System.nanoTime();
         var documentsAdded = new AtomicLong();
         try (var indexWriter = new IndexWriter(directory, new IndexWriterConfig(analyzer).setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND))) {
-            List<Path> warcs = Files.walk(warcDirectory)
-                    .filter(path -> path.getFileName().toString().endsWith(".warc.gz"))
-                    .toList();
-            warcs.parallelStream().forEach(path -> documentsAdded.addAndGet(indexWarc(indexWriter, path)));
-            log.info("{}ms elapsed adding {} records from {} WARCs in {}", (System.nanoTime() - start) / 1000000, documentsAdded, warcs.size(), warcDirectory);
+            var indexingState = loadState();
+            var filesToIndex = scanForUpdatedWarcFiles(warcDirectory, indexingState);
+            try {
+                filesToIndex.parallelStream()
+                        .forEach(path -> documentsAdded.addAndGet(indexWarc(indexWriter, warcDirectory, path, indexingState)));
+                log.info("{}ms elapsed adding {} records from {} WARCs in {}", (System.nanoTime() - start) / 1000000, documentsAdded, filesToIndex.size(), warcDirectory);
+
+            } finally {
+                saveState(indexingState);
+            }
         }
     }
 
-    private long indexWarc(IndexWriter indexWriter, Path path) {
+    @NotNull
+    private ArrayList<Path> scanForUpdatedWarcFiles(Path warcDirectory, Map<String, IndexingState> indexingState) throws IOException {
+        var allWarcFiles = Files.walk(warcDirectory)
+                .filter(FileSeacher::isWarcFile)
+                .toList();
+        var warcFilesToIndex = new ArrayList<Path>();
+        for (Path warcPath : allWarcFiles) {
+            long size = Files.size(warcPath);
+            String key = warcDirectory.relativize(warcPath).toString();
+            IndexingState fileState = indexingState.computeIfAbsent(key, k -> new IndexingState());
+            if (size > fileState.size) {
+                fileState.size = size;
+                indexingState.put(key, fileState);
+                warcFilesToIndex.add(warcPath);
+            }
+        }
+        return warcFilesToIndex;
+    }
+
+    private void saveState(Map<String, IndexingState> indexingState) throws IOException {
+        objectMapper.writeValue(stateFile, indexingState);
+    }
+
+    private ConcurrentHashMap<String, IndexingState> loadState() throws IOException {
+        try {
+            return objectMapper.readValue(stateFile,
+                    new TypeReference<>() {
+                    });
+        } catch (FileNotFoundException e) {
+            return new ConcurrentHashMap<>();
+        }
+    }
+
+    private long indexWarc(IndexWriter indexWriter, Path warcDirectory, Path path, ConcurrentHashMap<String, IndexingState> indexingState) {
         log.info("Indexing {}", path);
+        IndexingState fileState = indexingState.get(warcDirectory.relativize(path).toString());
         long documentsAdded = 0;
-        try (var warcReader = new WarcReader(path)) {
+        try (var channel = FileChannel.open(path)) {
+            channel.position(fileState.position);
+            var warcReader = new WarcReader(channel);
             for (var record : warcReader) {
                 if (record instanceof WarcResponse response && response.contentType().equals(MediaType.HTTP_RESPONSE)) {
                     var host = response.targetURI().getHost();
@@ -102,6 +158,7 @@ public class FileSeacher {
                     indexWriter.addDocument(facetsConfig.build(doc));
                     documentsAdded++;
                 }
+                fileState.position = warcReader.position();
             }
             return documentsAdded;
         } catch (IOException e) {
@@ -185,8 +242,7 @@ public class FileSeacher {
             }
         }
         queryBuilder.add(q.isBlank() ? new MatchAllDocsQuery() : parser.parse(q), Occur.MUST);
-        var query = queryBuilder.build();
-        return query;
+        return queryBuilder.build();
     }
 
     record Filter(String name, String field, Function<String, String> labelFunction) {
@@ -210,6 +266,18 @@ public class FileSeacher {
     }
 
     record Result(Instant date, String url, Integer status, Long size, String mime, String sha1) {
+    }
+
+    public static class IndexingState {
+        public long size;
+        public long position;
+
+        public IndexingState() {
+        }
+
+        public IndexingState(long size) {
+            this.size = size;
+        }
     }
 
     public static void main(String[] args) throws IOException {
