@@ -82,7 +82,12 @@ public class FileSeacher {
                     doc.add(new LongPoint("date", response.date().toEpochMilli()));
                     doc.add(new StoredField("date", response.date().toEpochMilli()));
                     doc.add(new TextField("url", response.target(), Field.Store.YES));
-                    String mime = response.http().contentType().base().toString();
+                    String mime;
+                    try {
+                        mime = response.http().contentType().base().toString();
+                    } catch (IllegalArgumentException e) {
+                        mime = "application/octet-stream";
+                    }
                     doc.add(new StringField("status", String.valueOf(response.http().status()), Field.Store.YES));
                     doc.add(new SortedSetDocValuesFacetField("facet_status", String.valueOf(response.http().status())));
                     doc.add(new StoredField("size", response.http().body().size()));
