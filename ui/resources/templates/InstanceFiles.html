@@ -12,6 +12,7 @@
             border: 1px solid var(--color-light-grey);
             border-radius: 0.25rem;
             border-spacing: 0;
+            margin-top: 4px;
         }
 
         .results-table td {
@@ -49,7 +50,11 @@
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
             <li><a th:href="${@link.to(instance)}"><span th:text="${instance.gatherMethodName}"></span> gather from
                 <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></a></li>
-            <li class="active">Files</li>
+            <li class="active">
+                <span th:text="${#numbers.formatInteger(results.totalHits(), 0, 'COMMA')}">16</span> files
+                (<span
+                    th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(results.totalSize())}">16 MB</span>)
+            </li>
         </ol>
         <div class="under-breadcrumbs">
             <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>

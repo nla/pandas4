@@ -91,6 +91,7 @@ public class FileSeacher {
                     doc.add(new StringField("status", String.valueOf(response.http().status()), Field.Store.YES));
                     doc.add(new SortedSetDocValuesFacetField("facet_status", String.valueOf(response.http().status())));
                     doc.add(new StoredField("size", response.http().body().size()));
+                    doc.add(new NumericDocValuesField("size", response.http().body().size()));
                     doc.add(new StringField("mime", mime, Field.Store.YES));
                     doc.add(new SortedSetDocValuesFacetField("facet_mime", mime));
                     doc.add(new TextField("host", host, Field.Store.YES));
@@ -116,7 +117,10 @@ public class FileSeacher {
 
             var facetsCollector = new FacetsCollector();
 
-            var topDocs = FacetsCollector.search(searcher, query, 100, facetsCollector);
+            var sizeStats = new DocValuesStats.LongDocValuesStats("size");
+            var sizeStatsCollector = new DocValuesStatsCollector(sizeStats);
+            var topDocs = FacetsCollector.search(searcher, query, 100,
+                    MultiCollector.wrap(sizeStatsCollector, facetsCollector));
             var facetCounts = new SortedSetDocValuesFacetCounts(state, facetsCollector);
             var facetResults = new ArrayList<FacetResults>();
 
@@ -159,7 +163,7 @@ public class FileSeacher {
                 }
             }
 
-            return new Results(topDocs.totalHits, resultList, facetResults);
+            return new Results(topDocs.totalHits.value, resultList, facetResults, sizeStats.sum());
         }
     }
 
@@ -196,8 +200,8 @@ public class FileSeacher {
         return reason == null ? code : code + " " + reason.getReasonPhrase();
     }
 
-    public record Results(TotalHits totalHits, List<Result> list,
-                          List<FacetResults> facets) implements Iterable<Result> {
+    public record Results(long totalHits, List<Result> list,
+                          List<FacetResults> facets, Long totalSize) implements Iterable<Result> {
         @NotNull
         @Override
         public Iterator<Result> iterator() {
