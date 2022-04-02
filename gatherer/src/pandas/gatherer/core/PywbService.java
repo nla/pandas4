@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import pandas.gather.Instance;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +21,7 @@ public class PywbService implements DisposableBean {
     private final Process process;
     private final Config config;
     private final PywbConfig pywbConfig;
+    private boolean started;
 
     public PywbService(Config config, PywbConfig pywbConfig) throws IOException {
         this.config = config;
@@ -34,6 +39,32 @@ public class PywbService implements DisposableBean {
                 .start();
     }
 
+    @SuppressWarnings("BusyWait")
+    private synchronized void waitUntilStarted() {
+        if (started) return;
+        for (int tries = 0; ; tries++) {
+            if (!process.isAlive()) {
+                throw new RuntimeException("Pywb exited with status " + process.exitValue());
+            }
+            try (SocketChannel socket = SocketChannel.open()) {
+                socket.connect(new InetSocketAddress(pywbConfig.getBindAddress(), pywbConfig.getPort()));
+                break;
+            } catch (ConnectException e) {
+                if (tries >= 600) {
+                    throw new UncheckedIOException("Timeout waiting for pywb to start", e);
+                }
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException("Interrupted waiting for pywb to start", ex);
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        started = true;
+    }
+
     public String collectionFor(Instance instance) {
         return instance.getTitle().getPi() + "-" + instance.getDateString();
     }
@@ -43,12 +74,13 @@ public class PywbService implements DisposableBean {
     }
 
     public String replayUrlFor(Instance instance) {
+        waitUntilStarted();
         String address = pywbConfig.getBindAddress();
         if (address.equals("0.0.0.0")) {
             address = "127.0.0.1";
         }
         return "http://" + address + ":" + pywbConfig.getPort() + "/" + collectionFor(instance) + "/mp_/" +
-               instance.getGatheredUrl();
+                instance.getGatheredUrl();
     }
 
     public void reindex(Instance instance) throws IOException {
