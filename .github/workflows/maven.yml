@@ -24,7 +24,7 @@ jobs:
       - name: Install httrack and ghostscript
         run: sudo apt-get install -y httrack ghostscript
       - name: Install pywb 2.6.5
-        run: sudo pip install pywb==2.6.5
+        run: sudo pip uninstall werkzeug; sudo pip install werkzeug==0.16.0 pywb==2.6.5
       - name: Cache local Maven repository
         uses: actions/cache@v2
         with:
