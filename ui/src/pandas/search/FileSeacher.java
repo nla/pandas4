@@ -21,13 +21,14 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
-import org.h2.index.Index;
 import org.jetbrains.annotations.NotNull;
 import org.netpreserve.jwarc.MediaType;
 import org.netpreserve.jwarc.WarcReader;
 import org.netpreserve.jwarc.WarcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -136,6 +137,7 @@ public class FileSeacher {
                     var host = response.targetURI().getHost();
                     var doc = new Document();
                     doc.add(new LongPoint("date", response.date().toEpochMilli()));
+                    doc.add(new SortedNumericDocValuesField("date", response.date().toEpochMilli()));
                     doc.add(new StoredField("date", response.date().toEpochMilli()));
                     doc.add(new TextField("url", response.target(), Field.Store.YES));
                     String mime;
@@ -166,7 +168,7 @@ public class FileSeacher {
         }
     }
 
-    public Results search(String q, MultiValueMap<String, String> filters) throws IOException {
+    public Results search(String q, MultiValueMap<String, String> filters, Pageable pageable) throws IOException {
         try (var indexReader = DirectoryReader.open(directory)) {
             var searcher = new IndexSearcher(indexReader);
             var state = new DefaultSortedSetDocValuesReaderState(indexReader);
@@ -176,8 +178,26 @@ public class FileSeacher {
 
             var sizeStats = new DocValuesStats.LongDocValuesStats("size");
             var sizeStatsCollector = new DocValuesStatsCollector(sizeStats);
-            var topDocs = FacetsCollector.search(searcher, query, 100,
-                    MultiCollector.wrap(sizeStatsCollector, facetsCollector));
+            int endOffset = (int) (pageable.getOffset() + pageable.getPageSize());
+
+            var sortFields = new ArrayList<SortField>();
+            for (var order : pageable.getSort()) {
+                switch (order.getProperty()) {
+                    case "date", "size" -> sortFields.add(new SortedNumericSortField(order.getProperty(),
+                            SortField.Type.LONG, order.isDescending()));
+                    default -> {
+                    }
+                }
+            }
+            Collector multiCollector = MultiCollector.wrap(sizeStatsCollector, facetsCollector);
+            TopDocs topDocs;
+            if (sortFields.isEmpty()) {
+                topDocs = FacetsCollector.search(searcher, query, endOffset, multiCollector);
+            } else {
+                topDocs = FacetsCollector.search(searcher, query,
+                        endOffset, new Sort(sortFields.toArray(new SortField[0])),
+                        multiCollector);
+            }
             var facetCounts = new SortedSetDocValuesFacetCounts(state, facetsCollector);
             var facetResults = new ArrayList<FacetResults>();
 
@@ -206,9 +226,9 @@ public class FileSeacher {
             }
 
             // Construct a result for each matching document
-            var resultList = new ArrayList<Result>(topDocs.scoreDocs.length);
-            for (var scoreDoc : topDocs.scoreDocs) {
-                Document doc = searcher.doc(scoreDoc.doc);
+            var resultList = new ArrayList<Result>(pageable.getPageSize());
+            for (int i = (int) pageable.getOffset(); i < endOffset && i < topDocs.scoreDocs.length; i++) {
+                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
                 if (doc != null) {
                     resultList.add(new Result(
                             Instant.ofEpochMilli((Long) doc.getField("date").numericValue()),
@@ -220,7 +240,7 @@ public class FileSeacher {
                 }
             }
 
-            return new Results(topDocs.totalHits.value, resultList, facetResults, sizeStats.sum());
+            return new Results(resultList, pageable, topDocs.totalHits.value, facetResults, sizeStats.sum());
         }
     }
 
@@ -256,12 +276,23 @@ public class FileSeacher {
         return reason == null ? code : code + " " + reason.getReasonPhrase();
     }
 
-    public record Results(long totalHits, List<Result> list,
-                          List<FacetResults> facets, Long totalSize) implements Iterable<Result> {
-        @NotNull
-        @Override
-        public Iterator<Result> iterator() {
-            return list.iterator();
+    public static final class Results extends PageImpl<Result> {
+        private final List<FacetResults> facets;
+        private final Long totalBytes;
+
+        public Results(List<Result> list, Pageable pageable, long totalHits,
+                       List<FacetResults> facets, Long totalBytes) {
+            super(list, pageable, totalHits);
+            this.facets = facets;
+            this.totalBytes = totalBytes;
+        }
+
+        public List<FacetResults> facets() {
+            return facets;
+        }
+
+        public Long totalBytes() {
+            return totalBytes;
         }
     }
 
@@ -285,6 +316,6 @@ public class FileSeacher {
         FileSystemUtils.deleteRecursively(indexPath);
         FileSeacher index = new FileSeacher(indexPath);
         index.indexRecursively(Paths.get(args[1]));
-        index.search("", new LinkedMultiValueMap<>());
+        index.search("", new LinkedMultiValueMap<>(), Pageable.ofSize(100));
     }
 }

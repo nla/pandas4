@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -181,12 +183,13 @@ public class InstanceController {
     public String files(@PathVariable("id") Instance instance,
                         @RequestParam(name = "q", defaultValue = "") String q,
                         @RequestParam MultiValueMap<String, String> params,
+                        @PageableDefault(size = 100) Pageable pageable,
                         Model model) throws IOException, ParseException {
         Path indexDir = config.getDataPath().resolve("fileindex").resolve(instance.getHumanId());
         var index = new FileSeacher(indexDir);
         FileSeacher.Results results;
         index.indexRecursively(config.getWorkingDir(instance));
-        results = index.search(q, params);
+        results = index.search(q, params, pageable);
 
         model.addAttribute("instance", instance);
         model.addAttribute("results", results);

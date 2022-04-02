@@ -3,6 +3,7 @@ package pandas.search;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.netpreserve.jwarc.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
@@ -47,10 +48,10 @@ public class FileSeacherTest {
         index.indexRecursively(warcDir);
         LinkedMultiValueMap<String, String> filters = new LinkedMultiValueMap<>();
         filters.add("status", "200");
-        var results = index.search("", filters);
-        assertEquals(1, results.list().size());
+        var results = index.search("", filters, Pageable.ofSize(100));
+        assertEquals(1, results.getNumberOfElements());
         assertEquals(new FileSeacher.Result(date, "http://example.org/", 200, (long) html.length, "text/html",
-                "NNO3EJ5GVIRCRR3XWB3RCCFRQSY7YXPT"), results.list().get(0));
+                "NNO3EJ5GVIRCRR3XWB3RCCFRQSY7YXPT"), results.toList().get(0));
     }
 
 }

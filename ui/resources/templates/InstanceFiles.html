@@ -8,6 +8,26 @@
     <link rel="stylesheet" href="../static/assets/TitleSearch.css" th:href="@{/assets/TitleSearch.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
+
+        .search {
+            height: 100vh;
+        }
+
+        .facets {
+            overflow: auto;
+        }
+
+        .results {
+            max-width: 100%;
+            overflow: auto;
+        }
+
+        .results thead td {
+            background: var(--color-gray-eee);
+            position: sticky;
+            top: 0;
+        }
+
         .results-table {
             border: 1px solid var(--color-light-grey);
             border-radius: 0.25rem;
@@ -36,30 +56,41 @@
         .results-table > thead {
             font-weight: bold;
         }
+
+        .sort-button {
+            border: none;
+            background: none !important;
+            color: var(--color-black);
+            font: inherit;
+            padding: 0 !important;
+            margin: 0;
+            min-width: 0;
+        }
+
+        button.sort-button:hover {
+            color: var(--color-black);
+        }
     </style>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main class="search">
     <header>
+        <nav class="pagination">
+            <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind=","
+                    th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
+                    tabindex="-1" th:disabled="${!results.hasPrevious()}"><i class="icon previous"></i>
+            </button>
+            <a href="#" class="btn btn-secondary"
+               th:text="'Page ' + ${results.pageable.pageNumber + 1} + ' of ' + ${results.totalPages}"
+               title="Go to QA Worktray (Ctrl+Up)"
+               data-keybind="Ctrl+ArrowUp">Page 1 of 4</a>
+            <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind="."
+                    th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}"
+                    th:disabled="${!results.hasNext()}"><i class="icon icon-right next"></i></button>
+        </nav>
+        <nav></nav>
     </header>
-
-    <nav class="breadcrumb">
-        <ol>
-            <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
-                   th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
-            <li><a th:href="${@link.to(instance)}"><span th:text="${instance.gatherMethodName}"></span> gather from
-                <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></a></li>
-            <li class="active">
-                <span th:text="${#numbers.formatInteger(results.totalHits(), 0, 'COMMA')}">16</span> files
-                (<span
-                    th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(results.totalSize())}">16 MB</span>)
-            </li>
-        </ol>
-        <div class="under-breadcrumbs">
-            <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
-        </div>
-    </nav>
 
     <form id="sf">
         <button type="submit" style="display: none"></button>
@@ -73,43 +104,200 @@
         <details open>
             <summary>Status Code</summary>
             <fieldset>
-                <label><input type=checkbox> 200 OK (30)</label>
-                <label><input type=checkbox> 404 Not Found (5)</label>
+                <label><input type=checkbox name="status" value="200" form="sf"> 200 OK (30)</label>
+                <label><input type=checkbox form="sf"> 404 Not Found (5)</label>
             </fieldset>
         </details>
-
     </aside>
 
     <section class="results">
-        <table class="results-table">
-            <thead>
-            <tr>
-                <td>Time</td>
-                <td>Status</td>
-                <td>Size</td>
-                <td>URL</td>
-                <td>MIME</td>
-                <!--            <td>Path</td>-->
-                <!--            <td>Via</td>-->
-                <!--            <td>Type</td>-->
-                <!--            <td>Worker</td>-->
-                <!--            <td>Fetch Time</td>-->
-                <!--            <td>Digest</td>-->
-                <!--            <td>Source Tag</td>-->
-                <!--            <td>Annotations</td>-->
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="result : ${results}">
-                <td th:text="${result.date()}">2022-03-29T07:52:44Z</td>
-                <td th:text="${result.status()}">200</td>
-                <td th:text="${result.size()}">12345</td>
-                <td th:text="${result.url()}">http://example.org/</td>
-                <td th:text="${result.mime()}">text/html</td>
-            </tr>
-
-            </tbody>
-        </table>
+        <nav class="breadcrumb">
+            <ol>
+                <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
+                       th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
+                <li><a th:href="${@link.to(instance)}"><span th:text="${instance.gatherMethodName}"></span> gather from
+                    <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></a></li>
+                <li class="active">
+                    <span th:text="${#numbers.formatInteger(results.totalBytes(), 0, 'COMMA')}">16</span> files
+                    (<span
+                        th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(results.totalBytes())}">16 MB</span>)
+                </li>
+            </ol>
+            <div class="under-breadcrumbs">
+                <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
+            </div>
+        </nav>
+        <div class="results-table-wrapper">
+            <table class="results-table">
+                <thead>
+                <tr>
+                    <td>
+                        <button form="sf" class="sort-button" type="submit" name="sort" value="time">Time</button>
+                    </td>
+                    <td>Status</td>
+                    <td>
+                        <button form="sf" class="sort-button" type="submit" name="sort" value="size">Size</button>
+                    </td>
+                    <td>URL</td>
+                    <td>MIME</td>
+                    <!--            <td>Path</td>-->
+                    <!--            <td>Via</td>-->
+                    <!--            <td>Type</td>-->
+                    <!--            <td>Worker</td>-->
+                    <!--            <td>Fetch Time</td>-->
+                    <!--            <td>Digest</td>-->
+                    <!--            <td>Source Tag</td>-->
+                    <!--            <td>Annotations</td>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="result : ${results}">
+                    <td th:text="${result.date()}">2022-03-29T07:52:44Z</td>
+                    <td th:text="${result.status()}">200</td>
+                    <td th:text="${result.size()}">12345</td>
+                    <td th:text="${result.url()}">
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td th:text="${result.mime()}">text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                <tr th:remove="all">
+                    <td>2022-03-29T07:52:44Z</td>
+                    <td>200</td>
+                    <td>12345</td>
+                    <td>
+                        https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
+                    </td>
+                    <td>text/html</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 </main>
 <script th:src="@{/assets/Search.js}" src="../static/assets/Search.js"></script>
