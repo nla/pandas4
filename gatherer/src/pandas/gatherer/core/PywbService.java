@@ -6,11 +6,13 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Service;
 import pandas.gather.Instance;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +24,7 @@ public class PywbService implements DisposableBean {
     private final Config config;
     private final PywbConfig pywbConfig;
     private boolean started;
+    private final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
 
     public PywbService(Config config, PywbConfig pywbConfig) throws IOException {
         this.config = config;
@@ -35,8 +38,19 @@ public class PywbService implements DisposableBean {
         process = new ProcessBuilder("pywb", "-b", pywbConfig.getBindAddress(),
                 "-p", String.valueOf(pywbConfig.getPort()))
                 .directory(working.toFile())
-                .inheritIO()
+                .redirectErrorStream(true)
+                .redirectOutput(ProcessBuilder.Redirect.PIPE)
                 .start();
+
+        Thread t = new Thread(() -> {
+            try {
+                process.getInputStream().transferTo(outputBuffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }, "Pywb output reader");
+        t.setDaemon(true);
+        t.start();
     }
 
     @SuppressWarnings("BusyWait")
@@ -44,7 +58,8 @@ public class PywbService implements DisposableBean {
         if (started) return;
         for (int tries = 0; ; tries++) {
             if (!process.isAlive()) {
-                throw new RuntimeException("Pywb exited with status " + process.exitValue());
+                throw new RuntimeException("Pywb exited with status " + process.exitValue() + " output: " +
+                        outputBuffer.toString(StandardCharsets.ISO_8859_1));
             }
             try (SocketChannel socket = SocketChannel.open()) {
                 socket.connect(new InetSocketAddress(pywbConfig.getBindAddress(), pywbConfig.getPort()));
