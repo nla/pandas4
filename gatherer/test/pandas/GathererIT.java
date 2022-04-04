@@ -48,8 +48,6 @@ public class GathererIT {
     @Autowired
     TitleRepository titleRepository;
     @Autowired
-    TepRepository tepRepository;
-    @Autowired
     InstanceRepository instanceRepository;
     @Autowired
     InstanceThumbnailRepository instanceThumbnailRepository;
