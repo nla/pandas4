@@ -129,6 +129,7 @@ public class Tep {
     }
 
     public Tep(Title title) {
+        this();
         this.title = title;
         displayTitle = title.getName();
     }
