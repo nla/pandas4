@@ -111,7 +111,7 @@ public class Title {
 
     // this exists for backwards compatiblity with PANDAS 3 which had a foreign key
     // in both tables for some reason
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "TEP_ID")
     private Tep legacyTepRelation;
 
@@ -420,7 +420,7 @@ public class Title {
     public Tep getTep() {
         if (tep == null) {
             tep = new Tep(this);
-            //legacyTepRelation = tep;
+            legacyTepRelation = tep;
         }
         return tep;
     }
