@@ -326,7 +326,7 @@ public class TitleGather {
         }
 
         // next try the title-level scheduled date
-        if (getSchedule() != null) {
+        if (getSchedule() != null && !getSchedule().isNone()) {
             Instant scheduledDate = getScheduledDate();
             // if we don't have a scheduled date or its out of date then recalculate it
             if (scheduledDate == null || (getLastGatherDate() != null && !scheduledDate.isAfter(getLastGatherDate()))) {
