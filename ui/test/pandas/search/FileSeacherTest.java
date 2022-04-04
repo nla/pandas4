@@ -9,6 +9,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -30,18 +31,32 @@ public class FileSeacherTest {
     public void test() throws IOException, NoSuchAlgorithmException {
         Instant date = Instant.parse("2020-08-30T12:34:56Z");
         byte[] html = "<h1>Hello world</h1>".getBytes(UTF_8);
+
+        var http = new HttpResponse.Builder(200, "OK")
+                .body(MediaType.HTML, html)
+                .build();
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        digest.update(html);
+        var response = new WarcResponse.Builder("http://example.org/")
+                .date(date)
+                .body(http)
+                .payloadDigest(new WarcDigest(digest))
+                .build();
+
+        var httpRequest = new HttpRequest.Builder("POST", "/")
+                .build();
+        var request = new WarcRequest.Builder("http://example.org/")
+                .concurrentTo(response.id())
+                .date(date)
+                .body(httpRequest)
+                .build();
+
+        long requestOffset;
         try (var writer = new WarcWriter(FileChannel.open(warcDir.resolve("test.warc.gz"), WRITE, CREATE), GZIP)) {
-            var http = new HttpResponse.Builder(200, "OK")
-                    .body(MediaType.HTML, html)
-                    .build();
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            digest.update(html);
-            var response = new WarcResponse.Builder("http://example.org/")
-                    .date(date)
-                    .body(http)
-                    .payloadDigest(new WarcDigest(digest))
-                    .build();
             writer.write(response);
+            requestOffset = writer.position();
+            writer.write(request);
+
         }
 
         var index = new FileSeacher(indexDir);
@@ -50,8 +65,12 @@ public class FileSeacherTest {
         filters.add("status", "200");
         var results = index.search("", filters, Pageable.ofSize(100));
         assertEquals(1, results.getNumberOfElements());
-        assertEquals(new FileSeacher.Result(date, "http://example.org/", 200, (long) html.length, "text/html",
-                "NNO3EJ5GVIRCRR3XWB3RCCFRQSY7YXPT"), results.toList().get(0));
+        FileSeacher.Result result = results.toList().get(0);
+        assertEquals(new FileSeacher.Result(response.id().toString().replaceFirst("^urn:uuid:", ""),
+                        date, "POST", "http://example.org/",
+                        200, (long) html.length, "html", "NNO3EJ5GVIRCRR3XWB3RCCFRQSY7YXPT",
+                        requestOffset, 0L, null, Paths.get("test.warc.gz")),
+                result);
     }
 
 }

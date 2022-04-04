@@ -134,12 +134,13 @@
                     <td>
                         <button form="sf" class="sort-button" type="submit" name="sort" value="time">Time</button>
                     </td>
-                    <td>Status</td>
+                    <td><abbr title="Status">St.</abbr></td>
                     <td>
                         <button form="sf" class="sort-button" type="submit" name="sort" value="size">Size</button>
                     </td>
+                    <td><abbr title="Method">Met.</abbr></td>
                     <td>URL</td>
-                    <td>MIME</td>
+                    <td>Type</td>
                     <!--            <td>Path</td>-->
                     <!--            <td>Via</td>-->
                     <!--            <td>Type</td>-->
@@ -151,14 +152,19 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="result : ${results}">
-                    <td th:text="${result.date()}">2022-03-29T07:52:44Z</td>
+                <tr th:each="result : ${results.toList()}">
+                    <td><a th:href="${@link.files(instance) + '/' + result.id()}"
+                           th:text="${@dateFormats.timeWithSeconds.format(result.date())}">2022-03-29T07:52:44Z</a></td>
                     <td th:text="${result.status()}">200</td>
-                    <td th:text="${result.size()}">12345</td>
+                    <td style="white-space: nowrap; text-align: right"
+                        th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(result.size()).replace(' bytes', ' B')}">
+                        12345
+                    </td>
+                    <td th:text="${result.method()}"></td>
                     <td th:text="${result.url()}">
                         https://www.nla.gov.au/sites/default/files/styles/teaser/public/media/images/2021-12/Kobunsha%27s%20Japanese%20fairy%20tale%20series_%20No.%2011_%20RB%20398.21%20JAP%20-%20nla.obj-122870968-m.png?h=74328444&itok=4IqR2zHW
                     </td>
-                    <td th:text="${result.mime()}">text/html</td>
+                    <td th:text="${result.type()}">html</td>
                 </tr>
                 <tr th:remove="all">
                     <td>2022-03-29T07:52:44Z</td>

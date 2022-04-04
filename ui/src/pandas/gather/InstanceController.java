@@ -1,8 +1,8 @@
 package pandas.gather;
 
-import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.jetbrains.annotations.NotNull;
+import org.netpreserve.jwarc.*;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,16 +18,21 @@ import org.springframework.web.bind.annotation.*;
 import pandas.agency.*;
 import pandas.collection.TitleRepository;
 import pandas.core.Config;
+import pandas.core.NotFoundException;
 import pandas.search.FileSeacher;
 import pandas.util.DateFormats;
 import pandas.util.Requests;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.springframework.http.CacheControl.maxAge;
@@ -93,7 +98,8 @@ public class InstanceController {
     public String delete(@PathVariable("id") Instance instance,
                          @RequestParam(value = "nextInstance", required = false) Long nextInstance,
                          @RequestParam(value = "worktray", required = false) String worktray) {
-        if (!instance.canDelete()) throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
+        if (!instance.canDelete())
+            throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
         instanceService.delete(instance, userService.getCurrentUser());
         if (nextInstance != null) {
             return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
@@ -104,7 +110,7 @@ public class InstanceController {
     @PostMapping("/instances/delete")
     public String deleteSelected(@RequestParam("instance") List<Instance> instances) {
         var user = userService.getCurrentUser();
-        for (var instance: instances) {
+        for (var instance : instances) {
             instanceService.delete(instance, userService.getCurrentUser());
         }
         return "redirect:" + Requests.backlinkOrDefault("/instances");
@@ -125,7 +131,7 @@ public class InstanceController {
     @PostMapping("/instances/archive")
     public String archiveSelected(@RequestParam("instance") List<Instance> instances) {
         var user = userService.getCurrentUser();
-        for (var instance: instances) {
+        for (var instance : instances) {
             instanceService.archive(instance, user);
         }
         return "redirect:" + Requests.backlinkOrDefault("/instances");
@@ -142,7 +148,7 @@ public class InstanceController {
 
     @GetMapping("/instances/{id}/thumbnail")
     public ResponseEntity<byte[]> getThumbnail(@PathVariable("id") Instance instance,
-                                               @RequestParam(name="type", required = false) InstanceThumbnail.Type type) {
+                                               @RequestParam(name = "type", required = false) InstanceThumbnail.Type type) {
         Optional<InstanceThumbnail> thumbnail;
         if (type == null) {
             thumbnail = instanceThumbnailRepository.findByInstanceAndType(instance, REPLAY)
@@ -185,10 +191,8 @@ public class InstanceController {
                         @RequestParam MultiValueMap<String, String> params,
                         @PageableDefault(size = 100) Pageable pageable,
                         Model model) throws IOException, ParseException {
-        Path indexDir = config.getDataPath().resolve("fileindex").resolve(instance.getHumanId());
-        var index = new FileSeacher(indexDir);
+        FileSeacher index = buildFileIndex(instance);
         FileSeacher.Results results;
-        index.indexRecursively(config.getWorkingDir(instance));
         results = index.search(q, params, pageable);
 
         model.addAttribute("instance", instance);
@@ -196,6 +200,83 @@ public class InstanceController {
         model.addAttribute("facets", results.facets());
         return "InstanceFiles";
     }
+
+    @GetMapping("/instances/{instanceId}/files/{fileId}")
+    public String file(@PathVariable("instanceId") Instance instance,
+                       @PathVariable("fileId") String fileId,
+                       Model model) throws IOException, ParseException {
+        FileSeacher index = buildFileIndex(instance);
+        var result = index.searchById(fileId).orElseThrow(NotFoundException::new);
+        Path warc = config.getWorkingDir(instance).resolve(result.warcFile());
+
+        String requestHeaders = null;
+        if (result.requestOffset() != null) {
+            try (var reader = new WarcReader(FileChannel.open(warc).position(result.requestOffset()))) {
+                requestHeaders = reader.next()
+                        .map(r -> {
+                            try {
+                                return new String(r.serializeHeader(), ISO_8859_1)
+                                        + new String(((WarcRequest) r).http().serializeHeader(), ISO_8859_1);
+                            } catch (IOException e) {
+                                throw new UncheckedIOException(e);
+                            }
+                        })
+                        .orElse(null);
+            }
+        }
+
+        String responseHeaders = null;
+        if (result.responseOffset() != null) {
+            try (var channel = FileChannel.open(warc)) {
+                channel.position(result.responseOffset());
+                responseHeaders = new WarcReader(channel).next()
+                        .map(r -> {
+                            try {
+                                return new String(r.serializeHeader(), ISO_8859_1)
+                                        + new String(((WarcResponse) r).http().serializeHeader(), ISO_8859_1);
+                            } catch (IOException e) {
+                                throw new UncheckedIOException(e);
+                            }
+                        })
+                        .orElse(null);
+            }
+        }
+
+        String metadataHeaders = null;
+        if (result.metadataOffset() != null) {
+            try (var channel = FileChannel.open(warc)) {
+                channel.position(result.metadataOffset());
+                metadataHeaders = new WarcReader(channel).next()
+                        .map(r -> {
+                            try {
+                                return new String(r.serializeHeader(), ISO_8859_1)
+                                        + new String(r.body().stream().readAllBytes(), ISO_8859_1);
+                            } catch (IOException e) {
+                                throw new UncheckedIOException(e);
+                            }
+                        })
+                        .orElse(null);
+            }
+        }
+
+
+        model.addAttribute("instance", instance);
+        model.addAttribute("result", result);
+        model.addAttribute("requestHeaders", requestHeaders);
+        model.addAttribute("responseHeaders", responseHeaders);
+        model.addAttribute("metadataHeaders", metadataHeaders);
+        return "FileView";
+    }
+
+    @NotNull
+    private FileSeacher buildFileIndex(Instance instance) throws IOException {
+        Path indexDir = config.getDataPath().resolve("fileindex").resolve(instance.getHumanId());
+        var index = new FileSeacher(indexDir);
+        FileSeacher.Results results;
+        index.indexRecursively(config.getWorkingDir(instance));
+        return index;
+    }
+
 
     public record Hit(String url) {
     }

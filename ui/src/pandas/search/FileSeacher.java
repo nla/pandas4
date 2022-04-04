@@ -17,14 +17,12 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.simple.SimpleQueryParser;
-import org.apache.lucene.search.*;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.jetbrains.annotations.NotNull;
-import org.netpreserve.jwarc.MediaType;
-import org.netpreserve.jwarc.WarcReader;
-import org.netpreserve.jwarc.WarcResponse;
+import org.netpreserve.jwarc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
@@ -33,11 +31,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import pandas.util.Strings;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,8 +53,8 @@ import static java.util.Collections.emptyList;
 
 public class FileSeacher {
     private static final List<Filter> FILTERS = List.of(
-            new Filter("Status Code", "status", FileSeacher::labelForStatus),
-            new Filter("Content Type", "mime"),
+            new Filter("Status", "status", FileSeacher::labelForStatus),
+            new Filter("Type", "type"),
             new Filter("Host", "host"));
     private static final Set<String> facetFields = FILTERS.stream().map(Filter::field).collect(Collectors.toUnmodifiableSet());
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -125,6 +125,33 @@ public class FileSeacher {
         }
     }
 
+    private static class ConcurrentSet {
+        private final HashSet<URI> set = new HashSet<>();
+
+        boolean contains(WarcRecord record) {
+            if (set.contains(record.id())) {
+                return true;
+            } else if (record instanceof WarcCaptureRecord capture) {
+                for (var id : capture.concurrentTo()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        boolean checkAndAdd(WarcRecord record) {
+            boolean isConcurrent = contains(record);
+            if (!isConcurrent) {
+                set.clear();
+            }
+            set.add(record.id());
+            if (record instanceof WarcCaptureRecord capture) {
+                set.addAll(capture.concurrentTo());
+            }
+            return isConcurrent;
+        }
+    }
+
     private long indexWarc(IndexWriter indexWriter, Path warcDirectory, Path path, ConcurrentHashMap<String, IndexingState> indexingState) {
         log.info("Indexing {}", path);
         IndexingState fileState = indexingState.get(warcDirectory.relativize(path).toString());
@@ -132,39 +159,71 @@ public class FileSeacher {
         try (var channel = FileChannel.open(path)) {
             channel.position(fileState.position);
             var warcReader = new WarcReader(channel);
-            for (var record : warcReader) {
-                if (record instanceof WarcResponse response && response.contentType().equals(MediaType.HTTP_RESPONSE)) {
+            var concurrentSet = new ConcurrentSet();
+            var doc = new Document();
+            boolean seenResource = false;
+            for (WarcRecord record : warcReader) {
+                if (!concurrentSet.checkAndAdd(record)) {
+                    if (seenResource) {
+                        indexWriter.addDocument(facetsConfig.build(doc));
+                        documentsAdded++;
+                    }
+                    doc.clear();
+                    seenResource = false;
+                }
+
+                if (record instanceof WarcMetadata) {
+                    doc.add(new StoredField("metadataOffset", warcReader.position()));
+                } else if (record instanceof WarcRequest request && request.contentType().equals(MediaType.HTTP_REQUEST)) {
+                    doc.add(new StringField("method", request.http().method(), Field.Store.YES));
+                    doc.add(new StoredField("requestOffset", warcReader.position()));
+                } else if (record instanceof WarcResponse response && response.contentType().equals(MediaType.HTTP_RESPONSE)) {
+                    seenResource = true;
                     var host = response.targetURI().getHost();
-                    var doc = new Document();
+                    doc.add(new StringField("responseId", Strings.removePrefix("urn:uuid:", response.id().toString()), Field.Store.YES));
+                    doc.add(new StoredField("responseOffset", warcReader.position()));
+                    doc.add(new StoredField("warcFile", warcDirectory.relativize(path).toString()));
                     doc.add(new LongPoint("date", response.date().toEpochMilli()));
                     doc.add(new SortedNumericDocValuesField("date", response.date().toEpochMilli()));
                     doc.add(new StoredField("date", response.date().toEpochMilli()));
                     doc.add(new TextField("url", response.target(), Field.Store.YES));
-                    String mime;
+                    String type;
                     try {
-                        mime = response.http().contentType().base().toString();
+                        type = response.http().contentType().subtype();
                     } catch (IllegalArgumentException e) {
-                        mime = "application/octet-stream";
+                        type = "octet-stream";
                     }
                     doc.add(new StringField("status", String.valueOf(response.http().status()), Field.Store.YES));
                     doc.add(new SortedSetDocValuesFacetField("facet_status", String.valueOf(response.http().status())));
                     doc.add(new StoredField("size", response.http().body().size()));
                     doc.add(new NumericDocValuesField("size", response.http().body().size()));
-                    doc.add(new StringField("mime", mime, Field.Store.YES));
-                    doc.add(new SortedSetDocValuesFacetField("facet_mime", mime));
+                    doc.add(new StringField("type", type, Field.Store.YES));
+                    doc.add(new SortedSetDocValuesFacetField("facet_type", type));
                     doc.add(new TextField("host", host, Field.Store.YES));
                     doc.add(new SortedSetDocValuesFacetField("facet_host", host));
                     response.payloadDigest().ifPresent(digest ->
                             doc.add(new TextField(digest.algorithm(), digest.base32(), Field.Store.YES)));
                     doc.add(new StoredField("position", warcReader.position()));
-                    indexWriter.addDocument(facetsConfig.build(doc));
-                    documentsAdded++;
                 }
                 fileState.position = warcReader.position();
             }
+            if (seenResource) {
+                indexWriter.addDocument(facetsConfig.build(doc));
+                documentsAdded++;
+            }
+
             return documentsAdded;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    public Optional<Result> searchById(String id) throws IOException {
+        try (var indexReader = DirectoryReader.open(directory)) {
+            var searcher = new IndexSearcher(indexReader);
+            var topDocs = searcher.search(new TermQuery(new Term("responseId", id)), 1);
+            if (topDocs.scoreDocs.length == 0) return Optional.empty();
+            return Optional.of(new Result(searcher.doc(topDocs.scoreDocs[0].doc)));
         }
     }
 
@@ -230,13 +289,7 @@ public class FileSeacher {
             for (int i = (int) pageable.getOffset(); i < endOffset && i < topDocs.scoreDocs.length; i++) {
                 Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
                 if (doc != null) {
-                    resultList.add(new Result(
-                            Instant.ofEpochMilli((Long) doc.getField("date").numericValue()),
-                            doc.get("url"),
-                            Integer.parseInt(doc.get("status")),
-                            (Long) doc.getField("size").numericValue(),
-                            doc.get("mime"),
-                            doc.get("sha1")));
+                    resultList.add(new Result(doc));
                 }
             }
 
@@ -296,7 +349,28 @@ public class FileSeacher {
         }
     }
 
-    record Result(Instant date, String url, Integer status, Long size, String mime, String sha1) {
+    public record Result(String id, Instant date, String method, String url, Integer status, Long size, String type,
+                         String sha1, Long requestOffset, Long responseOffset, Long metadataOffset, Path warcFile) {
+        Result(Document doc) {
+            this(doc.get("responseId"),
+                    Instant.ofEpochMilli((Long) doc.getField("date").numericValue()),
+                    doc.get("method"),
+                    doc.get("url"),
+                    Integer.parseInt(doc.get("status")),
+                    (Long) doc.getField("size").numericValue(),
+                    doc.get("type"),
+                    doc.get("sha1"),
+                    getLongField(doc, "requestOffset"),
+                    getLongField(doc, "responseOffset"),
+                    getLongField(doc, "metadataOffset"),
+                    Paths.get(doc.get("warcFile")));
+        }
+    }
+
+    private static Long getLongField(Document doc, String name) {
+        var field = doc.getField(name);
+        if (field == null) return null;
+        return (Long) field.numericValue();
     }
 
     public static class IndexingState {
