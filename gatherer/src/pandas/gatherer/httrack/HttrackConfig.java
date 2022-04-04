@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 @Configuration
 @ConfigurationProperties(prefix = "httrack")
 public class HttrackConfig {
-    private Path executable = Paths.get("/usr/bin/httrack");
+    private Path executable = Paths.get("httrack");
     private int workers = 20;
 
     public Path getExecutable() {
