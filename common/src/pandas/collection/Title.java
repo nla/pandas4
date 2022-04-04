@@ -420,6 +420,7 @@ public class Title {
     public Tep getTep() {
         if (tep == null) {
             tep = new Tep(this);
+            legacyTepRelation = tep;
         }
         return tep;
     }
