@@ -110,7 +110,7 @@ public class Tep {
      * The title this TEP corresponds to.
      */
     @OneToOne
-    @JoinColumn(name = "TITLE_ID")
+    @JoinColumn(name = "TITLE_ID", nullable = false)
     private Title title;
 
     @ManyToOne

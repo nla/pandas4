@@ -153,7 +153,8 @@ public class InstanceService {
         instanceRepository.save(instance);
 
         // create a TEP too if needed
-        if (title.getTep().getId() == null) {
+        if (title.getLegacyTepRelation() == null) {
+            title.setLegacyTepRelation(title.getTep());
             titleRepository.save(title);
         }
     }
