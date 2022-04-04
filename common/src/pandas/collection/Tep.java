@@ -128,6 +128,11 @@ public class Tep {
         displayDate = Instant.now();
     }
 
+    public Tep(Title title) {
+        this.title = title;
+        displayTitle = title.getName();
+    }
+
     public Long getId() {
         return id;
     }
@@ -250,10 +255,6 @@ public class Tep {
 
     public Title getTitle() {
         return title;
-    }
-
-    public void setTitle(Title title) {
-        this.title = title;
     }
 
     public CopyrightType getCopyrightType() {

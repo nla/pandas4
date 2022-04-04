@@ -419,8 +419,7 @@ public class Title {
 
     public Tep getTep() {
         if (tep == null) {
-            tep = new Tep();
-            tep.setTitle(this);
+            tep = new Tep(this);
         }
         return tep;
     }
@@ -783,12 +782,6 @@ public class Title {
         if (getGather() == null) return false;
         if (getGather().getSchedule() == null) return false;
         return !"None".equals(getGather().getSchedule().getName());
-    }
-
-    public void setTep(Tep tep) {
-        if (Objects.equals(this.tep, tep)) return;
-        this.tep = tep;
-        tep.setTitle(this);
     }
 
     public List<StatusHistory> getStatusHistories() {
