@@ -62,8 +62,9 @@ public class HeritrixGatherer implements Backend {
 
         HeritrixClient.Job job = null;
         try {
-            if (heritrix.getJob(instance.getHumanId()).crawlControllerState == RUNNING) {
-                log.info("job {} already RUNNING, assuming gatherer was restarted and resuming monitoring.", instance.getHumanId());
+            HeritrixClient.State currentState = heritrix.getJob(instance.getHumanId()).crawlControllerState;
+            if (currentState == RUNNING || currentState == FINISHED) {
+                log.info("job {} already " + currentState + ", assuming gatherer was restarted and resuming monitoring.", instance.getHumanId());
             } else {
                 heritrix.buildJob(instance.getHumanId());
                 heritrix.launchJob(instance.getHumanId());
