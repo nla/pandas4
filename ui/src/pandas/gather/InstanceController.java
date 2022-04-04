@@ -189,7 +189,7 @@ public class InstanceController {
     public String files(@PathVariable("id") Instance instance,
                         @RequestParam(name = "q", defaultValue = "") String q,
                         @RequestParam MultiValueMap<String, String> params,
-                        @PageableDefault(size = 100) Pageable pageable,
+                        @PageableDefault(size = 100, sort = "date") Pageable pageable,
                         Model model) throws IOException, ParseException {
         FileSeacher index = buildFileIndex(instance);
         FileSeacher.Results results;
