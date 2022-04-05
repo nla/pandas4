@@ -64,15 +64,15 @@ public class ProfileController {
             String description,
             GatherMethod gatherMethod,
             String heritrixConfig,
-            @Positive Double crawlLimitGigabytes,
-            @Positive Double crawlLimitHours) {
+            @Positive Long crawlLimitBytes,
+            @Positive Long crawlLimitSeconds) {
         ProfileEditForm(Profile profile) {
             this(profile.getName(),
                     profile.getDescription(),
                     profile.getGatherMethod(),
                     profile.getHeritrixConfig(),
-                    profile.getCrawlLimitBytes() == null ? null : profile.getCrawlLimitBytes() / 1073741824.0,
-                    profile.getCrawlLimitSeconds() == null ? null : profile.getCrawlLimitSeconds() / 3600.0);
+                    profile.getCrawlLimitBytes(),
+                    profile.getCrawlLimitSeconds());
         }
 
         void applyTo(Profile profile) {
@@ -80,10 +80,8 @@ public class ProfileController {
             profile.setDescription(description);
             profile.setGatherMethod(gatherMethod);
             profile.setHeritrixConfig(heritrixConfig);
-            profile.setCrawlLimitBytes(crawlLimitGigabytes == null || crawlLimitGigabytes <= 0 ? null :
-                    (long) (crawlLimitGigabytes * 1073741824.0));
-            profile.setCrawlLimitSeconds(crawlLimitHours == null || crawlLimitHours <= 0 ? null :
-                    (long) (crawlLimitHours * 3600.0));
+            profile.setCrawlLimitBytes(crawlLimitBytes);
+            profile.setCrawlLimitSeconds(crawlLimitSeconds);
         }
     }
 }

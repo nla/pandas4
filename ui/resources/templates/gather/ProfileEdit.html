@@ -38,10 +38,11 @@
         </fieldset>
         <fieldset>
             <legend>Crawl limits</legend>
-            <label>Stop after downloading <input type="number" th:field="*{crawlLimitGigabytes}" min="0" step="any"
-                                                 size="3"> gigabytes</label>
-            <label>Stop after crawling for <input type="number" th:field="*{crawlLimitHours}" min="0" step="any"
-                                                  size="3"> hours</label>
+            <label>Stop after downloading
+                <input type="number" th:field="*{crawlLimitBytes}" min="0"> bytes</label>
+            <label>Stop after crawling for
+                <input type="number" th:field="*{crawlLimitSeconds}" min="0"> seconds
+            </label>
         </fieldset>
     </form>
 </main>
