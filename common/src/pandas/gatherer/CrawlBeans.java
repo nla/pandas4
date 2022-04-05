@@ -71,19 +71,27 @@ public class CrawlBeans {
             setBeanProperty(doc, "fetchHttp", "httpBindAddress", gathererBindAddress);
         }
 
-        String overrides = "";
+        StringBuilder overrides = new StringBuilder();
 
         Scope scope = instance.getTitle().getGather().getScope();
         if (scope != null && scope.getDepth() != null) {
-            overrides += "tooManyHopsDecideRule.maxHops=" + scope.getDepth() + "\n";
+            overrides.append("tooManyHopsDecideRule.maxHops=").append(scope.getDepth()).append("\n");
         }
 
         Profile profile = instance.getTitle().getGather().getActiveProfile();
-        if (profile != null && profile.getHeritrixConfig() != null) {
-            overrides += profile.getHeritrixConfig();
+        if (profile != null) {
+            if (profile.getCrawlLimitBytes() != null) {
+                overrides.append("crawlLimiter.maxBytesDownload=").append(profile.getCrawlLimitBytes()).append("\n");
+            }
+            if (profile.getCrawlLimitSeconds() != null) {
+                overrides.append("crawlLimiter.maxTimeSeconds=").append(profile.getCrawlLimitSeconds()).append("\n");
+            }
+            if (profile.getHeritrixConfig() != null) {
+                overrides.append(profile.getHeritrixConfig());
+            }
         }
 
-        setBeanPropertyMultiline(doc, "simpleOverrides", "properties", overrides);
+        setBeanPropertyMultiline(doc, "simpleOverrides", "properties", overrides.toString());
         xpath(doc, "/beans:beans/beans:bean[@id='seeds']/beans:property[@name='textSource']/beans:bean/beans:property[@name='value']/beans:value")
                 .setTextContent(String.join("\n", instance.getTitle().getAllSeeds()));
 

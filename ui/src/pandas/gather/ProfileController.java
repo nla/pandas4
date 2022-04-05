@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 
 @Controller
 @PreAuthorize("hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')")
@@ -26,8 +28,14 @@ public class ProfileController {
         return "gather/ProfileList";
     }
 
-    @PostMapping("/profiles")
-    public String save(@Valid Profile profile) {
+    @PostMapping("/profiles/new")
+    public String create(@Valid ProfileEditForm form) {
+        return update(new Profile(), form);
+    }
+
+    @PostMapping("/profiles/{id}")
+    public String update(@PathVariable("id") Profile profile, @Valid ProfileEditForm form) {
+        form.applyTo(profile);
         profileRepository.save(profile);
         return "redirect:/profiles";
     }
@@ -41,6 +49,7 @@ public class ProfileController {
     public String edit(@PathVariable("id") Profile profile, Model model) {
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("profile", profile);
+        model.addAttribute("form", new ProfileEditForm(profile));
         return "gather/ProfileEdit";
     }
 
@@ -48,5 +57,33 @@ public class ProfileController {
     public String delete(@PathVariable("id") Profile profile) {
         profileRepository.delete(profile);
         return "redirect:/profiles";
+    }
+
+    public record ProfileEditForm(
+            @NotBlank String name,
+            String description,
+            GatherMethod gatherMethod,
+            String heritrixConfig,
+            @Positive Double crawlLimitGigabytes,
+            @Positive Double crawlLimitHours) {
+        ProfileEditForm(Profile profile) {
+            this(profile.getName(),
+                    profile.getDescription(),
+                    profile.getGatherMethod(),
+                    profile.getHeritrixConfig(),
+                    profile.getCrawlLimitBytes() == null ? null : profile.getCrawlLimitBytes() / 1073741824.0,
+                    profile.getCrawlLimitSeconds() == null ? null : profile.getCrawlLimitSeconds() / 3600.0);
+        }
+
+        void applyTo(Profile profile) {
+            profile.setName(name);
+            profile.setDescription(description);
+            profile.setGatherMethod(gatherMethod);
+            profile.setHeritrixConfig(heritrixConfig);
+            profile.setCrawlLimitBytes(crawlLimitGigabytes == null || crawlLimitGigabytes <= 0 ? null :
+                    (long) (crawlLimitGigabytes * 1073741824.0));
+            profile.setCrawlLimitSeconds(crawlLimitHours == null || crawlLimitHours <= 0 ? null :
+                    (long) (crawlLimitHours * 3600.0));
+        }
     }
 }

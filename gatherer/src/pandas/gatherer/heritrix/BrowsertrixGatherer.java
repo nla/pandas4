@@ -69,6 +69,8 @@ public class BrowsertrixGatherer implements Backend {
             depth = scope.getDepth();
         }
 
+        Profile profile = instance.getTitle().getGather().getActiveProfile();
+
         var command = new ArrayList<String>();
         command.addAll(List.of("podman", "run", "--rm", "-v", workingDir + ":/crawls/"));
         if (config.getPodmanOptions() != null) {
@@ -95,6 +97,8 @@ public class BrowsertrixGatherer implements Backend {
         Files.writeString(logFile, encodeShellCommandForLogging(command) + "\n", APPEND, CREATE);
         log.info("Executing {}", String.join(" ", command));
 
+        long startTimeMillis = System.currentTimeMillis();
+
         Process process = new ProcessBuilder(command)
                 .redirectOutput(ProcessBuilder.Redirect.appendTo(logFile.toFile()))
                 .redirectErrorStream(true)
@@ -104,7 +108,8 @@ public class BrowsertrixGatherer implements Backend {
         try {
             while (!process.waitFor(1, TimeUnit.SECONDS)) {
                 instance = instanceService.refresh(instance);
-                if (shutdown || !instance.getState().getName().equals(State.GATHERING)) {
+                if (shutdown || !instance.getState().getName().equals(State.GATHERING)
+                        || reachedCrawlLimit(profile, instance, startTimeMillis)) {
                     return;
                 }
             }
@@ -120,6 +125,24 @@ public class BrowsertrixGatherer implements Backend {
                 process.destroyForcibly();
             }
         }
+    }
+
+    private boolean reachedCrawlLimit(Profile profile, Instance instance, long startTimeMillis) {
+        if (profile.getCrawlLimitBytes() != null) {
+            Long size = instance.getGather().getSize();
+            if (size != null && size >= profile.getCrawlLimitBytes()) {
+                log.info("Reached crawl size limit ({} >= {} bytes)", size, profile.getCrawlLimitBytes());
+                return true;
+            }
+        }
+        if (profile.getCrawlLimitSeconds() != null) {
+            long secondsElapsed = (System.currentTimeMillis() - startTimeMillis) / 1000;
+            if (secondsElapsed >= profile.getCrawlLimitSeconds()) {
+                log.info("Reached crawl time limit ({} >= {} seconds)", secondsElapsed, profile.getCrawlLimitSeconds());
+                return true;
+            }
+        }
+        return false;
     }
 
     private static final Pattern SHELL_SPECIAL_CHAR = Pattern.compile("[|&;<>()$`\\\\\"' \t\r\n*?\\[#~=%]");

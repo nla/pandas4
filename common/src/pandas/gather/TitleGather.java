@@ -360,8 +360,18 @@ public class TitleGather {
      */
     public String buildHttrackCommand() {
         StringBuilder sb = new StringBuilder();
-        for (OptionArgument argument: getArguments()) {
+        for (OptionArgument argument : getArguments()) {
             argument.toCommandLine(sb);
+        }
+
+        if (getScope() != null && getScope().getDepth() != null) {
+            sb.append("--depth=").append(getScope().getDepth() + 1).append(" ");
+        }
+        if (getActiveProfile().getCrawlLimitBytes() != null) {
+            sb.append("--max-size=").append(getActiveProfile().getCrawlLimitBytes()).append(" ");
+        }
+        if (getActiveProfile().getCrawlLimitSeconds() != null) {
+            sb.append("--max-time=").append(getActiveProfile().getCrawlLimitSeconds()).append(" ");
         }
 
         String url = getGatherUrl();

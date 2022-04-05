@@ -31,6 +31,7 @@ public class HomeController {
     }
 
     public String formatStackTrace(String trace) {
+        if (trace == null) return null;
         return trace.replaceAll("(?m)^\\s+at (javax\\.servlet|org\\.springframework|org\\.thymeleaf|org\\.apache|org\\.attoparser)\\..*\n", "")
                 .replaceAll("(?m)^\\s+... \\d+ more\n", "");
     }

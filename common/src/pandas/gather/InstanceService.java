@@ -169,6 +169,13 @@ public class InstanceService {
         instanceGatherRepository.save(insGather);
     }
 
+    @Transactional
+    public void updateStartTime(Long instanceId, Instant startTime) {
+        InstanceGather insGather = instanceGatherRepository.findById(instanceId).orElseThrow();
+        insGather.setStart(startTime);
+        instanceGatherRepository.save(insGather);
+    }
+
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
     public void delete(Instance instance, User currentUser) {

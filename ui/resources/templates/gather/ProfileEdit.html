@@ -2,25 +2,26 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${profile.id == null ? 'New Profile - PANDAS' : 'Edit Profile - PANDAS'}">Edit Profile - PANDAS</title>
-    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <title th:text="${profile.id == null ? 'New Profile - PANDAS' : 'Edit Profile - PANDAS'}">Edit Profile -
+        PANDAS</title>
+    <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <form method=post class=form th:object="${profile}" th:action="@{/profiles}">
+    <form method=post class=form th:object="${form}" th:action="@{''}">
         <header>
             <div>
                 <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
-                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
+                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i
+                        class="icon cancel"></i>Cancel
+                </button>
             </div>
             <button th:if="${profile.id != null}" type="submit" th:formaction="@{|/profiles/${profile.id}/delete|}"
-                    class="btn btn-danger float-right"><i class="icon delete"></i>Delete</button>
+                    class="btn btn-danger float-right"><i class="icon delete"></i>Delete
+            </button>
         </header>
-
-        <input type=hidden th:field="*{id}">
-        <input type=hidden th:field="*{default}">
 
         <fieldset>
             <label>Name <input th:field="*{name}" required class="form-control"></label>
@@ -28,10 +29,19 @@
             <label>Gather method
                 <select th:field="*{gatherMethod}" class="form-control">
                     <option value=""></option>
-                    <option th:each="method : ${allGatherMethods}" th:text="${method.name}" th:value="${method.id}"></option>
+                    <option th:each="method : ${allGatherMethods}" th:text="${method.name}"
+                            th:value="${method.id}"></option>
                 </select>
             </label>
-            <label>Heritrix configuration <textarea th:field="*{heritrixConfig}" class="form-control"></textarea></label>
+            <label>Heritrix configuration <textarea th:field="*{heritrixConfig}"
+                                                    class="form-control"></textarea></label>
+        </fieldset>
+        <fieldset>
+            <legend>Crawl limits</legend>
+            <label>Stop after downloading <input type="number" th:field="*{crawlLimitGigabytes}" min="0" step="any"
+                                                 size="3"> gigabytes</label>
+            <label>Stop after crawling for <input type="number" th:field="*{crawlLimitHours}" min="0" step="any"
+                                                  size="3"> hours</label>
         </fieldset>
     </form>
 </main>

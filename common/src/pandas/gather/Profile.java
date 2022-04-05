@@ -33,6 +33,12 @@ public class Profile {
     @JoinColumn(name = "GATHER_METHOD_ID")
     private GatherMethod gatherMethod;
 
+    @Column
+    private Long crawlLimitBytes;
+
+    @Column
+    private Long crawlLimitSeconds;
+
     public String getName() {
         return this.name;
     }
@@ -82,5 +88,21 @@ public class Profile {
 
     public void setGatherMethod(GatherMethod gatherMethod) {
         this.gatherMethod = gatherMethod;
+    }
+
+    public Long getCrawlLimitBytes() {
+        return crawlLimitBytes;
+    }
+
+    public void setCrawlLimitBytes(Long maxBytesDownload) {
+        this.crawlLimitBytes = maxBytesDownload;
+    }
+
+    public Long getCrawlLimitSeconds() {
+        return crawlLimitSeconds;
+    }
+
+    public void setCrawlLimitSeconds(Long maxTimeSeconds) {
+        this.crawlLimitSeconds = maxTimeSeconds;
     }
 }
