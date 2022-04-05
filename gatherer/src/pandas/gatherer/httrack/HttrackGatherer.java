@@ -59,23 +59,12 @@ public class HttrackGatherer implements Backend {
 	 */
 	@Override
 	public void gather(Instance instance) throws Exception {
-		StringBuilder optionsArgsAndUrls = new StringBuilder(instance.getTitle().getGather().buildHttrackCommand());
-		StringBuilder theCommand = new StringBuilder(httrackConfig.getExecutable() + " -qi ");
-
-		// prepare the command
-		// -O + output path quoted system path from property later
 		Path instanceDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
-		theCommand.append(" -%H -O \"").append(instanceDir).append("/\" ");
-		theCommand.append(optionsArgsAndUrls);
-		String command = theCommand.toString();
-
+		String command = instanceService.buildAndSaveHttrackCommand(instance.getId(),
+				httrackConfig.getExecutable().toString(),
+				instanceDir);
 		log.info("Executing {}", command);
-
-		instance.setGatherCommand(command);
-		instanceRepository.save(instance);
-
 		if (!Files.exists(instanceDir)) Files.createDirectories(instanceDir);
-
 		File logFile = File.createTempFile("pandas-gatherer-" + instance.getHumanId(), ".log");
 		try {
 			HTTrackProcess httrack = new HTTrackProcess(instance, instanceDir, command, logFile);

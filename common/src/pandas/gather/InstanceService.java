@@ -8,6 +8,7 @@ import pandas.agency.User;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -188,5 +189,15 @@ public class InstanceService {
         State stateBeforeFailure = instance.getStateBeforeFailure();
         if (!stateBeforeFailure.canBeRetried()) return;
         updateState(instance, stateBeforeFailure.getName(), currentUser);
+    }
+
+    @Transactional
+    public String buildAndSaveHttrackCommand(long instanceId, String executable, Path instanceDir) {
+        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+        String command = executable + " -qi -%H -O \"" + instanceDir + "/\" " +
+                instance.getTitle().getGather().buildHttrackCommand();
+        instance.setGatherCommand(command);
+        instanceRepository.save(instance);
+        return command;
     }
 }
