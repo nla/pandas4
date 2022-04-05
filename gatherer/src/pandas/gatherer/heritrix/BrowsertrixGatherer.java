@@ -128,18 +128,20 @@ public class BrowsertrixGatherer implements Backend {
     }
 
     private boolean reachedCrawlLimit(Profile profile, Instance instance, long startTimeMillis) {
-        if (profile.getCrawlLimitBytes() != null) {
-            Long size = instance.getGather().getSize();
-            if (size != null && size >= profile.getCrawlLimitBytes()) {
-                log.info("Reached crawl size limit ({} >= {} bytes)", size, profile.getCrawlLimitBytes());
-                return true;
+        if (profile != null) {
+            if (profile.getCrawlLimitBytes() != null) {
+                Long size = instance.getGather().getSize();
+                if (size != null && size >= profile.getCrawlLimitBytes()) {
+                    log.info("Reached crawl size limit ({} >= {} bytes)", size, profile.getCrawlLimitBytes());
+                    return true;
+                }
             }
-        }
-        if (profile.getCrawlLimitSeconds() != null) {
-            long secondsElapsed = (System.currentTimeMillis() - startTimeMillis) / 1000;
-            if (secondsElapsed >= profile.getCrawlLimitSeconds()) {
-                log.info("Reached crawl time limit ({} >= {} seconds)", secondsElapsed, profile.getCrawlLimitSeconds());
-                return true;
+            if (profile.getCrawlLimitSeconds() != null) {
+                long secondsElapsed = (System.currentTimeMillis() - startTimeMillis) / 1000;
+                if (secondsElapsed >= profile.getCrawlLimitSeconds()) {
+                    log.info("Reached crawl time limit ({} >= {} seconds)", secondsElapsed, profile.getCrawlLimitSeconds());
+                    return true;
+                }
             }
         }
         return false;
