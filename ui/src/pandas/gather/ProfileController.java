@@ -24,7 +24,7 @@ public class ProfileController {
 
     @GetMapping("/profiles")
     public String list(Model model) {
-        model.addAttribute("profiles", profileRepository.findAll());
+        model.addAttribute("profiles", profileRepository.findAllByOrderByName());
         return "gather/ProfileList";
     }
 
