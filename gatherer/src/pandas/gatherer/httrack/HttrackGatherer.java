@@ -59,8 +59,8 @@ public class HttrackGatherer implements Backend {
 	 */
 	@Override
 	public void gather(Instance instance) throws Exception {
-		StringBuilder optionsArgsAndUrls = new StringBuilder(instance.getTitle().getGather().getGatherCommand());
-        StringBuilder theCommand = new StringBuilder(httrackConfig.getExecutable() + " -qi ");
+		StringBuilder optionsArgsAndUrls = new StringBuilder(instance.getTitle().getGather().buildHttrackCommand());
+		StringBuilder theCommand = new StringBuilder(httrackConfig.getExecutable() + " -qi ");
 
 		// prepare the command
 		// -O + output path quoted system path from property later
