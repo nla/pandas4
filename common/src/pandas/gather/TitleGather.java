@@ -367,11 +367,14 @@ public class TitleGather {
         if (getScope() != null && getScope().getDepth() != null) {
             sb.append("--depth=").append(getScope().getDepth() + 1).append(" ");
         }
-        if (getActiveProfile().getCrawlLimitBytes() != null) {
-            sb.append("--max-size=").append(getActiveProfile().getCrawlLimitBytes()).append(" ");
-        }
-        if (getActiveProfile().getCrawlLimitSeconds() != null) {
-            sb.append("--max-time=").append(getActiveProfile().getCrawlLimitSeconds()).append(" ");
+        Profile profile = getActiveProfile();
+        if (profile != null) {
+            if (profile.getCrawlLimitBytes() != null) {
+                sb.append("--max-size=").append(profile.getCrawlLimitBytes()).append(" ");
+            }
+            if (profile.getCrawlLimitSeconds() != null) {
+                sb.append("--max-time=").append(profile.getCrawlLimitSeconds()).append(" ");
+            }
         }
 
         String url = getGatherUrl();
