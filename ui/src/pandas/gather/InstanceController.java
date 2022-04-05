@@ -209,62 +209,9 @@ public class InstanceController {
         var result = index.searchById(fileId).orElseThrow(NotFoundException::new);
         Path warc = config.getWorkingDir(instance).resolve(result.warcFile());
 
-        String requestHeaders = null;
-        if (result.requestOffset() != null) {
-            try (var reader = new WarcReader(FileChannel.open(warc).position(result.requestOffset()))) {
-                requestHeaders = reader.next()
-                        .map(r -> {
-                            try {
-                                return new String(r.serializeHeader(), ISO_8859_1)
-                                        + new String(((WarcRequest) r).http().serializeHeader(), ISO_8859_1);
-                            } catch (IOException e) {
-                                throw new UncheckedIOException(e);
-                            }
-                        })
-                        .orElse(null);
-            }
-        }
-
-        String responseHeaders = null;
-        if (result.responseOffset() != null) {
-            try (var channel = FileChannel.open(warc)) {
-                channel.position(result.responseOffset());
-                responseHeaders = new WarcReader(channel).next()
-                        .map(r -> {
-                            try {
-                                return new String(r.serializeHeader(), ISO_8859_1)
-                                        + new String(((WarcResponse) r).http().serializeHeader(), ISO_8859_1);
-                            } catch (IOException e) {
-                                throw new UncheckedIOException(e);
-                            }
-                        })
-                        .orElse(null);
-            }
-        }
-
-        String metadataHeaders = null;
-        if (result.metadataOffset() != null) {
-            try (var channel = FileChannel.open(warc)) {
-                channel.position(result.metadataOffset());
-                metadataHeaders = new WarcReader(channel).next()
-                        .map(r -> {
-                            try {
-                                return new String(r.serializeHeader(), ISO_8859_1)
-                                        + new String(r.body().stream().readAllBytes(), ISO_8859_1);
-                            } catch (IOException e) {
-                                throw new UncheckedIOException(e);
-                            }
-                        })
-                        .orElse(null);
-            }
-        }
-
-
         model.addAttribute("instance", instance);
         model.addAttribute("result", result);
-        model.addAttribute("requestHeaders", requestHeaders);
-        model.addAttribute("responseHeaders", responseHeaders);
-        model.addAttribute("metadataHeaders", metadataHeaders);
+        model.addAttribute("fileDetails", new FileDetails(result, warc));
         return "FileView";
     }
 

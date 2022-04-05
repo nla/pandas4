@@ -25,10 +25,32 @@
         </div>
     </nav>
 
-    <pre th:text="${requestHeaders}"></pre>
+    <div th:if="${fileDetails.requestWarcHeader != null}">
+        <details>
+            <summary>Request</summary>
+            <pre th:text="${fileDetails.requestWarcHeader}"></pre>
+        </details>
+        <pre th:text="${fileDetails.requestHttpHeader}"></pre>
+        <details th:if="${fileDetails.requestBody != null && !fileDetails.requestBody.isBlank()}">
+            <summary>Body</summary>
+            <pre th:text="${fileDetails.requestBody}"></pre>
+        </details>
+    </div>
 
-    <pre th:text="${responseHeaders}"></pre>
+    <div th:if="${fileDetails.responseWarcHeader != null}">
+        <details>
+            <summary>Response</summary>
+            <pre th:text="${fileDetails.responseWarcHeader}"></pre>
+        </details>
+        <pre th:text="${fileDetails.responseHttpHeader}"></pre>
+    </div>
 
-    <pre th:text="${metadataHeaders}"></pre>
+    <div th:if="${fileDetails.metadataWarcHeader != null}">
+        <details>
+            <summary>Metadata</summary>
+            <pre th:text="${fileDetails.metadataWarcHeader}"></pre>
+        </details>
+        <pre th:text="${fileDetails.metadataBody}"></pre>
+    </div>
 
 </main>
