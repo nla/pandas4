@@ -51,21 +51,21 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
-public class FileSeacher {
+public class FileSearcher {
     private static final List<Filter> FILTERS = List.of(
-            new Filter("Status", "status", FileSeacher::labelForStatus),
+            new Filter("Status", "status", FileSearcher::labelForStatus),
             new Filter("Type", "type"),
             new Filter("Host", "host"));
     private static final Set<String> facetFields = FILTERS.stream().map(Filter::field).collect(Collectors.toUnmodifiableSet());
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Logger log = LoggerFactory.getLogger(FileSeacher.class);
+    private final Logger log = LoggerFactory.getLogger(FileSearcher.class);
     private final Directory directory;
     private final Analyzer analyzer = new StandardAnalyzer();
     private final FacetsConfig facetsConfig = new FacetsConfig();
     private final File stateFile;
 
-    public FileSeacher(Path index) throws IOException {
+    public FileSearcher(Path index) throws IOException {
         this.directory = new MMapDirectory(index);
         stateFile = index.resolve("state.json").toFile();
     }
@@ -95,7 +95,7 @@ public class FileSeacher {
     @NotNull
     private ArrayList<Path> scanForUpdatedWarcFiles(Path warcDirectory, Map<String, IndexingState> indexingState) throws IOException {
         var allWarcFiles = Files.walk(warcDirectory)
-                .filter(FileSeacher::isWarcFile)
+                .filter(FileSearcher::isWarcFile)
                 .toList();
         var warcFilesToIndex = new ArrayList<Path>();
         for (Path warcPath : allWarcFiles) {
@@ -388,7 +388,7 @@ public class FileSeacher {
     public static void main(String[] args) throws IOException {
         Path indexPath = Paths.get(args[0]);
         FileSystemUtils.deleteRecursively(indexPath);
-        FileSeacher index = new FileSeacher(indexPath);
+        FileSearcher index = new FileSearcher(indexPath);
         index.indexRecursively(Paths.get(args[1]));
         index.search("", new LinkedMultiValueMap<>(), Pageable.ofSize(100));
     }

@@ -20,7 +20,7 @@ import static java.nio.file.StandardOpenOption.WRITE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.netpreserve.jwarc.WarcCompression.GZIP;
 
-public class FileSeacherTest {
+public class FileSearcherTest {
     @TempDir
     Path warcDir;
 
@@ -59,14 +59,14 @@ public class FileSeacherTest {
 
         }
 
-        var index = new FileSeacher(indexDir);
+        var index = new FileSearcher(indexDir);
         index.indexRecursively(warcDir);
         LinkedMultiValueMap<String, String> filters = new LinkedMultiValueMap<>();
         filters.add("status", "200");
         var results = index.search("", filters, Pageable.ofSize(100));
         assertEquals(1, results.getNumberOfElements());
-        FileSeacher.Result result = results.toList().get(0);
-        assertEquals(new FileSeacher.Result(response.id().toString().replaceFirst("^urn:uuid:", ""),
+        FileSearcher.Result result = results.toList().get(0);
+        assertEquals(new FileSearcher.Result(response.id().toString().replaceFirst("^urn:uuid:", ""),
                         date, "POST", "http://example.org/",
                         200, (long) html.length, "html", "NNO3EJ5GVIRCRR3XWB3RCCFRQSY7YXPT",
                         requestOffset, 0L, null, Paths.get("test.warc.gz")),

@@ -4,7 +4,7 @@ import org.netpreserve.jwarc.WarcMetadata;
 import org.netpreserve.jwarc.WarcReader;
 import org.netpreserve.jwarc.WarcRequest;
 import org.netpreserve.jwarc.WarcResponse;
-import pandas.search.FileSeacher;
+import pandas.search.FileSearcher;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -20,7 +20,7 @@ public class FileDetails {
     public String metadataWarcHeader;
     public String metadataBody;
 
-    public FileDetails(FileSeacher.Result result, Path warc) throws IOException {
+    public FileDetails(FileSearcher.Result result, Path warc) throws IOException {
         try (var reader = new WarcReader(warc)) {
             if (result.responseOffset() != null) {
                 reader.position(result.responseOffset());

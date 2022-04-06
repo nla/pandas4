@@ -2,7 +2,6 @@ package pandas.gather;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.jetbrains.annotations.NotNull;
-import org.netpreserve.jwarc.*;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,20 +18,16 @@ import pandas.agency.*;
 import pandas.collection.TitleRepository;
 import pandas.core.Config;
 import pandas.core.NotFoundException;
-import pandas.search.FileSeacher;
+import pandas.search.FileSearcher;
 import pandas.util.DateFormats;
 import pandas.util.Requests;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.springframework.http.CacheControl.maxAge;
@@ -191,8 +186,8 @@ public class InstanceController {
                         @RequestParam MultiValueMap<String, String> params,
                         @PageableDefault(size = 100, sort = "date") Pageable pageable,
                         Model model) throws IOException, ParseException {
-        FileSeacher index = buildFileIndex(instance);
-        FileSeacher.Results results;
+        FileSearcher index = buildFileIndex(instance);
+        FileSearcher.Results results;
         results = index.search(q, params, pageable);
 
         model.addAttribute("instance", instance);
@@ -205,7 +200,7 @@ public class InstanceController {
     public String file(@PathVariable("instanceId") Instance instance,
                        @PathVariable("fileId") String fileId,
                        Model model) throws IOException, ParseException {
-        FileSeacher index = buildFileIndex(instance);
+        FileSearcher index = buildFileIndex(instance);
         var result = index.searchById(fileId).orElseThrow(NotFoundException::new);
         Path warc = config.getWorkingDir(instance).resolve(result.warcFile());
 
@@ -216,10 +211,10 @@ public class InstanceController {
     }
 
     @NotNull
-    private FileSeacher buildFileIndex(Instance instance) throws IOException {
+    private FileSearcher buildFileIndex(Instance instance) throws IOException {
         Path indexDir = config.getDataPath().resolve("fileindex").resolve(instance.getHumanId());
-        var index = new FileSeacher(indexDir);
-        FileSeacher.Results results;
+        var index = new FileSearcher(indexDir);
+        FileSearcher.Results results;
         index.indexRecursively(config.getWorkingDir(instance));
         return index;
     }
