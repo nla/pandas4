@@ -119,17 +119,18 @@ public class GatherManager implements AutoCloseable {
 		for (long instanceId : currentInstances.keySet()) {
 			if (systemShutDown) break;
 			Instance instance = instanceRepository.findById(instanceId).orElseThrow();
-			if (!instance.getGatherMethodName().equals(GatherMethod.HTTRACK)) continue;
-
-			try {
-				FileStats stats = workingArea.instanceStats(instance.getTitle().getPi(), instance.getDateString(), this::isShutdown);
-				log.info("{} gather stats files={} size={}", instance.getHumanId(), stats.fileCount(), stats.size());
-				InstanceGather gather = instance.getGather();
-				gather.setSize(stats.size());
-				gather.setFiles(stats.fileCount());
-				instanceGatherRepository.save(gather);
-			} catch (Exception e) {
-				log.warn("Unable to update gather statistics for " + instance.getHumanId(), e);
+			if (instance.getGatherMethodName().equals(GatherMethod.HTTRACK) ||
+					instance.getGatherMethodName().equals(GatherMethod.BROWSERTRIX)) {
+				try {
+					FileStats stats = workingArea.instanceStats(instance.getTitle().getPi(), instance.getDateString(), this::isShutdown);
+					log.info("{} gather stats files={} size={}", instance.getHumanId(), stats.fileCount(), stats.size());
+					InstanceGather gather = instance.getGather();
+					gather.setSize(stats.size());
+					gather.setFiles(stats.fileCount());
+					instanceGatherRepository.save(gather);
+				} catch (Exception e) {
+					log.warn("Unable to update gather statistics for " + instance.getHumanId(), e);
+				}
 			}
 		}
 	}
