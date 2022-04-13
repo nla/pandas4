@@ -123,6 +123,10 @@ public class TitleService {
             statusChanged = true;
         }
 
+        if (form.getContinues() != null && title.getContinues().isEmpty()) {
+            title.getContinues().add(new TitleHistory(form.getContinues(), title));
+        }
+
         // if transitioning to the selected status, try to move to the appropriate permission status if possible
         if (statusChanged && title.getStatus().getId().equals(Status.SELECTED_ID) && title.getPermission() != null
             && title.getPermission().getState() != null) {

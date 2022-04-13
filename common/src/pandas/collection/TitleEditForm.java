@@ -48,6 +48,8 @@ public class TitleEditForm {
     private Profile activeProfile;
     private Scope scope;
 
+    private Title continues;
+
     public TitleEditForm() {}
 
     public TitleEditForm(Title title) {
@@ -311,5 +313,13 @@ public class TitleEditForm {
 
     public void setUnableToArchive(boolean unableToArchive) {
         this.unableToArchive = unableToArchive;
+    }
+
+    public Title getContinues() {
+        return continues;
+    }
+
+    public void setContinues(Title continues) {
+        this.continues = continues;
     }
 }

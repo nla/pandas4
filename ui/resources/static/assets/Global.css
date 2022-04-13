@@ -415,6 +415,13 @@ button.btn-danger:hover, a.btn-danger:hover {
  * Alerts
  */
 
+.alert-info {
+    padding: var(--margin-height) var(--margin-width);
+    background: #d1e8ff;
+    border: 1px solid #a1b9ff;
+    border-radius: 5px;
+}
+
 .alert-warning {
     padding: var(--margin-height) var(--margin-width);
     background: #FFECB3;
@@ -517,7 +524,7 @@ table.history-table {
  * Subject and Collection lisst
  */
 
-ul.subject-list, ul.collection-list {
+ul.subject-list, ul.collection-list, ul.title-list {
     display: inline;
     list-style: none;
     padding: 0;

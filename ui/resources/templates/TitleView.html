@@ -103,6 +103,26 @@
             </ul>
         </div>
 
+        <p>
+        <div th:if="${!title.continues.isEmpty()}">
+            Continues:
+            <ul class="title-list">
+                <li th:each="entry: ${title.continues}">
+                    <a th:href="${@link.to(entry.ceased)}" th:text="${entry.ceased.name}">Previous title</a>
+                </li>
+            </ul>
+        </div>
+
+        <p>
+        <div th:if="${!title.continuedBy.isEmpty()}">
+            Continued by:
+            <ul class="title-list">
+                <li th:each="entry: ${title.continuedBy}">
+                    <a th:href="${@link.to(entry.continues)}" th:text="${entry.continues.name}">Next title</a>
+                </li>
+            </ul>
+        </div>
+
         <div>
             <h4>Status</h4>
             <div>

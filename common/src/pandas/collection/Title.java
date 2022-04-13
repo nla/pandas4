@@ -325,7 +325,7 @@ public class Title {
     @OrderBy("date")
     private List<TitleHistory> continuedBy = new ArrayList<>();
 
-    @OneToMany(mappedBy = "continues")
+    @OneToMany(mappedBy = "continues", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date")
     private List<TitleHistory> continues = new ArrayList<>();
 

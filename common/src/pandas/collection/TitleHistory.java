@@ -11,6 +11,8 @@ import java.time.Instant;
 public class TitleHistory {
     @Id
     @Column(name = "TITLE_HISTORY_ID", nullable = false, precision = 0)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "TITLE_HISTORY_SEQ")
+    @SequenceGenerator(name = "TITLE_HISTORY_SEQ", sequenceName = "TITLE_HISTORY_SEQ", allocationSize = 1)
     private Long id;
 
     /**
@@ -32,6 +34,15 @@ public class TitleHistory {
      */
     @Column(name = "DATE_CHANGED", nullable = false)
     private Instant date;
+
+    public TitleHistory() {
+    }
+
+    public TitleHistory(Title ceased, Title continues) {
+        this.ceased = ceased;
+        this.continues = continues;
+        date = Instant.now();
+    }
 
     public Instant getDate() {
         return date;

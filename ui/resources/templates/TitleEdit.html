@@ -25,12 +25,16 @@
         <input type=hidden th:field="*{id}">
         <input type=hidden name="backlink" th:value="${backlink}">
 
-        <div th:if="${created != null}" class="alert-warning">
+        <div th:if="${created != null}" class="alert-info">
             <a th:text="${created.name}" th:href="${@link.to(created)}">Example Site</a> has been saved
         </div>
 
-        <div th:if="${clonedFrom != null}" class="alert-warning">
+        <div th:if="${clonedFrom != null}" class="alert-info">
             Cloning from <a th:text="${clonedFrom.name}" th:href="${@link.to(clonedFrom)}">Example Site</a>
+            <label style="margin-top: 8px">
+                <input type="checkbox" name="continues" th:value="${clonedFrom.id}">
+                Link as the next in a series
+            </label>
         </div>
 
         <div th:if="${form.id == null && clonedFrom == null}">
