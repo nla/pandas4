@@ -53,7 +53,7 @@
                 <th:block th:text="${count == 1 ? 'website' : 'websites'}">websites</th:block>:
             <ul>
                 <li th:each="instanceEvent : ${period.instancesArchived}">
-                    <a th:href="${@link.toInstance(instanceEvent.id())}" th:text="${instanceEvent.titleName}"></a>
+                    <a th:href="${@link.toInstance(instanceEvent.instanceId())}" th:text="${instanceEvent.titleName}"></a>
                 </li>
             </ul>
             </p>
