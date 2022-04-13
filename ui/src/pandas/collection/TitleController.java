@@ -427,6 +427,7 @@ public class TitleController {
             form.setGatherSchedule(created.getGather().getSchedule());
             form.setGatherMethod(created.getGather().getMethod());
             form.setActiveProfile(created.getGather().getActiveProfile());
+            form.setScope(created.getGather().getScope());
         }
 
         if (publisher != null) {
