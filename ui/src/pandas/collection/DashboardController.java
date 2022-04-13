@@ -8,6 +8,8 @@ import pandas.agency.User;
 import pandas.agency.UserRepository;
 import pandas.agency.UserService;
 import pandas.core.NotFoundException;
+import pandas.gather.Instance;
+import pandas.gather.StateHistoryRepository;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,12 +26,14 @@ public class DashboardController {
     private final CollectionRepository collectionRepository;
     private final UserRepository userRepository;
     private final TitleRepository titleRepository;
+    private final StateHistoryRepository stateHistoryRepository;
     private final UserService userService;
 
-    public DashboardController(CollectionRepository collectionRepository, UserRepository userRepository, TitleRepository titleRepository, UserService userService) {
+    public DashboardController(CollectionRepository collectionRepository, UserRepository userRepository, TitleRepository titleRepository, StateHistoryRepository stateHistoryRepository, UserService userService) {
         this.collectionRepository = collectionRepository;
         this.userRepository = userRepository;
         this.titleRepository = titleRepository;
+        this.stateHistoryRepository = stateHistoryRepository;
         this.userService = userService;
     }
 
@@ -65,6 +70,22 @@ public class DashboardController {
                     period = periodIterator.next();
                 }
                 period.collections.add(collection);
+            }
+        }
+
+        { // partition the instances
+            var periodIterator = activityPeriods.iterator();
+            ActivityPeriod period = periodIterator.next();
+            var seen = new HashSet<Long>();
+            outer: for (var stateHistory : stateHistoryRepository.findRecentlyArchivedBy(user, dateLimit)) {
+                while (stateHistory.getStartDate().isBefore(period.instant)) {
+                    if (!periodIterator.hasNext()) break outer;
+                    period = periodIterator.next();
+                    seen.clear();
+                }
+                if (seen.add(stateHistory.getInstance().getId())) {
+                    period.instancesArchived.add(stateHistory.getInstance());
+                }
             }
         }
 
@@ -105,6 +126,7 @@ public class DashboardController {
         public final Instant instant;
         public final List<Title> websites = new ArrayList<>();
         public final List<Collection> collections = new ArrayList<>();
+        public final List<Instance> instancesArchived = new ArrayList<>();
 
         public ActivityPeriod(String name, LocalDate startDate) {
             this.name = name;

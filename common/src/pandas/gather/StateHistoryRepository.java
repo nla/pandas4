@@ -3,7 +3,9 @@ package pandas.gather;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pandas.agency.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,4 +17,15 @@ public interface StateHistoryRepository extends CrudRepository<StateHistory, Lon
     @Modifying
     @Query("update StateHistory sh set sh.endDate = ?2 where sh.instance.id = ?1 and sh.endDate is null")
     void markPreviousStateEnd(Long id, Instant now);
+
+
+    @Query("""
+        select sh from StateHistory sh
+        where sh.state.name = 'archiving' 
+          and sh.user = :user
+          and sh.startDate > :dateLimit
+        order by sh.startDate desc
+    """)
+    List<StateHistory> findRecentlyArchivedBy(@Param("user") User user, @Param("dateLimit") Instant dateLimit);
+
 }

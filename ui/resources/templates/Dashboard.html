@@ -39,13 +39,23 @@
             </p>
 
             <p th:unless="${period.websites.isEmpty()}" th:with="count = ${period.websites.size()}">
-                Added <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
+                Selected <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
                 <th:block th:text="${count == 1 ? 'website' : 'websites'}">websites</th:block>:
                 <ul>
                     <li th:each="title : ${period.websites}">
                         <a th:href="${@link.to(title)}" th:text="${title.name}"></a>
                     </li>
                 </ul>
+            </p>
+
+            <p th:unless="${period.instancesArchived.isEmpty()}" th:with="count = ${period.instancesArchived.size()}">
+                Archived <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
+                <th:block th:text="${count == 1 ? 'website' : 'websites'}">websites</th:block>:
+            <ul>
+                <li th:each="instance : ${period.instancesArchived}">
+                    <a th:href="${@link.to(instance)}" th:text="${instance.title.name}"></a>
+                </li>
+            </ul>
             </p>
         </th:block>
     </section>
