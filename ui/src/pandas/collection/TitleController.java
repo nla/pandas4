@@ -321,12 +321,25 @@ public class TitleController {
         if (backlink != null && !model.containsAttribute("backlink")) {
             model.addAttribute("backlink", backlink);
         }
-        model.addAttribute("created", null);
 
         return editForm(model, form);
     }
 
+
+    @GetMapping("/titles/{id}/clone")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String clone(@PathVariable("id") Title title, Model model) {
+        TitleEditForm form = titleService.editForm(title);
+        form.setId(null);
+        model.addAttribute("clonedFrom", title);
+        return editForm(model, form);
+    }
+
     private String editForm(Model model, TitleEditForm form) {
+        if (!model.containsAttribute("created")) {
+            model.addAttribute("created", null);
+        }
+
         model.addAttribute("form", form);
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());

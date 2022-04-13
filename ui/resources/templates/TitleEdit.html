@@ -29,7 +29,11 @@
             <a th:text="${created.name}" th:href="${@link.to(created)}">Example Site</a> has been saved
         </div>
 
-        <div th:if="${form.id == null}">
+        <div th:if="${clonedFrom != null}" class="alert-warning">
+            Cloning from <a th:text="${clonedFrom.name}" th:href="${@link.to(clonedFrom)}">Example Site</a>
+        </div>
+
+        <div th:if="${form.id == null && clonedFrom == null}">
             <h2 style="margin-top: 0; margin-bottom: var(--gutter)">Archive an Australian Website</h2>
             <p>
                 Use this form to add a website or web page to the Australian Web Archive.
