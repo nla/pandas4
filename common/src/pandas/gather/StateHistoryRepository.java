@@ -20,12 +20,14 @@ public interface StateHistoryRepository extends CrudRepository<StateHistory, Lon
 
 
     @Query("""
-        select sh from StateHistory sh
-        where sh.state.name = 'archiving' 
+        select new pandas.gather.InstanceEvent(sh.id, sh.startDate, sh.instance.id,
+         sh.instance.title.id, sh.instance.title.name) from StateHistory sh
+        where sh.state.name = 'archiving'
           and sh.user = :user
           and sh.startDate > :dateLimit
         order by sh.startDate desc
     """)
-    List<StateHistory> findRecentlyArchivedBy(@Param("user") User user, @Param("dateLimit") Instant dateLimit);
+    List<InstanceEvent> findRecentlyArchivedBy(@Param("user") User user, @Param("dateLimit") Instant dateLimit);
+
 
 }

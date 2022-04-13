@@ -8,7 +8,7 @@ import pandas.agency.User;
 import pandas.agency.UserRepository;
 import pandas.agency.UserService;
 import pandas.core.NotFoundException;
-import pandas.gather.Instance;
+import pandas.gather.InstanceEvent;
 import pandas.gather.StateHistoryRepository;
 
 import java.time.DayOfWeek;
@@ -77,14 +77,14 @@ public class DashboardController {
             var periodIterator = activityPeriods.iterator();
             ActivityPeriod period = periodIterator.next();
             var seen = new HashSet<Long>();
-            outer: for (var stateHistory : stateHistoryRepository.findRecentlyArchivedBy(user, dateLimit)) {
-                while (stateHistory.getStartDate().isBefore(period.instant)) {
+            outer: for (var event : stateHistoryRepository.findRecentlyArchivedBy(user, dateLimit)) {
+                while (event.date().isBefore(period.instant)) {
                     if (!periodIterator.hasNext()) break outer;
                     period = periodIterator.next();
                     seen.clear();
                 }
-                if (seen.add(stateHistory.getInstance().getId())) {
-                    period.instancesArchived.add(stateHistory.getInstance());
+                if (seen.add(event.instanceId())) {
+                    period.instancesArchived.add(event);
                 }
             }
         }
@@ -126,7 +126,7 @@ public class DashboardController {
         public final Instant instant;
         public final List<Title> websites = new ArrayList<>();
         public final List<Collection> collections = new ArrayList<>();
-        public final List<Instance> instancesArchived = new ArrayList<>();
+        public final List<InstanceEvent> instancesArchived = new ArrayList<>();
 
         public ActivityPeriod(String name, LocalDate startDate) {
             this.name = name;

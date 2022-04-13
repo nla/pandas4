@@ -97,7 +97,11 @@ public class Link {
     }
 
     public String to(Instance instance) {
-        return link("/instances/" + instance.getId());
+        return toInstance(instance.getId());
+    }
+
+    public String toInstance(long instanceId) {
+        return link("/instances/" + instanceId);
     }
 
     public String to(PreviousGather previousGather) {
