@@ -422,6 +422,13 @@ public class TitleController {
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         form.setTitleUrl(url);
 
+        // Copy basic gather settings to the new form when using "Save and add another"
+        if (created != null) {
+            form.setGatherSchedule(created.getGather().getSchedule());
+            form.setGatherMethod(created.getGather().getMethod());
+            form.setActiveProfile(created.getGather().getActiveProfile());
+        }
+
         if (publisher != null) {
             form.setPublisher(publisher);
         }
