@@ -75,7 +75,7 @@
                        th:text="${instance.gather.stats}">1,234 files 10 MB</a>
                 </td>
                 <td style="text-align: center; vertical-align: top">
-                    <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
+                    <a th:href="${instance.title.titleUrl}" target="_blank"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
                 </td>
                 <td style="text-align: center">
                     <th:block th:if="${previousGather != null}">
