@@ -91,7 +91,7 @@
                             <nav>
                                 <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
                                    th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
-                                   href="http://www.olympics.com/">olympics.com</a>
+                                   href="http://www.olympics.com/" target="_blank">olympics.com</a>
                                 <a th:if="${title.pi != null}" th:href="|https://webarchive.nla.gov.au/tep/${title.pi}|"
                                    href="https://webarchive.nla.gov.au/tep/10194">TEP</a>
                                 <a th:if="${title.titleUrl != null}"

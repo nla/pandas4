@@ -96,7 +96,7 @@
         <table class="table gather-queue-table">
             <tr th:each="gather: ${queuedGathers}">
                 <td>
-                    <a th:href="${gather.title.primarySeedUrl}">
+                    <a th:href="${gather.title.primarySeedUrl}" target="_blank">
                         <img th:src="${@link.thumbnail(gather.title)}" width=67 height=50>
                     </a>
                 </td>
