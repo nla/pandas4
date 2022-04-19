@@ -165,7 +165,7 @@
             <canvas id="sizeChart" width="150px" height="100px"></canvas>
 
             <strong>Live</strong><br>
-            <a th:href="${instance.title.titleUrl}"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
+            <a th:href="${instance.title.titleUrl}" target="_blank"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
             <section th:unless="${previousInstances.isEmpty()}">
                 <strong>Previous</strong>
                 <div th:each="instance : ${previousInstances}" >
