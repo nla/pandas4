@@ -80,6 +80,7 @@
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
     new SlimSelect({
         select: '#parent',
+        hideSelectedOption: true,
         searchFilter: function (option, search) {
             return true; // leave filtering to backend
         },
@@ -97,6 +98,7 @@
 
     new SlimSelect({
         select: '#subjects',
+        hideSelectedOption: true,
         searchFilter: function (option, search) {
             return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
         },

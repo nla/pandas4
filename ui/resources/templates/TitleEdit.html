@@ -359,12 +359,14 @@
 
     new SlimSelect({
         select: '#subjects',
+        hideSelectedOption: true,
         searchFilter: function (option, search) {
             return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
         }
     });
     new SlimSelect({
         select: '#collections',
+        hideSelectedOption: true,
         searchFilter: function (option, search) {
             return true; // leave filtering to the backend
         },
@@ -389,6 +391,7 @@
         publisherSelect = new SlimSelect({
             select: '#publisher',
             allowDeselect: true,
+            hideSelectedOption: true,
             addable: function (value) {
                 return {
                     text: value,
