@@ -459,7 +459,9 @@
     }
     function nameChanged() {
         if (publisherSelect && !publisherSelect.selected()) {
-            publisherSelect.search(document.getElementById("name").value);
+            let name = document.getElementById("name").value;
+            name = name.replace(/\s*:.*/, '');
+            publisherSelect.search(name);
         }
     }
     document.getElementById("name").addEventListener("change", nameChanged);
