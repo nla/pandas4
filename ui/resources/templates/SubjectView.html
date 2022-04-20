@@ -30,8 +30,8 @@
         <th:block th:text="${subject.name}">Dance & Fashion</th:block>
     </h1>
 
-    <section>
-        <h5>Subcategories</h5>
+    <section th:unless="${subject.children.isEmpty()}">
+        <h5>Subcategories  (<th:block th:text="${subject.children.size()}"></th:block>)</h5>
         <ul class="subcategories">
             <li th:each="child: ${subject.children}">
                 <a th:href="@{/subjects/{id}(id=${child.id})}" th:text="${child.name}"
@@ -45,8 +45,8 @@
         </ul>
     </section>
 
-    <section>
-        <h5>Collections</h5>
+    <section th:unless="${collections.isEmpty()}">
+        <h5>Collections (<th:block th:text="${collections.size()}"></th:block>)</h5>
         <ul class="subcategories">
             <li th:each="collection: ${collections}">
                 <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
@@ -60,7 +60,7 @@
     </section>
 
     <section>
-        <h5>Titles</h5>
+        <h5>Titles (<th:block th:text="${subject.titles.size()}"></th:block>)</h5>
         <ul class="subcategories">
             <li th:each="title: ${subject.titles}">
                 <a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="#">My dance blog</a>
