@@ -420,6 +420,16 @@
                     callback(false)
                 });
             },
+            // By default slim-select clears the search when the drop-down is closed. This means if the user focuses
+            // another field we lose their search or any pre-populated value. So as a workaround stash a copy of the
+            // search text before closing and restore it after closing.
+            beforeClose: function() {
+                this.pandasSavedSearch = this.slim.search.input.value;
+            },
+            afterClose: function() {
+                this.slim.search.input.value = this.pandasSavedSearch;
+                delete this.pandasSavedSearch;
+            },
             onChange: function (info) {
                 if (info.value === "new") {
                     document.getElementById("publisherId").value = "";
@@ -433,7 +443,7 @@
                         const host = new URL(urlString).host;
                         const publisherTypeOptions = document.getElementById("publisherType").options;
 
-                        // try to preselect an appropraite publisher type based on the domain suffix
+                        // try to preselect an appropriate publisher type based on the domain suffix
                         outer:
                             for (let i = 0; i < publisherTypeOptions.length; i++) {
                                 const option = publisherTypeOptions[i];
