@@ -167,7 +167,6 @@ public class Title {
             inverseJoinColumns = @JoinColumn(name = "COLLECTION_ID"),
             indexes = { @Index(name = "title_col_title_id_index", columnList = "title_id"),
                         @Index(name = "title_col_collection_id_index", columnList = "collection_id") })
-    @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
     private List<Collection> collections = new ArrayList<>();
 
@@ -328,6 +327,12 @@ public class Title {
     @OneToMany(mappedBy = "continues", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date")
     private List<TitleHistory> continues = new ArrayList<>();
+
+    @PostLoad
+    public void postLoad() {
+        // we can't easily sort by full name in the SQL query so do it after loading
+        collections.sort(Comparator.comparing(Collection::getFullName));
+    }
 
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
