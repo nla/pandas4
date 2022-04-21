@@ -3,6 +3,7 @@ package pandas.collection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -149,7 +150,8 @@ public class WorktraysController {
     }
 
     @GetMapping("/worktrays/{alias}/gathered")
-    public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
+    public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
+                           @PageableDefault(size = 100) Pageable pageable, Model model) {
         Page<Instance> instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable);
         Map<Long, PreviousGather> previousGathers = new HashMap<>();
         instanceRepository.findPreviousStats(instances.getContent())
