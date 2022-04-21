@@ -12,7 +12,8 @@
     <form id="actionForm" method=post th:action="${@link.to(instance)}"></form>
     <header>
         <nav>
-            <a th:href="${@link.to(instance.title)}" class="btn"><i class="icon back"></i> Back to title</a>
+            <a th:if="${instance.canEdit()}" sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:href="${@link.edit(instance)}" class="btn"><i class="icon edit"></i> Edit</a>
+
             <a th:href="${bambooUrl}" class="btn btn-secondary">View in Bamboo</a>
             <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
                     th:href="${@link.to(instance) + '/process'}" class="btn btn-secondary">Process</a>

@@ -56,7 +56,7 @@ public class Instance {
     private Long instanceStatusId;
 
     @Column(name = "IS_DISPLAYED")
-    private Long isDisplayed;
+    private Boolean isDisplayed;
 
     @Column(name = "PREFIX")
     private String prefix;
@@ -185,11 +185,11 @@ public class Instance {
         this.instanceStatusId = instanceStatusId;
     }
 
-    public Long getIsDisplayed() {
+    public Boolean getIsDisplayed() {
         return this.isDisplayed;
     }
 
-    public void setIsDisplayed(Long isDisplayed) {
+    public void setIsDisplayed(Boolean isDisplayed) {
         this.isDisplayed = isDisplayed;
     }
 
@@ -337,6 +337,10 @@ public class Instance {
 
     public boolean canStop() {
         return getState().getName().equals(State.GATHERING);
+    }
+
+    public boolean canEdit() {
+        return getState().isArchived();
     }
 
     public List<PandasExceptionLog> getExceptions() {

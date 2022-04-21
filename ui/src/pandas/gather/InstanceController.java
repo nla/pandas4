@@ -111,6 +111,22 @@ public class InstanceController {
         return "redirect:" + Requests.backlinkOrDefault("/instances");
     }
 
+    @GetMapping("/instances/{id}/edit")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
+    public String edit(@PathVariable("id") Instance instance, Model model) {
+        model.addAttribute("instance", instance);
+        model.addAttribute("form", InstanceEditForm.of(instance));
+        return "InstanceEdit";
+    }
+
+    @PostMapping("/instances/{id}/edit")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
+    public String update(@PathVariable("id") Instance instance, InstanceEditForm form) {
+        form.applyTo(instance);
+        instanceRepository.save(instance);
+        return "redirect:/instances/" + instance.getId();
+    }
+
     @PostMapping("/instances/{id}/archive")
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     public String archive(@PathVariable("id") Instance instance,

@@ -51,6 +51,10 @@ public class State {
         return getName().equals(FAILED);
     }
 
+    public boolean isArchived() {
+        return getName().equals(ARCHIVED);
+    }
+
     public boolean canBeRetried() {
         return switch (getName()) {
             case ARCHIVING, DELETING, GATHER_PROCESS, GATHERING -> true;

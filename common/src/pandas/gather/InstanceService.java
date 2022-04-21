@@ -124,7 +124,7 @@ public class InstanceService {
     public void publishInstanceImmediatelyIfNecessary(long instanceId) {
         Instance instance = instanceRepository.findById(instanceId).orElseThrow();
         if (instance.getTitle().getTep() != null && instance.getTitle().getTep().isPublishImmediately()) {
-            instance.setIsDisplayed(1L);
+            instance.setIsDisplayed(true);
             instanceRepository.save(instance);
         }
     }
@@ -148,7 +148,7 @@ public class InstanceService {
         // set them up through the publish worktray
         Title title = instance.getTitle();
         if (titleRepository.countIssues(title) == 0) {
-            instance.setIsDisplayed(1L);
+            instance.setIsDisplayed(true);
         }
 
         instanceRepository.save(instance);

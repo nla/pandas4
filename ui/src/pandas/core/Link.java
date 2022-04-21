@@ -44,6 +44,10 @@ public class Link {
         return to(agency) + "/edit";
     }
 
+    public String edit(Instance instance) {
+        return to(instance) + "/edit";
+    }
+
     public String edit(User user) {
         return to(user) + "/edit";
     }
