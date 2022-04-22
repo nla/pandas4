@@ -122,6 +122,10 @@
 
     <section>
         <h2>Failed</h2>
+        <form th:action="@{/queue/retry-all}" method="post">
+            <button type="submit" class="btn-danger">Retry all</button>
+        </form>
+
         <table>
             <th:block th:each="instance: ${failedInstances}">
                 <tr th:replace="gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions})">

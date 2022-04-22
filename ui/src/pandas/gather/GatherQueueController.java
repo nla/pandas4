@@ -39,4 +39,14 @@ public class GatherQueueController {
         instanceService.retryAfterFailure(instance, userService.getCurrentUser());
         return "redirect:/queue";
     }
+
+    @PostMapping("/queue/retry-all")
+    @Transactional
+    public String retryAll() {
+        for (Instance instance : instanceRepository.findFailed()) {
+            instanceService.retryAfterFailure(instance, userService.getCurrentUser());
+        }
+        return "redirect:/queue";
+    }
+
 }
