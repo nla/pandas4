@@ -134,7 +134,7 @@ public class DashboardController {
         }
 
         public boolean isEmpty() {
-            return websites.isEmpty() && collections.isEmpty();
+            return websites.isEmpty() && collections.isEmpty() && instancesArchived.isEmpty();
         }
     }
 
