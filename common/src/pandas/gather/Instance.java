@@ -332,7 +332,7 @@ public class Instance {
     }
 
     public boolean canDelete() {
-        return Set.of(State.GATHERING, State.GATHERED, State.CREATION).contains(getState().getName());
+        return Set.of(State.GATHERING, State.GATHERED, State.CREATION, State.FAILED).contains(getState().getName());
     }
 
     public boolean canStop() {
