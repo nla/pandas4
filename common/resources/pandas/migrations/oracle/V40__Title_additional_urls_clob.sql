@@ -1,0 +1,2 @@
+alter table TITLE_GATHER
+    modify ADDITIONAL_URLS CLOB;
