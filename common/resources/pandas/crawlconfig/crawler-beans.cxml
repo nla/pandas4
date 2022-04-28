@@ -274,14 +274,14 @@
     </bean>
     <bean id="extractorHttp" class="org.archive.modules.extractor.ExtractorHTTP">
     </bean>
-    <!--    <bean id="extractorChromeTooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">-->
-    <!--    </bean>-->
-    <!--    <bean id="extractorChrome" class="org.archive.modules.extractor.ExtractorChrome">-->
-    <!--        <property name="enabled" value="false" />-->
-    <!--        <property name="shouldProcessRule">-->
-    <!--            <ref bean="extractorChromeTooManyHopsDecideRule" />-->
-    <!--        </property>-->
-    <!--    </bean>-->
+    <bean id="extractorChromeTooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
+    </bean>
+    <bean id="extractorChrome" class="org.archive.modules.extractor.ExtractorChrome">
+        <property name="enabled" value="false" />
+        <property name="shouldProcessRule">
+            <ref bean="extractorChromeTooManyHopsDecideRule" />
+        </property>
+    </bean>
     <bean id="extractorRobotsTxt" class="org.archive.modules.extractor.ExtractorRobotsTxt">
     </bean>
     <bean id="extractorSitemap" class="org.archive.modules.extractor.ExtractorSitemap">
@@ -303,6 +303,10 @@
     </bean>
     <bean id="extractorSwf" class="org.archive.modules.extractor.ExtractorSWF">
     </bean>
+    <bean id="extractorWixStatic" class="org.archive.modules.extractor.ExtractorImpliedURI">
+        <property name="regex" value="(https?://static\.wixstatic\.com/media/[/]+)/v1/.*" />
+        <property name="format" value="$1" />
+    </bean>
     <!-- now, processors are assembled into ordered FetchChain bean -->
     <bean id="fetchProcessors" class="org.archive.modules.FetchChain">
         <property name="processors">
@@ -319,7 +323,7 @@
                 <!-- ...extract outlinks from HTTP headers... -->
                 <ref bean="extractorHttp"/>
                 <!-- NLA: load in headless browser -->
-                <!--                <ref bean="extractorChrome"/>-->
+                <ref bean="extractorChrome"/>
                 <!-- ...extract sitemap urls from robots.txt... -->
                 <ref bean="extractorRobotsTxt"/>
                 <!-- ...extract links from sitemaps... -->
@@ -332,6 +336,8 @@
                 <ref bean="extractorJs"/>
                 <!-- ...extract outlinks from Flash content... -->
                 <ref bean="extractorSwf"/>
+                <!-- NLA: capture the originals of wix images (without window-size dependent scaling & cropping) -->
+                <ref bean="extractorWixStatic"/>
             </list>
         </property>
     </bean>
