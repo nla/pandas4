@@ -11,7 +11,10 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import pandas.collection.*;
+import pandas.collection.Title;
+import pandas.collection.TitleEditForm;
+import pandas.collection.TitleRepository;
+import pandas.collection.TitleService;
 import pandas.gather.*;
 import pandas.gatherer.heritrix.HeritrixClient;
 
@@ -69,7 +72,7 @@ public class GathererIT {
         String javaExe = Paths.get(System.getProperty("java.home")).resolve("bin").resolve("java").toString();
         Path heritrixWorking = Files.createDirectories(tempDir.resolve("heritrix"));
         Path heritrixStdio = heritrixWorking.resolve("stdio");
-        Process process = new ProcessBuilder(javaExe, "-cp", Paths.get("target/dependency/heritrix-3.4.0-20210803/lib/*").toAbsolutePath().toString(),
+        Process process = new ProcessBuilder(javaExe, "-cp", Paths.get("target/dependency/heritrix-contrib-3.4.0-20210923/lib/*").toAbsolutePath().toString(),
                 "-Xmx512m",
                 "org.archive.crawler.Heritrix", "-a", "password", "-p", Integer.toString(heritrixPort))
                 .directory(heritrixWorking.toFile())

@@ -118,10 +118,10 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.archive.heritrix</groupId>
-                                    <artifactId>heritrix</artifactId>
-                                    <version>3.4.0-20210803</version>
+                                    <artifactId>heritrix-contrib</artifactId>
+                                    <version>3.4.0-20210923</version>
                                     <classifier>dist</classifier>
-                                    <type>zip</type>
+                                    <type>tar.gz</type>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
