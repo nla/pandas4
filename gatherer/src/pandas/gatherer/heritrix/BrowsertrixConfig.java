@@ -11,6 +11,10 @@ public class BrowsertrixConfig {
     private String userAgentSuffix = "nla.gov.au_bot (National Library of Australia Legal Deposit Request; +http://www.nla.gov.au/legal-deposit/request)";
     private int workers = 4;
 
+    private Long defaultCrawlLimitBytes = 2L * 1024L * 1024L * 1024L;
+
+    private Long defaultCrawlLimitSeconds = 12L * 60 * 60;
+
     public String getPodmanOptions() {
         return podmanOptions;
     }
@@ -41,5 +45,21 @@ public class BrowsertrixConfig {
 
     public void setWorkers(int workers) {
         this.workers = workers;
+    }
+
+    public void setDefaultCrawlLimitBytes(Long defaultCrawlLimitBytes) {
+        this.defaultCrawlLimitBytes = defaultCrawlLimitBytes;
+    }
+
+    public Long getDefaultCrawlLimitBytes() {
+        return defaultCrawlLimitBytes;
+    }
+
+    public Long getDefaultCrawlLimitSeconds() {
+        return defaultCrawlLimitSeconds;
+    }
+
+    public void setDefaultCrawlLimitSeconds(Long defaultCrawlLimitSeconds) {
+        this.defaultCrawlLimitSeconds = defaultCrawlLimitSeconds;
     }
 }

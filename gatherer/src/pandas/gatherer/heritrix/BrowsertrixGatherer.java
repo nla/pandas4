@@ -128,22 +128,30 @@ public class BrowsertrixGatherer implements Backend {
     }
 
     private boolean reachedCrawlLimit(Profile profile, Instance instance, long startTimeMillis) {
+        Long crawlLimitBytes = config.getDefaultCrawlLimitBytes();
+        Long crawlLimitSeconds = config.getDefaultCrawlLimitSeconds();
+
         if (profile != null) {
             if (profile.getCrawlLimitBytes() != null) {
-                Long size = instance.getGather().getSize();
-                if (size != null && size >= profile.getCrawlLimitBytes()) {
-                    log.info("Reached crawl size limit ({} >= {} bytes)", size, profile.getCrawlLimitBytes());
-                    return true;
-                }
+                crawlLimitBytes = profile.getCrawlLimitBytes();
             }
             if (profile.getCrawlLimitSeconds() != null) {
-                long secondsElapsed = (System.currentTimeMillis() - startTimeMillis) / 1000;
-                if (secondsElapsed >= profile.getCrawlLimitSeconds()) {
-                    log.info("Reached crawl time limit ({} >= {} seconds)", secondsElapsed, profile.getCrawlLimitSeconds());
-                    return true;
-                }
+                crawlLimitSeconds = profile.getCrawlLimitSeconds();
             }
         }
+
+        Long size = instance.getGather().getSize();
+        if (size != null && crawlLimitBytes != null && size >= crawlLimitBytes) {
+            log.info("Reached crawl size limit ({} >= {} bytes)", size, crawlLimitBytes);
+            return true;
+        }
+
+        long secondsElapsed = (System.currentTimeMillis() - startTimeMillis) / 1000;
+        if (crawlLimitSeconds != null && secondsElapsed >= crawlLimitSeconds) {
+            log.info("Reached crawl time limit ({} >= {} seconds)", secondsElapsed, crawlLimitSeconds);
+            return true;
+        }
+
         return false;
     }
 
