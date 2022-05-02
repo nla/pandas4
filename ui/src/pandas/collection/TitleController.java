@@ -486,9 +486,17 @@ public class TitleController {
     @CrossOrigin("*")
     @ResponseBody
     @JsonView(View.Summary.class)
-    public List<Title> check(@RequestParam("url") String url) {
+    public List<Title> checkUrl(@RequestParam("url") String url) {
         String urlWithoutPath = url.replaceFirst("^(https?://[^/]+/).*$", "$1");
         return titleSearcher.urlCheck(urlWithoutPath);
+    }
+
+    @GetMapping(value = "/titles/check-name", produces = "application/json")
+    @CrossOrigin("*")
+    @ResponseBody
+    @JsonView(View.Summary.class)
+    public List<Title> checkName(@RequestParam("name") String name) {
+        return titleSearcher.nameCheck(name);
     }
 
     public static class ChartData {

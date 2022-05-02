@@ -93,6 +93,12 @@ public class TitleSearcher {
                 .matching(url)).fetch(5).hits();
     }
 
+    public List<Title> nameCheck(String name) {
+        return Search.session(entityManager).search(Title.class)
+                .where(f -> f.phrase().fields("name")
+                        .matching(name)).fetch(5).hits();
+    }
+
     private class Query {
         private final SearchSession session;
         private final MultiValueMap<String, String> params;

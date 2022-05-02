@@ -126,6 +126,7 @@
                     </select>
                 </label>
             </div>
+            <div id="duplicateNameAlert" class="alert-warning" style="display: none"></div>
         </fieldset>
 
         <fieldset style="flex-grow: 1">
@@ -350,6 +351,7 @@
 <script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
 <script th:inline="javascript">
     var titleCheckEndpoint = /*[[@{/titles/check}]]*/ '../titles/check';
+    var titleCheckNameEndpoint = /*[[@{/titles/check-name}]]*/ '../titles/check-name';
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
     var publisherJsonEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
     var publishersEndpoint = /*[[@{/publishers}]]*/ '../publishers';
@@ -470,14 +472,60 @@
             }
         });
     }
+    let nameField = document.getElementById("name");
+
     function nameChanged() {
         if (publisherSelect && !publisherSelect.selected()) {
-            let name = document.getElementById("name").value;
+            let name = nameField.value;
             name = name.replace(/\s*:.*/, '');
             publisherSelect.search(name);
         }
+
+        fetch(titleCheckNameEndpoint + "?name=" + encodeURIComponent(nameField.value))
+            .then(response => response.json())
+            .then(titles => {
+                titles = titles.filter(title => title.id !== thisTitleId);
+
+                let warningDiv = document.getElementById("duplicateNameAlert");
+                warningDiv.innerHtml = '';
+
+                if (titles.length === 0) {
+                    warningDiv.style.display = 'none';
+                    return;
+                }
+
+                warningDiv.style.display = 'block';
+                warningDiv.appendChild(document.createTextNode("We have some other records with a similar name: "));
+                const list = document.createElement("ul");
+                warningDiv.appendChild(list);
+
+                for (let title of titles) {
+                    let urlMatch = title.titleUrl.match(/(https?:\/\/)?(www\.)?([^/]*)(\?.*)?/)
+                    let host = urlMatch && urlMatch[3];
+
+                    let titleLink = document.createElement("a");
+                    titleLink.href = titlesEndpoint + "/" + title.id;
+                    titleLink.innerText = title.name;
+                    titleLink.target = "_blank";
+                    let item = document.createElement("li");
+                    item.appendChild(titleLink);
+
+                    if (host) {
+                        let liveLink = document.createElement("a");
+                        liveLink.href = title.titleUrl;
+                        liveLink.innerText = '(' + host + ')';
+                        liveLink.target = '_blank';
+                        liveLink.classList.add('live-url');
+                        item.appendChild(document.createTextNode(' '));
+                        item.appendChild(liveLink);
+                    }
+
+                    list.appendChild(item);
+                }
+            });
     }
-    document.getElementById("name").addEventListener("change", nameChanged);
+    nameField.addEventListener("change", nameChanged);
+    if (nameField.value) nameChanged();
 
     function titleUrlChanged () {
         // document.getElementById("urlInfo").innerText = "Loading...";
@@ -567,7 +615,7 @@
                     fetchAlert.style.display = 'nonew';
                 }
 
-                let nameTextbox = document.getElementById("name");
+                let nameTextbox = nameField;
                 if (!nameTextbox.value && info.title && info.status < 300) {
                     nameTextbox.value = info.title.replace(/^Home\s*[-:|]\s*/, '');
                     if (document.activeElement === nameTextbox) {
