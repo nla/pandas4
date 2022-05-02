@@ -487,7 +487,7 @@
                 titles = titles.filter(title => title.id !== thisTitleId);
 
                 let warningDiv = document.getElementById("duplicateNameAlert");
-                warningDiv.innerHtml = '';
+                warningDiv.innerHTML = '';
 
                 if (titles.length === 0) {
                     warningDiv.style.display = 'none';
@@ -558,7 +558,7 @@
                 titles = titles.filter(title => title.id !== thisTitleId);
                 if (titles.length === 0) return;
                 let warningDiv = document.getElementById("duplicateAlert");
-                warningDiv.innerHtml = '';
+                warningDiv.innerHTML = '';
                 warningDiv.style.display = 'block';
                 warningDiv.appendChild(document.createTextNode("We have some other records for this website: "));
                 const list = document.createElement("ul");
