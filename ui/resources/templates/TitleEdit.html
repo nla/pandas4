@@ -522,6 +522,14 @@
 
                     list.appendChild(item);
                 }
+
+                if (titles.length >= 4) {
+                    let moreLink = document.createElement("a");
+                    moreLink.href = titlesEndpoint + "?q=" + encodeURIComponent(nameField.value);
+                    moreLink.innerText = "More...";
+                    moreLink.target = "_blank";
+                    warningDiv.appendChild(moreLink);
+                }
             });
     }
     nameField.addEventListener("change", nameChanged);
@@ -573,11 +581,13 @@
                     list.appendChild(item);
                 }
 
-                let link = document.createElement("a");
-                link.href = titlesEndpoint + "?q=" + encodeURIComponent(titleUrlField.value);
-                link.innerText = "More...";
-                link.target = "_blank";
-                warningDiv.appendChild(link);
+                if (titles.length >= 4) {
+                    let moreLink = document.createElement("a");
+                    moreLink.href = titlesEndpoint + "?q=" + encodeURIComponent(titleUrlField.value);
+                    moreLink.innerText = "More...";
+                    moreLink.target = "_blank";
+                    warningDiv.appendChild(moreLink);
+                }
             });
 
         fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
