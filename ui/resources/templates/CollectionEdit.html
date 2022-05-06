@@ -10,7 +10,7 @@
 <main>
     <header>
         <nav>
-            <button type="submit" data-keybind="s" class="btn btn-primary" form=editForm><i class="icon save"></i>Save</button>
+            <button type="submit" class="btn btn-primary" form=editForm><i class="icon save"></i>Save</button>
             <button onclick="history.back(); return false" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i> Cancel</button>
         </nav>
         <button th:if="${collection.id != null}" type="submit" th:formaction="@{|/collections/${collection.id}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>

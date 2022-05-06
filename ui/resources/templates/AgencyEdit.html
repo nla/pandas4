@@ -10,7 +10,7 @@
 <main>
     <header>
         <nav>
-            <button type="submit" data-keybind="s" class="btn btn-primary" form=form><i class="logo save"></i> Save</button>
+            <button type="submit" class="btn btn-primary" form=form><i class="logo save"></i> Save</button>
             <a href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary" form=form><i class="logo cancel"></i> Cancel</a>
         </nav>
         <button th:if="${agency.id != null}" type="submit" th:formaction="@{|/agencies/${agency.id}/delete|}"
