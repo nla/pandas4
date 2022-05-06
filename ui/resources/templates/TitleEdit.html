@@ -15,7 +15,7 @@
     <form method=post class=form th:object="${form}" th:action="@{/titles}" onsubmit="return !!window.loaded">
         <header>
             <div th:if="${form.id != null}">
-                <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
+                <button type="submit" class="btn btn-primary"><i class="icon save"></i>Save</button>
                 <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
             </div>
             <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
@@ -340,7 +340,7 @@
         </label>
 
         <div th:if="${form.id == null}">
-            <button type="submit" data-keybind=s class="btn btn-primary"><i class="icon save"></i>Save</button>
+            <button type="submit" class="btn btn-primary"><i class="icon save"></i>Save</button>
             <button type="submit" class="btn btn-secondary" name="action" value="saveAndAddAnother">Save and add another</button>
             <button style="float: right" onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
         </div>
