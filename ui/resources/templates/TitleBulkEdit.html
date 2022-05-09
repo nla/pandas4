@@ -60,6 +60,14 @@
                 </option>
             </select>
 
+            <input type=checkbox id=editScope th:field="*{editScope}">
+            <label for=editScope>What to collect:</label>
+            <select id=scope th:field="*{scope}">
+                <option th:each="scope: ${allScopes}" th:text="${scope.name}" th:value="${scope.id}">
+                    Just this page
+                </option>
+            </select>
+
             <input type=checkbox id=editOwner th:field="*{editOwner}">
             <label for=editOwner>Owner:</label>
             <select id=owner th:field="*{owner}">

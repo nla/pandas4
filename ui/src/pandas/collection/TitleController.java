@@ -143,6 +143,7 @@ public class TitleController {
         model.addAttribute("allUsers", userRepository.findByActiveIsTrueOrderByNameGivenAscNameFamilyAsc());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
+        model.addAttribute("allScopes", scopeRepository.findAll());
         return "TitleBulkEdit";
     }
 

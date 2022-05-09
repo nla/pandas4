@@ -54,6 +54,7 @@ public class TitleService {
         form.setTitles(titles);
         form.setMethod(Utils.getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getMethod()));
         form.setSchedule(Utils.getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getSchedule()));
+        form.setScope(Utils.getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getScope()));
         form.setAnbdNumber(Utils.getIfSame(titles, Title::getAnbdNumber));
         form.setOwner(Utils.getIfSame(titles, Title::getOwner));
         return form;
@@ -304,6 +305,10 @@ public class TitleService {
                 if (form.isEditSchedule()) gather.setSchedule(form.getSchedule());
                 if (form.isEditMethod()) gather.setMethod(form.getMethod());
                 gathers.add(gather);
+            }
+
+            if (form.isEditScope()) {
+                title.getGather().setScope(form.getScope());
             }
 
             if (!form.getCollectionsToAdd().isEmpty()) {

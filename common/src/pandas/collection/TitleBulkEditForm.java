@@ -3,6 +3,7 @@ package pandas.collection;
 import pandas.agency.User;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
+import pandas.gather.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,9 @@ public class TitleBulkEditForm {
 
     private boolean editSchedule;
     private GatherSchedule schedule;
+
+    private boolean editScope;
+    private Scope scope;
 
     private boolean editOwner;
     private User owner;
@@ -138,5 +142,21 @@ public class TitleBulkEditForm {
 
     public void setCollectionsToAdd(List<Collection> collectionsToAdd) {
         this.collectionsToAdd = collectionsToAdd;
+    }
+
+    public boolean isEditScope() {
+        return editScope;
+    }
+
+    public void setEditScope(boolean editScope) {
+        this.editScope = editScope;
+    }
+
+    public Scope getScope() {
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+        this.scope = scope;
     }
 }
