@@ -122,6 +122,8 @@ public class TitleGather {
 
     @ManyToOne
     @JoinColumn(name = "SCOPE_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Scope scope;
 
     public TitleGather() {
