@@ -626,6 +626,11 @@ ul.subject-list li + li:before {
     color: darkred;
 }
 
+.no-longer-online {
+    font-variant: small-caps;
+    color: #f77;
+}
+
 .status-selected, .status-permission-granted { color: #1c7430; }
 .status-rejected { color: darkred; }
 .status-permission-impossible, .status-permission-denied { color: midnightblue; }
