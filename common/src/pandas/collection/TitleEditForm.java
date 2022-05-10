@@ -41,6 +41,7 @@ public class TitleEditForm {
     private Reason reason;
     private boolean legalDeposit = true;
     private boolean unableToArchive;
+    private boolean disappeared;
 
     private Publisher publisher;
     private String publisherName;
@@ -56,6 +57,7 @@ public class TitleEditForm {
         setAnbdNumber(title.getAnbdNumber());
         setCataloguingNotRequired(title.isCataloguingNotRequired());
         setCollections(title.getCollections());
+        setDisappeared(title.isDisappeared());
         setFormat(title.getFormat());
         setId(title.getId());
         setLegalDeposit(title.getLegalDeposit());
@@ -321,5 +323,13 @@ public class TitleEditForm {
 
     public void setContinues(Title continues) {
         this.continues = continues;
+    }
+
+    public void setDisappeared(boolean disappeared) {
+        this.disappeared = disappeared;
+    }
+
+    public boolean isDisappeared() {
+        return disappeared;
     }
 }

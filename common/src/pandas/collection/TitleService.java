@@ -100,6 +100,7 @@ public class TitleService {
         title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
         title.setCollections(form.getCollections());
+        title.setDisappeared(form.isDisappeared());
         title.setFormat(form.getFormat() == null ? formatRepository.findById(Format.DEFAULT_ID).orElseThrow() : form.getFormat());
         title.setLegalDeposit(form.getLegalDeposit());
         title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));

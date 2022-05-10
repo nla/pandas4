@@ -132,6 +132,7 @@
                 </th:block>
             </div>
             <div th:if="${title.statusReason != null}" th:text="${title.statusReason.name}" style="color: #777"></div>
+            <div th:if="${title.disappeared}" style="color: #f77">No longer online</div>
             <p></p>
             <details>
                 <summary>Schedule: <span th:text="${title?.gather?.schedule?.name}">Weekly</span> <span

@@ -167,6 +167,7 @@
             </label>
             <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label>
             <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{unableToArchive}"> Was unable to be archived</label>
+            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{disappeared}"> No longer online</label>
             <details sec:authorize="hasRole('stduser')" th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
                 <summary>Cataloguing</summary>
                 <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
