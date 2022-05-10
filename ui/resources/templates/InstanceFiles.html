@@ -118,7 +118,7 @@
                 <li><a th:href="${@link.to(instance)}"><span th:text="${instance.gatherMethodName}"></span> gather from
                     <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></a></li>
                 <li class="active">
-                    <span th:text="${#numbers.formatInteger(results.totalBytes(), 0, 'COMMA')}">16</span> files
+                    <span th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</span> files
                     (<span
                         th:text="${T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(results.totalBytes())}">16 MB</span>)
                 </li>
