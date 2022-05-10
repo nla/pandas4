@@ -25,6 +25,8 @@ public class Scope {
     @Column(name = "DEPTH")
     private Integer depth;
 
+    private boolean includeSubdomains;
+
     public Scope() {
     }
 
@@ -55,5 +57,13 @@ public class Scope {
 
     public void setDepth(Integer depth) {
         this.depth = depth;
+    }
+
+    public boolean isIncludeSubdomains() {
+        return includeSubdomains;
+    }
+
+    public void setIncludeSubdomains(boolean includeSubdomains) {
+        this.includeSubdomains = includeSubdomains;
     }
 }

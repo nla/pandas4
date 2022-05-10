@@ -74,8 +74,13 @@ public class CrawlBeans {
         StringBuilder overrides = new StringBuilder();
 
         Scope scope = instance.getTitle().getGather().getScope();
-        if (scope != null && scope.getDepth() != null) {
-            overrides.append("tooManyHopsDecideRule.maxHops=").append(scope.getDepth()).append("\n");
+        if (scope != null) {
+            if (scope.getDepth() != null) {
+                overrides.append("tooManyHopsDecideRule.maxHops=").append(scope.getDepth()).append("\n");
+            }
+            if (scope.isIncludeSubdomains()) {
+                overrides.append("onDomainsDecideRule.enabled=true\n");
+            }
         }
 
         Profile profile = instance.getTitle().getGather().getActiveProfile();

@@ -81,6 +81,11 @@ public class BrowsertrixGatherer implements Backend {
                 "--generatecdx", "--logging", "none", "--limit", String.valueOf(config.getPageLimit()),
                 "--depth", String.valueOf(depth)));
 
+        if (scope != null && scope.isIncludeSubdomains()) {
+            command.add("--scopeType");
+            command.add("domain");
+        }
+
         if (!Strings.isNullOrBlank(config.getUserAgentSuffix())) {
             command.add("--userAgentSuffix");
             command.add(config.getUserAgentSuffix());
