@@ -26,7 +26,7 @@
             <input class="form-control" id="name" name="name" th:value="${preset.name}" required>
         </div>
         <div class="form-group">
-            <label for="filters">Filters:</label>
+            <label for="filters">Filters (HTTrack only currently)</label>
             <textarea class="form-control" id="filters" name="filters" rows="15"
                       th:text="${preset.filters?.replace(' ', '\n') ?: ''}"></textarea>
         </div>
