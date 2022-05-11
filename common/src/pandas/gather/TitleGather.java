@@ -112,13 +112,13 @@ public class TitleGather {
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "gather")
     private List<GatherDate> oneoffDates = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "T_GATHER_ARG",
             joinColumns = @JoinColumn(name = "TITLE_GATHER_ID"),
             inverseJoinColumns = @JoinColumn(name = "OPTION_ARGUMENT_ID"),
             indexes = { @Index(name = "t_gather_arg_title_gather_id_index", columnList = "TITLE_GATHER_ID"),
                     @Index(name = "t_gather_arg_option_argument_id_index", columnList = "OPTION_ARGUMENT_ID") })
-    private List<OptionArgument> arguments = new ArrayList<>();
+    private List<OptionArgument> optionArguments = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "SCOPE_ID")
@@ -349,20 +349,39 @@ public class TitleGather {
         setNextGatherDate(next);
     }
 
-    public List<OptionArgument> getArguments() {
-        return arguments;
+    public void addOptionArgument(OptionArgument argument) {
+        optionArguments.add(argument);
     }
 
-    public void setArguments(List<OptionArgument> arguments) {
-        this.arguments = arguments;
+    public List<OptionArgument> getOptionArguments() {
+        return Collections.unmodifiableList(optionArguments);
     }
+
+    public void setOptionArguments(List<OptionArgument> arguments) {
+        this.optionArguments = arguments;
+    }
+
+    public OptionArgument getFiltersOptionArgument() {
+        for (var argument : getOptionArguments()) {
+            if (argument.getOption().isGatherFilters()) {
+                return argument;
+            }
+        }
+        return null;
+    }
+
+    public String getFilters() {
+        var argument = getFiltersOptionArgument();
+        return argument == null ? null : argument.getArgument();
+    }
+
 
     /**
      * Constructs the HTTrack gather command line.
      */
     public String buildHttrackCommand() {
         StringBuilder sb = new StringBuilder();
-        for (OptionArgument argument : getArguments()) {
+        for (OptionArgument argument : getOptionArguments()) {
             argument.toCommandLine(sb);
         }
 

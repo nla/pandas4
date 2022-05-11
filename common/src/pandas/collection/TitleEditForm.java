@@ -37,6 +37,7 @@ public class TitleEditForm {
     private boolean cataloguingNotRequired = true;
     private String notes;
     private String seedUrls;
+    private String filters;
     private Status status;
     private Reason reason;
     private boolean legalDeposit = true;
@@ -48,7 +49,6 @@ public class TitleEditForm {
     private PublisherType publisherType;
     private Profile activeProfile;
     private Scope scope;
-
     private Title continues;
 
     public TitleEditForm() {}
@@ -79,6 +79,7 @@ public class TitleEditForm {
         TitleGather gather = title.getGather();
         if (gather != null) {
             setActiveProfile(gather.getActiveProfile());
+            setFilters(gather.getFilters() == null ? null : gather.getFilters().replace(' ', '\n'));
             setGatherMethod(gather.getMethod());
             setGatherSchedule(gather.getSchedule());
             setOneoffDates(gather.getOneoffDates().stream().map(GatherDate::getDate).toList());
@@ -331,5 +332,13 @@ public class TitleEditForm {
 
     public boolean isDisappeared() {
         return disappeared;
+    }
+
+    public String getFilters() {
+        return filters;
+    }
+
+    public void setFilters(String filters) {
+        this.filters = filters;
     }
 }

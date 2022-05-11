@@ -7,13 +7,24 @@ import java.util.Objects;
 @Table(name = "OPTION_ARGUMENT")
 public class OptionArgument {
     private static final String BLANK_ARGUMENT = "<blank>";
-    private String argument;
-    private String description;
+
+    @Id
+    @Column(name = "OPTION_ARGUMENT_ID", nullable = false, precision = 0)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "OPTION_ARGUMENT_SEQ")
+    @SequenceGenerator(name = "OPTION_ARGUMENT_SEQ", sequenceName = "OPTION_ARGUMENT_SEQ", allocationSize = 1)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "COMMAND_LINE_OPTION_ID", referencedColumnName = "COMMAND_LINE_OPTION_ID")
     private Option option;
 
     @Basic
     @Column(name = "ARGUMENT", nullable = true, length = 4000)
+    private String argument;
+    @Basic
+    @Column(name = "ARGUMENT_DESCRIPTION", nullable = true, length = 512)
+    private String description;
+
     public String getArgument() {
         return argument;
     }
@@ -22,8 +33,6 @@ public class OptionArgument {
         this.argument = argument;
     }
 
-    @Basic
-    @Column(name = "ARGUMENT_DESCRIPTION", nullable = true, length = 512)
     public String getDescription() {
         return description;
     }
@@ -32,8 +41,6 @@ public class OptionArgument {
         this.description = description;
     }
 
-    @Id
-    @Column(name = "OPTION_ARGUMENT_ID", nullable = false, precision = 0)
     public Long getId() {
         return id;
     }
@@ -55,8 +62,6 @@ public class OptionArgument {
         return Objects.hash(argument, description, id);
     }
 
-    @ManyToOne
-    @JoinColumn(name = "COMMAND_LINE_OPTION_ID", referencedColumnName = "COMMAND_LINE_OPTION_ID")
     public Option getOption() {
         return option;
     }

@@ -5,6 +5,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "COMMAND_LINE_OPT")
 public class Option {
+    public static long GATHER_FILTERS_ID = 4;
+
     @Id
     @Column(name = "COMMAND_LINE_OPTION_ID", nullable = false, precision = 0)
     private Long id;
@@ -207,5 +209,9 @@ public class Option {
 
     public void setGroup(OptionGroup group) {
         this.group = group;
+    }
+
+    public boolean isGatherFilters() {
+        return id.equals(GATHER_FILTERS_ID);
     }
 }

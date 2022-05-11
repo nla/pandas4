@@ -1,5 +1,6 @@
 package pandas.gather;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
@@ -25,6 +26,7 @@ public class Scope {
     @Column(name = "DEPTH")
     private Integer depth;
 
+    @ColumnDefault("false")
     private boolean includeSubdomains;
 
     public Scope() {

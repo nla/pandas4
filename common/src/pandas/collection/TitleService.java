@@ -30,12 +30,14 @@ public class TitleService {
     private final GatherScheduleRepository gatherScheduleRepository;
     private final PublisherRepository publisherRepository;
     private final ScopeRepository scopeRepository;
+    private final OptionRepository optionRepository;
 
     public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
                         StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
-                        GatherScheduleRepository gatherScheduleRepository, PublisherRepository publisherRepository, ScopeRepository scopeRepository) {
+                        GatherScheduleRepository gatherScheduleRepository, PublisherRepository publisherRepository,
+                        ScopeRepository scopeRepository, OptionRepository optionRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
@@ -46,6 +48,7 @@ public class TitleService {
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.publisherRepository = publisherRepository;
         this.scopeRepository = scopeRepository;
+        this.optionRepository = optionRepository;
     }
 
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
@@ -238,6 +241,19 @@ public class TitleService {
 
         titleGather.calculateNextGatherDate();
         titleGather.setGatherCommand(titleGather.buildHttrackCommand());
+
+        String filters = form.getFilters() == null ? null : form.getFilters().replace('\n', ' ');
+        var filtersArgument = titleGather.getFiltersOptionArgument();
+        if (filtersArgument != null) {
+            filtersArgument.setArgument(filters);
+        } else if (filters != null && !filters.isBlank()) {
+            filtersArgument = new OptionArgument();
+            filtersArgument.setOption(optionRepository.findById(Option.GATHER_FILTERS_ID)
+                    .orElseThrow(() -> new IllegalStateException("Couldn't find Option with id " +
+                            Option.GATHER_FILTERS_ID + " (Gather Filters)")));
+            titleGather.addOptionArgument(filtersArgument);
+            filtersArgument.setArgument(filters);
+        }
 
         titleGatherRepository.save(titleGather);
 
