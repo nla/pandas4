@@ -5,26 +5,74 @@ import javax.persistence.*;
 @Entity
 @Table(name = "COMMAND_LINE_OPT")
 public class Option {
-    private Long accessLevel;
+    @Id
+    @Column(name = "COMMAND_LINE_OPTION_ID", nullable = false, precision = 0)
     private Long id;
-    private String defaultValue;
-    private String displayName;
-    private String explanation;
-    private Integer hideArgument;
-    private Integer hideOption;
-    private Integer active;
-    private Integer isArgumentQuoted;
-    private Integer mandatory;
-    private String longOption;
-    private String optionDescription;
-    private String optionPrefix;
-    private String optionSeparator;
-    private String shortOption;
-    private String uiElement;
-    private OptionGroup group;
 
     @Basic
     @Column(name = "ACCESS_LEVEL", nullable = true, precision = 0)
+    private Long accessLevel;
+
+    @Basic
+    @Column(name = "DEFAULT_VALUE", nullable = true, length = 128)
+    private String defaultValue;
+
+    @Basic
+    @Column(name = "DISPLAY_NAME", nullable = true, length = 256)
+    private String displayName;
+
+    @Basic
+    @Column(name = "EXPLANATION", nullable = true, length = 2000)
+    private String explanation;
+
+    @Basic
+    @Column(name = "HIDE_ARGUMENT", nullable = true, precision = 0)
+    private Integer hideArgument;
+
+    @Basic
+    @Column(name = "HIDE_OPTION", nullable = true, precision = 0)
+    private Integer hideOption;
+
+    @Basic
+    @Column(name = "IS_ACTIVE", nullable = true, precision = 0)
+    private Integer active;
+
+    @Basic
+    @Column(name = "IS_ARGUMENT_QUOTED", nullable = true, precision = 0)
+    private Integer isArgumentQuoted;
+
+    @Basic
+    @Column(name = "IS_MANDATORY", nullable = true, precision = 0)
+    private Integer mandatory;
+
+    @Basic
+    @Column(name = "LONG_OPTION", nullable = true, length = 64)
+    private String longOption;
+
+    @Basic
+    @Column(name = "OPTION_DESCRIPTION", nullable = true, length = 256)
+    private String optionDescription;
+
+    @Basic
+    @Column(name = "OPTION_PREFIX", nullable = true, length = 16)
+    private String optionPrefix;
+
+    @Basic
+    @Column(name = "OPTION_SEPARATOR", nullable = true, length = 16)
+    private String optionSeparator;
+
+    @Basic
+    @Column(name = "SHORT_OPTION", nullable = true, length = 16)
+    private String shortOption;
+
+    @Basic
+    @Column(name = "UI_ELEMENT", nullable = true, length = 64)
+    private String uiElement;
+
+    @ManyToOne
+    @JoinColumn(name = "OPTION_GROUP_ID", referencedColumnName = "OPTION_GROUP_ID")
+    private OptionGroup group;
+
     public Long getAccessLevel() {
         return accessLevel;
     }
@@ -33,8 +81,6 @@ public class Option {
         this.accessLevel = accessLevel;
     }
 
-    @Id
-    @Column(name = "COMMAND_LINE_OPTION_ID", nullable = false, precision = 0)
     public Long getId() {
         return id;
     }
@@ -43,8 +89,6 @@ public class Option {
         this.id = id;
     }
 
-    @Basic
-    @Column(name = "DEFAULT_VALUE", nullable = true, length = 128)
     public String getDefaultValue() {
         return defaultValue;
     }
@@ -53,8 +97,6 @@ public class Option {
         this.defaultValue = defaultValue;
     }
 
-    @Basic
-    @Column(name = "DISPLAY_NAME", nullable = true, length = 256)
     public String getDisplayName() {
         return displayName;
     }
@@ -63,8 +105,6 @@ public class Option {
         this.displayName = displayName;
     }
 
-    @Basic
-    @Column(name = "EXPLANATION", nullable = true, length = 2000)
     public String getExplanation() {
         return explanation;
     }
@@ -73,8 +113,6 @@ public class Option {
         this.explanation = explanation;
     }
 
-    @Basic
-    @Column(name = "HIDE_ARGUMENT", nullable = true, precision = 0)
     public Integer getHideArgument() {
         return hideArgument;
     }
@@ -83,8 +121,6 @@ public class Option {
         this.hideArgument = hideArgument;
     }
 
-    @Basic
-    @Column(name = "HIDE_OPTION", nullable = true, precision = 0)
     public Integer getHideOption() {
         return hideOption;
     }
@@ -93,8 +129,6 @@ public class Option {
         this.hideOption = hideOption;
     }
 
-    @Basic
-    @Column(name = "IS_ACTIVE", nullable = true, precision = 0)
     public Integer getActive() {
         return active;
     }
@@ -103,8 +137,6 @@ public class Option {
         this.active = active;
     }
 
-    @Basic
-    @Column(name = "IS_ARGUMENT_QUOTED", nullable = true, precision = 0)
     public Integer getIsArgumentQuoted() {
         return isArgumentQuoted;
     }
@@ -113,8 +145,6 @@ public class Option {
         this.isArgumentQuoted = argumentQuoted;
     }
 
-    @Basic
-    @Column(name = "IS_MANDATORY", nullable = true, precision = 0)
     public Integer getMandatory() {
         return mandatory;
     }
@@ -123,8 +153,6 @@ public class Option {
         this.mandatory = mandatory;
     }
 
-    @Basic
-    @Column(name = "LONG_OPTION", nullable = true, length = 64)
     public String getLongOption() {
         return longOption;
     }
@@ -133,8 +161,6 @@ public class Option {
         this.longOption = longOption;
     }
 
-    @Basic
-    @Column(name = "OPTION_DESCRIPTION", nullable = true, length = 256)
     public String getOptionDescription() {
         return optionDescription;
     }
@@ -143,8 +169,6 @@ public class Option {
         this.optionDescription = optionDescription;
     }
 
-    @Basic
-    @Column(name = "OPTION_PREFIX", nullable = true, length = 16)
     public String getOptionPrefix() {
         return optionPrefix;
     }
@@ -153,8 +177,6 @@ public class Option {
         this.optionPrefix = optionPrefix;
     }
 
-    @Basic
-    @Column(name = "OPTION_SEPARATOR", nullable = true, length = 16)
     public String getOptionSeparator() {
         return optionSeparator;
     }
@@ -163,8 +185,6 @@ public class Option {
         this.optionSeparator = optionSeparator;
     }
 
-    @Basic
-    @Column(name = "SHORT_OPTION", nullable = true, length = 16)
     public String getShortOption() {
         return shortOption;
     }
@@ -173,8 +193,6 @@ public class Option {
         this.shortOption = shortOption;
     }
 
-    @Basic
-    @Column(name = "UI_ELEMENT", nullable = true, length = 64)
     public String getUiElement() {
         return uiElement;
     }
@@ -183,8 +201,6 @@ public class Option {
         this.uiElement = uiElement;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "OPTION_GROUP_ID", referencedColumnName = "OPTION_GROUP_ID")
     public OptionGroup getGroup() {
         return group;
     }
