@@ -1,5 +1,7 @@
 package pandas.api;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -47,6 +49,10 @@ public class ApiController {
     private static final long SUBJECT_RANGE_END = 15999;
     private final static long TOP_COLLECTION_ID = 0;
     private final static String TOP_COLLECTION_NAME = "Archived Websites";
+
+    // We can't use the default Jackson date format anymore as it now  contains a ':' in the timezone and existing
+    // clients aren't expecting that.
+    private static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     private final AgencyRepository agencyRepository;
     private final CollectionRepository collectionRepository;
@@ -295,6 +301,7 @@ public class ApiController {
 
     public static class CaptureDetailsJson implements AccessChecker.Restrictable {
         public final String url;
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date date;
         public final CrawlJson crawl;
         public final List<TitleJson> titles;
@@ -328,6 +335,7 @@ public class ApiController {
 
     public static class CrawlJson {
         public final long titleId;
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date date;
 
         public CrawlJson(long titleId, Date date) {
@@ -385,6 +393,7 @@ public class ApiController {
         public final long id;
         public final String name;
         public final String alias;
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date ownershipDate;
         public final String url;
 
@@ -410,6 +419,7 @@ public class ApiController {
     public static class TitleHistoryJson {
         public final long id;
         public final String name;
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date dateChanged;
 
         public TitleHistoryJson(TitleHistory titleHistory, String name) {
@@ -479,7 +489,9 @@ public class ApiController {
     }
 
     public static class CollectionDetailsJson extends CollectionJson {
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date startDate;
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date endDate;
         public final String description;
         public final List<CollectionJson> subcollections;
@@ -598,6 +610,7 @@ public class ApiController {
         public final String gatheredUrl;
         public final String gatherMethod;
         public final String tepUrl;
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date date;
         public final String link;
         public final String url;
@@ -650,6 +663,7 @@ public class ApiController {
         public final long id;
         public final String name;
         public final String url;
+        @JsonFormat(pattern = JSON_DATE_FORMAT)
         public final Date date;
 
         public boolean restricted;
