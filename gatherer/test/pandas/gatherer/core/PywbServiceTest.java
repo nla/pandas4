@@ -1,5 +1,6 @@
 package pandas.gatherer.core;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pandas.collection.Title;
@@ -22,7 +23,13 @@ class PywbServiceTest {
         Config config = new Config();
         config.setPywbDataDir(dir);
         PywbConfig pywbConfig = new PywbConfig();
-        PywbService pywbService = new PywbService(config, pywbConfig);
+        PywbService pywbService;
+        try {
+            pywbService = new PywbService(config, pywbConfig);
+        } catch (IOException e) {
+            Assumptions.assumeTrue(false, "Unable to start pywb");
+            return;
+        }
         try {
             Title title = new Title();
             title.setPi(123L);
