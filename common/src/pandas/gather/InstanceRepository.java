@@ -12,6 +12,7 @@ import pandas.agency.User;
 import pandas.collection.Collection;
 import pandas.collection.Title;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -107,17 +108,37 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
     List<PreviousGather> findPreviousStats(@Param("instances") List<Instance> instances);
 
     @Query("""
-        select instance
-        from Instance instance
-        join instance.title title
-        join title.collections col
-        where col = :collection
-        and instance.id = (select min(i.id) from Instance i
-                    where i.title.id = title.id 
-                    and i.state.id = 1
-                    and (col.startDate is null or i.date >= col.startDate)
-                    and (col.endDate is null or i.date <= col.endDate)) 
-        order by title.name 
-        """)
+            select instance
+            from Instance instance
+            join instance.title title
+                join title.collections col
+                where col = :collection
+                and instance.id = (select min(i.id) from Instance i
+                            where i.title.id = title.id 
+                            and i.state.id = 1
+                            and (col.startDate is null or i.date >= col.startDate)
+                            and (col.endDate is null or i.date <= col.endDate)) 
+                order by title.name 
+                """)
     List<Instance> findByCollection(@Param("collection") Collection collection);
+
+    @Query("""
+              select instance
+              from Instance instance
+              join instance.title title
+              join title.collections col
+              where col = :collection
+              and instance.id = coalesce(
+                  (select min(i.id) from Instance i
+                          where i.title.id = title.id
+                          and i.state.id = 1
+                          and i.date >= :time),
+                  (select max(i.id) from Instance i
+                          where i.title.id = title.id
+                          and i.state.id = 1
+                          and i.date < :time))
+              order by title.name
+            """)
+    List<Instance> findByCollectionAt(@Param("collection") Collection collection, @Param("time") Instant time);
+
 }

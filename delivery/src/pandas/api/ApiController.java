@@ -17,6 +17,7 @@ import pandas.collection.*;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
 import pandas.util.DateFormats;
+import pandas.util.TimeFrame;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -193,8 +194,14 @@ public class ApiController {
             if (!collection.isDisplayed()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
             List<Long> agencyIds = agencyRepository.findIdsByCollection(collection);
             List<Agency> agencies = agencyRepository.findAllByIdPreserveOrder(agencyIds);
-            List<Instance> snapshots = instanceRepository.findByCollection(collection);
-            return new CollectionDetailsJson(collection, agencies, snapshots);
+            TimeFrame timeFrame = collection.getInheritedTimeFrame();
+            List<Instance> snapshots;
+            if (timeFrame == null || timeFrame.startDate() == null) {
+                snapshots = instanceRepository.findByCollection(collection);
+            } else {
+                snapshots = instanceRepository.findByCollectionAt(collection, timeFrame.startDate());
+            }
+            return new CollectionDetailsJson(collection, agencies, snapshots, timeFrame);
         }
     }
 
@@ -481,10 +488,12 @@ public class ApiController {
         public final List<AgencyJson> agencies;
         public final List<InstanceJson> snapshots;
 
-        public CollectionDetailsJson(Collection collection, List<Agency> agencies, List<Instance> snapshots) {
+        public CollectionDetailsJson(Collection collection, List<Agency> agencies, List<Instance> snapshots, TimeFrame timeFrame) {
             super(collection);
-            startDate = collection.getStartDate() == null ? null : Date.from(collection.getStartDate());
-            endDate = collection.getEndDate() == null ? null : Date.from(collection.getEndDate());
+            Instant startDate = timeFrame == null ? null : timeFrame.startDate();
+            Instant endDate = timeFrame == null ? null : timeFrame.endDate();
+            this.startDate = startDate == null ? null : Date.from(startDate);
+            this.endDate = endDate == null ? null : Date.from(endDate);
             description = collection.getDescription();
             subcollections = collection.getChildren().stream().map(CollectionJson::new).toList();
             related = List.of();

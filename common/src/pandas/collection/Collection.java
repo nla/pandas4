@@ -273,6 +273,14 @@ public class Collection {
         return new TimeFrame(startDate, endDate);
     }
 
+    public TimeFrame getInheritedTimeFrame() {
+        for (var collection = this; collection != null; collection = collection.getParent()) {
+            TimeFrame timeFrame = collection.getTimeFrame();
+            if (timeFrame != null) return timeFrame;
+        }
+        return null;
+    }
+
     public boolean coversOneMonth() {
         if (startDate == null) return false;
         if (endDate == null) return false;
