@@ -10,7 +10,7 @@ External Dependencies
 
 PANDAS requires the following tools to be installed:
 
-* [JDK 11](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot)
+* [JDK 17](https://adoptium.net/)
 * [Maven](https://maven.apache.org/)
 * [pywb](https://github.com/webrecorder/pywb)
 * [Ghostscript](https://www.ghostscript.com/)
