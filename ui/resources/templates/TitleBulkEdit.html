@@ -44,6 +44,17 @@
         </details>
 
         <p class="formgrid">
+            <input type=checkbox id=editStatus th:field="*{editStatus}">
+            <label for=editStatus>Status:</label>
+            <span>
+                <select id=status th:field="*{status}" onchange="updateReasons()">
+                    <option th:each="status: ${statusList}" th:text="${status.name}" th:value="${status.id}">
+                        rejected
+                    </option>
+                </select>
+                <label th:replace="TitleEdit.html :: reason">Reason: </label>
+            </span>
+
             <input type=checkbox id=editMethod th:field="*{editMethod}">
             <label for=editMethod>Gather Method:</label>
             <select id=method th:field="*{method}">
@@ -130,6 +141,9 @@
                     input.disabled = !checkbox.checked;
                     if (checkbox.checked) {
                         input.focus();
+                    }
+                    if (checkbox.id === "editStatus") {
+                        updateReasons();
                     }
                 });
             });

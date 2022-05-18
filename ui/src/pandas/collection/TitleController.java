@@ -137,13 +137,23 @@ public class TitleController {
 
     @GetMapping("/titles/bulkchange")
     public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model) {
-        var results = titleSearcher.search(params, PageRequest.of(0, 10000));
-        var form = titleService.newBulkEditForm(results.getContent());
+        List<Title> titles;
+        if (params.containsKey("id")) {
+            titles = new ArrayList<>();
+            titleRepository.findAllById(params.get("id").stream().map(Long::parseLong).toList())
+                    .forEach(titles::add);
+        } else {
+            var results = titleSearcher.search(params, PageRequest.of(0, 10000));
+            titles = results.getContent();
+        }
+
+        var form = titleService.newBulkEditForm(titles);
         model.addAttribute("form", form);
         model.addAttribute("allUsers", userRepository.findByActiveIsTrueOrderByNameGivenAscNameFamilyAsc());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
         model.addAttribute("allScopes", scopeRepository.findAll());
+        model.addAttribute("statusList", titleService.allowedStatusTransitions(titles));
         return "TitleBulkEdit";
     }
 

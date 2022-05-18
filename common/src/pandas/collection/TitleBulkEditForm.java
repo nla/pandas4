@@ -11,6 +11,10 @@ import java.util.List;
 public class TitleBulkEditForm {
     private List<Title> titles;
 
+    private boolean editStatus;
+    private Status status;
+    private Reason reason;
+
     private boolean editMethod;
     private GatherMethod method;
 
@@ -158,5 +162,29 @@ public class TitleBulkEditForm {
 
     public void setScope(Scope scope) {
         this.scope = scope;
+    }
+
+    public boolean isEditStatus() {
+        return editStatus;
+    }
+
+    public void setEditStatus(boolean editStatus) {
+        this.editStatus = editStatus;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Reason getReason() {
+        return reason;
+    }
+
+    public void setReason(Reason reason) {
+        this.reason = reason;
     }
 }

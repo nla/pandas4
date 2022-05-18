@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -109,6 +110,13 @@ public class InstanceController {
             instanceService.delete(instance, userService.getCurrentUser());
         }
         return "redirect:" + Requests.backlinkOrDefault("/instances");
+    }
+
+    @PostMapping("/instances/bulkchange")
+    public String showBulkChangeFormForSelected(@RequestParam("instance") List<Instance> instances) {
+        String query = instances.stream().map(instance -> "id=" + instance.getTitle().getId())
+                .collect(Collectors.joining("&"));
+        return "redirect:/titles/bulkchange?" + query;
     }
 
     @GetMapping("/instances/{id}/edit")

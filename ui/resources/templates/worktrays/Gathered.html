@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Instances in QA - PANDAS</title>
@@ -12,11 +12,17 @@
     <header>
         <nav>
             <button class="btn btn-primary selected-action" form=form type=submit
-                    th:formaction="@{/instances/archive}"><i class="icon archive"></i>Archive</button>
+                    th:formaction="@{/instances/archive}"><i class="icon archive"></i>Archive
+            </button>
             <button class="btn btn-danger selected-action" form=form type=submit
                     th:formaction="@{/instances/delete}"
                     onclick="return confirm('Are you certain you wish to delete ' + countSelected() + ' instances? This cannot be undone.');"
-            ><i class="icon delete"></i>Delete</button>
+            ><i class="icon delete"></i>Delete
+            </button>
+            <button sec:authorize="hasAuthority('PRIV_BULK_EDIT_TITLES')" class="btn btn-secondary selected-action"
+                    form=form type=submit
+                    th:formaction="@{/instances/bulkchange}" style="margin-left: 32px">Bulk Change
+            </button>
         </nav>
         <th:block th:include="worktrays/_worktrays.html :: header('/worktrays/{alias}/gathered')">
         </th:block>
@@ -133,6 +139,8 @@
                 el.checked = selectAllCheckbox.checked);
             updateSelected();
         }
+
+        updateSelected();
     </script>
 
 

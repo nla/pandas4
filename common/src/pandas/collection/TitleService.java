@@ -12,6 +12,7 @@ import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.util.Strings;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -272,8 +273,8 @@ public class TitleService {
     private void recordStatusChange(Title title, User user, Instant now, Reason reason) {
         // ensure reason is actually applicable for this status
         if (reason != null && !reason.getStatus().equals(title.getStatus())) {
-            reason = null;
             log.warn("Tried to set inapplicable reason {} for status {}", reason.getName(), title.getStatus().getName());
+            reason = null;
         }
 
         statusHistoryRepository.markPreviousEnd(title, now);
@@ -328,6 +329,12 @@ public class TitleService {
                 title.getGather().setScope(form.getScope());
             }
 
+            if (form.isEditStatus() && !title.getStatus().equals(form.getStatus()) &&
+                    title.getStatus().isTransitionAllowed(form.getStatus())) {
+                title.setStatus(form.getStatus());
+                recordStatusChange(title, currentUser, Instant.now(), form.getReason());
+            }
+
             if (!form.getCollectionsToAdd().isEmpty()) {
                 Set<Long> existingCollectionIds = title.getCollections().stream().map(Collection::getId).collect(Collectors.toSet());
                 for (Collection collection : form.getCollectionsToAdd()) {
@@ -359,5 +366,16 @@ public class TitleService {
         title.setOwner(newOwner);
         title.getOwnerHistories().add(ownerHistory);
         titleRepository.save(title);
+    }
+
+    @NotNull
+    public List<Status> allowedStatusTransitions(List<Title> titles) {
+        List<Long> statusIds = titles.stream().map(Title::getStatus).distinct()
+                .flatMap(status -> status.getAllowedTransitionIds().stream())
+                .distinct().toList();
+        var statusList = new ArrayList<Status>();
+        statusRepository.findAllById(statusIds).forEach(statusList::add);
+        statusList.sort(Comparator.comparing(Status::getId));
+        return statusList;
     }
 }

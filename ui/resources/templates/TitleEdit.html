@@ -78,11 +78,12 @@
                         <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
                     </select>
                 </label>
-                <label style="display: none">Reason
+                <label th:fragment="reason" style="display: none">Reason
                     <select th:field="*{reason}" id=reason>
                         <option hidden value=""></option>
                         <option th:each="reason: ${@reasonRepository.findAllByOrderByName()}" hidden
-                                th:text="${reason.name}" th:value="${reason.id}" th:data-status="${reason.status.id}"></option>
+                                th:text="${reason.name}" th:value="${reason.id}"
+                                th:data-status="${reason.status.id}"></option>
                     </select>
                     <script>
                         function updateReasons() {
@@ -90,6 +91,11 @@
                             let statusId = document.getElementById("status").value;
                             reasonSelect.parentElement.style.display = 'none';
                             reasonSelect.value = "";
+
+                            // if the status field is disabled, hide the reason field
+                            if (document.getElementById("status").disabled) {
+                                return;
+                            }
 
                             // if the selected status is the current status, hide the reason field
                             if (statusId === document.getElementById("status").dataset.current) {

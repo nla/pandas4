@@ -87,4 +87,8 @@ public class Status {
     public boolean isCeased() {
         return id != null && id.equals(CEASED_ID);
     }
+
+    public List<Long> getAllowedTransitionIds() {
+        return allowedTransitions.getOrDefault(getId(), Collections.emptyList());
+    }
 }
