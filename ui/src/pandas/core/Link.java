@@ -32,8 +32,12 @@ public class Link {
     }
 
     public String delivery(Instance instance) {
-        return "https://webarchive.nla.gov.au/awa/" + DateFormats.ARC_DATE.format(instance.getDate()) + "/" +
-                instance.getTepUrlAbsolute();
+        if (instance.getState().isArchived()) {
+            return "https://webarchive.nla.gov.au/awa/" + DateFormats.ARC_DATE.format(instance.getDate()) + "/" +
+                    instance.getTepUrlAbsolute();
+        } else {
+            return to(instance) + "/process";
+        }
     }
 
     public String delivery(Issue issue) {
