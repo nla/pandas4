@@ -252,7 +252,8 @@ public class Instance {
 
     public String getTepUrlAbsolute() {
         if (GatherMethod.HTTRACK.equals(getGatherMethodName()) ||
-                GatherMethod.UPLOAD.equals(getGatherMethodName())) {
+                GatherMethod.UPLOAD.equals(getGatherMethodName()) ||
+                getGatherMethodName() == null) {
             return tepUrlToAbsolute(getTepUrl());
         } else if (getTepUrl().startsWith("/pan/")) {
             return getGatheredUrl();
