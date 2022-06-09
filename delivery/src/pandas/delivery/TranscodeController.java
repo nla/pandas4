@@ -46,7 +46,7 @@ public class TranscodeController {
                          OutputStream outputStream = process.getOutputStream()) {
                         sourceStream.transferTo(outputStream);
                     } catch (IOException e) {
-                        if (e.getMessage().equals("Stream Closed")) return;
+                        if (e.getMessage().equals("Stream Closed") || e.getMessage().equals("Broken pipe")) return;
                         log.error("Error transcoding " + archiveUrl, e);
                     }
                 }).start();
@@ -54,9 +54,7 @@ public class TranscodeController {
                 process.getInputStream().transferTo(response.getOutputStream());
             } finally {
                 log.info("Closing " + archiveUrl);
-                process.getOutputStream().close();
-                process.getInputStream().close();
-                if (!process.waitFor(1, TimeUnit.SECONDS)) {
+                if (process.isAlive()) {
                     process.destroy();
                     if (!process.waitFor(2, TimeUnit.SECONDS)) {
                         process.destroyForcibly();
