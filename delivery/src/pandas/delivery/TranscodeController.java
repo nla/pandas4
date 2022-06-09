@@ -39,9 +39,9 @@ public class TranscodeController {
                     .redirectOutput(ProcessBuilder.Redirect.PIPE)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
                     .start();
+            Thread inputThread = null;
             try {
-                new Thread(() -> {
-                    Thread.currentThread().setName("TranscodingInputThread " + archiveUrl);
+                inputThread = new Thread(() -> {
                     try (sourceStream;
                          OutputStream outputStream = process.getOutputStream()) {
                         sourceStream.transferTo(outputStream);
@@ -49,12 +49,15 @@ public class TranscodeController {
                         if (e.getMessage().equals("Stream Closed") || e.getMessage().equals("Broken pipe")) return;
                         log.error("Error transcoding " + archiveUrl, e);
                     }
-                }).start();
+                });
+                inputThread.setName("TranscodingInputThread " + archiveUrl);
+                inputThread.start();
                 response.setContentType("video/webm");
                 process.getInputStream().transferTo(response.getOutputStream());
             } finally {
                 log.info("Closing " + archiveUrl);
                 if (process.isAlive()) {
+                    inputThread.interrupt();
                     process.destroy();
                     if (!process.waitFor(2, TimeUnit.SECONDS)) {
                         process.destroyForcibly();
