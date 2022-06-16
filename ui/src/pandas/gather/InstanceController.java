@@ -70,6 +70,7 @@ public class InstanceController {
     @GetMapping("/instances/{id}/process")
     public String process(@PathVariable("id") Instance instance, @RequestParam(value = "worktray", required = false) String worktray, Model model) {
         model.addAttribute("instance", instance);
+        model.addAttribute("title", instance.getTitle());
         model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);
         model.addAttribute("worktray", worktray);
         List<Instance> recentGathers = instanceRepository.findRecentGathers(instance.getTitle(), PageRequest.of(0, 5));

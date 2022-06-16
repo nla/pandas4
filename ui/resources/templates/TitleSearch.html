@@ -116,24 +116,26 @@
                             </ul>
                         </div>
                         <footer>
-                            <span class="status" th:text="${title.status.name}" th:classappend="${'status-' + title.status.name.replace(' ','-')}">ceased</span> ·
-                            <th:block th:if="${title.unableToArchive && !title.disappeared}">
-                                <span class="unable-to-archive">unable to archive</span> ·
+                            <th:block th:fragment="title-card-footer">
+                                <span class="status" th:text="${title.status.name}" th:classappend="${'status-' + title.status.name.replace(' ','-')}">ceased</span> ·
+                                <th:block th:if="${title.unableToArchive && !title.disappeared}">
+                                    <span class="unable-to-archive">unable to archive</span> ·
+                                </th:block>
+                                <th:block th:if="${title.disappeared}">
+                                    <span class="no-longer-online">no longer online</span> ·
+                                </th:block>
+                                <th:block th:if="${title.gather != null && title.gather.schedule != null && title.gather.schedule.name != 'None'}">
+                                    <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
+                                    <span class="method" th:text="${title.gather.method.name}">HTTrack</span> ·
+                                </th:block>
+                                <a th:if="${title.publisher != null}" th:href="${@link.to(title.publisher)}"
+                                      th:text="|${title.publisher.organisation.name}, |">
+                                    International Olympic Committee
+                                </a>
+                                <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
+                                <span class="owner" th:if="${title.owner != null}"><a th:href="${@link.to(title.owner)}" th:text="${title.owner.userid}">aosborne</a></span>
+                                <a th:if="${title.agency != null}" class="agency" th:href="${@link.to(title.agency)}" th:text="${title?.agency?.organisation?.alias}">NLA</a>
                             </th:block>
-                            <th:block th:if="${title.disappeared}">
-                                <span class="no-longer-online">no longer online</span> ·
-                            </th:block>
-                            <th:block th:if="${title.gather != null && title.gather.schedule != null && title.gather.schedule.name != 'None'}">
-                                <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
-                                <span class="method" th:text="${title.gather.method.name}">HTTrack</span> ·
-                            </th:block>
-                            <a th:if="${title.publisher != null}" th:href="${@link.to(title.publisher)}"
-                                  th:text="|${title.publisher.organisation.name}, |">
-                                International Olympic Committee
-                            </a>
-                            <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
-                            <span class="owner" th:if="${title.owner != null}"><a th:href="${@link.to(title.owner)}" th:text="${title.owner.userid}">aosborne</a></span>
-                            <a th:if="${title.agency != null}" class="agency" th:href="${@link.to(title.agency)}" th:text="${title?.agency?.organisation?.alias}">NLA</a>
                         </footer>
                     </div>
                 </div>
