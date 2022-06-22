@@ -87,6 +87,8 @@
                     </select>
                     <script>
                         function updateReasons() {
+                            updateCeasedWarning();
+
                             let reasonSelect = document.getElementById("reason");
                             let statusId = document.getElementById("status").value;
                             reasonSelect.parentElement.style.display = 'none';
@@ -188,10 +190,26 @@
         <fieldset>
             <legend>Gather</legend>
 
-            <div th:each="collection: ${form.collections}" th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
+            <div id="ceasedWarning" class="alert-error">
+                <span>This website will not be gathered because it is <strong>ceased</strong>.</span>
+            </div>
+            <script>
+                function updateCeasedWarning() {
+                    // show a gather warning if the status is ceased
+                    let isCeased = document.getElementById("status").value === "11";
+                    document.getElementById("ceasedWarning").style.display = isCeased ? 'block' : 'none';
+                }
+
+                updateCeasedWarning();
+                document.getElementById("status").addEventListener("change", updateCeasedWarning);
+            </script>
+
+            <div th:each="collection: ${form.collections}"
+                 th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
                  style="color: #555; margin-bottom: 8px; font-style: italic; ">
                 Also gathered <strong th:text="${collection.gatherSchedule.name}">Daily</strong> as part of
-                <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}" class="collection-link">Cool Sites</a>
+                <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}"
+                   class="collection-link">Cool Sites</a>
             </div>
 
             <label>What to collect
