@@ -445,8 +445,12 @@ public class ApiController {
         }
 
         public CollectionJson(Subject subject) {
-            this(subject.getId() + SUBJECT_RANGE_START, subject.getName());
+            id = subject.getId() + SUBJECT_RANGE_START;
             assert id < SUBJECT_RANGE_END;
+            name = subject.getName();
+            numberOfItems = subject.getChildren().size() + subject.getCollectionCount();
+            thumbnailCollectionId = null; // FIXME
+            thumbnailUrl = null; // FIXME
         }
 
         public CollectionJson(Collection collection) {
@@ -533,10 +537,12 @@ public class ApiController {
             breadcrumbs = buildBreadcrumbList(subject);
 
             subcollections = Stream.concat(
-                    subject.getChildren().stream().map(CollectionJson::new),
-                    subject.getCollections().stream()
-                            .filter(collection -> collection.isDisplayed() && collection.getParent() == null)
-                            .map(CollectionJson::new))
+                            subject.getChildren().stream()
+                                    .map(CollectionJson::new)
+                                    .filter(json -> json.numberOfItems == null || json.numberOfItems != 0),
+                            subject.getCollections().stream()
+                                    .filter(collection -> collection.isDisplayed() && collection.getParent() == null)
+                                    .map(CollectionJson::new))
                     .sorted(Comparator.comparing(c -> c.name))
                     .toList();
 
