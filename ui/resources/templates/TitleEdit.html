@@ -12,14 +12,18 @@
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
-    <form method=post class=form th:object="${form}" th:action="@{/titles}" onsubmit="return !!window.loaded">
+    <form id="titleEditForm" method=post class=form th:object="${form}" th:action="@{/titles}"
+          onsubmit="return !!window.loaded">
         <header>
             <div th:if="${form.id != null}">
                 <button type="submit" class="btn btn-primary"><i class="icon save"></i>Save</button>
-                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
+                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i
+                        class="icon cancel"></i>Cancel
+                </button>
             </div>
             <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
-                    class="btn btn-danger float-right"><i class="icon delete"></i>Delete</button>
+                    class="btn btn-danger float-right"><i class="icon delete"></i>Delete
+            </button>
         </header>
 
         <input type=hidden th:field="*{id}">
@@ -198,10 +202,19 @@
                     // show a gather warning if the status is ceased
                     let isCeased = document.getElementById("status").value === "11";
                     document.getElementById("ceasedWarning").style.display = isCeased ? 'block' : 'none';
+                    document.querySelectorAll(".disable-when-ceased").forEach(element => element.disabled = isCeased);
+                    if (isCeased) {
+                        document.getElementById("gatherSchedule").value = 1; // None
+                    }
                 }
 
-                updateCeasedWarning();
+                window.addEventListener("load", updateCeasedWarning);
                 document.getElementById("status").addEventListener("change", updateCeasedWarning);
+
+                // re-enable disabled elements before submitting so their data is actually sent
+                titleEditForm.addEventListener("submit", event => {
+                    document.querySelectorAll(".disable-when-ceased").forEach(element => element.disabled = false);
+                });
             </script>
 
             <div th:each="collection: ${form.collections}"
@@ -224,15 +237,20 @@
             <th:block sec:authorize="hasRole('stduser')">
                 <div>
                     <label>Schedule
-                        <select th:field="*{gatherSchedule}" id="gatherSchedule">
+                        <select th:field="*{gatherSchedule}" id="gatherSchedule" class="disable-when-ceased">
                             <option th:each="schedule: ${allGatherSchedules}" th:value="${schedule.id}"
-                                    th:text="${schedule.name}" th:data-nextdate="${schedule.calculateNextTimeLocal()}">Weekly
+                                    th:text="${schedule.name}" th:data-nextdate="${schedule.calculateNextTimeLocal()}">
+                                Weekly
                             </option>
                         </select>
                     </label>
-                    <label id="scheduledDateLabel" th:style="${form.gatherSchedule == null || form.gatherSchedule.isNone() ? 'display: none' : ''}">Next recurring<br>
-                        <input th:field="*{scheduledDate}" id="scheduledDate" type="date" th:required="${form.scheduledDate != null}">
-                        <input th:field="*{scheduledTime}" id="scheduledTime" type="time" th:required="${form.scheduledTime != null}" readonly>
+                    <label id="scheduledDateLabel"
+                           th:style="${form.gatherSchedule == null || form.gatherSchedule.isNone() ? 'display: none' : ''}">Next
+                        recurring<br>
+                        <input th:field="*{scheduledDate}" id="scheduledDate" type="date"
+                               th:required="${form.scheduledDate != null}" class="disable-when-ceased">
+                        <input th:field="*{scheduledTime}" id="scheduledTime" type="time"
+                               th:required="${form.scheduledTime != null}" readonly class="disable-when-ceased">
                     </label>
                 </div>
                 <script>
@@ -252,8 +270,10 @@
                     });
                 </script>
                 <label>One-off<br>
-                    <input type="date" id="oneoffDateInput"> <input type=time id="oneoffTimeInput">
-                    <button onclick="addOneoffDate()" type=button>Add</button>
+                    <input type="date" id="oneoffDateInput" class="disable-when-ceased"> <input type=time
+                                                                                                id="oneoffTimeInput"
+                                                                                                class="disable-when-ceased">
+                    <button onclick="addOneoffDate()" type=button class="disable-when-ceased">Add</button>
                 </label>
                 <ul id="oneoffDatesList" th:style="${form.oneoffDates.isEmpty() ? 'display:none' : 'display:block'}" >
                     <li th:each="date: *{oneoffDates}">

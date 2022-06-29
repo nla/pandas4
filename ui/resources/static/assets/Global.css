@@ -210,6 +210,12 @@ body > main > header, main > form > header {
     box-sizing: border-box;
 }
 
+.btn:disabled, button:disabled {
+    color: #888;
+    background: var(--color-gray-eee);
+    border: 0;
+}
+
 .btn .icon, button .icon {
     margin-left: -4px;
     margin-right: 4px;
