@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static java.util.Comparator.*;
+import static pandas.search.SearchUtils.ID_NONE;
 import static pandas.search.SearchUtils.mustMatchAny;
 
 public class EntityFacet<T> extends Facet {
@@ -43,7 +44,11 @@ public class EntityFacet<T> extends Facet {
         if (values == null || values.isEmpty()) return Collections.emptySet();
         Set<Long> ids = new HashSet<>();
         for (String value : values) {
-            ids.add(Long.parseLong(value));
+            if (value.equals("none")) {
+                ids.add(SearchUtils.ID_NONE);
+            } else {
+                ids.add(Long.parseLong(value));
+            }
         }
         return ids;
     }
@@ -66,11 +71,14 @@ public class EntityFacet<T> extends Facet {
     @Override
     public FacetResults results(MultiValueMap<String, String> queryParams, SearchResult<?> result) {
         var counts = result.aggregation(key);
+        List<FacetEntry> entries = new ArrayList<>();
         Set<Long> activeIds = parseParam(queryParams);
         Set<Long> idSet = new HashSet<>();
         idSet.addAll(counts.keySet());
         idSet.addAll(activeIds);
-        List<FacetEntry> entries = new ArrayList<>();
+        if (activeIds.contains(ID_NONE)) {
+            entries.add(new FacetEntry("none", "No " + name.toLowerCase() + "s", null, true));
+        }
         for (T entity : lookupFunction.apply(idSet)) {
             Long id = idFunction.apply(entity);
             entries.add(new FacetEntry(id.toString(), nameFunction.apply(entity), counts.get(id), activeIds.contains(id)));
