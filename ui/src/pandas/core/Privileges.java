@@ -34,8 +34,8 @@ public class Privileges {
     public static final Map<String, Set<GrantedAuthority>> byRole = Map.of(
             "infouser", Set.of(NOMINATE_TITLES, EDIT_COLLECTIONS, EDIT_OWN_TITLES),
             "suppuser", Set.of(),
-            "stduser", Set.of(SELECT_TITLES, EDIT_PUBLISHERS, VIEW_GATHER_QUEUE),
-            "agadmin", Set.of(EDIT_AGENCY_TITLES, EDIT_AGENCY_USERS, EDIT_OWN_AGENCY),
+            "stduser", Set.of(SELECT_TITLES, EDIT_PUBLISHERS, VIEW_GATHER_QUEUE, EDIT_AGENCY_TITLES),
+            "agadmin", Set.of(EDIT_AGENCY_USERS, EDIT_OWN_AGENCY),
             "panadmin", Set.of(EDIT_ALL_TITLES, BULK_EDIT_TITLES, EDIT_ALL_USERS,
                     EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO, EDIT_DISCOVERY_SOURCES, EDIT_ALL_AGENCIES),
             "sysadmin", Set.of(SYSADMIN));
