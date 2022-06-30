@@ -71,6 +71,10 @@
                 </option>
             </select>
 
+            <input type=checkbox id=editOneoffDate th:field="*{editOneoffDate}">
+            <label for=editOneoffDate>Schedule One-Off Gather:</label>
+            <input id=oneoffDate th:field="*{oneoffDate}" type="date"/>
+
             <input type=checkbox id=editScope th:field="*{editScope}">
             <label for=editScope>Gather Scope:</label>
             <select id=scope th:field="*{scope}">

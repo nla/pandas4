@@ -14,6 +14,7 @@ import pandas.util.Strings;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -323,6 +324,16 @@ public class TitleService {
                 if (form.isEditSchedule()) gather.setSchedule(form.getSchedule());
                 if (form.isEditMethod()) gather.setMethod(form.getMethod());
                 gathers.add(gather);
+            }
+
+            if (form.isEditOneoffDate()) {
+                Instant instant;
+                if (form.getOneoffDate() == null) {
+                    instant = Instant.now();
+                } else {
+                    instant = form.getOneoffDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+                }
+                title.getGather().addOneoffDate(instant);
             }
 
             if (form.isEditScope()) {

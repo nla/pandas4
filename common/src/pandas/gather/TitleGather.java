@@ -306,11 +306,15 @@ public class TitleGather {
         oneoffDates.removeIf(d -> !newInstants.contains(d.getDate()));
 
         // add any novel dates
-        for (var instant: newInstants) {
+        for (var instant : newInstants) {
             if (!oldInstants.contains(instant)) {
                 oneoffDates.add(new GatherDate(this, instant));
             }
         }
+    }
+
+    public void addOneoffDate(Instant instant) {
+        oneoffDates.add(new GatherDate(this, instant));
     }
 
     public void calculateNextGatherDate() {

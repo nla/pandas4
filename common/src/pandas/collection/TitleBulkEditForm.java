@@ -1,10 +1,12 @@
 package pandas.collection;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import pandas.agency.User;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
 import pandas.gather.Scope;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,10 @@ public class TitleBulkEditForm {
 
     private boolean editSchedule;
     private GatherSchedule schedule;
+
+    private boolean editOneoffDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate oneoffDate;
 
     private boolean editScope;
     private Scope scope;
@@ -186,5 +192,21 @@ public class TitleBulkEditForm {
 
     public void setReason(Reason reason) {
         this.reason = reason;
+    }
+
+    public boolean isEditOneoffDate() {
+        return editOneoffDate;
+    }
+
+    public void setEditOneoffDate(boolean editOneoffDate) {
+        this.editOneoffDate = editOneoffDate;
+    }
+
+    public LocalDate getOneoffDate() {
+        return oneoffDate;
+    }
+
+    public void setOneoffDate(LocalDate oneoffDate) {
+        this.oneoffDate = oneoffDate;
     }
 }
