@@ -75,4 +75,33 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
     Long maxId();
 
     Page<Collection> findByIdBetween(long startId, long endId, Pageable pageable);
+
+    @Query(nativeQuery = true, value = """
+        with recursive descendents(COL_ID, ROOT_COL_ID) as
+            (select COL_ID, COL_ID from COL
+             where COL_PARENT_ID = :collectionId and IS_DISPLAYED = true
+             union all
+             select c.COL_ID, d.ROOT_COL_ID
+             from COL c
+             join descendents d on c.COL_PARENT_ID = d.COL_ID
+             where c.IS_DISPLAYED = true
+             ),
+        descendent_counts(COL_ID, ROOT_COL_ID, TITLE_COUNT) as
+            (select d.COL_ID, d.ROOT_COL_ID,
+                (select count(*) from TITLE_COL tc
+                 where tc.COLLECTION_ID = d.COL_ID
+                  and exists (select i.INSTANCE_ID from INSTANCE i
+                               where i.TITLE_ID = tc.TITLE_ID
+                                 and i.CURRENT_STATE_ID = 1))
+             from descendents d)
+        select ROOT_COL_ID as id, sum(TITLE_COUNT) as count
+        from descendent_counts
+        group by ROOT_COL_ID
+        """)
+    List<DescendentStats> countDescendentTitlesOfChildren(@Param("collectionId") long collectionId);
+
+    interface DescendentStats {
+        long getId();
+        long getCount();
+    }
 }

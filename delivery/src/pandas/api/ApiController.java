@@ -1,7 +1,6 @@
 package pandas.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -207,7 +206,17 @@ public class ApiController {
             } else {
                 snapshots = instanceRepository.findByCollectionAt(collection, timeFrame.startDate());
             }
-            return new CollectionDetailsJson(collection, agencies, snapshots, timeFrame);
+            
+            var titleCountByCollectionId = new HashMap<Long,Long>();
+            collectionRepository.countDescendentTitlesOfChildren(id).forEach(c -> titleCountByCollectionId.put(c.getId(), c.getCount()));
+            var subcollections = new ArrayList<CollectionJson>();
+            for (var child : collection.getChildren()) {
+                if (!child.isDisplayed()) continue;
+                long titleCount = titleCountByCollectionId.getOrDefault(child.getId(), 0L);
+                if (titleCount == 0) continue;
+                subcollections.add(new CollectionJson(child, titleCount));
+            }
+            return new CollectionDetailsJson(collection, subcollections, agencies, snapshots, timeFrame);
         }
     }
 
@@ -454,9 +463,13 @@ public class ApiController {
         }
 
         public CollectionJson(Collection collection) {
+            this(collection, null);
+        }
+
+        public CollectionJson(Collection collection, Long titleCount) {
             id = collection.getId();
             name = collection.getName();
-            numberOfItems = collection.getTitleCount(); // FIXME: only count deliverable titles
+            numberOfItems = titleCount;
             this.thumbnailCollectionId = null; // FIXME
             this.thumbnailUrl = null; // FIXME
         }
@@ -504,14 +517,14 @@ public class ApiController {
         public final List<AgencyJson> agencies;
         public final List<InstanceJson> snapshots;
 
-        public CollectionDetailsJson(Collection collection, List<Agency> agencies, List<Instance> snapshots, TimeFrame timeFrame) {
-            super(collection);
+        public CollectionDetailsJson(Collection collection, List<CollectionJson> subcollections, List<Agency> agencies, List<Instance> snapshots, TimeFrame timeFrame) {
+            super(collection, null);
             Instant startDate = timeFrame == null ? null : timeFrame.startDate();
             Instant endDate = timeFrame == null ? null : timeFrame.endDate();
             this.startDate = startDate == null ? null : Date.from(startDate);
             this.endDate = endDate == null ? null : Date.from(endDate);
             description = collection.getDescription();
-            subcollections = collection.getChildren().stream().map(CollectionJson::new).toList();
+            this.subcollections = subcollections;
             related = List.of();
             breadcrumbs = buildBreadcrumbList(collection);
             this.agencies = agencies.stream().map(a -> new AgencyJson(a, null)).toList();
