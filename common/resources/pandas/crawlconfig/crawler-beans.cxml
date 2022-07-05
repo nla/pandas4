@@ -33,7 +33,7 @@
         <property name="operatorContactUrl" value="http://www.nla.gov.au/legal-deposit/request"/>
         <property name="jobName" value="[overridden]"/>
         <property name="description" value="PANDAS crawl"/>
-        <!-- <property name="robotsPolicyName" value="obey"/> -->
+        <property name="robotsPolicyName" value="robotsTxtOnly"/>
         <!-- <property name="operator" value=""/> -->
         <!-- <property name="operatorFrom" value=""/> -->
         <!-- <property name="organization" value=""/> -->
