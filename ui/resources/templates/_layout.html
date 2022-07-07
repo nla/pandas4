@@ -27,9 +27,9 @@
             <i class="icon worktrays"></i>
             Worktrays</a>
         <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a
-                th:href="@{/worktrays/{username}/gathered(username=${#authentication.name})}"
-                th:classappend="${#request.servletPath.matches('/worktrays/[^/]*/gathered|/instances/[^/]+/process')}? 'active'"
-                href=worktrays/Gathered.html>
+            th:href="@{/worktrays/gathered}"
+            th:classappend="${#request.servletPath.matches('/worktrays/[^/]*/gathered|/instances/[^/]+/process')}? 'active'"
+            href=worktrays/Gathered.html>
             <i class="icon fact_check"></i>
             QA
             <th:block th:with="count = ${@instanceRepository.countGatheredWorktray(@userService.currentUser.id)}">

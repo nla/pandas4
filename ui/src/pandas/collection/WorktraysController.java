@@ -16,6 +16,7 @@ import pandas.gather.InstanceRepository;
 import pandas.gather.PreviousGather;
 import pandas.report.ReportRepository;
 
+import javax.servlet.http.HttpSession;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +27,8 @@ import java.util.Optional;
 
 @Controller
 public class WorktraysController {
+    private static final String LAST_ALIAS = WorktraysController.class.getName() + ".lastAlias";
+
     private final TitleRepository titleRepository;
     private final InstanceRepository instanceRepository;
     private final UserService userService;
@@ -43,14 +46,21 @@ public class WorktraysController {
     }
 
     @ModelAttribute
-    public void commonAttributes(@PathVariable(name = "alias", required = false) String alias, Model model) {
+    public void commonAttributes(@PathVariable(name = "alias", required = false) String alias, Model model,
+                                 HttpSession session) {
+        // Make the worktrays sticky by stashing the alias in the session.
+        if (alias == null || alias.isBlank()) {
+            alias = (String) session.getAttribute(LAST_ALIAS);
+        } else {
+            session.setAttribute(LAST_ALIAS, alias);
+        }
+
+        User currentUser = userService.getCurrentUser();
         Long agencyId = null;
         Long ownerId = null;
-        User currentUser = userService.getCurrentUser();
         if (alias == null || alias.isBlank()) {
-            User user = currentUser;
-            alias = user.getUserid();
-            ownerId = user.getId();
+            alias = currentUser.getUserid();
+            ownerId = currentUser.getId();
         } else {
             Optional<Agency> agency = agencyRepository.findByAlias(alias);
             if (agency.isPresent()) {
@@ -149,7 +159,7 @@ public class WorktraysController {
         return "worktrays/Upload";
     }
 
-    @GetMapping("/worktrays/{alias}/gathered")
+    @GetMapping({"/worktrays/gathered", "/worktrays/{alias}/gathered"})
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
                            @PageableDefault(size = 100) Pageable pageable, Model model) {
         Page<Instance> instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable);
