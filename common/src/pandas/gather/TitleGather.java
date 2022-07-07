@@ -318,7 +318,7 @@ public class TitleGather {
     }
 
     public void calculateNextGatherDate() {
-        if (title.getStatus().getId().equals(Status.CEASED_ID)) {
+        if (title.getStatus().isCeased() || title.getStatus().isRejected()) {
             setNextGatherDate(null);
             return;
         }

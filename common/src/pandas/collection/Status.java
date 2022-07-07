@@ -88,6 +88,10 @@ public class Status {
         return id != null && id.equals(CEASED_ID);
     }
 
+    public boolean isRejected() {
+        return id != null && id.equals(CEASED_ID);
+    }
+
     public List<Long> getAllowedTransitionIds() {
         return allowedTransitions.getOrDefault(getId(), Collections.emptyList());
     }
