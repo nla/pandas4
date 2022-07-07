@@ -200,11 +200,13 @@
             <script>
                 function updateCeasedWarning() {
                     // show a gather warning if the status is ceased
-                    let isCeased = document.getElementById("status").value === "11";
-                    document.getElementById("ceasedWarning").style.display = isCeased ? 'block' : 'none';
-                    document.querySelectorAll(".disable-when-ceased").forEach(element => element.disabled = isCeased);
-                    if (isCeased) {
+                    let selectedStatus = document.getElementById("status").selectedOptions[0].text;
+                    let isCeasedOrRejected = selectedStatus === "ceased" || selectedStatus === "rejected";
+                    document.getElementById("ceasedWarning").style.display = isCeasedOrRejected ? 'block' : 'none';
+                    document.querySelectorAll(".disable-when-ceased").forEach(element => element.disabled = isCeasedOrRejected);
+                    if (isCeasedOrRejected) {
                         document.getElementById("gatherSchedule").value = 1; // None
+                        document.getElementById("ceasedWarning").getElementsByTagName("strong")[0].innerText = selectedStatus;
                     }
                 }
 
