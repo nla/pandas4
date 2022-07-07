@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>PANDAS</title>
@@ -23,19 +23,19 @@
     <ul>
         <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a th:href="@{/worktrays}"
                                                                   th:classappend="${#request.servletPath.matches('/worktrays(/.*)?') && !#request.servletPath.matches('/worktrays/[^/]*/gathered')}? 'active'"
-                                                                  href=worktrays/Worktrays.html>
+                                                                  href=worktrays/All.html>
             <i class="icon worktrays"></i>
             Worktrays</a>
         <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a
-            th:href="@{/worktrays/gathered}"
-            th:classappend="${#request.servletPath.matches('/worktrays/[^/]*/gathered|/instances/[^/]+/process')}? 'active'"
-            href=worktrays/Gathered.html>
+                th:href="@{/worktrays/gathered}"
+                th:classappend="${#request.servletPath.matches('/worktrays/[^/]*/gathered|/instances/[^/]+/process')}? 'active'"
+                href=worktrays/Gathered.html>
             <i class="icon fact_check"></i>
             QA
             <th:block th:with="count = ${@instanceRepository.countGatheredWorktray(@userService.currentUser.id)}">
                 <span style="margin-left: auto" th:if="${count > 0}" class="instance-count" th:text="${count}"></span>
-        </a>
             </th:block>
+        </a>
         <li><a th:href="@{/titles}" th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
                href=TitleSearch.html>
             <i class="icon title"></i>
