@@ -89,7 +89,7 @@ public class Status {
     }
 
     public boolean isRejected() {
-        return id != null && id.equals(CEASED_ID);
+        return id != null && id.equals(REJECTED_ID);
     }
 
     public List<Long> getAllowedTransitionIds() {
