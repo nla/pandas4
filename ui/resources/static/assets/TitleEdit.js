@@ -81,7 +81,7 @@ if (document.getElementById("publisher")) {
                 document.getElementById("publisherName").value = info.text;
                 document.getElementById("publisherType").selectedIndex = 0;
                 document.getElementById("publisherType").required = true;
-                document.getElementById("publisherTypeLabel").style.display = "inherit";
+                document.getElementById("newPublisherFields").style.display = "inherit";
 
                 const urlString = titleUrlField.value;
                 if (urlString) {
@@ -107,7 +107,7 @@ if (document.getElementById("publisher")) {
                 document.getElementById("publisherName").value = "";
                 document.getElementById("publisherType").selectedIndex = 0;
                 document.getElementById("publisherType").required = false;
-                document.getElementById("publisherTypeLabel").style.display = "none";
+                document.getElementById("newPublisherFields").style.display = "none";
             }
         }
     });

@@ -167,20 +167,33 @@
                 <input id="publisherId" type="hidden" name="publisher" th:value="*{publisher?.id}">
                 <input id="publisherName" type="hidden" name="publisherName">
                 <select id="publisher">
-                    <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}" th:value="${form.publisher.id}"></option>
+                    <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}"
+                            th:value="${form.publisher.id}"></option>
                 </select>
             </label>
-            <label id="publisherTypeLabel" style="display:none">
-                Publisher Type:
-                <select id="publisherType" name="publisherType">
-                    <option></option>
-                    <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
-                </select>
-            </label>
-            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under legal deposit</label>
-            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{unableToArchive}"> Was unable to be archived</label>
-            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{disappeared}"> No longer online</label>
-            <details sec:authorize="hasRole('stduser')" th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
+            <div id="newPublisherFields" style="display:none">
+                <label>
+                    Publisher type
+                    <select id="publisherType" name="publisherType">
+                        <option></option>
+                        <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}"
+                                th:data-domainsuffixes="${type.domainSuffixes}"></option>
+                    </select>
+                </label>
+                <labe>
+                    ABN (optional)
+                    <input th:field="*{publisherAbn}" pattern="[0-9]{11}" title="11-digit Australian Business Number"
+                           onchange="this.value = this.value.replace(/[ -]/g, '')">
+                </labe>
+            </div>
+            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under
+                legal deposit</label>
+            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{unableToArchive}"> Was unable to
+                be archived</label>
+            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{disappeared}"> No longer
+                online</label>
+            <details sec:authorize="hasRole('stduser')"
+                     th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
                 <summary>Cataloguing</summary>
                 <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
                 <div>

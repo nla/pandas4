@@ -47,6 +47,7 @@ public class TitleEditForm {
     private Publisher publisher;
     private String publisherName;
     private PublisherType publisherType;
+    private String publisherAbn;
     private Profile activeProfile;
     private Scope scope;
     private Title continues;
@@ -340,5 +341,13 @@ public class TitleEditForm {
 
     public void setFilters(String filters) {
         this.filters = filters;
+    }
+
+    public String getPublisherAbn() {
+        return publisherAbn;
+    }
+
+    public void setPublisherAbn(String publisherAbn) {
+        this.publisherAbn = publisherAbn;
     }
 }

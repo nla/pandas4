@@ -180,6 +180,7 @@ public class TitleService {
         Publisher publisher = form.getPublisher();
         if (publisher == null && form.getPublisherName() != null) { // create new
             Organisation organisation = new Organisation();
+            organisation.setAbn(form.getPublisherAbn());
             organisation.setName(form.getPublisherName().trim());
             organisation.setUrl(title.getTitleUrl());
             publisher = new Publisher();
