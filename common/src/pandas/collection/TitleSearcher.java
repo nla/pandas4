@@ -10,11 +10,14 @@ import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-import pandas.agency.*;
-import pandas.core.Config;
+import pandas.agency.Agency;
+import pandas.agency.AgencyRepository;
+import pandas.agency.User;
+import pandas.agency.UserRepository;
 import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.search.*;
@@ -30,6 +33,7 @@ import java.util.function.Function;
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 
 @Service
+@ConditionalOnProperty(name = "spring.jpa.properties.hibernate.search.enabled", havingValue = "true", matchIfMissing = true)
 public class TitleSearcher {
     private static final Logger log = LoggerFactory.getLogger(TitleSearcher.class);
 
@@ -39,7 +43,18 @@ public class TitleSearcher {
     private final Facet[] facets;
     private final Map<String, Function<SearchSortFactory, SortFinalStep>> orderings;
 
-    public TitleSearcher(SubjectRepository subjectRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository, FormatRepository formatRepository, StatusRepository statusRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, UserRepository userRepository, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, Config config, EntityManager entityManager, TitleRepository titleRepository, TitleGatherRepository titleGatherRepository, UserService userService, GatherService gatherService, OwnerHistoryRepository ownerHistoryRepository, GatherDateRepository gatherDateRepository, ProfileRepository profileRepository, ScopeRepository scopeRepository) {
+    public TitleSearcher(AgencyRepository agencyRepository,
+                         CollectionRepository collectionRepository,
+                         FormatRepository formatRepository,
+                         GatherMethodRepository gatherMethodRepository,
+                         GatherScheduleRepository gatherScheduleRepository,
+                         ProfileRepository profileRepository,
+                         PublisherRepository publisherRepository,
+                         PublisherTypeRepository publisherTypeRepository,
+                         ScopeRepository scopeRepository,
+                         StatusRepository statusRepository,
+                         SubjectRepository subjectRepository,
+                         UserRepository userRepository) {
         this.facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
                 new EntityFacet<>("Collection", "collection", "collectionAncestry.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
