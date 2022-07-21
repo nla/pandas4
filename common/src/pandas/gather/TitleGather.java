@@ -188,6 +188,7 @@ public class TitleGather {
 
     public void setSchedule(GatherSchedule gatherSchedule) {
         this.schedule = gatherSchedule;
+        calculateNextGatherDate();
     }
 
     public String getGatherUrl() {
@@ -315,6 +316,7 @@ public class TitleGather {
 
     public void addOneoffDate(Instant instant) {
         oneoffDates.add(new GatherDate(this, instant));
+        calculateNextGatherDate();
     }
 
     public void calculateNextGatherDate() {
