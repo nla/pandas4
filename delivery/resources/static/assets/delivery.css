@@ -42,3 +42,13 @@
 #alphaFooter .alphaCell {
   background: #24428b;
 }
+
+.subcategories > ul {
+  columns: 350px;
+  padding: 0;
+}
+
+#content .subcategories > ul > li {
+  /* FIXME: Without this the "#content li" from main.css makes the columns break oddly */
+  margin-top: 0;
+}

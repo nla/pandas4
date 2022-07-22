@@ -20,10 +20,15 @@
     </div>
 
     <div class="subcategories" th:unless="${subcategories.isEmpty()}">
-        <h2><span>Subcategories</span></h2>
+        <div class="itemnavigation">
+            <h2>Subcategories</h2>
+        </div>
         <ul>
-            <li th:each="child : ${subcategories}"><a th:href="@{|${prefix}/subject/${child.id}|}" th:text="${child.name}">Child</a>
-                (<em th:text="${child.titleCount + child.collectionCount}">0</em>)
+            <li th:each="child : ${subcategories}"><a th:href="@{|${prefix}/subject/${child.id}|}"
+                                                      th:text="${child.name}">Child</a>
+                (
+                <th:block th:text="${child.titleCount + child.collectionCount}">0</th:block>
+                )
             </li>
         </ul>
     </div>
