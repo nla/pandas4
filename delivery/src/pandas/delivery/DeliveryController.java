@@ -50,7 +50,6 @@ public class DeliveryController {
 
     @ModelAttribute
     public void attributes(@PathVariable(value = "partner", required = false) String partner, Model model) {
-        model.addAttribute("allSubjects", subjectRepository.findAllByOrderByName());
         model.addAttribute("agencyFilter", partner == null ? null : agencyRepository.findByAlias(partner).orElseThrow());
         model.addAttribute("prefix", partner == null ? "" : "/partner/" + partner);
     }
