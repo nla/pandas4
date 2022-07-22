@@ -3,11 +3,16 @@ package pandas.search;
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
+import org.hibernate.search.util.common.data.RangeBoundInclusion;
 import org.springframework.util.MultiValueMap;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+
+import static org.hibernate.search.util.common.data.RangeBoundInclusion.EXCLUDED;
+import static org.hibernate.search.util.common.data.RangeBoundInclusion.INCLUDED;
 
 public class DateFacet extends Facet {
     public DateFacet(String name, String param, String field) {
@@ -23,8 +28,9 @@ public class DateFacet extends Facet {
         LocalDate start = parseDate(form.getFirst(param + ".start"));
         LocalDate end = parseDate(form.getFirst(param + ".end"));
         if (start != null || end != null) {
-            bool.must(f.range().field(field).between(start == null ? null : start.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
-                    end == null ? null : end.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+            Instant lowerBound = start == null ? null : start.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+            Instant upperBound = end == null ? null : end.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+            bool.must(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
         }
     }
 
