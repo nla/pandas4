@@ -20,6 +20,7 @@ import pandas.util.ServletUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -144,8 +145,8 @@ public class DeliveryController {
     private String getFrontpageData() {
         String url = "https://pandora.nla.gov.au/frontpage.html";
         String frontpageData;
-        try {
-            frontpageData = new String(new URL(url).openStream().readAllBytes(), UTF_8);
+        try (InputStream stream = new URL(url).openStream()) {
+            frontpageData = new String(stream.readAllBytes(), UTF_8);
         } catch (IOException e) {
             log.warn("Unable to fetch " + url, e);
             frontpageData = "";
