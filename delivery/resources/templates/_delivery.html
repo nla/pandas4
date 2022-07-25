@@ -106,19 +106,68 @@
             </h2>
         </td>
         <td id="alignright">
-            <a th:if="${page.hasPrevious()}" th:href="@{${url}(page=${page.previousPageable().pageNumber + 1})}"><img th:src="@{/assets/images/leftarrow.gif}"></a>
+            <a th:if="${page.hasPrevious()}" th:href="@{${url}(page=${page.previousPageable().pageNumber + 1})}"><img
+                    th:src="@{/assets/images/leftarrow.gif}"></a>
             <th:block th:each="n : ${#numbers.sequence(0, page.totalPages - 1)}">
-                <a th:unless="${n == page.number}" th:text="${n + 1}" th:href="@{${url}(page=${n + 1})}" class="alphabetical">1</a>
+                <a th:unless="${n == page.number}" th:text="${n + 1}" th:href="@{${url}(page=${n + 1})}"
+                   class="alphabetical">1</a>
                 <span th:if="${n == page.number}" class="alphabeticalSelected" th:text="${n + 1}">2</span>
             </th:block>
-            <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.nextPageable().pageNumber + 1})}"><img th:src="@{/assets/images/rightarrow.gif}"></a>
-        </td></tr></tbody></table>
+            <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.nextPageable().pageNumber + 1})}"><img
+                    th:src="@{/assets/images/rightarrow.gif}"></a>
+        </td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<div class="itemnavigation" th:fragment="paginationWithSearch(page, url)">
+    <table>
+        <tbody>
+        <tr>
+            <td>
+                <h2 style="white-space: nowrap">
+                    Titles
+                    <em th:unless="${page.totalElements == 0}">
+                        <th:block th:text="${page.number * page.size + 1}">1</th:block>
+                        -
+                        <th:block th:text="${page.number * page.size + page.numberOfElements}">10</th:block>
+                        of
+                        <th:block th:text="${page.totalElements}">100</th:block>
+                    </em>
+                    <em th:if="${page.totalElements == 0}">
+                        (none)
+                    </em>
+                </h2>
+            </td>
+            <td>
+                <form th:action="@{${url}(page=1)}">
+                    <label>Search: <input type="search" name="q" th:value="${q}"></label>
+                </form>
+            </td>
+            <td id="alignright">
+                <a th:if="${page.hasPrevious()}"
+                   th:href="@{${url}(page=${page.previousPageable().pageNumber + 1})}"><img
+                        th:src="@{/assets/images/leftarrow.gif}"></a>
+                <th:block th:each="n : ${#numbers.sequence(0, page.totalPages - 1)}">
+                    <a th:unless="${n == page.number}" th:text="${n + 1}" th:href="@{${url}(page=${n + 1})}"
+                       class="alphabetical">1</a>
+                    <span th:if="${n == page.number}" class="alphabeticalSelected" th:text="${n + 1}">2</span>
+                </th:block>
+                <a th:if="${page.hasNext()}" th:href="@{${url}(page=${page.nextPageable().pageNumber + 1})}"><img
+                        th:src="@{/assets/images/rightarrow.gif}"></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 
 <div class="credits" th:fragment="credits" th:unless="${agencies.isEmpty()}">
     These webpages were selected for preservation by:
     <div>
-        <a th:each="agency : ${agencies}" th:href="${agency.organisation.url}"><img th:src="@{/agency/{alias}/logo(alias=${agency.organisation.alias})}" th:alt-title="${agency.name}" style="margin: 16px"></a>
+        <a th:each="agency : ${agencies}" th:href="${agency.organisation.url}"><img
+                th:src="@{/agency/{alias}/logo(alias=${agency.organisation.alias})}" th:alt-title="${agency.name}"
+                style="margin: 16px"></a>
     </div>
 </div>
 </html>

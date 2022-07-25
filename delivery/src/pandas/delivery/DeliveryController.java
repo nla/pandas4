@@ -21,6 +21,7 @@ import pandas.agency.AgencyRepository;
 import pandas.collection.*;
 import pandas.delivery.util.CountingSet;
 import pandas.util.ServletUtils;
+import pandas.util.Strings;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -75,16 +76,18 @@ public class DeliveryController {
                           @RequestParam(name = "q", required = false) String query,
                           @RequestParam(value = "lucene", defaultValue = "false") boolean lucene,
                           Model model) {
+        query = Strings.emptyToNull(query);
         var pageable = PageRequest.of(page.orElse(1) - 1, 100);
         model.addAttribute("subject", subject);
         model.addAttribute("collections", collectionRepository.listBySubjectForDelivery(subject, agencyFilter));
-        Page<TitleBrief> titles = lucene ? searchTitlesInSubject(subject.getId(), query, pageable) : titleRepository.findPublishedTitlesInSubject(subject, agencyFilter, pageable);
+        Page<TitleBrief> titles = query != null || lucene ? searchTitlesInSubject(subject.getId(), query, pageable) : titleRepository.findPublishedTitlesInSubject(subject, agencyFilter, pageable);
         model.addAttribute("titles", titles);
         var agencies = new CountingSet<Agency>();
         titles.forEach(title -> agencies.add(title.getAgency()));
         model.addAttribute("agencies", agencies.listByFrequencyDecreasing());
         var subcategories = subjectRepository.listChildrenForDelivery(subject, agencyFilter);
         model.addAttribute("subcategories", subcategories);
+        model.addAttribute("q", query);
         return "Subject";
     }
 

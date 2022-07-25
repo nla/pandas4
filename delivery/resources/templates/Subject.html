@@ -46,7 +46,8 @@
         </div>
     </th:block>
 
-    <th:block th:replace="_delivery :: pagination(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')" />
+    <th:block
+            th:replace="_delivery :: paginationWithSearch(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')"/>
 
     <div class="itemlist" th:unless="${titles.isEmpty()}">
         <ul>
