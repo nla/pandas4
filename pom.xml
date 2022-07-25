@@ -13,7 +13,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
-        <hibernate.search.version>6.1.5.Final</hibernate.search.version>
+        <hibernate.search.version>6.2.0.Alpha1</hibernate.search.version>
         <spring.version>2.7.1</spring.version>
     </properties>
 

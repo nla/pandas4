@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.search.engine.backend.types.Projectable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
@@ -56,7 +57,7 @@ public class Title {
      * Persistant Identifier used for referencing archived copies of this online resource.
      * TODO: Unify this with id by changing the id of existing titles to their pi.
      */
-    @GenericField
+    @GenericField(projectable = Projectable.YES)
     @JsonView(View.Summary.class)
     private Long pi;
 
@@ -64,7 +65,7 @@ public class Title {
      * The name or heading of this title
      */
     @Column(name = "NAME", nullable = false, length = 256)
-    @FullTextField(analyzer = "english")
+    @FullTextField(analyzer = "english", projectable = Projectable.YES)
     @KeywordField(name = "name_sort", sortable = Sortable.YES)
     @NotNull
     @JsonView(View.Summary.class)
@@ -810,18 +811,24 @@ public class Title {
         this.legacyTepRelation = legacyTepRelation;
     }
 
+    @GenericField
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "agency")),
+                    @ObjectPath(@PropertyValue(propertyName = "status")),
+                    @ObjectPath({@PropertyValue(propertyName = "permission"), @PropertyValue(propertyName = "state")}),
+                    @ObjectPath(@PropertyValue(propertyName = "legalDeposit"))})
     public boolean isDeliverable() {
         if (getAgency() != null && getAgency().getId().equals(Agency.PADI_ID))
             return false;
         if (getStatus().getId().equals(Status.NOMINATED_ID) ||
-            getStatus().getId().equals(Status.REJECTED_ID) ||
-            getStatus().getId().equals(Status.MONITORED_ID))
+                getStatus().getId().equals(Status.REJECTED_ID) ||
+                getStatus().getId().equals(Status.MONITORED_ID))
             return false;
         if (getLegalDeposit())
             return true;
         if (getPermission() == null || getPermission().getState() == null)
             return false;
         return !getPermission().getState().getName().equals(PermissionState.DENIED) &&
-               !getPermission().getState().getName().equals(PermissionState.UNKNOWN);
+                !getPermission().getState().getName().equals(PermissionState.UNKNOWN);
     }
 }

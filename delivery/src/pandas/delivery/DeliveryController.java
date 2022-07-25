@@ -1,9 +1,13 @@
 package pandas.delivery;
 
+import org.hibernate.search.mapper.orm.Search;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +22,8 @@ import pandas.collection.*;
 import pandas.delivery.util.CountingSet;
 import pandas.util.ServletUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,11 +71,14 @@ public class DeliveryController {
 
     @GetMapping({"/subject/{id}", "/subject/{id}/{page}"})
     public String subject(@ModelAttribute("agencyFilter") Agency agencyFilter, @PathVariable("id") Subject subject,
-                          @PathVariable("page") Optional<Integer> page, Model model) {
+                          @PathVariable("page") Optional<Integer> page,
+                          @RequestParam(name = "q", required = false) String query,
+                          @RequestParam(value = "lucene", defaultValue = "false") boolean lucene,
+                          Model model) {
         var pageable = PageRequest.of(page.orElse(1) - 1, 100);
         model.addAttribute("subject", subject);
         model.addAttribute("collections", collectionRepository.listBySubjectForDelivery(subject, agencyFilter));
-        Page<TitleBrief> titles = titleRepository.findPublishedTitlesInSubject(subject, agencyFilter, pageable);
+        Page<TitleBrief> titles = lucene ? searchTitlesInSubject(subject.getId(), query, pageable) : titleRepository.findPublishedTitlesInSubject(subject, agencyFilter, pageable);
         model.addAttribute("titles", titles);
         var agencies = new CountingSet<Agency>();
         titles.forEach(title -> agencies.add(title.getAgency()));
@@ -77,6 +86,25 @@ public class DeliveryController {
         var subcategories = subjectRepository.listChildrenForDelivery(subject, agencyFilter);
         model.addAttribute("subcategories", subcategories);
         return "Subject";
+    }
+
+    private Page<TitleBrief> searchTitlesInSubject(long subjectId, String query, Pageable pageable) {
+        var result = Search.session(entityManager).search(Title.class)
+                .select(f -> f.composite()
+                        .from(f.id(),
+                                f.field("pi", Long.class),
+                                f.field("name", String.class))
+                        .as((id, pi, name) -> new TitleBrief((Long) id, pi, name, null)))
+                .where((f, b) -> {
+                    b.must(f.match().field("subjects.id").matching(subjectId));
+                    b.must(f.match().field("deliverable").matching(true));
+                    if (query != null) {
+                        b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(query));
+                    }
+                })
+                .sort(s -> s.field("name_sort"))
+                .fetch((int) pageable.getOffset(), pageable.getPageSize());
+        return new PageImpl<>(result.hits(), pageable, result.total().hitCount());
     }
 
     @GetMapping("/subject/{id}/icon")
@@ -152,5 +180,15 @@ public class DeliveryController {
             frontpageData = "";
         }
         return frontpageData;
+    }
+
+    @PersistenceContext
+    EntityManager entityManager;
+
+    @GetMapping("/reindex")
+    @ResponseBody
+    public String reindex() throws InterruptedException {
+        Search.session(entityManager).massIndexer(Title.class).startAndWait();
+        return "ok";
     }
 }
