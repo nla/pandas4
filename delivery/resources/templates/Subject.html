@@ -40,9 +40,7 @@
             <ul class="column-list">
                 <li th:each="collection : ${collections}">
                     <a th:href="@{|${prefix}/col/${collection.id}|}" th:text="${collection.name}"></a>
-                    (
-                    <th:block th:text="${collection.titleCount}"></th:block>
-                    )
+                    <th:block th:text="'(' + ${collection.titleCount} + ')'"></th:block>
                 </li>
             </ul>
         </div>
