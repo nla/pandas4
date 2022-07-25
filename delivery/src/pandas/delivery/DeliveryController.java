@@ -1,5 +1,7 @@
 package pandas.delivery;
 
+import org.hibernate.search.engine.search.common.BooleanOperator;
+import org.hibernate.search.engine.search.predicate.dsl.SimpleQueryFlag;
 import org.hibernate.search.mapper.orm.Search;
 
 import org.slf4j.Logger;
@@ -102,7 +104,9 @@ public class DeliveryController {
                     b.must(f.match().field("subjects.id").matching(subjectId));
                     b.must(f.match().field("deliverable").matching(true));
                     if (query != null) {
-                        b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(query));
+                        b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl")
+                                .matching(query)
+                                .defaultOperator(BooleanOperator.AND));
                     }
                 })
                 .sort(s -> s.field("name_sort"))

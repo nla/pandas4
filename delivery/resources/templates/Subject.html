@@ -23,7 +23,7 @@
         <div class="itemnavigation">
             <h2>Subcategories</h2>
         </div>
-        <ul>
+        <ul class="column-list">
             <li th:each="child : ${subcategories}"><a th:href="@{|${prefix}/subject/${child.id}|}"
                                                       th:text="${child.name}">Child</a>
                 <th:block th:text="'(' + ${child.titleCount + child.collectionCount} + ')'">(0)</th:block>
@@ -37,10 +37,12 @@
         </div>
 
         <div class="itemlist">
-            <ul>
+            <ul class="column-list">
                 <li th:each="collection : ${collections}">
                     <a th:href="@{|${prefix}/col/${collection.id}|}" th:text="${collection.name}"></a>
-                    (<th:block th:text="${collection.titleCount}"></th:block>)
+                    (
+                    <th:block th:text="${collection.titleCount}"></th:block>
+                    )
                 </li>
             </ul>
         </div>

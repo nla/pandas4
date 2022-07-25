@@ -43,12 +43,20 @@
   background: #24428b;
 }
 
-.subcategories > ul {
+.column-list {
   columns: 350px;
   padding: 0;
+  list-style-image: none;
+  list-style-type: none;
 }
 
-#content .subcategories > ul > li {
+.column-list > li {
+  display: block;
+  padding-left: 1em;
+  text-indent: -1em;
+}
+
+#content .column-list > li {
   /* FIXME: Without this the "#content li" from main.css makes the columns break oddly */
   margin-top: 0;
 }
