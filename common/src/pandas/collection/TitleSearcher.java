@@ -57,6 +57,7 @@ public class TitleSearcher {
                          UserRepository userRepository) {
         this.facets = new Facet[]{
                 new EntityFacet<>("Agency", "agency", "agency.id", agencyRepository::findAllById, Agency::getId, Agency::getName),
+                new DateFacet("Archived", "archived", "archivedDates"),
                 new EntityFacet<>("Collection", "collection", "collectionAncestry.id", collectionRepository::findAllById, Collection::getId, Collection::getFullName, List.of("collections.fullName")),
                 new DateFacet("Date Registered", "regdate", "regDate"),
                 new EntityFacet<>("Format", "format", "format.id", formatRepository::findAllById, Format::getId, Format::getName),

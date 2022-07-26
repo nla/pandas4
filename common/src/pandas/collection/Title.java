@@ -838,4 +838,14 @@ public class Title {
     public boolean getHasArchivedInstances() {
         return instances.stream().anyMatch(instance -> instance.getState().isArchived());
     }
+
+    @GenericField
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "instances"))})
+    public List<Instant> getArchivedDates() {
+        return instances.stream()
+                .filter(instance -> instance.getState().isArchived())
+                .map(Instance::getDate)
+                .toList();
+    }
 }
