@@ -831,4 +831,11 @@ public class Title {
             return false;
         return true;
     }
+
+    @GenericField
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "instances"))})
+    public boolean getHasArchivedInstances() {
+        return instances.stream().anyMatch(instance -> instance.getState().isArchived());
+    }
 }
