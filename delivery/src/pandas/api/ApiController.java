@@ -1,7 +1,6 @@
 package pandas.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -60,14 +59,17 @@ public class ApiController {
     private final SubjectRepository subjectRepository;
     private final TitleRepository titleRepository;
     private final AccessChecker accessChecker;
+    private final DeliverySearcher deliverySearcher;
 
-    public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository, AccessChecker accessChecker, SubjectRepository subjectRepository) {
+    public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository, AccessChecker accessChecker, SubjectRepository subjectRepository,
+                         DeliverySearcher deliverySearcher) {
         this.agencyRepository = agencyRepository;
         this.collectionRepository = collectionRepository;
         this.instanceRepository = instanceRepository;
         this.subjectRepository = subjectRepository;
         this.titleRepository = titleRepository;
         this.accessChecker = accessChecker;
+        this.deliverySearcher = deliverySearcher;
     }
 
     @GetMapping(value = "/api", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -207,7 +209,11 @@ public class ApiController {
             } else {
                 snapshots = instanceRepository.findByCollectionAt(collection, timeFrame.startDate());
             }
-            return new CollectionDetailsJson(collection, agencies, snapshots, timeFrame);
+            Map<Long, Long> titleCounts = deliverySearcher.getTitleCountsForCollectionTree(id);
+            var subcollections = collection.getChildren().stream()
+                    .map(child -> new CollectionJson(child, titleCounts.get(child.getId()))).toList();
+            return new CollectionDetailsJson(collection, agencies, snapshots, timeFrame, titleCounts.get(id),
+                    subcollections);
         }
     }
 
@@ -453,10 +459,10 @@ public class ApiController {
             thumbnailUrl = null; // FIXME
         }
 
-        public CollectionJson(Collection collection) {
+        public CollectionJson(Collection collection, Long titleCount) {
             id = collection.getId();
             name = collection.getName();
-            numberOfItems = collection.getTitleCount(); // FIXME: only count deliverable titles
+            numberOfItems = titleCount;
             this.thumbnailCollectionId = null; // FIXME
             this.thumbnailUrl = null; // FIXME
         }
@@ -504,14 +510,19 @@ public class ApiController {
         public final List<AgencyJson> agencies;
         public final List<InstanceJson> snapshots;
 
-        public CollectionDetailsJson(Collection collection, List<Agency> agencies, List<Instance> snapshots, TimeFrame timeFrame) {
-            super(collection);
+        public CollectionDetailsJson(Collection collection,
+                                     List<Agency> agencies,
+                                     List<Instance> snapshots,
+                                     TimeFrame timeFrame,
+                                     Long titleCount,
+                                     List<CollectionJson> subcollections) {
+            super(collection, titleCount);
             Instant startDate = timeFrame == null ? null : timeFrame.startDate();
             Instant endDate = timeFrame == null ? null : timeFrame.endDate();
             this.startDate = startDate == null ? null : Date.from(startDate);
             this.endDate = endDate == null ? null : Date.from(endDate);
             description = collection.getDescription();
-            subcollections = collection.getChildren().stream().map(CollectionJson::new).toList();
+            this.subcollections = subcollections;
             related = List.of();
             breadcrumbs = buildBreadcrumbList(collection);
             this.agencies = agencies.stream().map(a -> new AgencyJson(a, null)).toList();
@@ -542,7 +553,7 @@ public class ApiController {
                                     .filter(json -> json.numberOfItems == null || json.numberOfItems != 0),
                             subject.getCollections().stream()
                                     .filter(collection -> collection.isDisplayed() && collection.getParent() == null)
-                                    .map(CollectionJson::new))
+                                    .map(c -> new CollectionJson(c, c.getTitleCount())))
                     .sorted(Comparator.comparing(c -> c.name))
                     .toList();
 
