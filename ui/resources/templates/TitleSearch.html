@@ -43,7 +43,8 @@
                 <input form="sf" th:name="${filter.param + '.start'}" th:value="${filter.start}" type=date>
                 <span>&mdash;</span>
                 <!--suppress ThymeleafVariablesResolveInspection -->
-                <input form="sf" th:name="${filter.param + '.end'}" th:value="${filter.end}" type=date>
+                <input form="sf" th:name="${filter.param + '.end'}" th:value="${filter.end}" type=date><br>
+                <label><input form="sf" type="checkbox" th:name="${filter.param + '.never'}" th:checked="${filter.never}"> Never</label><br>
                 <button form="sf" type=submit class="btn btn-primary btn-sm">Apply</button>
             </fieldset>
             <fieldset th:if="${filter.type == 'entity'}">

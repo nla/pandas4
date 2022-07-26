@@ -3,7 +3,6 @@ package pandas.search;
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
-import org.hibernate.search.util.common.data.RangeBoundInclusion;
 import org.springframework.util.MultiValueMap;
 
 import java.time.Instant;
@@ -27,11 +26,19 @@ public class DateFacet extends Facet {
     public void mustMatch(SearchPredicateFactory f, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> form) {
         LocalDate start = parseDate(form.getFirst(param + ".start"));
         LocalDate end = parseDate(form.getFirst(param + ".end"));
+        boolean never = "on".equals(form.getFirst(param + ".never"));
+        if (start == null && end == null && !never) return;
+
+        var or = f.bool();
         if (start != null || end != null) {
             Instant lowerBound = start == null ? null : start.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
             Instant upperBound = end == null ? null : end.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-            bool.must(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
+            or.should(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
         }
+        if (never) {
+            or.should(f.matchAll().except(f.exists().field(field)));
+        }
+        bool.must(or);
     }
 
     @Override
@@ -42,7 +49,8 @@ public class DateFacet extends Facet {
     public FacetResults results(MultiValueMap<String, String> form, SearchResult<?> result) {
         String start = form.getFirst(param + ".start");
         String end = form.getFirst(param + ".end");
-        boolean active = (start != null && !start.isBlank()) || (end != null && !end.isBlank());
+        boolean never = "on".equals(form.getFirst(param + ".never"));
+        boolean active = (start != null && !start.isBlank()) || (end != null && !end.isBlank()) || never;
         return new FacetResults(name, param, List.of(), active, false, null) {
             @Override
             public boolean isVisible() {
@@ -60,6 +68,10 @@ public class DateFacet extends Facet {
 
             public String getEnd() {
                 return end;
+            }
+
+            public boolean getNever() {
+                return never;
             }
         };
     }
