@@ -811,6 +811,7 @@ public class Title {
         this.legacyTepRelation = legacyTepRelation;
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @GenericField
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
             derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "agency")),
@@ -826,9 +827,8 @@ public class Title {
             return false;
         if (getLegalDeposit())
             return true;
-        if (getPermission() == null || getPermission().getState() == null)
+        if (getPermission() == null || getPermission().isDenied() || getPermission().isUnknown())
             return false;
-        return !getPermission().getState().getName().equals(PermissionState.DENIED) &&
-                !getPermission().getState().getName().equals(PermissionState.UNKNOWN);
+        return true;
     }
 }

@@ -200,4 +200,18 @@ public class Permission {
     public void setContactPerson(ContactPerson contactPerson) {
         this.contactPerson = contactPerson;
     }
+
+    private boolean hasState(String stateName) {
+        return stateName.equals(getStateName()) ||
+                (getState() != null && stateName.equals(getState().getName()));
+    }
+
+    public boolean isDenied() {
+        return hasState(PermissionState.DENIED);
+    }
+
+    public boolean isUnknown() {
+        return hasState(PermissionState.UNKNOWN) || getState() == null;
+    }
+
 }
