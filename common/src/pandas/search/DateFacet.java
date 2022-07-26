@@ -27,18 +27,20 @@ public class DateFacet extends Facet {
         LocalDate start = parseDate(form.getFirst(param + ".start"));
         LocalDate end = parseDate(form.getFirst(param + ".end"));
         boolean never = "on".equals(form.getFirst(param + ".never"));
-        if (start == null && end == null && !never) return;
-
-        var or = f.bool();
         if (start != null || end != null) {
             Instant lowerBound = start == null ? null : start.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
             Instant upperBound = end == null ? null : end.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-            or.should(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
+            if (never) {
+                var or = f.bool();
+                or.should(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
+                or.should(f.matchAll().except(f.exists().field(field)));
+                bool.must(or);
+            } else {
+                bool.must(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
+            }
+        } else if (never) {
+            bool.mustNot(f.exists().field(field));
         }
-        if (never) {
-            or.should(f.matchAll().except(f.exists().field(field)));
-        }
-        bool.must(or);
     }
 
     @Override
