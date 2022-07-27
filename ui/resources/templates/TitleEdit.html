@@ -186,12 +186,16 @@
                            onchange="this.value = this.value.replace(/[ -]/g, '')">
                 </labe>
             </div>
-            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under
-                legal deposit</label>
-            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{unableToArchive}"> Was unable to
-                be archived</label>
-            <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{disappeared}"> No longer
-                online</label>
+            <div>
+                <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under
+                    legal deposit</label>
+            </div>
+            <div>
+                <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{unableToArchive}"> Was unable to
+                    be archived</label>
+                <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{disappeared}"> No longer
+                    online</label>
+            </div>
             <details sec:authorize="hasRole('stduser')"
                      th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
                 <summary>Cataloguing</summary>
