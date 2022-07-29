@@ -60,7 +60,7 @@
     </section>
 
     <section>
-        <h5>Titles (<th:block th:text="${subject.titles.size()}"></th:block>)</h5>
+        <h5><a th:href="@{/titles(subject=${subject.id})}">Titles (<th:block th:text="${subject.titles.size()}"></th:block>)</a></h5>
         <ul class="subcategories">
             <li th:each="title: ${subject.titles}">
                 <a th:href="@{/titles/{id}(id=${title.id})}" th:text="${title.name}" href="#">My dance blog</a>
