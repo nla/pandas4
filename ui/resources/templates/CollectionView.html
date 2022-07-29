@@ -95,7 +95,7 @@
         </section>
 
         <section th:unless="${collection.titles.isEmpty()}">
-            <h5>Titles (<th:block th:text="${collection.titles.size()}"></th:block>)</h5>
+            <h5><a th:href="@{/titles(collection=${collection.id})}">Titles (<th:block th:text="${collection.titles.size()}"></th:block>)</a></h5>
             <div th:each="title: ${collection.titles}">
                 <div th:replace="TitleSearch.html :: title-card(omitCollection=${collection})">
                 </div>

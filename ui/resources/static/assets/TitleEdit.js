@@ -1,4 +1,3 @@
-
 new SlimSelect({
     select: '#subjects',
     hideSelectedOption: true,
