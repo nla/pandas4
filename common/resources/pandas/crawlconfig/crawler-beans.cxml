@@ -159,11 +159,13 @@
                     </property>
                 </bean>
                 <!-- ...and REJECT those with suspicious repeating path-segments... -->
-                <bean class="org.archive.modules.deciderules.PathologicalPathDecideRule">
-                    <!-- <property name="maxRepetitions" value="2" /> -->
+                <bean id="pathologicalPathDecideRule"
+                      class="org.archive.modules.deciderules.PathologicalPathDecideRule">
+                    <property name="maxRepetitions" value="3"/>
                 </bean>
                 <!-- ...and REJECT those with more than threshold number of path-segments... -->
-                <bean class="org.archive.modules.deciderules.TooManyPathSegmentsDecideRule">
+                <bean id="tooManyPathSegmentsDecideRule"
+                      class="org.archive.modules.deciderules.TooManyPathSegmentsDecideRule">
                     <!-- <property name="maxPathDepth" value="20" /> -->
                 </bean>
                 <!-- ...but always ACCEPT those marked as prerequisitee for another URI... -->
