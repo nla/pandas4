@@ -429,6 +429,7 @@ public class TitleController {
                           @RequestParam(value = "subject", defaultValue = "") List<Subject> subjects,
                           @RequestParam(value = "publisher", required = false) Publisher publisher,
                           @RequestParam(value = "url", required = false) String url,
+                          @RequestParam(value = "publisherAbn", required = false) String publisherAbn,
                           @RequestParam(value = "created", required = false) Title created,
                           @RequestParam(value = "backlink", required = false) String backlink,
                           Model model) {
@@ -445,6 +446,7 @@ public class TitleController {
 
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
         form.setTitleUrl(url);
+        form.setPublisherAbn(publisherAbn);
 
         // Copy basic gather settings to the new form when using "Save and add another"
         if (created != null) {
