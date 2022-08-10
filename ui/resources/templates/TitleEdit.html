@@ -159,7 +159,8 @@
                             th:text="${collection.fullName}" selected>Arts
                     </option>
                     <option th:each="collection: ${suggestedCollections}" th:value="${collection.id}"
-                            th:text="${collection.fullName}"></option>
+                            th:text="${collection.fullName}"
+                            th:data-subjects="${#strings.listJoin(collection.subjects.![id], ',')}"></option>
                 </select>
             </label>
             <label sec:authorize="hasRole('stduser')">

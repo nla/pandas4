@@ -23,10 +23,7 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "COL")
@@ -42,7 +39,7 @@ public class Collection {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
     @SequenceGenerator(name = "COL_SEQ", sequenceName = "COL_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES, sortable = Sortable.YES)
-    @JsonView(View.Summary.class)
+    @JsonView({View.Summary.class, View.CollectionSearchResults.class})
     private Long id;
 
     @Lob
@@ -53,7 +50,7 @@ public class Collection {
     private String thumbnailUrl;
 
     @FullTextField(analyzer = "english")
-    @JsonView(View.Summary.class)
+    @JsonView({View.Summary.class, View.CollectionSearchResults.class})
     private String name;
 
     @ManyToOne
@@ -166,7 +163,7 @@ public class Collection {
             @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "name")}),
             @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "name")}),
             @ObjectPath({@PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "parent"), @PropertyValue(propertyName = "name")})})
-    @JsonView(View.Summary.class)
+    @JsonView({View.Summary.class, View.CollectionSearchResults.class})
     public String getFullName() {
         if (fullName == null) {
             StringBuilder sb = new StringBuilder();
@@ -223,6 +220,19 @@ public class Collection {
 
     public List<Subject> getSubjects() {
         return subjects;
+    }
+
+    /**
+     * Returns the subjects for this collection or the subjects inherited from its parent if there are none.
+     */
+    @JsonView(View.CollectionSearchResults.class)
+    public List<Subject> getInheritedSubjects() {
+        Collection collection = this;
+        // if the collection has no subjects, inherit them from its parent
+        while (collection.getSubjects().isEmpty() && collection.getParent() != null) {
+            collection = collection.getParent();
+        }
+        return collection.getSubjects();
     }
 
     public void setSubjects(List<Subject> subjects) {

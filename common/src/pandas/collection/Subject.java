@@ -2,11 +2,13 @@ package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import pandas.core.View;
 
 import javax.persistence.*;
 import java.sql.Blob;
@@ -79,6 +81,7 @@ public class Subject {
         return categoryId - CATEGORY_ID_RANGE_START;
     }
 
+    @JsonView({View.CollectionSearchResults.class})
     public Long getId() {
         return id;
     }

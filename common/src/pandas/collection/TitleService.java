@@ -82,11 +82,7 @@ public class TitleService {
         if ((subjects == null || subjects.isEmpty()) && (collections != null && !collections.isEmpty())) {
             Set<Subject> subjectList = new HashSet<>();
             for (Collection collection: collections) {
-                // if the collection has no subjects, inherit them from its parent
-                while (collection.getSubjects().isEmpty() && collection.getParent() != null) {
-                    collection = collection.getParent();
-                }
-                subjectList.addAll(collection.getSubjects());
+                subjectList.addAll(collection.getInheritedSubjects());
             }
             form.setSubjects(new ArrayList<>(subjectList));
         }

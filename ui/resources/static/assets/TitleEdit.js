@@ -1,10 +1,11 @@
-new SlimSelect({
+const subjectsSlimSelect = new SlimSelect({
     select: '#subjects',
     hideSelectedOption: true,
     searchFilter: function (option, search) {
         return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
     }
 });
+
 new SlimSelect({
     select: '#collections',
     hideSelectedOption: true,
@@ -15,10 +16,27 @@ new SlimSelect({
         if (!search) return callback(false);
         fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
             .then(response => response.json())
-            .then(results => callback(results.map(collection => ({value: collection.id, text: collection.fullName}))))
+            .then(results => callback(results.map(collection => ({
+                value: collection.id,
+                text: collection.fullName,
+                data: {
+                    subjects: collection.inheritedSubjects.map(subject => typeof subject === 'number' ? subject : subject.id),
+                }
+            }))))
             .catch(error => callback(false));
     },
 });
+
+document.getElementById('collections').addEventListener('change', function (event) {
+    // if there's no subjects selected populate the subjects with the ones from the collection
+    if (subjectsSlimSelect.selected().length === 0) {
+        let collectionOption = event.target.options[event.target.selectedIndex];
+        if (collectionOption && collectionOption.dataset.subjects) {
+            subjectsSlimSelect.set(collectionOption.dataset.subjects.split(","));
+        }
+    }
+});
+
 let titleUrlField = document.getElementById("titleUrl");
 
 function escapeHtml(text) {

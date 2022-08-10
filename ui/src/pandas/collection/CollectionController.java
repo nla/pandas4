@@ -132,7 +132,7 @@ public class CollectionController {
 
     @GetMapping(value = "/collections.json", produces = "application/json")
     @ResponseBody
-    @JsonView(View.Summary.class)
+    @JsonView(View.CollectionSearchResults.class)
     public Object json(@RequestParam(value = "q", required = true) String q, Pageable pageable) {
         var search = Search.session(entityManager).search(Collection.class)
                 .where(f -> f.bool(b -> {
