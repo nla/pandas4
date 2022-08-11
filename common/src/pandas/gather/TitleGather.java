@@ -2,6 +2,7 @@ package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SortNatural;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
@@ -9,7 +10,6 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextFi
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
-import pandas.collection.Status;
 import pandas.collection.Title;
 
 import javax.persistence.*;
@@ -110,7 +110,8 @@ public class TitleGather {
     private Title title;
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "gather")
-    private List<GatherDate> oneoffDates = new ArrayList<>();
+    @SortNatural
+    private SortedSet<GatherDate> oneoffDates = new TreeSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "T_GATHER_ARG",
@@ -295,7 +296,7 @@ public class TitleGather {
         this.title = title;
     }
 
-    public List<GatherDate> getOneoffDates() {
+    public SortedSet<GatherDate> getOneoffDates() {
         return oneoffDates;
     }
 
@@ -315,7 +316,9 @@ public class TitleGather {
     }
 
     public void addOneoffDate(Instant instant) {
-        oneoffDates.add(new GatherDate(this, instant));
+//        getOneoffDates().isEmpty();
+//        Hibernate.initialize(oneoffDates)   ;
+        getOneoffDates().add(new GatherDate(this, instant));
         calculateNextGatherDate();
     }
 

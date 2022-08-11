@@ -7,3 +7,4 @@ target
 /.project
 /.idea
 spring-shell.log
+/delivery/build-ffmpeg/

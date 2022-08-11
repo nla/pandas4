@@ -215,7 +215,8 @@ public class TitleService {
         //
 
         // create or update the corresponding TitleGather record
-        TitleGather titleGather = title.getGather() == null ? new TitleGather() : title.getGather();
+        TitleGather titleGather = title.getGather();
+        if (titleGather == null) titleGather = createTitleGather(title);
         if (titleGather.getTitle() == null) {
             titleGather.setTitle(title);
         }
@@ -228,11 +229,6 @@ public class TitleService {
             titleGather.setAdditionalUrls(String.join(" ", Arrays.copyOfRange(seeds, 1, seeds.length)));
         } else {
             titleGather.setAdditionalUrls(null);
-        }
-
-        if (titleGather.getMethod() == null) {
-            titleGather.setMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
-            titleGather.setSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
         }
 
         titleGather.setScheduledDate(form.getScheduledInstant());
@@ -265,6 +261,15 @@ public class TitleService {
         return title;
     }
 
+    private TitleGather createTitleGather(Title title) {
+        TitleGather gather = new TitleGather();
+        gather.setTitle(title);
+        gather.setMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
+        gather.setSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
+        title.setGather(gather);
+        return gather;
+    }
+
     /**
      * Create a new status history record for this title. Assumes the status has already been updated.
      */
@@ -291,7 +296,8 @@ public class TitleService {
         log.info("Applying bulk change {}", form.toString());
         Instant now = Instant.now();
         List<TitleGather> gathers = new ArrayList<>();
-        for (Title title: form.getTitles()) {
+        var titles = titleRepository.findAllById(form.getTitles().stream().map(Title::getId).toList());
+        for (Title title: titles) {
             if (form.isEditAnbdNumber()) title.setAnbdNumber(form.getAnbdNumber());
 
             if (form.isEditOwner()) {
@@ -312,29 +318,23 @@ public class TitleService {
                 title.setNotes(title.getNotes() == null ? form.getAddNote() : (title.getNotes() + "\n" + form.getAddNote()));
             }
 
-            if (form.isEditSchedule() || form.isEditMethod()) {
+            if (form.isEditSchedule() || form.isEditMethod() || form.isEditOneoffDate() || form.isEditScope()) {
                 TitleGather gather = title.getGather();
                 if (gather == null) {
-                    gather = new TitleGather();
-                    gather.setTitle(title);
+                    gather = createTitleGather(title);
                 }
                 if (form.isEditSchedule()) gather.setSchedule(form.getSchedule());
                 if (form.isEditMethod()) gather.setMethod(form.getMethod());
-                gathers.add(gather);
-            }
-
-            if (form.isEditOneoffDate()) {
-                Instant instant;
-                if (form.getOneoffDate() == null) {
-                    instant = Instant.now();
-                } else {
-                    instant = form.getOneoffDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+                if (form.isEditScope()) gather.setScope(form.getScope());
+                if (form.isEditOneoffDate()) {
+                    Instant instant;
+                    if (form.getOneoffDate() == null) {
+                        instant = Instant.now();
+                    } else {
+                        instant = form.getOneoffDate().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+                    }
+                    gather.addOneoffDate(instant);
                 }
-                title.getGather().addOneoffDate(instant);
-            }
-
-            if (form.isEditScope()) {
-                title.getGather().setScope(form.getScope());
             }
 
             if (form.isEditStatus() && !title.getStatus().equals(form.getStatus()) &&
@@ -351,9 +351,22 @@ public class TitleService {
                     }
                 }
             }
+            titleRepository.save(title);
         }
-        titleRepository.saveAll(form.getTitles());
-        titleGatherRepository.saveAll(gathers);
+//        titleRepository.saveAll(titles);
+    }
+
+    @Transactional
+    public void addOneoffDate(Title title, Instant date) {
+        var gather = titleGatherRepository.findById(title.getGather().getId()).orElseThrow();
+        gather.addOneoffDate(date);
+        gather.getOneoffDates().isEmpty();
+//        gather.getOneoffDates().add(new GatherDate(gather, date));
+//        gather.getOneoffDates().isEmpty();
+        titleGatherRepository.save(gather);
+//        title = titleRepository.findById(title.getId()).orElseThrow();
+//        title.getGather().addOneoffDate(date);
+//        titleRepository.save(title);
     }
 
     @PreAuthorize("hasPermission(#title, 'edit')")
