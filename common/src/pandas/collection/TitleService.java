@@ -351,22 +351,8 @@ public class TitleService {
                     }
                 }
             }
-            titleRepository.save(title);
         }
-//        titleRepository.saveAll(titles);
-    }
-
-    @Transactional
-    public void addOneoffDate(Title title, Instant date) {
-        var gather = titleGatherRepository.findById(title.getGather().getId()).orElseThrow();
-        gather.addOneoffDate(date);
-        gather.getOneoffDates().isEmpty();
-//        gather.getOneoffDates().add(new GatherDate(gather, date));
-//        gather.getOneoffDates().isEmpty();
-        titleGatherRepository.save(gather);
-//        title = titleRepository.findById(title.getId()).orElseThrow();
-//        title.getGather().addOneoffDate(date);
-//        titleRepository.save(title);
+        titleRepository.saveAll(titles);
     }
 
     @PreAuthorize("hasPermission(#title, 'edit')")
