@@ -3,6 +3,7 @@ package pandas.collection;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,9 +47,9 @@ public class CollectionController {
 
     @GetMapping("/collections")
     public String search(@RequestParam(value = "q", required = false) String rawQ,
-                          @RequestParam(value = "subject", required = false, defaultValue = "") List<Long> subjectIds,
-                          Pageable pageable,
-                          Model model) {
+                         @RequestParam(value = "subject", required = false, defaultValue = "") List<Long> subjectIds,
+                         @PageableDefault(size = 50) Pageable pageable,
+                         Model model) {
         String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
 
         var search = Search.session(entityManager).search(Collection.class)

@@ -4,69 +4,62 @@
     <meta charset="UTF-8">
     <title>Titles - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <link rel="stylesheet" href="../static/assets/TitleSearch.css" th:href="@{/assets/TitleSearch.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
-        <nav><a th:href="@{/collections/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New Collection</a></nav>
+        <nav><a th:href="@{/collections/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New
+            Collection</a></nav>
         <input name="q" th:value="${q}" placeholder="Search Collections" form=searchForm>
     </header>
     <form id="searchForm">
         <!-- hidden default submit button -->
         <button type=submit style="visibility: hidden; position: absolute; top: -1000px">Submit</button>
-        <details>
-            <summary>Advanced</summary>
-            <label for=subjectFilter>Subject:</label>
-            <select id=subjectFilter name=subject multiple>
-                <option th:each="subject: ${allSubjects}" th:value="${subject.id}"
-                        th:selected="${selectedSubjectIds.contains(subject.id)}"
-                        th:text="${subject.name}">Arts
-                </option>
-                <option th:remove="all">Business & Economy</option>
-            </select>
-        </details>
     </form>
 
-    <section class="search-results">
-        <div class="result-list">
-            <header>
-                Found <strong
-                    th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
-                matching collections
-            </header>
-
-            <ol start="${results.pageable.offset + 1}">
-                <li th:each="collection: ${results}">
-                    <header>
-                        <strong><a th:href="@{/collections/{id}(id=${collection.id})}"
-                                   th:text="${collection.fullName}" href="TitleView.html">Developing
-                            Canberra</a></strong>
-                        <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
-                        <strong th:if="${collection.ancestorClosed}">(Closed)</strong>
-                        <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
-                           th:text="${titleCounts.get(collection.id)}" href="TitleSearch.html">16</a>
-                    </header>
-                    <div>
-                        <ul class="subject-list">
-                            <li th:each="subject: ${collection.subjects}">
-                                <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
-                                   href="SubjectView.html">Sport</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ol>
-            <nav class="pagination">
-                <button form="searchForm" type="submit" name="page" class="btn btn-secondary" data-keybind=","
-                        th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
-                        tabindex="-1" th:disabled="${!results.hasPrevious()}"><i class="icon previous"></i>Previous</button>
-                <button form="searchForm" type="submit" name="page" class="btn btn-secondary" data-keybind="."
-                        th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}"
-                        th:disabled="${!results.hasNext()}">Next<i class="icon icon-right next"></i></button>
-            </nav>
-        </div>
+    <section class="results">
+        <header>
+            Found <strong
+                th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</strong>
+            matching collections
+        </header>
+        <ol start="${results.pageable.offset + 1}">
+            <li th:each="collection: ${results}">
+                <header>
+                    <th:block th:each="breadcrumb, iter : ${collection.collectionBreadcrumbs}"><a
+                            th:href="@{/collections/{id}(id=${breadcrumb.id})}"
+                            th:text="${breadcrumb.name}"
+                            href="TitleView.html">Parent Collection</a>—
+                    </th:block>
+                    <a
+                            th:href="@{/collections/{id}(id=${collection.id})}"
+                            th:text="${collection.name}" href="TitleView.html">Developing Canberra</a>
+                    <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'"
+                          class="time-frame"/>
+                    <strong th:if="${collection.ancestorClosed}">(Closed)</strong>
+                    <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
+                       th:text="${titleCounts.get(collection.id)}" href="TitleSearch.html">16</a>
+                    <ul class="subject-list">
+                        <li th:each="subject: ${collection.subjects}">
+                            <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}"
+                               href="SubjectView.html">Sport</a>
+                        </li>
+                    </ul>
+                </header>
+            </li>
+        </ol>
+        <nav class="pagination">
+            <button form="searchForm" type="submit" name="page" class="btn btn-secondary" data-keybind=","
+                    th:value="${results.hasPrevious() ? results.previousPageable().pageNumber : ''}"
+                    tabindex="-1" th:disabled="${!results.hasPrevious()}"><i class="icon previous"></i>Previous
+            </button>
+            <button form="searchForm" type="submit" name="page" class="btn btn-secondary" data-keybind="."
+                    th:value="${results.hasNext() ? results.nextPageable().pageNumber : ''}"
+                    th:disabled="${!results.hasNext()}">Next<i class="icon icon-right next"></i></button>
+        </nav>
         <!-- <ul class="facets"></ul> -->
     </section>
 </main>
