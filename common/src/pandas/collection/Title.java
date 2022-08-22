@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.engine.backend.types.Projectable;
+import org.hibernate.search.engine.backend.types.Searchable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
@@ -847,5 +848,19 @@ public class Title {
                 .filter(instance -> instance.getState().isArchived())
                 .map(Instance::getDate)
                 .toList();
+    }
+
+    @GenericField(projectable = Projectable.YES, searchable = Searchable.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "instances"))})
+    public Instant getFirstArchivedDate() {
+        return getArchivedDates().stream().min(Comparator.naturalOrder()).orElse(null);
+    }
+
+    @GenericField(projectable = Projectable.YES, searchable = Searchable.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "instances"))})
+    public Instant getLastArchivedDate() {
+        return getArchivedDates().stream().max(Comparator.naturalOrder()).orElse(null);
     }
 }

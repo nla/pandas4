@@ -88,7 +88,7 @@
                        href="CollectionView.html">Documentaries</a>
                     <span th:if="${child.timeFrame != null}" th:text="'(' + ${child.timeFrame} + ')'" class="time-frame"/>
                     <a class="title-count" th:href="@{/titles(collection=${child.id})}"
-                       th:text="${child.titleCount}"
+                       th:text="${titleCounts.get(child.id)}"
                        href="TitleSearch.html">16</a>
                 </li>
             </ul>

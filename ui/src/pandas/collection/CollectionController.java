@@ -29,13 +29,15 @@ import static pandas.search.SearchUtils.mustMatchAny;
 @Controller
 public class CollectionController {
     private final CollectionRepository collectionRepository;
+    private final CollectionStatsService collectionStatsService;
     private final EntityManager entityManager;
     private final SubjectRepository subjectRepository;
     private final GatherService gatherService;
     private final GatherScheduleRepository gatherScheduleRepository;
 
-    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository, GatherService gatherService, GatherScheduleRepository gatherScheduleRepository) {
+    public CollectionController(CollectionRepository collectionRepository, CollectionStatsService collectionStatsService, EntityManager entityManager, SubjectRepository subjectRepository, GatherService gatherService, GatherScheduleRepository gatherScheduleRepository) {
         this.collectionRepository = collectionRepository;
+        this.collectionStatsService = collectionStatsService;
         this.entityManager = entityManager;
         this.subjectRepository = subjectRepository;
         this.gatherService = gatherService;
@@ -62,12 +64,15 @@ public class CollectionController {
         model.addAttribute("q", q);
         model.addAttribute("selectedSubjectIds", subjectIds);
         model.addAttribute("allSubjects", subjectRepository.findAllByOrderByName());
+        model.addAttribute("titleCounts", collectionStatsService.countDescendentTitles(
+                results.stream().map(Collection::getId).toList()));
         return "CollectionSearch";
     }
 
     @GetMapping("/collections/{id}")
     public String get(@PathVariable("id") long id, Model model) {
         model.addAttribute("collection", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
+        model.addAttribute("titleCounts", collectionStatsService.countDescendentTitlesOfChildren(id));
         return "CollectionView";
     }
 
