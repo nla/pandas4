@@ -73,6 +73,7 @@ public class CollectionController {
     public String get(@PathVariable("id") long id, Model model) {
         model.addAttribute("collection", collectionRepository.findById(id).orElseThrow(NotFoundException::new));
         model.addAttribute("titleCounts", collectionStatsService.countDescendentTitlesOfChildren(id));
+        model.addAttribute("stats", collectionStatsService.calculateStats(id));
         return "CollectionView";
     }
 

@@ -123,7 +123,7 @@ public class InstanceGather {
         return formatStats(getFiles(), getSize());
     }
 
-    static String formatStats(Long files, Long size) {
+    public static String formatStats(Long files, Long size) {
         var builder = new StringBuilder();
         if (files != null) {
             builder.append(String.format("%,d", files));
