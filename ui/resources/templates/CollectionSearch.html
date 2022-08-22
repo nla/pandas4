@@ -29,14 +29,14 @@
         <ol start="${results.pageable.offset + 1}">
             <li th:each="collection: ${results}">
                 <header>
-                    <th:block th:each="breadcrumb, iter : ${collection.collectionBreadcrumbs}"><a
-                            th:href="@{/collections/{id}(id=${breadcrumb.id})}"
-                            th:text="${breadcrumb.name}"
-                            href="TitleView.html">Parent Collection</a>—
-                    </th:block>
-                    <a
-                            th:href="@{/collections/{id}(id=${collection.id})}"
-                            th:text="${collection.name}" href="TitleView.html">Developing Canberra</a>
+                    <div style="display: inline-flex; flex-wrap: wrap">
+                        <th:block th:each="breadcrumb, iter : ${collection.collectionBreadcrumbs}">
+                            <a th:href="@{/collections/{id}(id=${breadcrumb.id})}"
+                               th:text="${breadcrumb.name}">Parent Collection</a>—
+                        </th:block>
+                        <a th:href="@{/collections/{id}(id=${collection.id})}"
+                           th:text="${collection.name}" href="TitleView.html">Developing Canberra</a>
+                    </div>
                     <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'"
                           class="time-frame"/>
                     <strong th:if="${collection.ancestorClosed}">(Closed)</strong>
