@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.regex.Pattern;
 
 @Controller
 public class PageInfoController {
@@ -76,7 +77,7 @@ public class PageInfoController {
                 } catch (ParseException e) {
                     log.warn("Exception parsing " + url, e);
                 }
-                title = handler.title;
+                title = handler.title.replaceAll("\\s\\s+", " ").trim();
             }
             return new PageInfo(response.code(), reason, contentType, charsetName, title, response.header("Location"));
         } catch (UnknownHostException e) {
