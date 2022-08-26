@@ -290,14 +290,25 @@ public class TitleService {
         statusHistoryRepository.save(statusHistory);
     }
 
+    private List<Title> findAllByIdInBatches(List<Long> titleIds) {
+        int batchSize = 500;
+        List<Title> titles = new ArrayList<>(titleIds.size());
+        for (int i = 0; i < titleIds.size(); i += batchSize) {
+            List<Long> batch = titleIds.subList(i, Math.min(titleIds.size(), i + batchSize));
+            for (var title : titleRepository.findAllById(batch)) {
+                titles.add(title);
+            }
+        }
+        return titles;
+    }
+
     @Transactional
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
     public void bulkEdit(TitleBulkEditForm form, User currentUser) {
         log.info("Applying bulk change {}", form.toString());
         Instant now = Instant.now();
-        List<TitleGather> gathers = new ArrayList<>();
-        var titles = titleRepository.findAllById(form.getTitles().stream().map(Title::getId).toList());
-        for (Title title: titles) {
+        var titles = findAllByIdInBatches(form.getTitles().stream().map(Title::getId).toList());
+        for (Title title : titles) {
             if (form.isEditAnbdNumber()) title.setAnbdNumber(form.getAnbdNumber());
 
             if (form.isEditOwner()) {
