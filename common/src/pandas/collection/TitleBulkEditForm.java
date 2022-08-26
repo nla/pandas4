@@ -52,11 +52,27 @@ public class TitleBulkEditForm {
         if (isEditAnbdNumber()) sb.append(" anbdNumber=").append(anbdNumber);
         if (isEditAddNote()) sb.append(" addNote=").append(addNote);
         sb.append(" titles=[");
-        for (Title title: titles) {
+        for (Title title : titles) {
             sb.append(title.getId());
             sb.append(",");
         }
         sb.append("]");
+        if (!subjectsToAdd.isEmpty()) {
+            sb.append(" subjectsToAdd=[");
+            for (Subject subject : subjectsToAdd) {
+                sb.append(subject.getId());
+                sb.append(",");
+            }
+            sb.append("]");
+        }
+        if (!collectionsToAdd.isEmpty()) {
+            sb.append(" collectionsToAdd=[");
+            for (Collection collection : collectionsToAdd) {
+                sb.append(collection.getId());
+                sb.append(",");
+            }
+            sb.append("]");
+        }
         return sb.toString();
     }
 

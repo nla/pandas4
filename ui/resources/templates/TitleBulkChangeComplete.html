@@ -11,4 +11,14 @@
     <h1>Bulk Change</h1>
 
     <p>Changed <span th:text="${count}">56</span> titles.</p>
+
+    <h3>Change details:</h3>
+    <p th:text="${form.toString()}"></p>
+
+    <h3>Changed titles:</h3>
+    <ul>
+        <li th:each="title: ${form.titles}">
+            <a th:href="${@link.to(title)}" th:text="${title.name}">My title</a>
+        </li>
+    </ul>
 </main>

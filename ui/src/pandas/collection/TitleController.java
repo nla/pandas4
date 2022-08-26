@@ -162,6 +162,7 @@ public class TitleController {
         User user = userRepository.findByUserid(principal.getName()).orElse(null);
         titleService.bulkEdit(form, user);
         model.addAttribute("count", form.getTitles().size());
+        model.addAttribute("form", form);
         return "TitleBulkChangeComplete";
     }
 
