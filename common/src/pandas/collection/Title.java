@@ -425,6 +425,10 @@ public class Title {
         this.subjects.addAll(subjects);
     }
 
+    public void addSubject(Subject subject) {
+        subjects.add(subject);
+    }
+
     public Tep getTep() {
         if (tep == null) {
             tep = new Tep(this);

@@ -41,6 +41,8 @@ public class TitleBulkEditForm {
 
     private List<Collection> collectionsToAdd = new ArrayList<>();
 
+    private List<Subject> subjectsToAdd = new ArrayList<>();
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("TitleBulkEditForm[");
@@ -148,6 +150,14 @@ public class TitleBulkEditForm {
 
     public List<Collection> getCollectionsToAdd() {
         return collectionsToAdd;
+    }
+
+    public List<Subject> getSubjectsToAdd() {
+        return subjectsToAdd;
+    }
+
+    public void setSubjectsToAdd(List<Subject> subjectsToAdd) {
+        this.subjectsToAdd = subjectsToAdd;
     }
 
     public void setCollectionsToAdd(List<Collection> collectionsToAdd) {

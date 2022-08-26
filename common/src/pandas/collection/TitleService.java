@@ -351,6 +351,15 @@ public class TitleService {
                     }
                 }
             }
+
+            if (!form.getSubjectsToAdd().isEmpty()) {
+                Set<Long> existingSubjectIds = title.getSubjects().stream().map(Subject::getId).collect(Collectors.toSet());
+                for (Subject subject : form.getSubjectsToAdd()) {
+                    if (!existingSubjectIds.contains(subject.getId())) {
+                        title.addSubject(subject);
+                    }
+                }
+            }
         }
         titleRepository.saveAll(titles);
     }

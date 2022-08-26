@@ -98,6 +98,16 @@
             <textarea id=addNote th:field="*{addNote}"></textarea>
 
             <span></span>
+            <label for=subjectsToAdd>Add Subjects:</label>
+            <select th:field="*{subjectsToAdd}" id="subjectsToAdd" multiple>
+                <option th:each="subject: ${@classificationService.allSubjects()}"
+                        th:value="${subject.id}" th:text="${subject.name}"
+                        th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                        th:data-fullname="${subject.fullName}">Arts
+                </option>
+            </select>
+
+            <span></span>
             <label for=collectionsToAdd>Add Collections:</label>
             <select th:field="*{collectionsToAdd}" id="collectionsToAdd" multiple>
                 <option th:each="collection: ${form.collectionsToAdd}" th:value="${collection.id}"
@@ -121,6 +131,14 @@
         <script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
         <script th:inline="javascript">
             var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
+
+            const subjectsSlimSelect = new SlimSelect({
+                select: '#subjectsToAdd',
+                hideSelectedOption: true,
+                searchFilter: function (option, search) {
+                    return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+                }
+            });
 
             new SlimSelect({
                 select: '#collectionsToAdd',
