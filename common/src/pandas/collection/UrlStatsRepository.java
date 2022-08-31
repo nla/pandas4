@@ -5,6 +5,6 @@ import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UrlStatsRepository extends CrudRepository<UrlStatsId, UrlStats>,
+public interface UrlStatsRepository extends CrudRepository<UrlStats, UrlStatsId>,
         QueryByExampleExecutor<UrlStats> {
 }
