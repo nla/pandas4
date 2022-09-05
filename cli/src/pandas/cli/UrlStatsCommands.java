@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pandas.collection.UrlStats;
 import pandas.collection.UrlStatsRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,6 +18,9 @@ import java.util.Objects;
 
 @ShellComponent
 public class UrlStatsCommands {
+
+    @PersistenceContext
+    private EntityManager entityManager;
     private final UrlStatsRepository urlStatsRepository;
 
     public UrlStatsCommands(UrlStatsRepository urlStatsRepository) {
@@ -48,6 +53,7 @@ public class UrlStatsCommands {
             for (List<UrlStats> batch : Iterables.partition(urlStatsStream::iterator, batchSize)) {
                 urlStatsRepository.deleteAllByIdInBatch(batch.stream().map(UrlStats::id).toList());
                 urlStatsRepository.saveAllAndFlush(batch);
+                entityManager.clear();
                 rows += batch.size();
                 System.out.println(rows);
             }
