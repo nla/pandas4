@@ -37,7 +37,7 @@ public class UrlStatsCommands {
 
     @ShellMethod(value = "Load urlstats data from a space-separated text file (year, site, content-type, snapshots, sum-of-content-lengths)")
     @Transactional
-    public void loadUrlstats(String file, @ShellOption(defaultValue = "10000") int batchSize) throws IOException {
+    public void loadUrlstats(String file, @ShellOption(defaultValue = "1000") int batchSize) throws IOException {
         System.out.println("hello");
 
         long rows = 0;
@@ -46,7 +46,8 @@ public class UrlStatsCommands {
                     .map(UrlStatsCommands::parseLine)
                     .filter(Objects::nonNull);
             for (List<UrlStats> batch : Iterables.partition(urlStatsStream::iterator, batchSize)) {
-                urlStatsRepository.saveAll(batch);
+                urlStatsRepository.deleteAllByIdInBatch(batch.stream().map(UrlStats::id).toList());
+                urlStatsRepository.saveAllAndFlush(batch);
                 rows += batch.size();
                 System.out.println(rows);
             }

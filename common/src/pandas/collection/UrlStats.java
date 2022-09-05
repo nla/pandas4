@@ -1,12 +1,12 @@
 package pandas.collection;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
+import org.springframework.data.domain.Persistable;
+
+import javax.persistence.*;
 
 @Entity
 @IdClass(UrlStatsId.class)
-public class UrlStats {
+public class UrlStats implements Persistable<UrlStatsId> {
     @Id
     private String site;
     @Id
@@ -15,6 +15,9 @@ public class UrlStats {
     private int year;
     private long snapshots;
     private long totalContentLength;
+
+    @Transient
+    private boolean isNew = true;
 
     public UrlStatsId id() {
         return new UrlStatsId(site, contentType, year);
@@ -62,5 +65,21 @@ public class UrlStats {
 
     public String toString() {
         return site + " " + contentType + " " + year + " " + snapshots + " " + totalContentLength;
+    }
+
+    @Override
+    public UrlStatsId getId() {
+        return id();
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }
