@@ -3,6 +3,7 @@ package pandas.cli;
 import com.google.common.collect.Iterables;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.collection.UrlStats;
 import pandas.collection.UrlStatsRepository;
@@ -36,7 +37,7 @@ public class UrlStatsCommands {
 
     @ShellMethod(value = "Load urlstats data from a space-separated text file (year, site, content-type, snapshots, sum-of-content-lengths)")
     @Transactional
-    public void loadUrlstats(String file) throws IOException {
+    public void loadUrlstats(String file, @ShellOption(defaultValue = "10000") int batchSize) throws IOException {
         System.out.println("hello");
 
         long rows = 0;
