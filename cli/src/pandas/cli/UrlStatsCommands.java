@@ -45,7 +45,7 @@ public class UrlStatsCommands {
             var urlStatsStream = reader.lines()
                     .map(UrlStatsCommands::parseLine)
                     .filter(Objects::nonNull);
-            for (List<UrlStats> batch : Iterables.partition(urlStatsStream::iterator, 1000)) {
+            for (List<UrlStats> batch : Iterables.partition(urlStatsStream::iterator, batchSize)) {
                 urlStatsRepository.saveAll(batch);
                 rows += batch.size();
                 System.out.println(rows);
