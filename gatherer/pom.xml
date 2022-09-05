@@ -177,7 +177,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.4.1</version>
         </dependency>
         <dependency>
             <groupId>com.oracle.ojdbc</groupId>
