@@ -14,7 +14,7 @@ public class UrlStats {
     @Id
     private int year;
     private long snapshots;
-    private long sumOfContentLengths;
+    private long totalContentLength;
 
     public UrlStatsId id() {
         return new UrlStatsId(site, contentType, year);
@@ -52,15 +52,15 @@ public class UrlStats {
         this.snapshots = snapshots;
     }
 
-    public long getSumOfContentLengths() {
-        return sumOfContentLengths;
+    public long getTotalContentLength() {
+        return totalContentLength;
     }
 
-    public void setSumOfContentLengths(long sumOfContentLengths) {
-        this.sumOfContentLengths = sumOfContentLengths;
+    public void setTotalContentLength(long sumOfContentLengths) {
+        this.totalContentLength = sumOfContentLengths;
     }
 
     public String toString() {
-        return site + " " + contentType + " " + year + " " + snapshots + " " + sumOfContentLengths;
+        return site + " " + contentType + " " + year + " " + snapshots + " " + totalContentLength;
     }
 }

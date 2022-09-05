@@ -30,7 +30,7 @@ public class UrlStatsCommands {
         record.setSite(fields[1]);
         record.setContentType(fields[2]);
         record.setSnapshots(Long.parseLong(fields[3]));
-        record.setSumOfContentLengths(Long.parseLong(fields[4]));
+        record.setTotalContentLength(Long.parseLong(fields[4]));
         return record;
     }
 
