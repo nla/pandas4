@@ -1,6 +1,7 @@
 package pandas.cli;
 
 import com.google.common.collect.Iterables;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -8,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pandas.collection.UrlStats;
 import pandas.collection.UrlStatsRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,12 +18,10 @@ import java.util.Objects;
 @ShellComponent
 public class UrlStatsCommands {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-    private final UrlStatsRepository urlStatsRepository;
+    private JdbcTemplate jdbcTemplate;
 
-    public UrlStatsCommands(UrlStatsRepository urlStatsRepository) {
-        this.urlStatsRepository = urlStatsRepository;
+    public UrlStatsCommands(JdbcTemplate jdbcTemplate, UrlStatsRepository urlStatsRepository) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public static UrlStats parseLine(String line) {
@@ -40,20 +37,30 @@ public class UrlStatsCommands {
         return record;
     }
 
+    public static Object[] parseLine2(String line) {
+        String[] fields = line.split(" ");
+        if (fields.length < 5) return null;
+        int year = Integer.parseInt(fields[0]);
+        String site = fields[1];
+        String contentType = fields[2];
+        long snapshots = Long.parseLong(fields[3]);
+        long totalContentLength = Long.parseLong(fields[4]);
+        return new Object[]{contentType, site, year, snapshots, totalContentLength};
+    }
+
     @ShellMethod(value = "Load urlstats data from a space-separated text file (year, site, content-type, snapshots, sum-of-content-lengths)")
     @Transactional
     public void loadUrlstats(String file, @ShellOption(defaultValue = "1000") int batchSize) throws IOException {
-        System.out.println("hello");
+        System.out.println("Loading url_stats from " + file + " in batches of " + batchSize);
 
         long rows = 0;
         try (var reader = Files.newBufferedReader(Paths.get(file))) {
             var urlStatsStream = reader.lines()
-                    .map(UrlStatsCommands::parseLine)
+                    .map(UrlStatsCommands::parseLine2)
                     .filter(Objects::nonNull);
-            for (List<UrlStats> batch : Iterables.partition(urlStatsStream::iterator, batchSize)) {
-                urlStatsRepository.deleteAllByIdInBatch(batch.stream().map(UrlStats::id).toList());
-                urlStatsRepository.saveAllAndFlush(batch);
-                entityManager.clear();
+            jdbcTemplate.execute("delete from url_stats");
+            for (List<Object[]> batch : Iterables.partition(urlStatsStream::iterator, batchSize)) {
+                jdbcTemplate.batchUpdate("insert into url_stats (content_type, site, year, snapshots, total_content_length) values (?, ?, ?, ?, ?)", batch);
                 rows += batch.size();
                 System.out.println(rows);
             }
