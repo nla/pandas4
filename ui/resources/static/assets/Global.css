@@ -661,7 +661,7 @@ ul.subject-list li + li:before {
     background: #fafafa;
 }
 
-.statistics-table td:nth-child(2), .statistics-summary td:nth-child(3) {
+.statistics-table td:nth-child(2), .statistics-table td:nth-child(3) {
     text-align: end;
 }
 
