@@ -25,7 +25,7 @@ public class StatisticsController {
     @GetMapping("/statistics")
     public String list(Model model) {
         model.addAttribute("contentTypeRows", db.query("""
-                select content_type, sum(snapshots) as snapshots, sum(storage) as storage
+                select t.content_type, sum(t.snapshots) as snapshots, sum(t.storage) as storage
                 from (select case
                                  when content_type like 'image/%' or content_type like 'img/%' then 'Images'
                                  when content_type in ('text/html', 'application/xhtml+xml') then 'HTML'
@@ -61,8 +61,8 @@ public class StatisticsController {
                              snapshots,
                              storage
                       from type_stats) t
-                group by content_type
-                order by sum(snapshots) desc
+                group by t.content_type
+                order by sum(t.snapshots) desc
                 """, new DataClassRowMapper<>(ContentTypeResult.class)));
 
         model.addAttribute("summary", db.queryForObject(
