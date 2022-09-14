@@ -17,7 +17,12 @@
         </ol>
     </nav>
 
-    <h3>Content</h3>
+    <h3>Archived Content</h3>
+
+    <p>
+        These figures are derived from the CDX index and include all content in the web archive regardless of how it was
+        collected or if access has been restricted.
+    </p>
 
     <ul>
         <li><a th:href="@{/statistics/url-snapshots-by-content-type}">URL Snapshots by Content Type</a>
@@ -26,7 +31,10 @@
 
     <table class="statistics-table">
         <thead>
-            <tr><td></td><td>URL Snapshots</td><td>Storage</td></tr>
+            <tr><td>
+            </td><td><abbr title="Count of WARC response and resource records">URL Snapshots</abbr></td>
+            <td><abbr title="Sum of lengths of WARC response and resource records as stored (i.e. compressed). Excludes request and metadata records.">Storage</abbr></td>
+            </tr>
         </thead>
         <tbody>
             <tr th:each="row : ${contentTypeRows}">
@@ -44,7 +52,7 @@
         </tfoot>
     </table>
 
-    <h3>Metadata</h3>
+    <h3>PANDAS Metadata</h3>
 
     <table class="statistics-table">
         <tr><td>Titles</td><td th:text="${@format.comma(@titleRepository.count())}"></td></tr>
