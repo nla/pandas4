@@ -60,7 +60,7 @@ public class StatisticsController {
                                  else 'Other' end as content_type,
                              snapshots,
                              storage
-                      from type_stats)
+                      from type_stats) t
                 group by content_type
                 order by sum(snapshots) desc
                 """, new DataClassRowMapper<>(ContentTypeResult.class)));
