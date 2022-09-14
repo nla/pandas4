@@ -141,4 +141,6 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             """)
     List<Instance> findByCollectionAt(@Param("collection") Collection collection, @Param("time") Instant time);
 
+    @Query("select count(i) from Instance i where i.state.name = 'archived'")
+    long countArchived();
 }

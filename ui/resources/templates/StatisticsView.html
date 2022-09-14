@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistics - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+    <header>
+    </header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/statistics}" href="StatisticsList.html">Statistics</a></li>
+            <li class="active" th:text="${title}"></li>
+        </ol>
+    </nav>
+
+    <div style="display: flex; gap: 24px">
+        <table class="statistics-table">
+            <thead>
+                <tr>
+                    <td th:each="column : ${columns}" th:text="${column}"></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${rows}">
+                    <td><a th:href="${row.link()}" th:text="${row.key()}"></a></td>
+                    <td th:each="value : ${row.values()}" th:text="${value}"></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td th:text="${totalSnapshots}"></td>
+                    <td th:text="${totalStorage}"></td>
+                </tr>
+            </tfoot>
+        </table>
+        <div>
+            <canvas id="chart" width="400" height="200" th:if="${chartLabels != null}"></canvas>
+            <canvas id="chart2" width="400" height="200" th:if="${chartLabels != null}"></canvas>
+        </div>
+    </div>
+
+    <th:block th:if="${chartLabels} != null">
+        <script th:src="@{/webjars/chartjs/3.5.1/dist/chart.min.js}" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
+        <script th:inline="javascript">/*<![CDATA[*/
+            const ctx = document.getElementById('chart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [[${chartLabels}]],
+                    datasets: [{
+                        label: 'URL Snapshots',
+                        data: [[${chartData}]],
+                        borderWidth: 1,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgb(54, 162, 235)'
+                    }],
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+        const ctx2 = document.getElementById('chart2').getContext('2d');
+        const myChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: [[${chartLabels}]],
+                datasets: [{
+                    label: 'Storage (GB)',
+                    data: [[${chartData2}]],
+                    borderWidth: 1,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgb(75, 192, 192)'
+                }],
+            },
+            options: {
+                responsive: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+            /*]]>*/
+        </script>
+    </th:block>
+
+</main>

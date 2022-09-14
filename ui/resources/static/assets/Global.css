@@ -644,3 +644,31 @@ ul.subject-list li + li:before {
 .time-frame {
     color: #666;
 }
+
+/*
+ * Statistics tables
+ */
+
+.statistics-table {
+    border-spacing: 0;
+}
+
+.statistics-table td {
+    padding: 0 8px;
+}
+
+.statistics-table tbody tr:nth-child(odd) {
+    background: #fafafa;
+}
+
+.statistics-table td:nth-child(2), .statistics-summary td:nth-child(3) {
+    text-align: end;
+}
+
+.statistics-table tbody tr:first-child td {
+    border-top: 1px solid black;
+}
+
+.statistics-table tbody tr:last-child td {
+    border-bottom: 1px solid black;
+}

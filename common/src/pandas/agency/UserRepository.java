@@ -14,6 +14,9 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     Optional<User> findByUserid(String userid);
 
+    @Query("select count(u) from User u where u.active = true")
+    long countActive();
+
     @Query("""
             select user from User user
             join user.role as role

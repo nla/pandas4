@@ -10,7 +10,53 @@
 <main>
     <header>
     </header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li class="active" style="font-weight: bold">Statistics</li>
+        </ol>
+    </nav>
+
+    <h3>Content</h3>
+
     <ul>
-        <li><a href="/statistics/content-type">Content type</a>
+        <li><a th:href="@{/statistics/url-snapshots-by-content-type}">URL Snapshots by Content Type</a>
+        <li><a th:href="@{/statistics/url-snapshots-by-year}">URL Snapshots by Year</a>
     </ul>
+
+    <table class="statistics-table">
+        <thead>
+            <tr><td></td><td>URL Snapshots</td><td>Storage</td></tr>
+        </thead>
+        <tbody>
+            <tr th:each="row : ${contentTypeRows}">
+                <td th:text="${row.key()}"></td>
+                <td th:text="${@format.comma(row.snapshots())}"></td>
+                <td th:text="${@format.bytes(row.storage())}"></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td th:text="${@format.comma(summary.snapshots())}"></td>
+                <td th:text="${@format.bytes(summary.storage())}"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h3>Metadata</h3>
+
+    <table class="statistics-table">
+        <tr><td>Titles</td><td th:text="${@format.comma(@titleRepository.count())}"></td></tr>
+        <tr><td>Instances:</td></tr>
+        <tr><td style="padding-left: 24px">Archived</td><td th:text="${@format.comma(@instanceRepository.countArchived())}"></td></tr>
+        <tr><td style="padding-left: 24px">Total</td><td th:text="${@format.comma(@instanceRepository.count())}"></td></tr>
+        <tr><td>Subjects</td><td th:text="${@format.comma(@subjectRepository.count())}"></td></tr>
+        <tr><td>Collections</td><td th:text="${@format.comma(@collectionRepository.count())}"></td></tr>
+        <tr><td>Publishers</td><td th:text="${@format.comma(@publisherRepository.count())}"></td></tr>
+        <tr><td>Users:</td></tr>
+        <tr><td style="padding-left: 24px">Active</td><td th:text="${@format.comma(@userRepository.countActive())}"></td></tr>
+        <tr><td style="padding-left: 24px">Total</td><td th:text="${@format.comma(@userRepository.count())}"></td></tr>
+    </table>
+
 </main>
