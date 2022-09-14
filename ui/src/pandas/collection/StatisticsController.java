@@ -25,7 +25,7 @@ public class StatisticsController {
     @GetMapping("/statistics")
     public String list(Model model) {
         model.addAttribute("contentTypeRows", db.query("""
-                select content_type, sum(snapshots), sum(storage)
+                select content_type, sum(snapshots) as snapshots, sum(storage) as storage
                 from (select case
                                  when content_type like 'image/%' or content_type like 'img/%' then 'Images'
                                  when content_type in ('text/html', 'application/xhtml+xml') then 'HTML'
