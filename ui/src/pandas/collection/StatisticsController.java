@@ -25,42 +25,44 @@ public class StatisticsController {
     @GetMapping("/statistics")
     public String list(Model model) {
         model.addAttribute("contentTypeRows", db.query("""
-                select case when content_type like 'image/%' or content_type like 'img/%' then 'Images'
-                            when content_type in ('text/html', 'application/xhtml+xml') then 'HTML'
-                            when content_type like 'audio/%' then 'Audio'
-                            when content_type like 'video/%' then 'Video'
-                            when content_type like 'font/%'
-                              or content_type like 'x-font/%'
-                              or content_type in ('application/x-font-woff', 
-                                                  'application/font-woff',
-                                                  'application/vnd.ms-fontobject', 
-                                                  'application/font-sfnt') then 'Fonts'
-                            when content_type like 'text/css' then 'Stylesheets'
-                            when content_type in ('application/json', 
-                                                  'application/xml',
-                                                  'text/csv',
-                                                  'application/json+oembed') then 'Data files (JSON/XML/CSV)'
-                            when content_type in ('application/x-javascript', 'text/javascript') then 'JavaScript'
-                            when content_type in ('application/rss+xml', 'application/atom+xml') then 'RSS/Atom feeds'
-                            when content_type in ('application/pdf',
-                                                  'application/postscript',
-                                                  'application/epub+zip',
-                                                  'application/epub') then 'Print documents (PDF/PS/EPUB)'
-                            when content_type in ('text/plain', 
-                                                  'application/msword',
-                                                  'application/vnd.ms-word.document.12',
-                                                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                                  'application/rtf') then 'Office documents'
-                            when content_type in ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ,
-                                                  'application/x-msexcel',
-                                                  'application/vnd.ms-excel',
-                                                  'application/vnd.oasis.opendocument.spreadsheet') then 'Spreadsheets'
-                            else 'Other' end as contentType,
-                       sum(snapshots) as snapshots,
-                       sum(storage) as storage
-                from type_stats
-                group by contentType
-                order by sum(SNAPSHOTS) desc
+                select content_type, sum(snapshots), sum(storage)
+                from (select case
+                                 when content_type like 'image/%' or content_type like 'img/%' then 'Images'
+                                 when content_type in ('text/html', 'application/xhtml+xml') then 'HTML'
+                                 when content_type like 'audio/%' then 'Audio'
+                                 when content_type like 'video/%' then 'Video'
+                                 when content_type like 'font/%'
+                                     or content_type like 'x-font/%'
+                                     or content_type in ('application/x-font-woff',
+                                                         'application/font-woff',
+                                                         'application/vnd.ms-fontobject',
+                                                         'application/font-sfnt') then 'Fonts'
+                                 when content_type like 'text/css' then 'Stylesheets'
+                                 when content_type in ('application/json',
+                                                       'application/xml',
+                                                       'text/csv',
+                                                       'application/json+oembed') then 'Data files (JSON/XML/CSV)'
+                                 when content_type in ('application/x-javascript', 'text/javascript') then 'JavaScript'
+                                 when content_type in ('application/rss+xml', 'application/atom+xml') then 'RSS/Atom feeds'
+                                 when content_type in ('application/pdf',
+                                                       'application/postscript',
+                                                       'application/epub+zip',
+                                                       'application/epub') then 'Print documents (PDF/PS/EPUB)'
+                                 when content_type in ('text/plain',
+                                                       'application/msword',
+                                                       'application/vnd.ms-word.document.12',
+                                                       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                                       'application/rtf') then 'Office documents'
+                                 when content_type in ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                                       'application/x-msexcel',
+                                                       'application/vnd.ms-excel',
+                                                       'application/vnd.oasis.opendocument.spreadsheet') then 'Spreadsheets'
+                                 else 'Other' end as content_type,
+                             snapshots,
+                             storage
+                      from type_stats)
+                group by content_type
+                order by sum(snapshots) desc
                 """, new DataClassRowMapper<>(ContentTypeResult.class)));
 
         model.addAttribute("summary", db.queryForObject(
