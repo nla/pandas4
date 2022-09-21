@@ -5,6 +5,9 @@ The fourth-generation of the PANDAS web archiving workflow system. While open so
 this is not yet documented or packaged for use outside our (NLA) 
 infrastructure.
 
+PANDAS provides a user interface for curators to perform website selection, collection building,
+scheduled crawling and quality assuarance using various web crawlers (Heritrix, Browsertrix, HTTrack).
+
 External Dependencies
 ---------------------
 
@@ -14,6 +17,7 @@ PANDAS requires the following tools to be installed:
 * [Maven](https://maven.apache.org/)
 * [pywb](https://github.com/webrecorder/pywb)
 * [Ghostscript](https://www.ghostscript.com/)
+* [Bamboo](https://github.com/nla/bamboo) (the NLA web archive collection manager)
 
 On RHEL/CentOS 7 install with:
 
