@@ -1,9 +1,9 @@
 PANDAS 4
 ========
 
-The fourth-generation of the PANDAS web archiving workflow system. This project
-is at an early stage development and currently must be used in conjunction with
-the older PANDAS 3 system (which is not open source).
+The fourth-generation of the PANDAS web archiving workflow system. While open source
+this is not yet documented or packaged for use outside our (NLA) 
+infrastructure.
 
 External Dependencies
 ---------------------
