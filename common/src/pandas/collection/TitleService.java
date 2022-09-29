@@ -58,6 +58,7 @@ public class TitleService {
         var form = new TitleBulkEditForm();
         form.setTitles(titles);
         form.setMethod(Utils.getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getMethod()));
+        form.setProfile(Utils.getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getActiveProfile()));
         form.setSchedule(Utils.getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getSchedule()));
         form.setScope(Utils.getIfSame(titles, t -> t.getGather() == null ? null : t.getGather().getScope()));
         form.setAnbdNumber(Utils.getIfSame(titles, Title::getAnbdNumber));
@@ -329,13 +330,18 @@ public class TitleService {
                 title.setNotes(title.getNotes() == null ? form.getAddNote() : (title.getNotes() + "\n" + form.getAddNote()));
             }
 
-            if (form.isEditSchedule() || form.isEditMethod() || form.isEditOneoffDate() || form.isEditScope()) {
+            if (form.isEditSchedule() || form.isEditMethod() || form.isEditOneoffDate() || form.isEditScope()
+                    || form.isEditProfile()) {
                 TitleGather gather = title.getGather();
                 if (gather == null) {
                     gather = createTitleGather(title);
                 }
                 if (form.isEditSchedule()) gather.setSchedule(form.getSchedule());
                 if (form.isEditMethod()) gather.setMethod(form.getMethod());
+                if (form.isEditProfile() && form.getProfile() != null
+                        && form.getProfile().canBeAppliedTo(gather.getMethod())) {
+                    gather.setActiveProfile(form.getProfile());
+                }
                 if (form.isEditScope()) gather.setScope(form.getScope());
                 if (form.isEditOneoffDate()) {
                     Instant instant;

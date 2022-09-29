@@ -4,6 +4,7 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "GATHER_METHOD")
@@ -57,5 +58,18 @@ public class GatherMethod {
 
     public void setName(String methodName) {
         this.name = methodName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GatherMethod that = (GatherMethod) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

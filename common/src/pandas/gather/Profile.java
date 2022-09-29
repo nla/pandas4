@@ -105,4 +105,9 @@ public class Profile {
     public void setCrawlLimitSeconds(Long maxTimeSeconds) {
         this.crawlLimitSeconds = maxTimeSeconds;
     }
+
+    public boolean canBeAppliedTo(GatherMethod gatherMethod) {
+        if (this.gatherMethod == null) return true;
+        return this.gatherMethod.equals(gatherMethod);
+    }
 }

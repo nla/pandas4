@@ -4,6 +4,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import pandas.agency.User;
 import pandas.gather.GatherMethod;
 import pandas.gather.GatherSchedule;
+import pandas.gather.Profile;
 import pandas.gather.Scope;
 
 import java.time.LocalDate;
@@ -42,6 +43,9 @@ public class TitleBulkEditForm {
     private List<Collection> collectionsToAdd = new ArrayList<>();
 
     private List<Subject> subjectsToAdd = new ArrayList<>();
+
+    private boolean editProfile;
+    private Profile profile;
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -234,5 +238,21 @@ public class TitleBulkEditForm {
 
     public void setOneoffDate(LocalDate oneoffDate) {
         this.oneoffDate = oneoffDate;
+    }
+
+    public boolean isEditProfile() {
+        return editProfile;
+    }
+
+    public void setEditProfile(boolean editProfile) {
+        this.editProfile = editProfile;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 }

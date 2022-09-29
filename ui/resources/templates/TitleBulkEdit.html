@@ -63,6 +63,15 @@
                 </option>
             </select>
 
+            <input type=checkbox id=editProfile th:field="*{editProfile}">
+            <label for=editProfile>Gather Profile:</label>
+            <select id=profile th:field="*{profile}">
+                <option th:each="profile: ${@profileRepository.findAllByOrderByName()}"
+                        th:text="${profile.name}" th:value="${profile.id}">
+                    PANDAS Defaults
+                </option>
+            </select>
+
             <input type=checkbox id=editSchedule th:field="*{editSchedule}">
             <label for=editSchedule>Gather Schedule:</label>
             <select id=schedule th:field="*{schedule}">
