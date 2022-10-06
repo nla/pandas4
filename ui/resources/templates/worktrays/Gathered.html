@@ -48,6 +48,10 @@
             font-size: 80%;
             color: #555;
         }
+
+        .gather-stats-warning {
+            color: #f55;
+        }
     </style>
 
     <form id=form method=post th:action="@{''}">
@@ -78,7 +82,8 @@
                     <time th:text="${@dateFormats.shortDate(instance.date)}"></time>
                     <br>
                     <a class="gather-stats" th:if="${instance.gather != null}" th:href="${@link.files(instance)}"
-                       th:text="${instance.gather.stats}">1,234 files 10 MB</a>
+                       th:classappend="${instance.gather.size < 1000000}?'gather-stats-warning'"
+                       th:text="${instance.gather.stats}">1,234 files <span>10 MB</span></a>
                 </td>
                 <td style="text-align: center; vertical-align: top">
                     <a th:href="${instance.title.getPrimarySeedUrl()}" target="_blank"><img
