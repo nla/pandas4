@@ -386,6 +386,7 @@
                     <label>
                         Seed URLs:
                         <textarea th:field="*{seedUrls}" rows="5"></textarea>
+                        <div id="surtsHint"></div>
                     </label>
                     <label>
                         Filters:
@@ -400,6 +401,11 @@
             }
             .help-text {
                 margin: 4px 0;
+            }
+            #surtsHint {
+                color: #6f777b;
+                font-size: .8em;
+                white-space: pre;
             }
         </style>
         <label>
@@ -421,6 +427,7 @@
 <script th:inline="javascript">
     var titleCheckEndpoint = /*[[@{/titles/check}]]*/ '../titles/check';
     var titleCheckNameEndpoint = /*[[@{/titles/check-name}]]*/ '../titles/check-name';
+    var titleCheckSurtsEndpoint = /*[[@{/titles/check-surts}]]*/ '../titles/check-surts';
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
     var publisherJsonEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
     var publishersEndpoint = /*[[@{/publishers}]]*/ '../publishers';

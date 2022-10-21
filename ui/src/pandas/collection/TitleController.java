@@ -26,6 +26,8 @@ import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
 import pandas.util.DateFormats;
 import pandas.util.Requests;
+import pandas.util.SURT;
+import pandas.util.Strings;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletResponse;
@@ -511,6 +513,21 @@ public class TitleController {
     @JsonView(View.Summary.class)
     public List<Title> checkName(@RequestParam("name") String name) {
         return titleSearcher.nameCheck(name);
+    }
+
+    @PostMapping(value = "/titles/check-surts", produces = "text/plain")
+    @ResponseBody
+    public String checkSurts(@RequestParam("seedUrls") String seedUrls) {
+        Set<String> set = new TreeSet<>();
+        for (String seed: seedUrls.split("\\s+")) {
+            if (Strings.isNullOrBlank(seed)) continue;
+            try {
+                set.add(SURT.prefixFromPlainForceHttp(seed));
+            } catch (Exception e) {
+                set.add(" Error: " + e + " in seed " + seed);
+            }
+        }
+        return String.join("\n", set);
     }
 
     public static class ChartData {

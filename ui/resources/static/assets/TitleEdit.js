@@ -182,8 +182,6 @@ function nameChanged() {
             }
         });
 }
-nameField.addEventListener("change", nameChanged);
-if (nameField.value) nameChanged();
 
 function titleUrlChanged () {
     let fetchAlert = document.getElementById("fetchAlert");
@@ -275,10 +273,61 @@ function titleUrlChanged () {
             }
         });
 }
-titleUrlField.addEventListener("change", titleUrlChanged);
+
+function checkSurts() {
+    let seeds = document.getElementById('seedUrls').value;
+    if (!seeds) {
+        seeds = document.getElementById('titleUrl').value;
+    }
+
+    const surtsHint = document.getElementById('surtsHint');
+    let selectedGatherMethod = document.getElementById('gatherMethod').selectedOptions;
+    if (!seeds || selectedGatherMethod.length === 0 || selectedGatherMethod[0].text !== 'Heritrix') {
+        surtsHint.innerHTML = '';
+        return;
+    }
+    surtsHint.innerHTML = '...';
+    const formData = new FormData();
+    formData.append('_csrf', document.querySelector("input[name='_csrf']").value);
+    formData.append('seedUrls', seeds);
+    fetch(titleCheckSurtsEndpoint, {method: 'POST', body: formData}).then(response => {
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+        }
+        return response.text()
+    }).then(text => surtsHint.innerText = 'Heritrix SURTs:\n' + text + '\n')
+        .catch(error => console.error("SURT check failed: " + error));
+}
+
+// Only show the gather filters field if the HTTrack gather method is selected.
+function showOrHideFilters() {
+    let selectedGatherMethod = document.getElementById('gatherMethod').selectedOptions;
+    let httrackMethodIsSelected = selectedGatherMethod.length !== 0 && selectedGatherMethod[0].text === 'HTTrack';
+    document.getElementById('filters').parentElement.style.display = httrackMethodIsSelected ? 'inherit' : 'none';
+}
+
+// Setup event listeners
+
+titleUrlField.addEventListener("change", function() {
+    titleUrlChanged();
+    checkSurts();
+});
+document.getElementById('seedUrls').addEventListener("change", checkSurts);
+document.getElementById('gatherMethod').addEventListener("change", function () {
+    showOrHideFilters();
+    checkSurts();
+});
+nameField.addEventListener("change", nameChanged);
+
+// Fire initial change events
+
 if (titleUrlField.value !== "") {
     titleUrlChanged();
 }
+showOrHideFilters();
+checkSurts();
+if (nameField.value) nameChanged();
+
 
 // we keep the form disabled until the page is fully loaded
 // otherwise it could be submitted with partial values which results in data loss
