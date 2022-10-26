@@ -16,3 +16,30 @@ document.addEventListener('keyup', ev => {
         }
     }
 });
+
+document.querySelectorAll('.title-flag').forEach(function (flagButton) {
+   flagButton.addEventListener('click', function(event) {
+       let formData = new FormData();
+       formData.append("_csrf", document.querySelector("input[name='_csrf']").value);
+       formData.append("redirect", false);
+       let oldFormAction = flagButton.formAction;
+       fetch(oldFormAction, {method: 'POST', body: formData})
+           .then(r => console.log("Toggled " + oldFormAction));
+
+       // toggle all the flags for this title (the title may be displayed in multiple places on the same screen)
+       let active = !flagButton.classList.contains('active');
+       let newFormAction = oldFormAction.replace(/[^/]*$/, '') + (active ? 'unflag' : 'flag');
+       document.querySelectorAll('.title-flag[formaction="' + flagButton.getAttribute('formaction') + '"]')
+           .forEach(button => {
+               if (active) {
+                   button.classList.add('active');
+               } else {
+                   button.classList.remove('active');
+               }
+               button.formAction = newFormAction;
+           });
+
+       event.preventDefault();
+       return false;
+   });
+});

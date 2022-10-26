@@ -73,7 +73,12 @@
     </header>
 
     <div class="panel-title-details">
-        <h3 th:text="${title.name}">Example Title</h3>
+        <h3>
+            <th:block th:text="${title.name}">Example Title</th:block>
+            <button th:with="isFlagged=${@userService.currentUser.flaggedTitles.contains(title)}"
+                    th:formaction="${isFlagged ? @link.unflag(title) : @link.flag(title)}"
+                    type="submit" class="title-flag" th:classappend="${isFlagged} ? 'active'"></button>
+        </h3>
         <span th:text="${title.getYearRange()}"></span>, <a th:if="${title.publisher}"
                                                             th:href="${@link.to(title.publisher)}"
                                                             th:text="${title.publisher.name}"></a><br>

@@ -427,6 +427,27 @@ public class TitleController {
         CrawlBeans.writeCrawlXml(instance, new OutputStreamWriter(response.getOutputStream(), UTF_8), null);
     }
 
+    @PostMapping(value = "/titles/{id}/flag")
+    public String flag(@PathVariable("id") Title title,
+                       @RequestParam(defaultValue = "true") boolean redirect) {
+        userService.getCurrentUser().flagTitle(title);
+        return redirectBackOrBlank(redirect);
+    }
+
+    @PostMapping(value = "/titles/{id}/unflag")
+    public String unflag(@PathVariable("id") Title title,
+                          @RequestParam(defaultValue = "true") boolean redirect) {
+        userService.getCurrentUser().unflagTitle(title);
+        return redirectBackOrBlank(redirect);
+    }
+
+    private static String redirectBackOrBlank(boolean shouldRedirect) {
+        if (!shouldRedirect) return "_blank";
+        String backlink = Requests.backlink();
+        if (backlink == null) return "_blank";
+        return "redirect:" + backlink;
+    }
+
     @GetMapping("/titles/new")
     public String newForm(@RequestParam(value = "collection", defaultValue = "") List<Collection> collections,
                           @RequestParam(value = "subject", defaultValue = "") List<Subject> subjects,

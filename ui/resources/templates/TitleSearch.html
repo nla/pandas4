@@ -99,6 +99,9 @@
                                    th:href="|https://webarchive.nla.gov.au/awa/*/${title.titleUrl}|"
                                    href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
                             </nav>
+                            <button th:with="isFlagged=${@userService.currentUser.flaggedTitles.contains(title)}"
+                                    th:formaction="${isFlagged ? @link.unflag(title) : @link.flag(title)}"
+                                    type="submit" class="title-flag" th:classappend="${isFlagged} ? 'active'"></button>
                         </header>
                         <div>
                             <ul class="subject-list">

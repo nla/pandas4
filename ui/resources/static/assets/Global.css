@@ -646,6 +646,43 @@ ul.subject-list li + li:before {
 }
 
 /*
+ * Title Flag button
+ */
+
+button.title-flag {
+    border: 0;
+    display: inline;
+    background: none;
+    padding: 0;
+    border-radius: unset;
+    min-width: unset;
+    height: unset;
+    color: var(--color-dark-grey);
+    font-size: 24px;
+}
+
+button.title-flag:hover {
+    color: var(--color-black);
+    background: none;
+}
+
+button.title-flag:active, button.title-flag.active {
+    color: #ff0000;
+}
+
+button.title-flag.active:hover {
+    color: #ff5050;
+}
+
+button.title-flag:after, button.title-flag.active:active:after {
+    content: '⚐';
+}
+
+button.title-flag:active:after, button.title-flag.active:after {
+    content: '⚑';
+}
+
+/*
  * Statistics tables
  */
 

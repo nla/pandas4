@@ -3,16 +3,16 @@ package pandas.agency;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import pandas.collection.Title;
 import pandas.core.Individual;
 import pandas.core.LinkedAccount;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class User extends Individual {
@@ -46,6 +46,12 @@ public class User extends Individual {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LinkedAccount> linkedAccounts;
+
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "TITLE_FLAG",
+            joinColumns = {@JoinColumn(name = "INDIVIDUAL_ID")},
+            inverseJoinColumns = {@JoinColumn(name = "TITLE_ID")})
+    private Set<Title> flaggedTitles = new HashSet<>();
 
     public User() {
     }
@@ -137,5 +143,17 @@ public class User extends Individual {
 
     public List<LinkedAccount> getLinkedAccounts() {
         return Collections.unmodifiableList(linkedAccounts);
+    }
+
+    public Set<Title> getFlaggedTitles() {
+        return Collections.unmodifiableSet(flaggedTitles);
+    }
+
+    public void flagTitle(Title title) {
+        flaggedTitles.add(title);
+    }
+
+    public void unflagTitle(Title title) {
+        flaggedTitles.remove(title);
     }
 }

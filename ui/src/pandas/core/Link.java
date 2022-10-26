@@ -60,6 +60,10 @@ public class Link {
         return to(title) + "/edit";
     }
 
+    public String flag(Title title) {
+        return to(title) + "/flag";
+    }
+
     public String files(Instance instance) {
         return to(instance) + "/files";
     }
@@ -126,5 +130,9 @@ public class Link {
 
     public String to(Title title) {
         return link("/titles/" + title.getId());
+    }
+
+    public String unflag(Title title) {
+        return to(title) + "/unflag";
     }
 }
