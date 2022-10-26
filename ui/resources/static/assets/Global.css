@@ -658,7 +658,7 @@ button.title-flag {
     min-width: unset;
     height: unset;
     color: var(--color-dark-grey);
-    font-size: 24px;
+    font-size: 16px;
 }
 
 button.title-flag:hover {
