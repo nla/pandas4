@@ -428,6 +428,7 @@ public class TitleController {
     }
 
     @PostMapping(value = "/titles/{id}/flag")
+    @PreAuthorize("isAuthenticated()")
     public String flag(@PathVariable("id") Title title,
                        @RequestParam(defaultValue = "true") boolean redirect) {
         userService.getCurrentUser().flagTitle(title);
@@ -435,6 +436,7 @@ public class TitleController {
     }
 
     @PostMapping(value = "/titles/{id}/unflag")
+    @PreAuthorize("isAuthenticated()")
     public String unflag(@PathVariable("id") Title title,
                           @RequestParam(defaultValue = "true") boolean redirect) {
         userService.getCurrentUser().unflagTitle(title);
