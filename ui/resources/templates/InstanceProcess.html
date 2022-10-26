@@ -71,6 +71,9 @@
             <li>
                 <a th:href="${@link.to(instance.title)}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a>
+                <button th:with="isFlagged=${@userService.currentUser.flaggedTitles.contains(instance.title)}"
+                        th:formaction="${isFlagged ? @link.unflag(instance.title) : @link.flag(instance.title)}"
+                        type="submit" class="title-flag" th:classappend="${isFlagged} ? 'active'"></button>
             </li>
             <li><span th:text="${instance.gatherMethodName}"></span> gather from
 
