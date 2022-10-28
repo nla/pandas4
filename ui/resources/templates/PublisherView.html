@@ -5,14 +5,54 @@
     <title th:text="|${publisher.name} (Publisher) - PANDAS|">Somebody (Publisher) - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .contact-person {
+            margin: 1em 0;
+            padding: .75em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .contact-person--name {
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .contact-person--position {
+            font-size: 1.1em;
+            color: var(--color-dark-grey);
+        }
+
+        .contact-person--edit-button {
+            margin-left: 1em;
+        }
+
+        .contact-person--email > td {
+            padding-bottom: .5em;
+        }
+
+        .contact-person--header {
+            display: flex;
+            margin-bottom: 1em;
+        }
+
+        .contact-person--header :nth-child(0) {
+            flex-grow: 1;
+        }
+    </style>
 </head>
 <nav th:replace="_layout.html :: sidebar"></nav>
 <main>
     <header>
         <nav>
-            <a sec:authorize="hasPermission(#vars.publisher, 'edit')"  th:href="@{/publishers/{id}/edit(id=${publisher.id})}" href="PublisherEdit.html" class="btn btn-primary"
+            <a sec:authorize="hasPermission(#vars.publisher, 'edit')"
+               th:href="@{/publishers/{id}/edit(id=${publisher.id})}" href="PublisherEdit.html" class="btn btn-primary"
                data-keybind="e"><i class="icon edit"></i> Edit</a>
             <a sec:authorize="hasAuthority('PRIV_NOMINATE_TITLES')" th:href="@{/titles/new(publisher=${publisher.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary"><i class="icon title"></i> Add a website</a>
+            <a sec:authorize="hasPermission(#vars.publisher, 'edit')"
+               th:href="@{/contact-people/new(publisher=${publisher.id})}" href="ContactPersonEdit.html"
+               class="btn btn-secondary"><i class="icon person_add"></i> Add a contact person</a>
         </nav>
     </header>
 
@@ -31,13 +71,49 @@
             <tr th:unless="${#strings.isEmpty(publisher.localReference)}"><th>Local Reference No:</th><td th:text="${publisher.localReference}"></td></tr>
             <tr th:unless="${#strings.isEmpty(publisher.organisation.addressAsOneLine)}">
                 <th>Address:</th>
-                <td><a th:href="@{https://www.google.com/maps/search/(api=1,query=${publisher.organisation.addressAsOneLine})}"
-                       th:text="${publisher.organisation.addressAsOneLine}">123 Example St, Exampleton 2600 ACT Australia</a></td>
+                <td>
+                    <a th:href="@{https://www.google.com/maps/search/(api=1,query=${publisher.organisation.addressAsOneLine})}"
+                       th:text="${publisher.organisation.addressAsOneLine}">123 Example St, Exampleton 2600 ACT
+                        Australia</a></td>
             </tr>
         </table>
         <div th:unless="${#strings.isEmpty(publisher.notes)}">
             <strong>Notes:</strong><br>
             <div th:text="${publisher.notes}"></div>
+        </div>
+    </section>
+
+    <section th:unless="${contactPeople.isEmpty()}">
+        <div class="contact-person" th:each="contactPerson : ${contactPeople}">
+            <div class="contact-person--header">
+                <div>
+                    <div class="contact-person--name" th:text="${contactPerson.name}">John Smith</div>
+                    <div class="contact-person--position" th:text="${contactPerson.function}">Chief Editor</div>
+                </div>
+                <a class="contact-person--edit-button btn btn-compact btn-secondary"
+                   th:href="${@link.edit(contactPerson)}"
+                   sec:authorize="hasPermission(#vars.publisher, 'edit')">Edit</a>
+            </div>
+            <table>
+                <tr th:if="${!#strings.isEmpty(contactPerson.email)}" class="contact-person--email">
+                    <td>✉</td>
+                    <td><a th:href="${'mailto:' + contactPerson.email}" th:text="${contactPerson.email}">john.smith@example.com</a>
+                    </td>
+                </tr>
+                <tr th:if="${!#strings.isEmpty(contactPerson.phone)}">
+                    <td>T</td>
+                    <td><a th:href="${'tel:' + contactPerson.phone}" th:text="${contactPerson.phone}">555555555</a></td>
+                </tr>
+                <tr th:if="${!#strings.isEmpty(contactPerson.mobilePhone)}">
+                    <td>M</td>
+                    <td><a th:href="${'tel:' + contactPerson.mobilePhone}" th:text="${contactPerson.mobilePhone}">015555555</a>
+                    </td>
+                </tr>
+                <tr th:if="${!#strings.isEmpty(contactPerson.fax)}">
+                    <td>F</td>
+                    <td><a th:href="${'tel:' + contactPerson.fax}" th:text="${contactPerson.fax}">025555555</a></td>
+                </tr>
+            </table>
         </div>
     </section>
 

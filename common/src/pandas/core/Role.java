@@ -14,7 +14,8 @@ import java.util.Map;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Role {
     public static final String TYPE_SYSADMIN = "SysAdmin";
-    public static final Map<String,String> titles = initTitlesMap();
+    public static final String TYPE_CONTACT = "contact";
+    public static final Map<String, String> titles = initTitlesMap();
 
     private static Map<String, String> initTitlesMap() {
         var map = new LinkedHashMap<String, String>();
@@ -24,6 +25,7 @@ public class Role {
         map.put("AgAdmin", "Agency Administrator");
         map.put("PanAdmin", "Pandas Administrator");
         map.put(TYPE_SYSADMIN, "System Administrator");
+        map.put(TYPE_CONTACT, "Publisher Contact");
         return Collections.unmodifiableMap(map);
     }
 

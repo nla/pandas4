@@ -2,9 +2,13 @@ package pandas.core;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 import pandas.agency.Agency;
+import pandas.collection.Publisher;
 import pandas.util.Strings;
 
 import javax.persistence.*;
@@ -88,6 +92,9 @@ public class Organisation implements Serializable {
     @Column(name = "ABN", length = 11)
     @GenericField
     private String abn;
+
+    @OneToOne(mappedBy = "organisation")
+    private Publisher publisher;
 
     public String getAlias() {
         return this.alias;
@@ -294,5 +301,9 @@ public class Organisation implements Serializable {
         if (lines.isEmpty()) return null;
 
         return String.join(", ", lines);
+    }
+
+    public Publisher getPublisher() {
+        return publisher;
     }
 }

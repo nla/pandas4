@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact Person - PANDAS</title>
+  <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+  <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="_layout.html :: sidebar"></nav>
+<main>
+  <header>
+    <nav>
+      <button type="submit" class="btn btn-primary" form=form><i class="icon save"></i> Save</button>
+      <a href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i>
+        Cancel</a>
+    </nav>
+    <button th:if="${contactPersonId != null}" type="submit"
+            th:formaction="@{|/contact-people/${contactPersonId}/delete|}"
+            class="btn btn-danger float-right" form=form><i class="icon delete"></i> Delete
+    </button>
+  </header>
+
+  <nav class="breadcrumb">
+    <ol>
+      <li><a th:href="@{/publishers}" style="font-weight: bold">Publishers</a></li>
+      <li><a th:href="${@link.to(publisher)}" th:text="${publisher.name}">My cool title</a></li>
+      <li class="active">Contact Person</li>
+    </ol>
+  </nav>
+
+  <form method=post class=form th:object="${form}" th:action="@{''}" id=form>
+    <fieldset>
+      <div>
+        <label style="width: 3em">Title <input th:field="*{nameTitle}"></label>
+        <label>First Name <input th:field="*{nameGiven}"></label>
+        <label>Last Name <input th:field="*{nameFamily}"></label>
+      </div>
+
+      <label>Position <input th:field="*{function}"></label>
+      <label>Email <input th:field="*{email}"></label>
+
+      <div>
+        <label>Phone <input th:field="*{phone}"></label>
+        <label>Mobile <input th:field="*{mobilePhone}"></label>
+        <label>Fax <input th:field="*{fax}"></label>
+      </div>
+    </fieldset>
+  </form>
+</main>

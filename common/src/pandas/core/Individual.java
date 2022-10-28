@@ -6,6 +6,7 @@ import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import pandas.collection.Publisher;
 
 import javax.persistence.*;
 import java.time.Instant;

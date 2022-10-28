@@ -19,16 +19,19 @@ public class PublisherController {
     private final EntityManager entityManager;
     private final PublisherRepository publisherRepository;
     private final PublisherTypeRepository publisherTypeRepository;
+    private final ContactPersonRepository contactPersonRepository;
 
-    public PublisherController(EntityManager entityManager, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository) {
+    public PublisherController(EntityManager entityManager, PublisherRepository publisherRepository, PublisherTypeRepository publisherTypeRepository, ContactPersonRepository contactPersonRepository) {
         this.entityManager = entityManager;
         this.publisherRepository = publisherRepository;
         this.publisherTypeRepository = publisherTypeRepository;
+        this.contactPersonRepository = contactPersonRepository;
     }
 
     @GetMapping("/publishers/{id}")
     public String get(@PathVariable("id") Publisher publisher, Model model) {
         model.addAttribute("publisher", publisher);
+        model.addAttribute("contactPeople", contactPersonRepository.findByOrganisation(publisher.getOrganisation()));
         return "PublisherView";
     }
 

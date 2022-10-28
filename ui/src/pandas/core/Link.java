@@ -48,6 +48,10 @@ public class Link {
         return to(agency) + "/edit";
     }
 
+    public String edit(ContactPerson contactPerson) {
+        return link("/contact-people/" + contactPerson.getId() + "/edit");
+    }
+
     public String edit(Instance instance) {
         return to(instance) + "/edit";
     }
