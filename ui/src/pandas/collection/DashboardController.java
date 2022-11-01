@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
+import static java.util.Comparator.comparing;
+
 @Controller
 public class DashboardController {
     private final CollectionRepository collectionRepository;
@@ -45,6 +47,11 @@ public class DashboardController {
         } else {
             user = userRepository.findByUserid(username).orElseThrow(NotFoundException::new);
         }
+
+        var flaggedTitles = user.getFlaggedTitles().stream()
+                .sorted(comparing(Title::getName))
+                .toList();
+        model.addAttribute("flaggedTitles", flaggedTitles);
 
         var activityPeriods = createTimePeriods();
         Instant dateLimit = activityPeriods.get(activityPeriods.size() - 1).instant;

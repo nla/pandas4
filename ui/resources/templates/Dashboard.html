@@ -19,6 +19,15 @@
         </form>
     </header>
 
+    <section th:unless="${flaggedTitles.isEmpty()}">
+        <h2>Flagged titles</h2>
+        <ul>
+            <li th:each="title : ${flaggedTitles}">
+                <a th:href="${@link.to(title)}" th:text="${title.name}"></a>
+            </li>
+        </ul>
+    </section>
+
     <section th:unless="${activityPeriods.isEmpty()}">
         <h2>Recent activity</h2>
 
@@ -60,7 +69,7 @@
         </th:block>
     </section>
 
-    <section th:if="${activityPeriods.isEmpty()}" style="text-align: center; max-width: 500px; margin-top: 50px">
+    <section th:if="${flaggedTitles.isEmpty() && activityPeriods.isEmpty()}" style="text-align: center; max-width: 500px; margin-top: 50px">
         <img th:src="@{/assets/globe.svg}">
         <h1>Ready to archive some websites?</h1>
         <p>Start by nominating a <a th:href="@{/titles/new}">new site</a>.</p>
