@@ -21,9 +21,14 @@
   </header>
 
   <nav class="breadcrumb">
-    <ol>
+    <ol th:if="${publisher}">
       <li><a th:href="@{/publishers}" style="font-weight: bold">Publishers</a></li>
-      <li><a th:href="${@link.to(publisher)}" th:text="${publisher.name}">My cool title</a></li>
+      <li><a th:href="${@link.to(publisher)}" th:text="${publisher.name}">My cool publisher</a></li>
+      <li class="active">Contact Person</li>
+    </ol>
+    <ol th:if="${title}">
+      <li><a th:href="@{/titles}" style="font-weight: bold">Titles</a></li>
+      <li><a th:href="${@link.to(title)}" th:text="${title.name}">My cool title</a></li>
       <li class="active">Contact Person</li>
     </ol>
   </nav>

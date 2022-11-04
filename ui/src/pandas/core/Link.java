@@ -64,6 +64,11 @@ public class Link {
         return to(title) + "/edit";
     }
 
+    public String edit(Title title, ContactPerson contactPerson) {
+        return to(title) + "/contact-people/" + contactPerson.getId() + "/edit";
+    }
+
+
     public String flag(Title title) {
         return to(title) + "/flag";
     }

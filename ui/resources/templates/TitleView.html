@@ -180,6 +180,31 @@
             <div>Registered: <span th:text="${dateFormat.format(title.regDate)}"></span></div>
         </div>
 
+        <div th:unless="${title.contactPeople.isEmpty()}">
+            <h4>Contact People</h4>
+            <div th:each="contactPerson : ${title.contactPeople}">
+                <span th:text="${contactPerson.name}"></span>
+                <span th:text="${contactPerson.function}"></span>
+                <a th:if="${contactPerson.email != null}" th:href="@{|mailto:${contactPerson.email}|}" th:text="${contactPerson.email}"></a>
+                <a th:if="${contactPerson.phone != null}" th:href="@{|tel:${contactPerson.phone}|}" th:text="${contactPerson.phone}"></a>
+                <a th:if="${contactPerson.mobilePhone != null}" th:href="@{|tel:${contactPerson.mobilePhone}|}" th:text="${contactPerson.mobilePhone}"></a>
+                <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="${@link.edit(title, contactPerson)}"><i class="icon edit"></i></a>
+            </div>
+        </div>
+
+        <div th:unless="${title.contactEvents.isEmpty()}">
+            <h4>Contact Events</h4>
+            <div th:each="contactEvent : ${title.contactEvents}">
+                <strong th:text="${@dateFormats.SHORT_DATE.format(contactEvent.date)}"></strong>
+                <span th:text="${contactEvent.method.name}"></span>
+                <span th:text="${contactEvent.type.name}"></span>
+                <a th:if="${contactEvent.contactPerson != null}" th:text="${contactEvent.contactPerson.name}"
+                   th:href="${@link.edit(title, contactEvent.contactPerson)}"></a>
+                <span th:if="${contactEvent.user != null}" th:text="${contactEvent.user.userid}"></span>
+                <span th:text="${contactEvent.note}"></span>
+            </div>
+        </div>
+
         <div>
             <h4>Notes</h4>
             <div th:text="${title.notes}" style="white-space: pre-wrap"></div>

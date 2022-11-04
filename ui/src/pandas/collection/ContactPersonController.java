@@ -61,4 +61,40 @@ public class ContactPersonController {
         contactPersonRepository.delete(contactPerson);
         return "redirect:/publishers/" + publisher.getId();
     }
+
+    @GetMapping("/titles/{titleId}/contact-people/{individualId}/edit")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String editViaTitle(@PathVariable("titleId") Title title,
+                               @PathVariable("individualId") ContactPerson contactPerson,
+                               Model model) {
+        contactPerson.enforceBelongsToTitle(title);
+        model.addAttribute("form", ContactPersonEditForm.from(contactPerson));
+        model.addAttribute("title", title);
+        model.addAttribute("contactPersonId", contactPerson.getId());
+        return "ContactPersonEdit";
+    }
+
+    @PostMapping("/titles/{titleId}/contact-people/{individualId}/edit")
+    @PreAuthorize("hasPermission(#title, 'edit')")
+    public String updateViaTitle(@PathVariable("titleId") Title title,
+                                 @PathVariable("individualId") ContactPerson contactPerson,
+                                 ContactPersonEditForm form) {
+        contactPerson.enforceBelongsToTitle(title);
+        form.applyTo(contactPerson);
+        contactPersonRepository.save(contactPerson);
+        return "redirect:/titles/" + title.getId();
+    }
+
+    @PostMapping("/titles/{titleId}/contact-people/{individualId}/delete")
+    @PreAuthorize("hasPermission(#contactPerson.publisher, 'edit')")
+    public String deleteViaTitle(@PathVariable("titleId") Title title,
+                                 @PathVariable("individualId") ContactPerson contactPerson) {
+        contactPerson.enforceBelongsToTitle(title);
+        if (contactPerson.getTitles().size() == 1) {
+            contactPersonRepository.delete(contactPerson);
+        } else {
+            throw new UnsupportedOperationException("TODO: support deleting when there's multiple titles");
+        }
+        return "redirect:/titles/" + title.getId();
+    }
 }

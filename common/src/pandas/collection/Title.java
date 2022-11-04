@@ -316,7 +316,7 @@ public class Title {
     @JoinTable(name = "TITLE_INDIVIDUAL",
             joinColumns = @JoinColumn(name = "TITLE_ID"),
             inverseJoinColumns = @JoinColumn(name = "INDIVIDUAL_ID"))
-    private List<User> contactPeople = new ArrayList<>();
+    private List<ContactPerson> contactPeople = new ArrayList<>();
 
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date desc")
@@ -748,8 +748,8 @@ public class Title {
         this.contactEvents = contactEvents;
     }
 
-    public List<User> getContactPeople() {
-        return contactPeople;
+    public List<ContactPerson> getContactPeople() {
+        return Collections.unmodifiableList(contactPeople);
     }
 
     public Instant getLastContactDate() {
