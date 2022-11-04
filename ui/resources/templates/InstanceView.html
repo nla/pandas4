@@ -41,9 +41,21 @@
             <th>State:</th>
             <td th:text="${instance.state.name}">gathered</td>
         </tr>
+        <tr th:if="${instance.gatheredUrl != null}">
+            <th>URL:</th>
+            <td th:text="${instance.gatheredUrl}"></td>
+        </tr>
+        <tr th:if="${instance.scope != null}">
+            <th>Scope:</th>
+            <td th:text="${instance.scope.name}">All pages on this website</td>
+        </tr>
         <tr>
             <th>Method:</th>
             <td th:text="${instance.gatherMethodName}">HTTrack</td>
+        </tr>
+        <tr th:if="${instance.profile != null}">
+            <th>Profile:</th>
+            <td th:text="${instance.profile.name}">HTTrack Defaults</td>
         </tr>
         <tr>
             <th>Size:</th>

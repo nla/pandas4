@@ -105,6 +105,14 @@ public class Instance {
     @OrderBy("id")
     private List<StateHistory> stateHistory = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name="SCOPE_ID")
+    private Scope scope;
+
+    @ManyToOne
+    @JoinColumn(name="PROFILE_ID")
+    private Profile profile;
+
     public State getState() {
         return this.state;
     }
@@ -414,5 +422,21 @@ public class Instance {
             }
         }
         return null;
+    }
+
+    public Scope getScope() {
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+        this.scope = scope;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public Profile getProfile() {
+        return profile;
     }
 }

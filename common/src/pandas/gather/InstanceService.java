@@ -48,8 +48,10 @@ public class InstanceService {
         instance.setTepUrl("/pan/" + title.getPi() + "/" + instance.getDateString() + "/" +  gatherUrl.replaceFirst("^https?://", ""));
         instance.setGatheredUrl(gatherUrl);
         instance.setGatherMethodName(gatherMethod);
+        instance.setScope(title.getGather().getScope());
         instance.setState(stateRepository.findByName(State.CREATION).orElseThrow());
         instance.setPrefix("PAN"); // unused?
+        instance.setProfile(title.getGather().getActiveProfile());
         instance.setProcessable(1L); // unused?
         instance.setRemoveable(1L); // unused?
         instance.setRestrictable(1L); // unused?
