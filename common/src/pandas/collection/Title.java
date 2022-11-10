@@ -772,10 +772,8 @@ public class Title {
      * of the given agency.
      */
     public boolean isOwnedBy(Agency agency) {
-        if (getAgency() == null || agency == null) return false;
-        if (getAgency() == agency) return true;
-        if (agency.getId() != null && agency.getId().equals(getAgency().getId())) return true;
-        return getOwner() != null && getOwner().getAgency() != agency && isOwnedBy(getOwner().getAgency());
+        return agency.equals(getAgency()) ||
+                (getOwner() != null && agency.equals(getOwner().getAgency()));
     }
 
     public List<TitlePreviousName> getPreviousNames() {
