@@ -11,7 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -44,6 +47,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
@@ -72,8 +76,10 @@ public class TitleController {
     private final ScopeRepository scopeRepository;
     private final CollectionRepository collectionRepository;
     private final IssueGroupRepository issueGroupRepository;
+    private final PermissionEvaluator permissionEvaluator;
 
-    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueGroupRepository issueGroupRepository) {
+    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueGroupRepository issueGroupRepository,
+                           PermissionEvaluator permissionEvaluator) {
         this.titleRepository = titleRepository;
         this.userRepository = userRepository;
         this.gatherMethodRepository = gatherMethodRepository;
@@ -94,6 +100,7 @@ public class TitleController {
         this.scopeRepository = scopeRepository;
         this.collectionRepository = collectionRepository;
         this.issueGroupRepository = issueGroupRepository;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @GetMapping("/titles/{id}")
@@ -138,7 +145,8 @@ public class TitleController {
     }
 
     @GetMapping("/titles/bulkchange")
-    public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model) {
+    public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model,
+                               Authentication authentication) {
         List<Title> titles;
         if (params.containsKey("id")) {
             titles = new ArrayList<>();
@@ -149,19 +157,31 @@ public class TitleController {
             titles = results.getContent();
         }
 
-        var form = titleService.newBulkEditForm(titles);
+        // filter titles to only the ones the user has permission to edit
+        List<Title> editableTitles = titles.stream()
+                .filter(title -> permissionEvaluator.hasPermission(authentication, title, "edit"))
+                .collect(Collectors.toList());
+
+        var form = titleService.newBulkEditForm(editableTitles);
         model.addAttribute("form", form);
         model.addAttribute("allUsers", userRepository.findByActiveIsTrueOrderByNameGivenAscNameFamilyAsc());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherScheduleRepository.findAll());
         model.addAttribute("allScopes", scopeRepository.findAll());
-        model.addAttribute("statusList", titleService.allowedStatusTransitions(titles));
+        model.addAttribute("disallowedTitleCount", titles.size() - editableTitles.size());
+        model.addAttribute("statusList", titleService.allowedStatusTransitions(editableTitles));
         return "TitleBulkEdit";
     }
 
     @PostMapping("/titles/bulkchange")
-    public String bulkEditPerform(TitleBulkEditForm form, Model model, Principal principal) {
-        User user = userRepository.findByUserid(principal.getName()).orElse(null);
+    public String bulkEditPerform(TitleBulkEditForm form, Model model, Authentication authentication) {
+        for (var title : form.getTitles()) {
+            if (!permissionEvaluator.hasPermission(authentication, title, "edit")) {
+                throw new AccessDeniedException("User does not have permission to edit title " + title.getHumanId());
+            }
+        }
+
+        User user = userRepository.findByUserid(authentication.getName()).orElse(null);
         titleService.bulkEdit(form, user);
         model.addAttribute("count", form.getTitles().size());
         model.addAttribute("form", form);

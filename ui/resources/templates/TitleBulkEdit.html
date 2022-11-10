@@ -19,6 +19,11 @@
 
         <h1>Bulk Title Change</h1>
 
+        <div th:if="${disallowedTitleCount > 0}" class="alert-warning">
+            <th:block th:text="${disallowedTitleCount}">42</th:block> titles were excluded because you do not have
+            permission to edit them.
+        </div>
+
         <details>
             <summary><span th:text="${form.titles.size()}" class="titleCount">42</span> titles selected</summary>
             <table>
