@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import pandas.gather.Instance;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Configuration
 @ConfigurationProperties(prefix = "pandas")
@@ -17,6 +16,7 @@ public class Config {
     private String qaReplayUrl = "https://pwb.archive.org.au/";
     private Path dataPath;
     private Path working;
+    private int bulkChangeLimit = 1000;
 
     public String getAutologin() {
         return autologin;
@@ -81,5 +81,13 @@ public class Config {
 
     public void setDataPath(Path dataPath) {
         this.dataPath = dataPath;
+    }
+
+    public int getBulkChangeLimit() {
+        return bulkChangeLimit;
+    }
+
+    public void setBulkChangeLimit(int bulkChangeLimit) {
+        this.bulkChangeLimit = bulkChangeLimit;
     }
 }

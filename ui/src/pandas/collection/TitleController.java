@@ -145,7 +145,7 @@ public class TitleController {
             titleRepository.findAllById(params.get("id").stream().map(Long::parseLong).toList())
                     .forEach(titles::add);
         } else {
-            var results = titleSearcher.search(params, PageRequest.of(0, 10000));
+            var results = titleSearcher.search(params, PageRequest.of(0, config.getBulkChangeLimit()));
             titles = results.getContent();
         }
 

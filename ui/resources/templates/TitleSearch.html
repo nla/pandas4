@@ -23,7 +23,12 @@
             <button type="submit" th:formaction="@{/titles.mrc}" form=sf>Export MARC</button>
             <button type="submit" th:formaction="@{/titles.mrc.txt}" form=sf>Export MARC (text)</button>
             <span style="width: 2rem; display: inline-block"></span>
-            <button sec:authorize="hasAuthority('PRIV_BULK_EDIT_TITLES')" th:formaction="@{/titles/bulkchange}" class="btn-secondary" form=sf>Bulk Change</button>
+            <button sec:authorize="hasAuthority('PRIV_BULK_EDIT_TITLES')"
+                    th:formaction="@{/titles/bulkchange}"
+                    th:disabled="${results.getTotalElements() > @config.bulkChangeLimit}"
+                    th:title="${results.getTotalElements() > @config.bulkChangeLimit} ?
+                            'Bulk changes are limited to ' + ${@config.bulkChangeLimit} +' titles.'"
+                    class="btn-secondary" form=sf>Bulk Change</button>
         </nav>
         <input type=search name="q" th:value="${q}" placeholder="Search Titles" data-keybind="f" form=sf>
     </header>
