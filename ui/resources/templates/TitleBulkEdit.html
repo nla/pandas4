@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Bulk Title Change - PANDAS</title>
@@ -24,7 +24,7 @@
             permission to edit them.
         </div>
 
-        <details>
+        <details style="margin-top: 1em">
             <summary><span th:text="${form.titles.size()}" class="titleCount">42</span> titles selected</summary>
             <table>
                 <thead>
@@ -49,33 +49,35 @@
         </details>
 
         <p class="formgrid">
-            <input type=checkbox id=editStatus th:field="*{editStatus}">
-            <label for=editStatus>Status:</label>
-            <span>
-                <select id=status th:field="*{status}" onchange="updateReasons()">
-                    <option th:each="status: ${statusList}" th:text="${status.name}" th:value="${status.id}">
-                        rejected
+            <th:block sec:authorize="hasAuthority('PRIV_BULK_EDIT_TITLES_ADVANCED')">
+                <input type=checkbox id=editStatus th:field="*{editStatus}">
+                <label for=editStatus>Status:</label>
+                <span>
+                    <select id=status th:field="*{status}" onchange="updateReasons()">
+                        <option th:each="status: ${statusList}" th:text="${status.name}" th:value="${status.id}">
+                            rejected
+                        </option>
+                    </select>
+                    <label th:replace="TitleEdit.html :: reason">Reason: </label>
+                </span>
+
+                <input type=checkbox id=editMethod th:field="*{editMethod}">
+                <label for=editMethod>Gather Method:</label>
+                <select id=method th:field="*{method}">
+                    <option th:each="method: ${allGatherMethods}" th:text="${method.name}" th:value="${method.id}">
+                        Heritrix
                     </option>
                 </select>
-                <label th:replace="TitleEdit.html :: reason">Reason: </label>
-            </span>
 
-            <input type=checkbox id=editMethod th:field="*{editMethod}">
-            <label for=editMethod>Gather Method:</label>
-            <select id=method th:field="*{method}">
-                <option th:each="method: ${allGatherMethods}" th:text="${method.name}" th:value="${method.id}">
-                    Heritrix
-                </option>
-            </select>
-
-            <input type=checkbox id=editProfile th:field="*{editProfile}">
-            <label for=editProfile>Gather Profile:</label>
-            <select id=profile th:field="*{profile}">
-                <option th:each="profile: ${@profileRepository.findAllByOrderByName()}"
-                        th:text="${profile.name}" th:value="${profile.id}">
-                    PANDAS Defaults
-                </option>
-            </select>
+                <input type=checkbox id=editProfile th:field="*{editProfile}">
+                <label for=editProfile>Gather Profile:</label>
+                <select id=profile th:field="*{profile}">
+                    <option th:each="profile: ${@profileRepository.findAllByOrderByName()}"
+                            th:text="${profile.name}" th:value="${profile.id}">
+                        PANDAS Defaults
+                    </option>
+                </select>
+            </th:block>
 
             <input type=checkbox id=editSchedule th:field="*{editSchedule}">
             <label for=editSchedule>Gather Schedule:</label>
@@ -89,13 +91,15 @@
             <label for=editOneoffDate>Schedule One-Off Gather:</label>
             <input id=oneoffDate th:field="*{oneoffDate}" type="date"/>
 
-            <input type=checkbox id=editScope th:field="*{editScope}">
-            <label for=editScope>Gather Scope:</label>
-            <select id=scope th:field="*{scope}">
-                <option th:each="scope: ${allScopes}" th:text="${scope.name}" th:value="${scope.id}">
-                    Just this page
-                </option>
-            </select>
+            <th:block sec:authorize="hasAuthority('PRIV_BULK_EDIT_TITLES_ADVANCED')">
+                <input type=checkbox id=editScope th:field="*{editScope}">
+                <label for=editScope>Gather Scope:</label>
+                <select id=scope th:field="*{scope}">
+                    <option th:each="scope: ${allScopes}" th:text="${scope.name}" th:value="${scope.id}">
+                        Just this page
+                    </option>
+                </select>
+            </th:block>
 
             <input type=checkbox id=editOwner th:field="*{editOwner}">
             <label for=editOwner>Owner:</label>
@@ -107,27 +111,29 @@
             <label for=editAnbdNumber>ANBD Number:</label>
             <input id=anbdNumber th:field="*{anbdNumber}">
 
-            <input type=checkbox id=editAddNote th:field="*{editAddNote}">
-            <label for=editAddNote>Add Note:</label>
-            <textarea id=addNote th:field="*{addNote}"></textarea>
+            <th:block sec:authorize="hasAuthority('PRIV_BULK_EDIT_TITLES_ADVANCED')">
+                <input type=checkbox id=editAddNote th:field="*{editAddNote}">
+                <label for=editAddNote>Add Note:</label>
+                <textarea id=addNote th:field="*{addNote}"></textarea>
 
-            <span></span>
-            <label for=subjectsToAdd>Add Subjects:</label>
-            <select th:field="*{subjectsToAdd}" id="subjectsToAdd" multiple>
-                <option th:each="subject: ${@classificationService.allSubjects()}"
-                        th:value="${subject.id}" th:text="${subject.name}"
-                        th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
-                        th:data-fullname="${subject.fullName}">Arts
-                </option>
-            </select>
+                <span></span>
+                <label for=subjectsToAdd>Add Subjects:</label>
+                <select th:field="*{subjectsToAdd}" id="subjectsToAdd" multiple>
+                    <option th:each="subject: ${@classificationService.allSubjects()}"
+                            th:value="${subject.id}" th:text="${subject.name}"
+                            th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                            th:data-fullname="${subject.fullName}">Arts
+                    </option>
+                </select>
 
-            <span></span>
-            <label for=collectionsToAdd>Add Collections:</label>
-            <select th:field="*{collectionsToAdd}" id="collectionsToAdd" multiple>
-                <option th:each="collection: ${form.collectionsToAdd}" th:value="${collection.id}"
-                        th:text="${collection.fullName}" selected>Arts
-                </option>
-            </select>
+                <span></span>
+                <label for=collectionsToAdd>Add Collections:</label>
+                <select th:field="*{collectionsToAdd}" id="collectionsToAdd" multiple>
+                    <option th:each="collection: ${form.collectionsToAdd}" th:value="${collection.id}"
+                            th:text="${collection.fullName}" selected>Arts
+                    </option>
+                </select>
+            </th:block>
 
 
         </p>
