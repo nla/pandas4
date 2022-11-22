@@ -195,7 +195,7 @@
         <div th:unless="${title.contactEvents.isEmpty()}">
             <h4>Contact Events</h4>
             <div th:each="contactEvent : ${title.contactEvents}">
-                <strong th:text="${@dateFormats.SHORT_DATE.format(contactEvent.date)}"></strong>
+                <strong th:if="${contactEvent.date != null}" th:text="${@dateFormats.SHORT_DATE.format(contactEvent.date)}"></strong>
                 <span th:text="${contactEvent.method.name}"></span>
                 <span th:text="${contactEvent.type.name}"></span>
                 <a th:if="${contactEvent.contactPerson != null}" th:text="${contactEvent.contactPerson.name}"
