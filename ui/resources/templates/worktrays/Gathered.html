@@ -59,6 +59,10 @@
             padding: 8px 0;
         }
 
+        .align-right {
+            text-align: right;
+        }
+
         .gather-stats {
             font-size: 80%;
             color: #555;
@@ -90,8 +94,8 @@
                 <th align=left class="qa-compact-view">URL</th>
                 <th th:if="${agencyId != null}" class="qa-compact-view">Owner</th>
                 <th class="qa-compact-view">Captured</th>
-                <th class="qa-compact-view">Files</th>
-                <th class="qa-compact-view">Size</th>
+                <th class="qa-compact-view align-right">Files</th>
+                <th class="qa-compact-view align-right">Size</th>
                 <th class="qa-detailed-view">This Gather</th>
                 <th class="qa-detailed-view">Live Site</th>
                 <th class="qa-detailed-view">Previous Gather</th>
