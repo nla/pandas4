@@ -326,6 +326,9 @@ public class Instance {
     }
 
     public InstanceGather getGather() {
+        if (gather == null) {
+            return new InstanceGather();
+        }
         return gather;
     }
 

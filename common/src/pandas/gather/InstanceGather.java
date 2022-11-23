@@ -48,6 +48,11 @@ public class InstanceGather {
         return this.files;
     }
 
+    public String getFilesHuman() {
+        if (files == null) return null;
+        return String.format("%,d", files);
+    }
+
     public void setFiles(Long gatherFiles) {
         this.files = gatherFiles;
     }
@@ -72,8 +77,17 @@ public class InstanceGather {
         return this.size;
     }
 
+    public String getSizeHuman() {
+        if (size == null) return null;
+        return FileUtils.byteCountToDisplaySize(size);
+    }
+
     public void setSize(Long gatherSize) {
         this.size = gatherSize;
+    }
+
+    public boolean hasSizeWarning() {
+        return size != null && size < 1000000;
     }
 
     public Instant getStart() {

@@ -23,10 +23,21 @@
                     form=form type=submit
                     th:formaction="@{/instances/bulkchange}" style="margin-left: 32px">Bulk Change
             </button>
+            <button id="compactViewButton" class="btn btn-secondary" type="button">Compact View</button>
         </nav>
         <th:block th:include="worktrays/_worktrays.html :: header('/worktrays/{alias}/gathered')">
         </th:block>
     </header>
+    <script>
+        document.getElementById('compactViewButton').addEventListener('click', function () {
+            var isCompact = document.body.classList.toggle('qa-compact-view-active');
+            this.innerText = isCompact ? 'Detailed View' : 'Compact View';
+            localStorage.setItem("pandas-qa-compact-view-active", isCompact);
+        });
+        if (localStorage.getItem("pandas-qa-compact-view-active") === "true") {
+            document.getElementById('compactViewButton').click();
+        }
+    </script>
     <nav class="breadcrumb">
         <ol>
             <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
@@ -40,7 +51,11 @@
             padding: 4px 8px;
         }
 
-        .gathered-table td:first-of-type {
+        .gathered-table th {
+            padding: 4px 8px;
+        }
+
+        .gathered-table td:first-of-type, .gathered-table th:first-of-type {
             padding: 8px 0;
         }
 
@@ -52,6 +67,18 @@
         .gather-stats-warning {
             color: #f55;
         }
+
+        .qa-compact-view {
+            display: none;
+        }
+
+        .qa-compact-view-active .qa-detailed-view {
+            display: none;
+        }
+
+        .qa-compact-view-active .qa-compact-view {
+            display: table-cell;
+        }
     </style>
 
     <form id=form method=post th:action="@{''}">
@@ -60,9 +87,14 @@
             <tr>
                 <th><input type=checkbox onchange="toggleSelectAll(this)" id="selectAllCheckbox"></th>
                 <th align=left id="titleColumnHeader">Title</th>
-                <th>This Gather</th>
-                <th>Live Site</th>
-                <th>Previous Gather</th>
+                <th align=left class="qa-compact-view">URL</th>
+                <th th:if="${agencyId != null}" class="qa-compact-view">Owner</th>
+                <th class="qa-compact-view">Captured</th>
+                <th class="qa-compact-view">Files</th>
+                <th class="qa-compact-view">Size</th>
+                <th class="qa-detailed-view">This Gather</th>
+                <th class="qa-detailed-view">Live Site</th>
+                <th class="qa-detailed-view">Previous Gather</th>
             </tr>
             </thead>
             <tbody>
@@ -71,25 +103,47 @@
                     <input type=checkbox class="selectedInstancesCheckbox" name=instance th:value='${instance.id}'
                            onchange="updateSelected()">
                 </td>
-                <td th:insert="TitleSearch.html :: title-card-text(title=${instance.title})">
+
+                <!--/* Compact view */-->
+                <td class="qa-compact-view">
+                    <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}">Example Title</a>
+                </td>
+                <td class="qa-compact-view">
+                    <a class="live-url" th:href="${instance.title.titleUrl}"
+                       th:text="${#strings.abbreviate(instance.title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}"
+                       href="http://www.olympics.com/" target="_blank">olympics.com</a>
+                </td>
+                <td th:if="${agencyId != null}" class="qa-compact-view" th:text="${instance.title.owner?.userid}">jsmith</td>
+                <td class="qa-compact-view">
+                    <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"
+                       th:text="${@dateFormats.shortDateTime.format(instance.date)}">
+                        2021/08/30
+                    </a>
+                </td>
+                <td class="qa-compact-view" th:text="${instance.gather.filesHuman}">1,233</td>
+                <td class="qa-compact-view" th:text="${instance.gather.sizeHuman}"
+                    th:classappend="${instance.gather.hasSizeWarning()}?'gather-stats-warning'">2 MB</td>
+
+                <!--/* Detailed view */-->
+                <td class="qa-detailed-view" th:insert="TitleSearch.html :: title-card-text(title=${instance.title})">
                     <a style="font-weight: bold">Example title</a><br>
                     <span>Heritrix</span>
                     <a>jsmith</a>
                 </td>
-                <td style="text-align: center">
+                <td class="qa-detailed-view" style="text-align: center">
                     <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"><img
                             th:src="${@link.thumbnail(instance, 'REPLAY')}" width=150 height=100></a><br>
                     <time th:text="${@dateFormats.shortDate(instance.date)}"></time>
                     <br>
                     <a class="gather-stats" th:if="${instance.gather != null}" th:href="${@link.files(instance)}"
-                       th:classappend="${instance.gather.size < 1000000}?'gather-stats-warning'"
+                       th:classappend="${instance.gather.hasSizeWarning()}?'gather-stats-warning'"
                        th:text="${instance.gather.stats}">1,234 files <span>10 MB</span></a>
                 </td>
-                <td style="text-align: center; vertical-align: top">
+                <td class="qa-detailed-view" style="text-align: center; vertical-align: top">
                     <a th:href="${instance.title.getPrimarySeedUrl()}" target="_blank"><img
                             th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
                 </td>
-                <td style="text-align: center">
+                <td class="qa-detailed-view" style="text-align: center">
                     <th:block th:if="${previousGather != null}">
                         <a th:href="@{/instances/{id}(id=${previousGather.id})}">
                             <img th:src="${@link.thumbnail(previousGather, 'REPLAY')}" width=150 height=100><br>
