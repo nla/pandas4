@@ -94,8 +94,8 @@
                 <th align=left class="qa-compact-view">URL</th>
                 <th th:if="${agencyId != null}" class="qa-compact-view">Owner</th>
                 <th class="qa-compact-view">Captured</th>
-                <th class="qa-compact-view align-right">Files</th>
-                <th class="qa-compact-view align-right">Size</th>
+                <th class="qa-compact-view">Files</th>
+                <th class="qa-compact-view">Size</th>
                 <th class="qa-detailed-view">This Gather</th>
                 <th class="qa-detailed-view">Live Site</th>
                 <th class="qa-detailed-view">Previous Gather</th>
@@ -124,8 +124,8 @@
                         2021/08/30
                     </a>
                 </td>
-                <td class="qa-compact-view" th:text="${instance.gather.filesHuman}">1,233</td>
-                <td class="qa-compact-view" th:text="${instance.gather.sizeHuman}"
+                <td class="qa-compact-view align-right" th:text="${instance.gather.filesHuman}">1,233</td>
+                <td class="qa-compact-view align-right" th:text="${instance.gather.sizeHuman}"
                     th:classappend="${instance.gather.hasSizeWarning()}?'gather-stats-warning'">2 MB</td>
 
                 <!--/* Detailed view */-->
