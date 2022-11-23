@@ -59,8 +59,16 @@
             padding: 8px 0;
         }
 
+        .align-left {
+            text-align: left;
+        }
+
         .align-right {
             text-align: right;
+        }
+
+        .no-wrap {
+            white-space: nowrap;
         }
 
         .gather-stats {
@@ -90,10 +98,10 @@
             <thead>
             <tr>
                 <th><input type=checkbox onchange="toggleSelectAll(this)" id="selectAllCheckbox"></th>
-                <th align=left id="titleColumnHeader">Title</th>
-                <th align=left class="qa-compact-view">URL</th>
-                <th th:if="${agencyId != null}" class="qa-compact-view">Owner</th>
-                <th class="qa-compact-view">Captured</th>
+                <th class="align-left" id="titleColumnHeader">Title</th>
+                <th class="qa-compact-view align-left">URL</th>
+                <th th:if="${agencyId != null}" class="qa-compact-view align-left">Owner</th>
+                <th class="qa-compact-view align-left">Captured</th>
                 <th class="qa-compact-view">Files</th>
                 <th class="qa-compact-view">Size</th>
                 <th class="qa-detailed-view">This Gather</th>
@@ -118,7 +126,7 @@
                        href="http://www.olympics.com/" target="_blank">olympics.com</a>
                 </td>
                 <td th:if="${agencyId != null}" class="qa-compact-view" th:text="${instance.title.owner?.userid}">jsmith</td>
-                <td class="qa-compact-view">
+                <td class="qa-compact-view no-wrap">
                     <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"
                        th:text="${@dateFormats.shortDateTime.format(instance.date)}">
                         2021/08/30
