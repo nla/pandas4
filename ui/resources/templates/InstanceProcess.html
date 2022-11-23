@@ -170,7 +170,7 @@
             <section th:unless="${previousInstances.isEmpty()}">
                 <strong>Previous</strong>
                 <div th:each="instance : ${previousInstances}" >
-                    <a th:href="${@link.delivery(instance)}"
+                    <a th:href="${@link.delivery(instance)}" target="_blank"
                        th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)} + '&#10;' + ${instance.gather?.stats ?: ''}">
                         <img th:src="${@link.thumbnail(instance, 'REPLAY')}" width="150" height="100">
                     </a>

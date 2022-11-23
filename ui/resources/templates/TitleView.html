@@ -216,7 +216,7 @@
             <section th:each="issueGroup: ${issueGroups}">
                 <h5 th:if="${issueGroup.name != '-None-'}" th:text="${issueGroup.name}">Issue Group</h5>
                 <ul>
-                    <li th:each="issue: ${issueGroup.issues}"><a th:href="${@link.delivery(issue)}" th:text="${issue.name}">Volume 1</a></li>
+                    <li th:each="issue: ${issueGroup.issues}"><a th:href="${@link.delivery(issue)}" target="_blank" th:text="${issue.name}">Volume 1</a></li>
                 </ul>
             </section>
         </div>
