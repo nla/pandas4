@@ -72,7 +72,7 @@
         <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${#request.servletPath.matches('/queue')}? 'active'">Gather Queue</a>
         <li><a th:href="@{/statistics}">Statistics</a>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/marcexport}">MARC Export</a>
-        <li sec:authorize="hasAuthority('PRIV_EDIT_ALL_AGENCIES')"><a th:href="@{/agencies}">Agencies</a>
+        <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies</a>
     </ul>
 
     <!-- Gather option administration -->
