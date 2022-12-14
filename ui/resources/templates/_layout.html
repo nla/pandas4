@@ -58,7 +58,7 @@
                href=PublisherSearch.html>
             <i class="icon publisher"></i>
             Publishers</a></li>
-        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/pages}"
+        <li sec:authorize="hasRole('stduser')"><a th:href="@{/pages}"
                                                    th:classappend="${#request.servletPath.matches('/pages($|/.*)')}? 'active'"
                                                    href=PageSearch.html>
             <i class="icon http"></i>
