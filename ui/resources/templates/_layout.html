@@ -73,7 +73,7 @@
         <li><a th:href="@{/statistics}">Statistics</a>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/marcexport}">MARC Export</a>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies</a>
-        <li sec:authorize="hasRole('stduser')"><a th:href="https://wr.archive.org.au/api/v1/auth/oidc">Webrecorder</a>
+        <li sec:authorize="hasRole('stduser')"><a href="https://wr.archive.org.au/api/v1/auth/oidc">Webrecorder</a>
     </ul>
 
     <!-- Gather option administration -->
