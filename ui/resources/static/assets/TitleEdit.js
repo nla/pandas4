@@ -306,6 +306,17 @@ function showOrHideFilters() {
     document.getElementById('filters').parentElement.style.display = httrackMethodIsSelected ? 'inherit' : 'none';
 }
 
+// When the URL field's "+" button is clicked, switch to the multi-URL field
+document.getElementById('urlPlusButton').addEventListener('click', function() {
+    let singleUrlLabel = document.getElementById('singleUrlLabel');
+    let multipleUrlLabel = document.getElementById('multipleUrlLabel');
+    let multipleUrlTextArea = multipleUrlLabel.querySelector('textarea');
+    multipleUrlTextArea.value = singleUrlLabel.querySelector('input').value + "\n";
+    singleUrlLabel.style.display = 'none';
+    multipleUrlLabel.style.display = 'inherit';
+    multipleUrlTextArea.focus();
+});
+
 // Setup event listeners
 
 titleUrlField.addEventListener("change", function() {

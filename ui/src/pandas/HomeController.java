@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.unbescape.html.HtmlEscape;
 import org.unbescape.html.HtmlEscapeLevel;
 import org.unbescape.html.HtmlEscapeType;
-import pandas.core.Privileges;
+import pandas.core.PandasUserDetailsService;
 
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 @Controller
 public class HomeController {
@@ -60,8 +59,7 @@ public class HomeController {
             case "agadmin":
             case "stduser":
             case "infouser":
-                newAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-                newAuthorities.addAll(Privileges.byRole.getOrDefault(role, Set.of()));
+                newAuthorities.addAll(PandasUserDetailsService.authoritiesForRoleType(role));
                 break;
             default: throw new IllegalArgumentException("this only support infouser, stduser and agadmin currently");
         }

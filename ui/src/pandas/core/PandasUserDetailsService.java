@@ -1,5 +1,6 @@
 package pandas.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
@@ -13,6 +14,7 @@ import pandas.agency.UserRepository;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -34,34 +36,39 @@ public class PandasUserDetailsService implements UserDetailsService, Authenticat
     }
 
     static Collection<? extends GrantedAuthority> authoritiesFor(User user) {
+        return authoritiesForRoleType(user.getRole().getType());
+    }
+
+    @NotNull
+    public static Set<GrantedAuthority> authoritiesForRoleType(String roleType) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        switch (user.getRole().getType()) {
-            case "SysAdmin":
+        switch (roleType.toLowerCase(Locale.ROOT)) {
+            case "sysadmin":
                 authorities.add(new SimpleGrantedAuthority("ROLE_sysadmin"));
                 authorities.addAll(Privileges.byRole.get("sysadmin"));
                 // fallthrough
-            case "PanAdmin":
+            case "panadmin":
                 authorities.add(new SimpleGrantedAuthority("ROLE_panadmin"));
                 authorities.addAll(Privileges.byRole.get("panadmin"));
                 // fallthrough
-            case "AgAdmin":
+            case "agadmin":
                 authorities.add(new SimpleGrantedAuthority("ROLE_agadmin"));
                 authorities.addAll(Privileges.byRole.get("agadmin"));
                 // fallthrough
-            case "StdUser":
+            case "stduser":
                 authorities.add(new SimpleGrantedAuthority("ROLE_stduser"));
                 authorities.addAll(Privileges.byRole.get("stduser"));
                 // fallthrough
-            case "SuppUser":
+            case "suppuser":
                 authorities.add(new SimpleGrantedAuthority("ROLE_suppuser"));
                 authorities.addAll(Privileges.byRole.get("suppuser"));
                 // fallthrough
-            case "InfoUser":
+            case "infouser":
                 authorities.add(new SimpleGrantedAuthority("ROLE_infouser"));
                 authorities.addAll(Privileges.byRole.get("infouser"));
                 break;
             default:
-                throw new IllegalStateException("Unknown role type: " + user.getRole().getType());
+                throw new IllegalArgumentException("Unknown role type: " + roleType);
         }
         return authorities;
     }

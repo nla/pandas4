@@ -7,6 +7,11 @@
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
         .publisher-select-item { gap: 4px; }
+
+        #multipleUrlLabel {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
@@ -73,9 +78,16 @@
         <fieldset>
 
             <div>
-                <label style="flex-grow: 1">
+                <label style="flex-grow: 1" id="singleUrlLabel">
                     Web address (URL)
-                    <input th:field="*{titleUrl}" required class="form-control">
+                    <span style="display: flex; gap: 2px">
+                        <input th:field="*{titleUrl}" required>
+                        <button id="urlPlusButton" type="button" class="btn btn-compact btn-secondary" style="height: 32px">➕</button>
+                    </span>
+                </label>
+                <label style="flex-grow: 1; display: none" id="multipleUrlLabel">
+                    Web addresses (URLs)
+                    <textarea th:field="*{titleUrl}" rows="5"></textarea>
                 </label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Status
                     <select th:field="*{status}" onchange="updateReasons()" th:data-current="${form.status.id}">
