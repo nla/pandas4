@@ -471,7 +471,7 @@ public class TitleController {
     }
 
     @GetMapping("/titles/new")
-    public String newForm(@RequestParam(value = "collection", defaultValue = "") List<Collection> collections,
+    public String newForm(@RequestParam(value = "collection", defaultValue = "") Set<Collection> collections,
                           @RequestParam(value = "subject", defaultValue = "") List<Subject> subjects,
                           @RequestParam(value = "publisher", required = false) Publisher publisher,
                           @RequestParam(value = "url", required = false) String url,
@@ -508,7 +508,7 @@ public class TitleController {
 
         if (backlink == null) {
             if (collections.size() == 1) {
-                backlink = "/collections/" + collections.get(0).getId();
+                backlink = "/collections/" + collections.iterator().next().getId();
             } else if (subjects.size() == 1) {
                 backlink = "/subjects/" + subjects.get(0).getId();
             } else if (publisher != null) {

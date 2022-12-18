@@ -8,6 +8,8 @@ import javax.validation.constraints.NotBlank;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static pandas.util.Strings.emptyToNull;
 
@@ -31,7 +33,7 @@ public class TitleEditForm {
     private String anbdNumber;
     private String localReference;
     private String localDatabaseNo;
-    private List<Collection> collections = new ArrayList<>();
+    private Set<Collection> collections = new TreeSet<>(Collection.COMPARE_BY_FULL_NAME);
     private List<Subject> subjects = new ArrayList<>();
     @Column(name = "IS_CATALOGUING_NOT_REQ")
     private boolean cataloguingNotRequired = true;
@@ -173,11 +175,11 @@ public class TitleEditForm {
         this.localDatabaseNo = localDatabaseNo;
     }
 
-    public List<Collection> getCollections() {
+    public Set<Collection> getCollections() {
         return collections;
     }
 
-    public void setCollections(List<Collection> collections) {
+    public void setCollections(Set<Collection> collections) {
         this.collections.clear();
         this.collections.addAll(collections);
     }

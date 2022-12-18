@@ -170,7 +170,7 @@ public class Title {
             indexes = { @Index(name = "title_col_title_id_index", columnList = "title_id"),
                         @Index(name = "title_col_collection_id_index", columnList = "collection_id") })
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
-    private List<Collection> collections = new ArrayList<>();
+    private Set<Collection> collections = new TreeSet<>(Collection.COMPARE_BY_FULL_NAME);
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "title")
     @IndexedEmbedded(includePaths = {"activeProfile.id", "schedule.id", "scope.id", "method.id", "notes",
@@ -330,12 +330,6 @@ public class Title {
     @OrderBy("date")
     private List<TitleHistory> continues = new ArrayList<>();
 
-    @PostLoad
-    public void postLoad() {
-        // we can't easily sort by full name in the SQL query so do it after loading
-        collections.sort(Comparator.comparing(Collection::getFullName));
-    }
-
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
         String primarySeed = getPrimarySeedUrl();
@@ -475,8 +469,8 @@ public class Title {
                 "&clip=240,50,800,500,0.4";
     }
 
-    public List<Collection> getCollections() {
-        return Collections.unmodifiableList(collections);
+    public Set<Collection> getCollections() {
+        return Collections.unmodifiableSet(collections);
     }
 
     @IndexedEmbedded(includePaths = {"id", "name"})
@@ -490,7 +484,7 @@ public class Title {
         return ancestry;
     }
 
-    public void setCollections(List<Collection> collections) {
+    public void setCollections(Set<Collection> collections) {
         this.collections.clear();
         this.collections.addAll(collections);
     }

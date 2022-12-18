@@ -34,6 +34,9 @@ import java.util.*;
         property = "id")
 @EntityListeners(AuditingEntityListener.class)
 public class Collection {
+    public static final Comparator<Collection> COMPARE_BY_FULL_NAME = Comparator.comparing(Collection::getFullName)
+            .thenComparing(Collection::getId);
+
     @Id
     @Column(name = "COL_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")

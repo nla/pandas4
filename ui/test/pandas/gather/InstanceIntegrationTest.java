@@ -10,7 +10,7 @@ import pandas.collection.TitleService;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,7 +53,7 @@ public class InstanceIntegrationTest extends IntegrationTest {
     }
 
     private Title createTitle() {
-        var titleForm = titleService.newTitleForm(Collections.emptyList(), Collections.emptyList());
+        var titleForm = titleService.newTitleForm(Collections.emptySet(), Collections.emptyList());
         titleForm.setTitleUrl("http://example.org/");
         titleForm.setName("Test Title");
         return titleService.save(titleForm, userService.getCurrentUser());

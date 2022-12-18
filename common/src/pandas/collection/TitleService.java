@@ -67,7 +67,7 @@ public class TitleService {
     }
 
     @PreAuthorize("hasPermission(null, 'Title', 'edit')")
-    public TitleEditForm newTitleForm(List<Collection> collections, List<Subject> subjects) {
+    public TitleEditForm newTitleForm(Set<Collection> collections, List<Subject> subjects) {
         TitleEditForm form = new TitleEditForm();
         form.setCollections(collections);
         form.setFormat(formatRepository.findById(Format.DEFAULT_ID).orElseThrow());
