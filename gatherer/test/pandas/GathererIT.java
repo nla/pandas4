@@ -94,7 +94,7 @@ public class GathererIT {
                 }
             }
 
-            TitleEditForm form = titleService.newTitleForm(Set.of(), List.of());
+            TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
             form.setName("Heritrix title");
             form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
             form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
@@ -149,7 +149,7 @@ public class GathererIT {
         mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
         mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
 
-        TitleEditForm form = titleService.newTitleForm(Set.of(), List.of());
+        TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("HTTrack title");
         form.setGatherMethod(gatherMethodRepository.findByName("HTTrack").orElseThrow());
         form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
@@ -192,7 +192,7 @@ public class GathererIT {
         mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
         mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
 
-        TitleEditForm form = titleService.newTitleForm(Set.of(), List.of());
+        TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("Browsertrix title");
         form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.BROWSERTRIX).orElseThrow());
         form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
