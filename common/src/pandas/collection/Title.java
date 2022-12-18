@@ -140,7 +140,7 @@ public class Title {
                     @Index(name = "subject_titles_collection_id_index", columnList = "subject_id")})
     @OrderBy("name")
     @IndexedEmbedded(includePaths = {"id", "name", "fullName"})
-    private List<Subject> subjects = new ArrayList<>();
+    private Set<Subject> subjects = new LinkedHashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "CURRENT_OWNER_ID")
@@ -410,11 +410,11 @@ public class Title {
         return getRegDate() == null ? null : LocalDate.ofInstant(getRegDate(), ZoneId.systemDefault());
     }
 
-    public List<Subject> getSubjects() {
-        return Collections.unmodifiableList(subjects);
+    public Set<Subject> getSubjects() {
+        return Collections.unmodifiableSet(subjects);
     }
 
-    public void setSubjects(List<Subject> subjects) {
+    public void setSubjects(java.util.Collection<Subject> subjects) {
         this.subjects.clear();
         this.subjects.addAll(subjects);
     }

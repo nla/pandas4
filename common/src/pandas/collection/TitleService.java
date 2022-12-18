@@ -67,7 +67,15 @@ public class TitleService {
     }
 
     @PreAuthorize("hasPermission(null, 'Title', 'edit')")
-    public TitleEditForm newTitleForm(Set<Collection> collections, List<Subject> subjects) {
+    public TitleEditForm newTitleForm(Set<Collection> collections, Set<Subject> subjects) {
+        // prefill subjects based on the collections
+        if ((subjects == null || subjects.isEmpty()) && (collections != null && !collections.isEmpty())) {
+            subjects = new HashSet<>();
+            for (Collection collection: collections) {
+                subjects.addAll(collection.getInheritedSubjects());
+            }
+        }
+
         TitleEditForm form = new TitleEditForm();
         form.setCollections(collections);
         form.setFormat(formatRepository.findById(Format.DEFAULT_ID).orElseThrow());
@@ -78,16 +86,6 @@ public class TitleService {
         form.setSubjects(subjects);
         form.setLegalDeposit(true);
         form.setCataloguingNotRequired(true);
-
-        // prefill subjects based on the collections
-        if ((subjects == null || subjects.isEmpty()) && (collections != null && !collections.isEmpty())) {
-            Set<Subject> subjectList = new HashSet<>();
-            for (Collection collection: collections) {
-                subjectList.addAll(collection.getInheritedSubjects());
-            }
-            form.setSubjects(new ArrayList<>(subjectList));
-        }
-
         return form;
     }
 

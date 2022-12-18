@@ -33,8 +33,8 @@ public class TitleEditForm {
     private String anbdNumber;
     private String localReference;
     private String localDatabaseNo;
-    private Set<Collection> collections = new TreeSet<>(Collection.COMPARE_BY_FULL_NAME);
-    private List<Subject> subjects = new ArrayList<>();
+    private final Set<Collection> collections = new TreeSet<>(Collection.COMPARE_BY_FULL_NAME);
+    private final Set<Subject> subjects = new TreeSet<>(Subject.COMPARE_BY_NAME);
     @Column(name = "IS_CATALOGUING_NOT_REQ")
     private boolean cataloguingNotRequired = true;
     private String notes;
@@ -184,11 +184,11 @@ public class TitleEditForm {
         this.collections.addAll(collections);
     }
 
-    public List<Subject> getSubjects() {
+    public Set<Subject> getSubjects() {
         return subjects;
     }
 
-    public void setSubjects(List<Subject> subjects) {
+    public void setSubjects(java.util.Collection<Subject> subjects) {
         this.subjects.clear();
         this.subjects.addAll(subjects);
     }

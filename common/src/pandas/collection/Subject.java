@@ -12,10 +12,7 @@ import pandas.core.View;
 
 import javax.persistence.*;
 import java.sql.Blob;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @DynamicUpdate
@@ -26,6 +23,8 @@ import java.util.Objects;
 public class Subject {
     public static final long CATEGORY_ID_RANGE_START = 15000;
     public static final long CATEGORY_ID_RANGE_END = 15999;
+    public static final Comparator<Subject> COMPARE_BY_NAME = Comparator.comparing(Subject::getName)
+            .thenComparing(Subject::getId);
 
     @Id
     @Column(name = "SUBJECT_ID")
