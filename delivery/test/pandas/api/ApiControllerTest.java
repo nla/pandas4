@@ -10,7 +10,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import pandas.collection.*;
 import pandas.gather.GatherMethodRepository;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.containsString;
@@ -48,7 +47,7 @@ class ApiControllerTest {
         childCollection.setParent(parentCollection);
         childCollection = collectionRepository.save(childCollection);
 
-        TitleEditForm form = titleService.newTitleForm(Set.of(), List.of());
+        TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("Test title");
         form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
         form.setTitleUrl("http://example.com/");
