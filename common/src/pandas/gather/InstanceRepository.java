@@ -108,21 +108,6 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
     List<PreviousGather> findPreviousStats(@Param("instances") List<Instance> instances);
 
     @Query("""
-            select instance
-            from Instance instance
-            join instance.title title
-                join title.collections col
-                where col = :collection
-                and instance.id = (select min(i.id) from Instance i
-                            where i.title.id = title.id 
-                            and i.state.id = 1
-                            and (col.startDate is null or i.date >= col.startDate)
-                            and (col.endDate is null or i.date <= col.endDate)) 
-                order by title.name 
-                """)
-    List<Instance> findByCollection(@Param("collection") Collection collection);
-
-    @Query("""
               select instance
               from Instance instance
               join instance.title title
@@ -132,6 +117,7 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
                   (select min(i.id) from Instance i
                           where i.title.id = title.id
                           and i.state.id = 1
+                          and i.isDisplayed is null or i.isDisplayed = true
                           and i.date >= :time),
                   (select max(i.id) from Instance i
                           where i.title.id = title.id
@@ -140,6 +126,22 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
               order by title.name
             """)
     List<Instance> findByCollectionAt(@Param("collection") Collection collection, @Param("time") Instant time);
+
+    @Query("""
+            select instance
+            from Instance instance
+            join instance.title title
+                join title.collections col
+                where col = :collection
+                and instance.id = (select min(i.id) from Instance i
+                            where i.title.id = title.id
+                            and i.state.id = 1
+                            and i.isDisplayed is null or i.isDisplayed = true
+                            and (col.startDate is null or i.date >= col.startDate)
+                            and (col.endDate is null or i.date <= col.endDate)) 
+                order by title.name 
+                """)
+    List<Instance> findByCollection(@Param("collection") Collection collection);
 
     @Query("select count(i) from Instance i where i.state.name = 'archived'")
     long countArchived();
