@@ -8,9 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import pandas.collection.*;
-import pandas.gather.*;
+import pandas.gather.GatherMethodRepository;
 
-import java.time.Instant;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.containsString;
@@ -30,11 +29,6 @@ class ApiControllerTest {
     private TitleService titleService;
     @Autowired
     private CollectionRepository collectionRepository;
-    @Autowired
-    private InstanceRepository instanceRepository;
-
-    @Autowired
-    private StateRepository stateRepository;
 
     @Autowired
     private GatherMethodRepository gatherMethodRepository;
@@ -59,22 +53,6 @@ class ApiControllerTest {
         form.setTitleUrl("http://example.com/");
         form.getCollections().add(parentCollection);
         title = titleService.save(form, null);
-
-        var archivedState = stateRepository.findByName(State.ARCHIVED).orElseThrow();
-
-        Instance hiddenInstance = new Instance();
-        hiddenInstance.setTitle(title);
-        hiddenInstance.setDate(Instant.parse("2022-12-19T01:02:03Z"));
-        hiddenInstance.setIsDisplayed(false);
-        hiddenInstance.setState(archivedState);
-
-        Instance visibleInstance = new Instance();
-        visibleInstance.setTitle(title);
-        visibleInstance.setDate(Instant.parse("2022-12-20T04:56:55Z"));
-        visibleInstance.setIsDisplayed(true);
-        visibleInstance.setState(archivedState);
-
-        instanceRepository.save(visibleInstance);
     }
 
     @Test
@@ -97,7 +75,6 @@ class ApiControllerTest {
         mockMvc.perform(get("/api/collection/" + parentCollection.getId())).andExpect(status().isOk())//.andDo(print())
                 .andExpect(jsonPath("$.id").value(parentCollection.getId()))
                 .andExpect(jsonPath("$.name").value(parentCollection.getName()))
-                .andExpect(jsonPath("$.snapshots[0].date").value("2022-12-20T04:56:55.000+0000"))
                 .andExpect(jsonPath("$.subcollections[0].name").value(childCollection.getName()));
     }
 
