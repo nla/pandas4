@@ -18,7 +18,7 @@
         }
     </style>
 </head>
-<nav th:replace="_layout.html :: sidebar (activeItem='Subjects')"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Subjects')}"></nav>
 <main>
     <header>
         <nav><a sec:authorize="hasAuthority('PRIV_EDIT_SUBJECTS')" th:href="@{/subjects/new}" href="SubjectEdit.html" data-keybind=s class="btn btn-primary"><i class="icon add"></i> New Subject</a></nav>

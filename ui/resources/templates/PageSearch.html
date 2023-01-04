@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar (activeItem='Pages')"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Pages')}"></nav>
 <main class="search">
     <form id="sf" th:action="@{/pages}">
     </form>

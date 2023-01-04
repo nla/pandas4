@@ -8,7 +8,7 @@
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar (activeItem='Collections')"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Collections')}"></nav>
 <main>
     <header>
         <nav><a th:href="@{/collections/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New

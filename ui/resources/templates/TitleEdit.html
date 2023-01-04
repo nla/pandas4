@@ -10,7 +10,7 @@
     </style>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar (activeItem='Titles')"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Titles')}"></nav>
 <main>
     <form id="titleEditForm" method=post class=form th:object="${form}" th:action="@{/titles}"
           onsubmit="return !!window.loaded">

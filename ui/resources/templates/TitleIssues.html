@@ -35,7 +35,7 @@
     </style>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar (activeItem='Titles')"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Titles')}"></nav>
 <main>
     <form method=post th:action="@{''}" onsubmit="return document.readyState !== 'loading'">
         <header>
