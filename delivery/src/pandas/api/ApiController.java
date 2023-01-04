@@ -196,7 +196,8 @@ public class ApiController {
             return topCollection();
         } else if (id >= SUBJECT_RANGE_START && id <= SUBJECT_RANGE_END) {
             Subject subject = subjectRepository.findById(id - SUBJECT_RANGE_START).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
-            return new CollectionDetailsJson(subject);
+            var statsMap = collectionRepository.collectionStatsMapForSubject(subject.getId());
+            return new CollectionDetailsJson(subject, statsMap);
         } else {
             Collection collection = collectionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
             if (!collection.isDisplayed()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
@@ -485,7 +486,7 @@ public class ApiController {
                 parentId = collection.getParent().getId();
                 parentName = collection.getParent().getName();
             }
-            numberOfItems = collection.getTitleCount(); // FIXME: only count deliverable titles
+            numberOfItems = null;
         }
 
         public LegacyCollectionJson(long id, String name) {
@@ -542,7 +543,7 @@ public class ApiController {
             subcollections = topLevelSubjects.stream().map(CollectionJson::new).toList();
         }
 
-        public CollectionDetailsJson(Subject subject) {
+        public CollectionDetailsJson(Subject subject, Map<Long, CollectionRepository.CollectionCounts> statsMap) {
             super(subject);
             description = subject.getDescription();
             breadcrumbs = buildBreadcrumbList(subject);
@@ -553,7 +554,7 @@ public class ApiController {
                                     .filter(json -> json.numberOfItems == null || json.numberOfItems != 0),
                             subject.getCollections().stream()
                                     .filter(collection -> collection.isDisplayed() && collection.getParent() == null)
-                                    .map(c -> new CollectionJson(c, c.getTitleCount())))
+                                    .map(c -> new CollectionJson(c, statsMap.get(c.getId()).getTitleCount())))
                     .sorted(Comparator.comparing(c -> c.name))
                     .toList();
 

@@ -25,7 +25,6 @@
             <ul>
                 <li th:each="collection : ${collections}">
                     <a th:href="@{/col/{id}(id=${collection.id})}" th:text="${collection.name}"></a>
-                    (<th:block th:text="${collection.titleCount}"></th:block>)
                 </li>
             </ul>
         </div>

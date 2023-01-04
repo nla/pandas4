@@ -40,9 +40,6 @@
                 <ul>
                     <li th:each="collection : ${period.collections}">
                         <a th:href="${@link.to(collection)}" th:text="${collection.fullName}">A collection</a>
-                        <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
-                           th:text="${collection.titleCount}"
-                           href="TitleSearch.html">16</a>
                     </li>
                 </ul>
             </p>

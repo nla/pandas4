@@ -22,16 +22,16 @@ public class CollectionStatsService {
 
     public Stats calculateStats(long collectionId) {
         String sql = """
-                with recursive descendents(COL_ID, ROOT_COL_ID, START_DATE, END_DATE) as
+                with recursive descendents1(COL_ID, ROOT_COL_ID, START_DATE, END_DATE) as
                          (select COL_ID, COL_ID, START_DATE, END_DATE from COL
                           where COL_ID = :collectionId
                           union all
                           select c.COL_ID, d.ROOT_COL_ID, COALESCE(c.START_DATE, d.START_DATE), COALESCE(c.END_DATE, d.END_DATE)
                           from COL c
-                          join descendents d on c.COL_PARENT_ID = d.COL_ID),
+                          join descendents1 d on c.COL_PARENT_ID = d.COL_ID),
                 instanceIds(INSTANCE_ID) as
                     (select distinct i.INSTANCE_ID
-                     from descendents d
+                     from descendents1 d
                      join TITLE_COL tc on tc.COLLECTION_ID = d.COL_ID
                      join INSTANCE i on tc.TITLE_ID = i.TITLE_ID
                      where i.CURRENT_STATE_ID = 1
@@ -67,19 +67,19 @@ public class CollectionStatsService {
 
     public Map<Long, Long> countDescendentTitlesOfChildren(long collectionId) {
         String sql = """
-                with recursive descendents(COL_ID, ROOT_COL_ID) as
+                with recursive descendents2(COL_ID, ROOT_COL_ID) as
                          (select COL_ID, COL_ID from COL
                           where COL_PARENT_ID = :collectionId
                           union all
                           select c.COL_ID, d.ROOT_COL_ID
-                          from COL c join descendents d on c.COL_PARENT_ID = d.COL_ID),
-                     descendent_counts(COL_ID, ROOT_COL_ID, TITLE_COUNT) as
+                          from COL c join descendents2 d on c.COL_PARENT_ID = d.COL_ID),
+                     descendent_counts2(COL_ID, ROOT_COL_ID, TITLE_COUNT) as
                          (select d.COL_ID,
                                  d.ROOT_COL_ID,
                                  (select count(*) from TITLE_COL tc where tc.COLLECTION_ID = d.COL_ID)
-                          from descendents d)
+                          from descendents2 d)
                 select ROOT_COL_ID as id, sum(TITLE_COUNT) as count
-                from descendent_counts
+                from descendent_counts2
                 group by ROOT_COL_ID""";
         var results = entityManager.createNativeQuery(rewriteQuery(sql))
                 .setParameter("collectionId", collectionId)
@@ -99,19 +99,19 @@ public class CollectionStatsService {
 
     public Map<Long, Long> countDescendentTitles(List<Long> collectionIds) {
         String sql = """
-                with recursive descendents(COL_ID, ROOT_COL_ID) as
+                with recursive descendents3(COL_ID, ROOT_COL_ID) as
                          (select COL_ID, COL_ID from COL
                           where COL_ID in :collectionIds
                           union all
                           select c.COL_ID, d.ROOT_COL_ID
-                          from COL c join descendents d on c.COL_PARENT_ID = d.COL_ID),
-                     descendent_counts(COL_ID, ROOT_COL_ID, TITLE_COUNT) as
+                          from COL c join descendents3 d on c.COL_PARENT_ID = d.COL_ID),
+                     descendent_counts3(COL_ID, ROOT_COL_ID, TITLE_COUNT) as
                          (select d.COL_ID,
                                  d.ROOT_COL_ID,
                                  (select count(*) from TITLE_COL tc where tc.COLLECTION_ID = d.COL_ID)
-                          from descendents d)
+                          from descendents3 d)
                 select ROOT_COL_ID as id, sum(TITLE_COUNT) as count
-                from descendent_counts
+                from descendent_counts3
                 group by ROOT_COL_ID""";
         var results = entityManager.createNativeQuery(rewriteQuery(sql))
                 .setParameter("collectionIds", collectionIds)

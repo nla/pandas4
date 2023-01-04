@@ -254,16 +254,6 @@ public class Collection {
         }
     }
 
-    public long getTitleCount() {
-// Temporary removed for Spring 3 upgrade
-//        @Formula("((select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID) +" +
-//                "  (select count(*) from TITLE_COL tc left join COL c on c.COL_ID = tc.COLLECTION_ID where c.COL_PARENT_ID = COL_ID))")
-//        private long titleCount;
-
-        log.warn("FIXME: Collection.getTitleCount() not implemented. Replace this with a proper query");
-        return 0;
-    }
-
     public Thumbnail getThumbnail() {
         return thumbnail;
     }

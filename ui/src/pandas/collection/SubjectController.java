@@ -50,7 +50,8 @@ public class SubjectController {
     public String show(@PathVariable("id") Subject subject, Model model) {
         model.addAttribute("subject", subject);
         model.addAttribute("subcategories", subjectRepository.listSubcategories(subject.getId()));
-        model.addAttribute("collections", collectionRepository.findByParentIsNullAndSubjectsContainsOrderByName(subject));
+        model.addAttribute("collections", collectionRepository.listBySubject(subject));
+        model.addAttribute("collectionStats", collectionRepository.collectionStatsMapForSubject(subject.getId()));
         return "SubjectView";
     }
 
