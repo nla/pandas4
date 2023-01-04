@@ -49,6 +49,7 @@ public class SubjectController {
     @GetMapping("/subjects/{id}")
     public String show(@PathVariable("id") Subject subject, Model model) {
         model.addAttribute("subject", subject);
+        model.addAttribute("subcategories", subjectRepository.listSubcategories(subject.getId()));
         model.addAttribute("collections", collectionRepository.findByParentIsNullAndSubjectsContainsOrderByName(subject));
         return "SubjectView";
     }

@@ -30,10 +30,10 @@
         <th:block th:text="${subject.name}">Dance & Fashion</th:block>
     </h1>
 
-    <section th:unless="${subject.children.isEmpty()}">
-        <h5>Subcategories  (<th:block th:text="${subject.children.size()}"></th:block>)</h5>
+    <section th:unless="${subcategories.isEmpty()}">
+        <h5>Subcategories  (<th:block th:text="${subcategories.size()}"></th:block>)</h5>
         <ul class="subcategories">
-            <li th:each="child: ${subject.children}">
+            <li th:each="child: ${subcategories}">
                 <a th:href="@{/subjects/{id}(id=${child.id})}" th:text="${child.name}"
                    href="SubjectView.html">Ballet</a>
                 <a class="title-count" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"

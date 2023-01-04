@@ -143,18 +143,6 @@ public class Subject {
         return collections;
     }
 
-    // FIXME: Remove this method
-    @Deprecated
-    public long getTitleCount() {
-        return -1;
-    }
-
-    // FIXME: Remove this method
-    @Deprecated
-    public long getCollectionCount() {
-        return -1;
-    }
-
     @JsonIgnore
     public List<Subject> getSubjectBreadcrumbs() {
         List<Subject> breadcrumbs = new ArrayList<>();

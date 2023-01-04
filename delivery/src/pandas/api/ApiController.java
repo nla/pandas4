@@ -454,7 +454,7 @@ public class ApiController {
             id = subject.getId() + SUBJECT_RANGE_START;
             assert id < SUBJECT_RANGE_END;
             name = subject.getName();
-            numberOfItems = subject.getChildren().size() + subject.getCollectionCount();
+            numberOfItems = (long)subject.getChildren().size() + subject.getCollections().size();
             thumbnailCollectionId = null; // FIXME
             thumbnailUrl = null; // FIXME
         }
