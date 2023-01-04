@@ -4,7 +4,7 @@ import pandas.agency.Agency;
 import pandas.agency.User;
 import pandas.collection.PublisherType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity

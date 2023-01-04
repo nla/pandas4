@@ -1,6 +1,6 @@
 package pandas.agency;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * An IP address range that is located in a listed agency area. This is used to restrict access to a title.

@@ -2,7 +2,7 @@ package pandas.collection;
 
 import pandas.gather.GatherSchedule;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;

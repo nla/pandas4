@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
 
-import javax.persistence.QueryHint;
+import jakarta.persistence.QueryHint;
 import java.util.List;
 
 @Repository
@@ -17,11 +17,19 @@ public interface SubjectRepository extends CrudRepository<Subject, Long> {
 
     List<Subject> findByParentIsNullOrderByName();
 
-    @Query("select distinct s from Subject s " +
-            "left join fetch s.children c " +
-            "where s.parent is null order by s.name")
-    @QueryHints({@QueryHint(name = org.hibernate.jpa.QueryHints.HINT_PASS_DISTINCT_THROUGH, value = "false")})
-    List<Subject> topTwoLevels();
+    record SubjectListItem(long id, Long parentId, String name, boolean hasIcon,
+                           long titleCount, long collectionCount) {}
+
+    @Query("""
+        select new pandas.collection.SubjectRepository$SubjectListItem(
+            s.id, p.id, s.name, (s.icon is not null),
+            size(s.titles), size(s.collections))
+        from Subject s
+        left join s.parent p
+        where s.parent is null or p.parent is null
+        order by s.name
+        """)
+    List<SubjectListItem> topTwoLevels();
 
     @Query("select new pandas.collection.SubjectBrief(child.id, child.name,\n" +
            "(select count(*) from Title t where child member of t.subjects and (t.agency = :agency or :agency is null) and " +
@@ -31,4 +39,5 @@ public interface SubjectRepository extends CrudRepository<Subject, Long> {
            "from Subject child where child.parent = :subject\n" +
            "order by name")
     List<SubjectBrief> listChildrenForDelivery(@Param("subject") Subject subject, @Param("agency") Agency agency);
+
 }

@@ -3,7 +3,7 @@ package pandas.agency;
 import org.springframework.web.multipart.MultipartFile;
 import pandas.core.Organisation;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 
 import static info.freelibrary.util.StringUtils.trimToNull;

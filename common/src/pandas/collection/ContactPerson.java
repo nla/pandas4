@@ -3,9 +3,9 @@ package pandas.collection;
 import pandas.core.Individual;
 import pandas.core.Role;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

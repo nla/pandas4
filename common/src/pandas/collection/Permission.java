@@ -2,7 +2,7 @@ package pandas.collection;
 
 import pandas.core.Individual;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.Instant;
 
 /**

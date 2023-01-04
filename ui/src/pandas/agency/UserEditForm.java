@@ -2,7 +2,7 @@ package pandas.agency;
 
 import pandas.core.Role;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import static info.freelibrary.util.StringUtils.trimToNull;
 

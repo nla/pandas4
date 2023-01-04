@@ -1,6 +1,6 @@
 package pandas.discovery;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import static info.freelibrary.util.StringUtils.trimToNull;
 

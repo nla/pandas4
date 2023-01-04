@@ -3,8 +3,8 @@ package pandas.collection;
 import org.springframework.format.annotation.DateTimeFormat;
 import pandas.gather.*;
 
-import javax.persistence.Column;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;

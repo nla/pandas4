@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import pandas.agency.Agency;
 import pandas.agency.User;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Entity

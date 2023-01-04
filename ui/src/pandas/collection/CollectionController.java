@@ -15,8 +15,8 @@ import pandas.gather.GatherScheduleRepository;
 import pandas.gather.GatherService;
 import pandas.search.SearchResults;
 
-import javax.persistence.EntityManager;
-import javax.validation.Valid;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.Valid;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.LinkedHashMap;

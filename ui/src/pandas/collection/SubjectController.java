@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import pandas.core.NotFoundException;
 import pandas.util.ServletUtils;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +31,18 @@ public class SubjectController {
 
     @GetMapping("/subjects")
     public String list(Model model) {
-        model.addAttribute("subjects", subjectRepository.topTwoLevels());
+        var level1 = new ArrayList<SubjectRepository.SubjectListItem>();
+        var level2 = new HashMap<Long,List<SubjectRepository.SubjectListItem>>();
+        for (var item : subjectRepository.topTwoLevels()) {
+            if (item.parentId() == null) {
+                level1.add(item);
+                level2.computeIfAbsent(item.id(), k -> new ArrayList<>());
+            } else {
+                level2.computeIfAbsent(item.parentId(), k -> new ArrayList<>()).add(item);
+            }
+        }
+        model.addAttribute("level1", level1);
+        model.addAttribute("level2", level2);
         return "SubjectList";
     }
 

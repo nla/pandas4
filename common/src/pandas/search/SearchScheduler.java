@@ -1,5 +1,6 @@
 package pandas.search;
 
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Component;
 import pandas.collection.Collection;
 import pandas.collection.Title;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.time.Instant;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class SearchScheduler {
         }
     }
 
-    @Scheduled(fixedDelayString = "${pandas.searchScheduler.incremental.delay:5000}")
+    @Scheduled(fixedDelayString = "${pandas.searchScheduler.incremental.delay:5000}", initialDelayString = "${pandas.searchScheduler.incremental.initialDelay:0}")
     public synchronized void incremental() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         try {

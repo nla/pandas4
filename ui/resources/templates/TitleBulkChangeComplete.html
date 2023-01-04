@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script></head>
 <body>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="_layout.html :: sidebar (activeItem='Titles')"></nav>
 <main>
     <h1>Bulk Change</h1>
 

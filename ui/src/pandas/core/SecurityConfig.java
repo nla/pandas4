@@ -5,12 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +21,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
@@ -31,14 +31,14 @@ import pandas.agency.AgencyRepository;
 import pandas.agency.User;
 import pandas.agency.UserRepository;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri:#{null}}")
@@ -66,32 +66,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    @Bean
+    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        http.securityMatcher("/login/check-session-reply").headers().frameOptions().sameOrigin().and().securityMatcher("/**");
         if (config.getAutologin() != null) {
             PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
             provider.setPreAuthenticatedUserDetailsService(pandasUserDetailsService);
-            auth.authenticationProvider(provider);
+            http.authenticationProvider(provider);
         }
-        if (oidcIssuerUri != null) {
-            super.configure(auth);
-        } else {
-            DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-            authProvider.setUserDetailsService(pandasUserDetailsService);
-            authProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-            auth.authenticationProvider(authProvider);
-        }
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.mvcMatcher("/login/check-session-reply").headers().frameOptions().sameOrigin().and().mvcMatcher("/**");
         if (oidcIssuerUri != null) {
             System.out.println("setting user service");
             http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService())
                     .and().loginPage("/login")
                     .and().logout().logoutUrl("/logout");
             http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+        } else {
+            DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+            authProvider.setUserDetailsService(pandasUserDetailsService);
+            authProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+            http.authenticationProvider(authProvider);
         }
         if (config.getAutologin() != null) {
             UserDetails user = pandasUserDetailsService.loadUserByUsername(config.getAutologin());
@@ -104,29 +97,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     return "dummy-credentials";
                 }
             };
-            filter.setAuthenticationManager(authenticationManager());
+            //filter.setAuthenticationManager(authenticationManager());
             http.addFilterBefore(filter, AnonymousAuthenticationFilter.class);
         }
-        var auth = http.authorizeRequests()
-                .mvcMatchers("/actuator/health").anonymous()
-                .mvcMatchers("/titles/check").permitAll()
-                .mvcMatchers("/login").permitAll()
-                .mvcMatchers("/login/check-session-reply").permitAll()
-                .mvcMatchers("/logout").permitAll()
-                .mvcMatchers("/assets/**").permitAll()
-                .mvcMatchers("/whoami").permitAll()
-                .anyRequest().hasAnyRole("infouser");
+        var auth = http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/actuator/health").anonymous()
+                .requestMatchers("/titles/check").permitAll()
+                .requestMatchers("/login").permitAll()
+                .requestMatchers("/login/check-session-reply").permitAll()
+                .requestMatchers("/logout").permitAll()
+                .requestMatchers("/assets/**").permitAll()
+                .requestMatchers("/whoami").permitAll()
+                .anyRequest().hasAnyRole("infouser"));
         if (oidcIssuerUri != null && clientRegistrationRepository != null) {
-            auth.and().logout().logoutSuccessHandler((request, response, authentication) -> {
+            auth.logout().logoutSuccessHandler((request, response, authentication) -> {
                 OidcClientInitiatedLogoutSuccessHandler handler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
                 handler.setPostLogoutRedirectUri(ServletUriComponentsBuilder.fromContextPath(request).build().toUriString());
                 handler.onLogoutSuccess(request, response, authentication);
             });
         }
         if (oidcIssuerUri == null && config.getAutologin() == null) {
-                auth.and().formLogin().defaultSuccessUrl("/")
+                auth.formLogin().defaultSuccessUrl("/")
                     .and().httpBasic().realmName("PANDAS");
         }
+        return http.build();
     }
 
     @SuppressWarnings("unchecked")

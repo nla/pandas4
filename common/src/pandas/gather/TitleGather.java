@@ -2,6 +2,7 @@ package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SortNatural;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Sortable;
@@ -12,7 +13,9 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmb
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 import pandas.collection.Title;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
 
@@ -100,7 +103,7 @@ public class TitleGather {
 
     @Column(name = "GATHER_COMMAND")
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(Types.LONGVARCHAR)
     private String gatherCommand;
 
     @OneToOne

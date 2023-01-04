@@ -10,7 +10,7 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.core.View;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.sql.Blob;
 import java.util.*;
 
@@ -61,12 +61,6 @@ public class Subject {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "THUMBNAIL_ID")
     private Thumbnail thumbnail;
-
-    @Formula("(select count(*) from SUBJECT_TITLES st where st.SUBJECT_ID = SUBJECT_ID)")
-    private long titleCount;
-
-    @Formula("(select count(*) from COL_SUBS cs where cs.SUBJECT_ID = SUBJECT_ID)")
-    private long collectionCount;
 
     @Lob
     private Blob icon;
@@ -149,12 +143,16 @@ public class Subject {
         return collections;
     }
 
+    // FIXME: Remove this method
+    @Deprecated
     public long getTitleCount() {
-        return titleCount;
+        return -1;
     }
 
+    // FIXME: Remove this method
+    @Deprecated
     public long getCollectionCount() {
-        return collectionCount;
+        return -1;
     }
 
     @JsonIgnore

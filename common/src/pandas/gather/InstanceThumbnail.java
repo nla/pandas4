@@ -2,11 +2,14 @@ package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
+import java.sql.Types;
 import java.time.Instant;
 
 @Entity
@@ -32,7 +35,7 @@ public class InstanceThumbnail {
     private int status;
 
     @Lob
-    @org.hibernate.annotations.Type(type = "org.hibernate.type.ImageType")
+    @JdbcTypeCode(Types.LONGVARBINARY)
     private byte[] data;
 
     @CreatedDate

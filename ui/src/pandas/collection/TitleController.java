@@ -32,11 +32,11 @@ import pandas.util.Requests;
 import pandas.util.SURT;
 import pandas.util.Strings;
 
-import javax.persistence.EntityManager;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;

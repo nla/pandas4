@@ -18,8 +18,8 @@ import pandas.core.View;
 import pandas.gather.Instance;
 import pandas.gather.TitleGather;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDate;

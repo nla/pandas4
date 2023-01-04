@@ -2,7 +2,7 @@ package pandas.collection;
 
 import pandas.agency.User;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity

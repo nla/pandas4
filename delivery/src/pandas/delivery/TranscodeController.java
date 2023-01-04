@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.ServletResponse;
-import javax.validation.constraints.Pattern;
+import jakarta.servlet.ServletResponse;
+import jakarta.validation.constraints.Pattern;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;

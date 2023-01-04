@@ -14,7 +14,7 @@ import pandas.core.NotFoundException;
 import pandas.core.Privileges;
 import pandas.core.Role;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pandas.core.View;
 import pandas.search.SearchResults;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 

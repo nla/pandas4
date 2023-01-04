@@ -7,7 +7,7 @@
     <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="_layout.html :: sidebar (activeItem='Worktrays')"></nav>
 <main>
     <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}/archived')">
     </header>

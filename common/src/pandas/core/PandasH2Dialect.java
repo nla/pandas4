@@ -9,8 +9,8 @@ public class PandasH2Dialect extends H2Dialect {
         super();
 
         // workaround for H2Dialect specifying a length larger than H2's maximum (10248576)
-        if (getTypeName(Types.LONGVARCHAR).equals("varchar(2147483647)")) {
-            registerColumnType(Types.LONGVARCHAR, "varchar($l)");
-        }
+//        if (getTypeName(Types.LONGVARCHAR).equals("varchar(2147483647)")) {
+//            registerColumnType(Types.LONGVARCHAR, "varchar($l)");
+//        }
     }
 }

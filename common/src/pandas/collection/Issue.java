@@ -2,7 +2,7 @@ package pandas.collection;
 
 import pandas.gather.Instance;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * An alternate entry point into a archived instance. This is published in the display system in addition to the

@@ -2,7 +2,7 @@ package pandas.collection;
 
 import pandas.core.Organisation;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import static pandas.util.Strings.emptyToNull;
 

@@ -12,7 +12,7 @@ import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.util.Strings;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;

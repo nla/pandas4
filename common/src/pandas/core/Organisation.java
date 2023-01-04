@@ -11,7 +11,7 @@ import pandas.agency.Agency;
 import pandas.collection.Publisher;
 import pandas.util.Strings;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;

@@ -7,7 +7,7 @@ import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.gather.*;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;

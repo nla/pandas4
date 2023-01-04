@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.collection.Title;
 import pandas.search.SearchResults;
 
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;

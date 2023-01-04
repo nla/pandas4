@@ -12,7 +12,7 @@ import pandas.gather.Instance;
 import pandas.gather.PreviousGather;
 import pandas.util.DateFormats;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.web.util.UriUtils.encodePathSegment;
@@ -79,6 +79,10 @@ public class Link {
 
     public String icon(Subject subject) {
         return to(subject) + "/icon";
+    }
+
+    public String subjectIcon(long subjectId) {
+        return link("/subjects/" + subjectId + "/icon");
     }
 
     public String logo(Agency agency) {

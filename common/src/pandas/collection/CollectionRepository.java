@@ -17,7 +17,7 @@ import java.util.List;
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsIsEmpty();
 
-    @Query("select distinct c from Collection c join c.subjects s where s in (:subjects) order by name")
+    @Query("select distinct c from Collection c join c.subjects s where s in (:subjects) order by c.name")
     List<Collection> findByAnyOfSubjects(@Param("subjects") List<Subject> subject);
 
     @Query("select c from Collection c\n" +

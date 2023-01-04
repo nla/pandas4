@@ -1,9 +1,11 @@
 package pandas.collection;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
 import pandas.agency.Agency;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.sql.Types;
 
 @Entity
 @Table(name = "EMAIL_TEMPLATE")
@@ -25,7 +27,7 @@ public class EmailTemplate {
 
     @Column(name = "TEMPLATE", nullable = true, length = 1000000)
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(Types.LONGVARCHAR)
     private String template;
 
     public Long getId() {

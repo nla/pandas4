@@ -7,7 +7,7 @@
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="_layout.html :: sidebar (activeItem='Discover')"></nav>
 <main class="search">
     <header>
         <nav><a th:href="@{/discovery-sources/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New Source</a></nav>

@@ -1,8 +1,11 @@
 package pandas.gather;
 
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.sql.Types;
 import java.time.Instant;
 
 @Entity
@@ -38,7 +41,7 @@ public class PandasExceptionLog {
 
     @Column(name = "EXCEPTION_DETAIL")
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(Types.LONGVARCHAR)
     private String detail;
 
     public Instant getDate() {

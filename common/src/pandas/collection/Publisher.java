@@ -10,7 +10,7 @@ import pandas.core.Organisation;
 import pandas.core.Role;
 import pandas.core.View;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -112,11 +112,9 @@ public class Publisher {
         this.titles = titles;
     }
 
-    @Formula("(select count(*) from title t where t.publisher_id = publisher_id)")
-    private Long titleCount;
-
     @JsonView(View.Summary.class)
     public Long getTitleCount() {
-        return titleCount;
+        // FIXME: Eagerly load this somehow
+        return (long)titles.size();
     }
 }

@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -19,7 +21,9 @@ import pandas.core.View;
 import pandas.gather.GatherSchedule;
 import pandas.util.TimeFrame;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.sql.Types;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -34,6 +38,7 @@ import java.util.*;
         property = "id")
 @EntityListeners(AuditingEntityListener.class)
 public class Collection {
+    private static final Logger log = LoggerFactory.getLogger(Collection.class);
     public static final Comparator<Collection> COMPARE_BY_FULL_NAME = Comparator.comparing(Collection::getFullName)
             .thenComparing(Collection::getId);
 
@@ -46,7 +51,7 @@ public class Collection {
     private Long id;
 
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(Types.LONGVARCHAR)
     private String displayComment;
     private Integer displayOrder;
     private boolean isDisplayed = true;
@@ -81,10 +86,6 @@ public class Collection {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "THUMBNAIL_ID")
     private Thumbnail thumbnail;
-
-    @Formula("((select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID) +" +
-            "  (select count(*) from TITLE_COL tc left join COL c on c.COL_ID = tc.COLLECTION_ID where c.COL_PARENT_ID = COL_ID))")
-    private long titleCount;
 
     private Instant startDate;
 
@@ -254,7 +255,13 @@ public class Collection {
     }
 
     public long getTitleCount() {
-        return titleCount;
+// Temporary removed for Spring 3 upgrade
+//        @Formula("((select count(*) from TITLE_COL tc where tc.COLLECTION_ID = COL_ID) +" +
+//                "  (select count(*) from TITLE_COL tc left join COL c on c.COL_ID = tc.COLLECTION_ID where c.COL_PARENT_ID = COL_ID))")
+//        private long titleCount;
+
+        log.warn("FIXME: Collection.getTitleCount() not implemented. Replace this with a proper query");
+        return 0;
     }
 
     public Thumbnail getThumbnail() {

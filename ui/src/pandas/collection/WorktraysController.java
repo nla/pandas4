@@ -16,7 +16,7 @@ import pandas.gather.InstanceRepository;
 import pandas.gather.PreviousGather;
 import pandas.report.ReportRepository;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;

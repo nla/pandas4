@@ -21,14 +21,15 @@
         <li><a href="/"><i class="icon back"></i> To PANDAS 3</a></li>
     </ul>
     <ul>
-        <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a th:href="@{/worktrays}"
-                                                                  th:classappend="${#request.servletPath.matches('/worktrays(/.*)?') && !#request.servletPath.matches('/worktrays/[^/]*/gathered')}? 'active'"
-                                                                  href=worktrays/All.html>
+        <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')">
+            <a th:href="@{/worktrays}"
+               th:classappend="${activeItem == 'Worktrays'}? 'active'"
+               href=worktrays/All.html>
             <i class="icon worktrays"></i>
             Worktrays</a>
         <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a
                 th:href="@{/worktrays/gathered}"
-                th:classappend="${#request.servletPath.matches('/worktrays/[^/]*/gathered|/instances/[^/]+/process')}? 'active'"
+                th:classappend="${activeItem == 'QA'}? 'active'"
                 href=worktrays/Gathered.html>
             <i class="icon fact_check"></i>
             QA
@@ -36,40 +37,40 @@
                 <span style="margin-left: auto" th:if="${count > 0}" class="instance-count" th:text="${count}"></span>
             </th:block>
         </a>
-        <li><a th:href="@{/titles}" th:classappend="${#request.servletPath.matches('/titles($|/.*)')}? 'active'"
+        <li><a th:href="@{/titles}" th:classappend="${activeItem == 'Titles'}? 'active'"
                href=TitleSearch.html>
             <i class="icon title"></i>
             Titles</a>
         <li><a th:href="@{/collections}"
                th:class="''"
-               th:classappend="${#request.servletPath.matches('/collections($|/.*)')}? 'active'"
+               th:classappend="${activeItem == 'Collections'}? 'active'"
                class="active"
                href=CollectionSearch.html>
             <i class="icon collection"></i>
             <!--            <i class="icon collection"></i>-->
             Collections</a>
         <li><a th:href="@{/subjects}"
-               th:classappend="${#request.servletPath.matches('/subjects($|/.*)')}? 'active'"
+               th:classappend="${activeItem == 'Subjects'}? 'active'"
                href=SubjectList.html>
             <i class="icon subject"></i>
             Subjects</a>
         <li><a sec:authorize="hasRole('stduser')" th:href="@{/publishers}"
-               th:classappend="${#request.servletPath.matches('/publishers($|/.*)')}? 'active'"
+               th:classappend="${activeItem == 'Publishers'}? 'active'"
                href=PublisherSearch.html>
             <i class="icon publisher"></i>
             Publishers</a></li>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/pages}"
-                                                   th:classappend="${#request.servletPath.matches('/pages($|/.*)')}? 'active'"
+                                                   th:classappend="${activeItem == 'Pages'}? 'active'"
                                                    href=PageSearch.html>
             <i class="icon http"></i>
             Pages</a></li>
         <li sec:authorize="hasRole('panadmin')"><a th:href="@{/discoveries}" href=discovery/DiscoverySearch.html
-                                                   th:classappend="${#request.servletPath.matches('/discoveries($|/.*)')}? 'active'">
+                                                   th:classappend="${activeItem == 'Discover'}? 'active'">
             <i class="icon discovery"></i> Discover</a></li>
     </ul>
 
     <ul>
-        <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${#request.servletPath.matches('/queue')}? 'active'">Gather Queue</a>
+        <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${activeItem == 'Gather Queue'}? 'active'">Gather Queue</a>
         <li><a th:href="@{/statistics}">Statistics</a>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/marcexport}">MARC Export</a>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies</a>

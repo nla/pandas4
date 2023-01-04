@@ -1,6 +1,6 @@
 package pandas.gather;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 public record InstanceEditForm(Boolean isDisplayed, @NotBlank String tepUrl) {
     public static InstanceEditForm of(Instance instance) {

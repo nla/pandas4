@@ -7,7 +7,7 @@
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="_layout.html :: sidebar (activeItem='Titles')"></nav>
 <main>
     <form method=post th:action="@{/titles/bulkchange}" th:object="${form}" id="titleBulkEditForm">
         <header>

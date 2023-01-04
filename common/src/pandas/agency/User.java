@@ -7,7 +7,7 @@ import pandas.collection.Title;
 import pandas.core.Individual;
 import pandas.core.LinkedAccount;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.HashSet;

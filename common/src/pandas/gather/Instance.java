@@ -1,10 +1,13 @@
 package pandas.gather;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import pandas.collection.Title;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.sql.Types;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -78,7 +81,7 @@ public class Instance {
 
     @Column(name = "TEP_URL")
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(Types.LONGVARCHAR)
     private String tepUrl;
 
     @Column(name = "TRANSPORTABLE")
@@ -89,7 +92,7 @@ public class Instance {
 
     @Column(name = "GATHER_COMMAND")
     @Lob
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(Types.LONGVARCHAR)
     private String gatherCommand;
 
     @OneToOne(mappedBy = "instance")

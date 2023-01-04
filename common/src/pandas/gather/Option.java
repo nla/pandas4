@@ -1,6 +1,6 @@
 package pandas.gather;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "COMMAND_LINE_OPT")

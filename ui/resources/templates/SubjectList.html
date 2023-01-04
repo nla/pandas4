@@ -18,25 +18,25 @@
         }
     </style>
 </head>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="_layout.html :: sidebar (activeItem='Subjects')"></nav>
 <main>
     <header>
         <nav><a sec:authorize="hasAuthority('PRIV_EDIT_SUBJECTS')" th:href="@{/subjects/new}" href="SubjectEdit.html" data-keybind=s class="btn btn-primary"><i class="icon add"></i> New Subject</a></nav>
     </header>
     <ul class="subcategories" style="column-count: 3">
-        <li th:each="subject: ${subjects}">
-            <a th:href="@{/subjects/{id}(id=${subject.id})}" href="SubjectView.html">
-                <img th:src="${@link.icon(subject)}" th:if="${subject.icon != null}" height=16px>
-                <th:block th:text="${subject.name}">Arts</th:block>
+        <li th:each="item: ${level1}">
+            <a th:href="@{/subjects/{id}(id=${item.id})}" href="SubjectView.html">
+                <img th:src="${@link.subjectIcon(item.id)}" th:if="${item.hasIcon}" height=16px>
+                <th:block th:text="${item.name}">Arts</th:block>
             </a>
-            <a class="title-count"  th:if="${subject.titleCount > 0}" th:href="@{/titles(subject=${subject.id})}" th:text="${subject.titleCount}"
+            <a class="title-count"  th:if="${item.titleCount > 0}" th:href="@{/titles(subject=${item.id})}" th:text="${item.titleCount}"
                href="TitleSearch.html">123</a>
-            <a class="collection-count" th:if="${subject.collectionCount > 0}"
-               th:href="@{/collections(subject=${subject.id})}" th:text="${subject.collectionCount}"
+            <a class="collection-count" th:if="${item.collectionCount > 0}"
+               th:href="@{/collections(subject=${item.id})}" th:text="${item.collectionCount}"
                href="CollectionSearch.html">16</a>
 
             <ul style="list-style-type: none">
-                <li th:each="child: ${subject.children}">
+                <li th:each="child: ${level2.get(item.id)}">
                     <a th:href="@{/subjects/{id}(id=${child.id})}" th:text="${child.name}"
                        href="SubjectView.html">Dance</a>
                     <a class="title-count" th:if="${child.titleCount > 0}" th:href="@{/titles(subject=${child.id})}" th:text="${child.titleCount}"
