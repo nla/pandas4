@@ -7,8 +7,9 @@ import java.util.Objects;
 @Table(name = "PERMISSION_TYPE")
 public class PermissionType {
     @Id
-    @GeneratedValue
     @Column(name = "PERMISSION_TYPE_ID", nullable = false, precision = 0)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "PERMISSION_TYPE_SEQ")
+    @SequenceGenerator(name = "PERMISSION_TYPE_SEQ", sequenceName = "PERMISSION_TYPE_SEQ", allocationSize = 1)
     private Long id;
 
     @Column(name = "PERMISSION_TYPE", nullable = false, length = 256)

@@ -13,8 +13,9 @@ public class CopyrightType {
     private String name;
 
     @Id
-    @GeneratedValue
     @Column(name = "COPYRIGHT_TYPE_ID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "COPYRIGHT_TYPE_SEQ")
+    @SequenceGenerator(name = "COPYRIGHT_TYPE_SEQ", sequenceName = "COPYRIGHT_TYPE_SEQ", allocationSize = 1)
     public Long getId() {
         return id;
     }

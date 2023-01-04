@@ -12,8 +12,9 @@ public class PermissionState {
     public static final String UNKNOWN = "Unknown";
 
     @Id
-    @GeneratedValue
     @Column(name = "PERMISSION_STATE_ID", nullable = false, precision = 0)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "PERMISSION_STATE_SEQ")
+    @SequenceGenerator(name = "PERMISSION_STATE_SEQ", sequenceName = "PERMISSION_STATE_SEQ", allocationSize = 1)
     private Long id;
 
     @Column(name = "PERMISSION_STATE", nullable = false, length = 256)
