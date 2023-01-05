@@ -96,6 +96,9 @@ public class GatherManager implements AutoCloseable {
 					!currentlyGatheringHosts.containsKey(title.getPrimarySeedHost())) {
 //					currentlyGatheringTitles.put(title.getId(), threadName);
 //					currentlyGatheringHosts.put(title.getPrimarySeedHost(), threadName);
+					if (title.getGather().getNextGatherDate().isAfter(Instant.now())) {
+						System.err.println("WARNING: Not actually before nextGatherDate!");
+					}
 					System.err.println("Wanted to start " + title.getHumanId() + " NEXT=" +
 									   title.getGather().getNextGatherDate() + " NOW=" +
 									   Instant.now());
