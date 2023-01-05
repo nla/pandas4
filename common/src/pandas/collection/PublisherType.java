@@ -28,6 +28,15 @@ public class PublisherType {
     @Column(name = "DOMAIN_SUFFIXES")
     private String domainSuffixes;
 
+    public PublisherType() {
+    }
+
+    public PublisherType(String name, String description, String domainSuffixes) {
+        this.name = name;
+        this.description = description;
+        this.domainSuffixes = domainSuffixes;
+    }
+
     public String getDescription() {
         return this.description;
     }

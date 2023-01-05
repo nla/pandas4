@@ -7,10 +7,8 @@ import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.agency.User;
 import pandas.agency.UserRepository;
+import pandas.collection.*;
 import pandas.collection.Format;
-import pandas.collection.FormatRepository;
-import pandas.collection.Status;
-import pandas.collection.StatusRepository;
 import pandas.gather.*;
 
 import javax.annotation.PostConstruct;
@@ -25,17 +23,19 @@ public class DatabaseInit {
     private final FormatRepository formatRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
+    private final PublisherTypeRepository publisherTypeRepository;
     private final ScopeRepository scopeRepository;
     private final StateRepository stateRepository;
     private final StatusRepository statusRepository;
     private final UserRepository userRepository;
     private final FlywayConfig flywayConfig;
 
-    public DatabaseInit(AgencyRepository agencyRepository, FormatRepository formatRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, ScopeRepository scopeRepository, StateRepository stateRepository, StatusRepository statusRepository, UserRepository userRepository, FlywayConfig flywayConfig) {
+    public DatabaseInit(AgencyRepository agencyRepository, FormatRepository formatRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, PublisherTypeRepository publisherTypeRepository, ScopeRepository scopeRepository, StateRepository stateRepository, StatusRepository statusRepository, UserRepository userRepository, FlywayConfig flywayConfig) {
         this.agencyRepository = agencyRepository;
         this.formatRepository = formatRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
+        this.publisherTypeRepository = publisherTypeRepository;
         this.scopeRepository = scopeRepository;
         this.stateRepository = stateRepository;
         this.statusRepository = statusRepository;
@@ -85,6 +85,18 @@ public class DatabaseInit {
             statusRepository.saveAll(Stream.of("nominated", "rejected", "selected", "monitored", "permission requested",
                     "permission denied", "permission granted", "permission impossible", "reserved9", "reserved10",
                     "ceased").map(Status::new).toList());
+        }
+
+        if (publisherTypeRepository.count() == 0) {
+            log.info("Populating publisher_type table");
+            publisherTypeRepository.saveAll(List.of(
+                    new PublisherType("Government", "Government bodies and agencies", ".gov.au"),
+                    new PublisherType("Organisation", "Organisations can be public or private bodies that provide non-commercial material.", ".asn.au .org .org.au"),
+                    new PublisherType("Education", "Educational Institutions", ".csiro.au .edu .edu.au"),
+                    new PublisherType("Commercial", "Commercial bodies provide material on a cost basis.", ".com .com.au .net .net.au"),
+                    new PublisherType("Personal", "Individual", ".id.au"),
+                    new PublisherType("Other", "Use when unknown", "")
+            ));
         }
 
         if (agencyRepository.count() == 0) {
