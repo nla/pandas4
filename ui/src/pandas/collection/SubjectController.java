@@ -51,7 +51,7 @@ public class SubjectController {
         model.addAttribute("subject", subject);
         model.addAttribute("subcategories", subjectRepository.listSubcategories(subject.getId()));
         model.addAttribute("collections", collectionRepository.listBySubject(subject));
-        model.addAttribute("collectionStats", collectionRepository.collectionStatsMapForSubject(subject.getId()));
+        model.addAttribute("titleCountByCollectionId", collectionRepository.countTitlesForCollectionsInSubject(subject.getId()));
         return "SubjectView";
     }
 

@@ -1,23 +1,24 @@
 package pandas.collection;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.io.FileUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryRewriter;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
 import pandas.agency.User;
+import pandas.core.WithRecursiveQueryRewriter;
 import pandas.util.TimeFrame;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 @Repository
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
@@ -99,10 +100,13 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
 
     Page<Collection> findByIdBetween(long startId, long endId, Pageable pageable);
 
-    interface CollectionCounts{
+    interface TitleCount {
         long getId();
         long getTitleCount();
-        long childCount();
+
+        private static Map<Long, Long> toMap(List<TitleCount> list) {
+            return list.stream().collect(Collectors.toMap(TitleCount::getId, TitleCount::getTitleCount));
+        }
     }
 
     @Query(value = """
@@ -114,35 +118,108 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
             select c.COL_ID, d.ROOT_COL_ID, (select count(*) from TITLE_COL tc where tc.COLLECTION_ID = c.COL_ID) as TITLE_COUNT
             from COL c
             join cte1 d on c.COL_PARENT_ID = d.COL_ID)
-        select ROOT_COL_ID as id, SUM(TITLE_COUNT) as titleCount, COUNT(*) - 1 as childCount
+        select ROOT_COL_ID as id, SUM(TITLE_COUNT) as titleCount
         from cte1
         group by ROOT_COL_ID
-""", nativeQuery = true, queryRewriter = WithRecursiveRewriter.class)
-    List<CollectionCounts> collectionCountsForSubject(@Param("subjectId") long subjectId);
+""", nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+    List<TitleCount> countTitlesForCollectionsInSubject0(@Param("subjectId") long subjectId);
 
-    default Map<Long, CollectionCounts> collectionStatsMapForSubject(long subjectId) {
-        var collectionStats = new HashMap<Long, CollectionRepository.CollectionCounts>();
-        collectionCountsForSubject(subjectId)
-                .forEach(count -> collectionStats.put(count.getId(), count));
-        return collectionStats;
+    /**
+     * Returns a map of collection id to title count for all collections in the given subject. The title count
+     * includes titles in sub-collections.
+     */
+    default Map<Long, Long> countTitlesForCollectionsInSubject(long subjectId) {
+        return TitleCount.toMap(countTitlesForCollectionsInSubject0(subjectId));
     }
 
-    @Component
-    class WithRecursiveRewriter implements QueryRewriter {
+    @Query(value = """
+                with recursive descendents2(COL_ID, ROOT_COL_ID) as
+                         (select COL_ID, COL_ID from COL
+                          where COL_PARENT_ID = :collectionId
+                          union all
+                          select c.COL_ID, d.ROOT_COL_ID
+                          from COL c join descendents2 d on c.COL_PARENT_ID = d.COL_ID),
+                     descendent_counts2(COL_ID, ROOT_COL_ID, TITLE_COUNT) as
+                         (select d.COL_ID,
+                                 d.ROOT_COL_ID,
+                                 (select count(*) from TITLE_COL tc where tc.COLLECTION_ID = d.COL_ID)
+                          from descendents2 d)
+                select ROOT_COL_ID as id, sum(TITLE_COUNT) as titleCount
+                from descendent_counts2
+                group by ROOT_COL_ID""", nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+    List<TitleCount> countTitlesForChildCollections0(@Param("collectionId") long collectionId);
 
-        private final boolean databaseIsOracle;
+    /**
+     * Returns a map of collection id to title count for all child collections of the given collection. The title count
+     * includes titles belonging to sub-collections.
+     */
+    default Map<Long, Long> countTitlesForChildCollections(long collectionId) {
+        return TitleCount.toMap(countTitlesForChildCollections0(collectionId));
+    }
 
-        public WithRecursiveRewriter(@Value("${spring.datasource.url}") String jdbcUrl) {
-            databaseIsOracle = jdbcUrl.startsWith("jdbc:oracle:");
+    @Query(value = """
+        with recursive descendents3(COL_ID, ROOT_COL_ID) as
+                 (select COL_ID, COL_ID from COL
+                  where COL_ID in :collectionIds
+                  union all
+                  select c.COL_ID, d.ROOT_COL_ID
+                  from COL c join descendents3 d on c.COL_PARENT_ID = d.COL_ID),
+             descendent_counts3(COL_ID, ROOT_COL_ID, TITLE_COUNT) as
+                 (select d.COL_ID,
+                         d.ROOT_COL_ID,
+                         (select count(*) from TITLE_COL tc where tc.COLLECTION_ID = d.COL_ID)
+                  from descendents3 d)
+        select ROOT_COL_ID as id, sum(TITLE_COUNT) as titleCount
+        from descendent_counts3
+        group by ROOT_COL_ID""", nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+    List<TitleCount> countTitlesForCollections0(@Param("collectionIds") List<Long> collectionIds);
+
+    /**
+     * Returns a map of collection id to title count for the given collections. The title count includes titles belonging
+     * to sub-collections.
+     */
+    default Map<Long, Long> countTitlesForCollections(List<Long> collectionIds) {
+        return TitleCount.toMap(countTitlesForCollections0(collectionIds));
+    }
+
+    interface CollectionStats {
+        long getTitleCount();
+        long getInstanceCount();
+        long getGatheredBytes();
+        long getGatheredFiles();
+
+        default String line1() {
+            return String.format("%,d titles, %,d instances", getTitleCount(), getInstanceCount());
         }
 
-        @Override
-        public String rewrite(String query, Sort sort) {
-            if (databaseIsOracle) {
-                return query.replace("with recursive ", "with ");
-            } else {
-                return query;
-            }
+        default String line2() {
+            return String.format("%,d files, %s", getGatheredFiles(), FileUtils.byteCountToDisplaySize(getGatheredBytes()));
         }
     }
+
+    @Query(value = """
+         with recursive descendents1(COL_ID, ROOT_COL_ID, START_DATE, END_DATE) as
+                         (select COL_ID, COL_ID, START_DATE, END_DATE from COL
+                          where COL_ID = :collectionId
+                          union all
+                          select c.COL_ID, d.ROOT_COL_ID, COALESCE(c.START_DATE, d.START_DATE), COALESCE(c.END_DATE, d.END_DATE)
+                          from COL c
+                          join descendents1 d on c.COL_PARENT_ID = d.COL_ID),
+                instanceIds(INSTANCE_ID) as
+                    (select distinct i.INSTANCE_ID
+                     from descendents1 d
+                     join TITLE_COL tc on tc.COLLECTION_ID = d.COL_ID
+                     join INSTANCE i on tc.TITLE_ID = i.TITLE_ID
+                     where i.CURRENT_STATE_ID = 1
+                       and (d.START_DATE is null or i.INSTANCE_DATE >= d.START_DATE)
+                       and (d.END_DATE is null or i.INSTANCE_DATE <= d.END_DATE))
+                select coalesce(count(distinct i.TITLE_ID), 0) as titleCount,
+                       coalesce(count(*), 0) as instanceCount,
+                       coalesce(sum(ig.GATHER_SIZE), 0) as gatheredBytes,
+                       coalesce(sum(ig.GATHER_FILES), 0) as gatheredFiles
+                from instanceIds i2
+                join INSTANCE i on i.INSTANCE_ID = i2.INSTANCE_ID
+                join INS_GATHER ig on i.INSTANCE_ID = ig.INSTANCE_ID""",
+            nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+    CollectionStats calculateCollectionStats(long collectionId);
 }

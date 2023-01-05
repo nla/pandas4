@@ -196,8 +196,8 @@ public class ApiController {
             return topCollection();
         } else if (id >= SUBJECT_RANGE_START && id <= SUBJECT_RANGE_END) {
             Subject subject = subjectRepository.findById(id - SUBJECT_RANGE_START).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
-            var statsMap = collectionRepository.collectionStatsMapForSubject(subject.getId());
-            return new CollectionDetailsJson(subject, statsMap);
+            var titleCountByCollectionId = collectionRepository.countTitlesForCollectionsInSubject(subject.getId());
+            return new CollectionDetailsJson(subject, titleCountByCollectionId);
         } else {
             Collection collection = collectionRepository.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such collection"));
             if (!collection.isDisplayed()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
@@ -543,7 +543,7 @@ public class ApiController {
             subcollections = topLevelSubjects.stream().map(CollectionJson::new).toList();
         }
 
-        public CollectionDetailsJson(Subject subject, Map<Long, CollectionRepository.CollectionCounts> statsMap) {
+        public CollectionDetailsJson(Subject subject, Map<Long, Long> titleCountByCollectionId) {
             super(subject);
             description = subject.getDescription();
             breadcrumbs = buildBreadcrumbList(subject);
@@ -554,7 +554,7 @@ public class ApiController {
                                     .filter(json -> json.numberOfItems == null || json.numberOfItems != 0),
                             subject.getCollections().stream()
                                     .filter(collection -> collection.isDisplayed() && collection.getParent() == null)
-                                    .map(c -> new CollectionJson(c, statsMap.get(c.getId()).getTitleCount())))
+                                    .map(c -> new CollectionJson(c, titleCountByCollectionId.get(c.getId()))))
                     .sorted(Comparator.comparing(c -> c.name))
                     .toList();
 

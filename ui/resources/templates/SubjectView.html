@@ -48,12 +48,12 @@
     <section th:unless="${collections.isEmpty()}">
         <h5>Collections (<th:block th:text="${collections.size()}"></th:block>)</h5>
         <ul class="subcategories">
-            <li th:each="collection: ${collections}" th:with="stats=${collectionStats.get(collection.id)}">
+            <li th:each="collection: ${collections}">
                 <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.name}"
                    href="CollectionView.html">2016 Adelaide Fringe Festival</a>
                 <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
                 <a class="title-count" th:href="@{/titles(collection=${collection.id})}"
-                   th:text="${stats.titleCount}"
+                   th:text="${titleCountByCollectionId.get(collection.id)}"
                    href="TitleSearch.html">16</a>
             </li>
         </ul>
