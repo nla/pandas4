@@ -79,9 +79,10 @@ public class GatherManager implements AutoCloseable {
 			for (Instance instance : instanceRepository.findIncomplete(gatherMethod)) {
 				if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId()) &&
 					!currentlyGatheringHosts.containsKey(instance.getTitle().getPrimarySeedHost())) {
-					currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
-					currentlyGatheringHosts.put(instance.getTitle().getPrimarySeedHost(), threadName);
-					return instance;
+//					currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
+//					currentlyGatheringHosts.put(instance.getTitle().getPrimarySeedHost(), threadName);
+					System.err.println("Wanted to resume " + instance.getHumanId());
+					break;
 				}
 			}
 
@@ -93,9 +94,11 @@ public class GatherManager implements AutoCloseable {
 			for (Title title : titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
 				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
 					!currentlyGatheringHosts.containsKey(title.getPrimarySeedHost())) {
-					currentlyGatheringTitles.put(title.getId(), threadName);
-					currentlyGatheringHosts.put(title.getPrimarySeedHost(), threadName);
-					return instanceService.createInstance(gatherMethod, title);
+//					currentlyGatheringTitles.put(title.getId(), threadName);
+//					currentlyGatheringHosts.put(title.getPrimarySeedHost(), threadName);
+					System.err.println("Wanted to start " + title.getHumanId());
+					break;
+//					return instanceService.createInstance(gatherMethod, title);
 				}
 			}
 
