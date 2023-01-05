@@ -91,7 +91,7 @@ public class GatherManager implements AutoCloseable {
 			//      this is to ensure that we don't generate an instance with the same datestring
 			//      as a previous one.
 			Instant startOfThisMinute = LocalDateTime.now().withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
-			for (Title title : titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
+			for (Title title : titleRepository.fetchNewGathers(gatherMethod, new Date(), startOfThisMinute)) {
 				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
 					!currentlyGatheringHosts.containsKey(title.getPrimarySeedHost())) {
 //					currentlyGatheringTitles.put(title.getId(), threadName);
