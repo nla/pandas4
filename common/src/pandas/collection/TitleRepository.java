@@ -10,7 +10,6 @@ import pandas.agency.Agency;
 import pandas.agency.User;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +35,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     @Query("select t from Title t where t.gather.method.name = :gatherMethod and t.gather.nextGatherDate < :now and " +
             "(t.gather.lastGatherDate is null or t.gather.lastGatherDate < :startOfThisMinute)")
-    List<Title> fetchNewGathers(String gatherMethod, Date now, Instant startOfThisMinute);
+    List<Title> fetchNewGathers(String gatherMethod, Instant now, Instant startOfThisMinute);
 
     String PUBLISH_CONDITIONS = "t.agency.id <> 3\n" +
             "and t.status.name not in ('nominated', 'monitored', 'rejected')\n" +
