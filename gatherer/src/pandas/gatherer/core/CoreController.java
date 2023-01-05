@@ -24,7 +24,8 @@ public class CoreController {
         String action = gatherManager.isPaused() ? "unpause" :  "pause";
         return "pandas-gatherer " + (gatherManager.isPaused() ? "pausing new gathers" : "running") +
                 "<br><form action=" + action + " method=post><button type=submit>" + action + " new gathers</button></form>" +
-                "<br>Currently gathering titles: " + gatherManager.getCurrentTitles();
+                "<br>Currently gathering titles: " + gatherManager.getCurrentTitles() +
+                "<br>Currently gathering hosts: " + gatherManager.getCurrentHosts();
     }
 
     @PostMapping("/pause")

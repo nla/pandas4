@@ -25,6 +25,7 @@ public class GatherManager implements AutoCloseable {
 	private static final Logger log = LoggerFactory.getLogger(GatherManager.class);
 	private final Map<Long, String> currentlyGatheringTitles = new ConcurrentHashMap<>(); // pi -> thread name
 	private final Map<Long, String> currentInstances = new ConcurrentHashMap<>(); // instance id -> thread name
+	private final Map<String, String> currentlyGatheringHosts = new ConcurrentHashMap<>(); // site -> thread name
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private volatile boolean systemShutDown;
 	private final List<Backend> backends = new ArrayList<>();
@@ -76,8 +77,10 @@ public class GatherManager implements AutoCloseable {
 		synchronized (pollingLock) {
 			// first consider incomplete instances
 			for (Instance instance : instanceRepository.findIncomplete(gatherMethod)) {
-				if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId())) {
+				if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId()) &&
+					!currentlyGatheringHosts.containsKey(instance.getTitle().getPrimarySeedHost())) {
 					currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
+					currentlyGatheringHosts.put(instance.getTitle().getPrimarySeedHost(), threadName);
 					return instance;
 				}
 			}
@@ -88,8 +91,10 @@ public class GatherManager implements AutoCloseable {
 			//      as a previous one.
 			Instant startOfThisMinute = LocalDateTime.now().withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
 			for (Title title : titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
-				if (!currentlyGatheringTitles.containsKey(title.getId())) {
+				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
+					!currentlyGatheringHosts.containsKey(title.getPrimarySeedHost())) {
 					currentlyGatheringTitles.put(title.getId(), threadName);
+					currentlyGatheringHosts.put(title.getPrimarySeedHost(), threadName);
 					return instanceService.createInstance(gatherMethod, title);
 				}
 			}
@@ -104,6 +109,7 @@ public class GatherManager implements AutoCloseable {
 	 */
 	void gathererFinished(String threadName) {
 		currentlyGatheringTitles.entrySet().removeIf(e -> threadName.equals(e.getValue()));
+		currentlyGatheringHosts.entrySet().removeIf(e -> threadName.equals(e.getValue()));
 		currentInstances.entrySet().removeIf(e -> threadName.equals(e.getValue()));
 	}
 
@@ -216,6 +222,11 @@ public class GatherManager implements AutoCloseable {
 	public Set<Long> getCurrentTitles() {
 		return Collections.unmodifiableSet(currentlyGatheringTitles.keySet());
 	}
+
+	public Set<String> getCurrentHosts() {
+		return Collections.unmodifiableSet(currentlyGatheringHosts.keySet());
+	}
+
 
 	public Set<Long> getCurrentInstances() {
 		return Collections.unmodifiableSet(currentInstances.keySet());

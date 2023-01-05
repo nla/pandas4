@@ -20,6 +20,9 @@ import pandas.gather.TitleGather;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -358,6 +361,14 @@ public class Title {
         }
     }
 
+    public String getPrimarySeedHost() {
+        try {
+            URI uri = new URI(getPrimarySeedUrl());
+            return uri.getHost();
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
     public Agency getAgency() {
         return agency;
     }

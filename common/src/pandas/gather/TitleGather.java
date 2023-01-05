@@ -15,6 +15,8 @@ import pandas.collection.Title;
 
 import jakarta.persistence.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
