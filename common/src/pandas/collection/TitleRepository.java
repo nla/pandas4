@@ -33,8 +33,8 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     List<Title> findBulkTitles(Instant now);
 
 
-    @Query("select t from Title t where t.gather.method.name = :gatherMethod and t.gather.nextGatherDate < :now and " +
-            "(t.gather.lastGatherDate is null or t.gather.lastGatherDate < :startOfThisMinute)")
+    @Query("select t from Title t where t.gather.method.name = ?1 and t.gather.nextGatherDate < ?2 and " +
+            "(t.gather.lastGatherDate is null or t.gather.lastGatherDate < ?3)")
     List<Title> fetchNewGathers(String gatherMethod, Instant now, Instant startOfThisMinute);
 
     String PUBLISH_CONDITIONS = "t.agency.id <> 3\n" +
