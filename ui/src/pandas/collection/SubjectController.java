@@ -23,10 +23,12 @@ import java.util.Optional;
 public class SubjectController {
     private final SubjectRepository subjectRepository;
     private final CollectionRepository collectionRepository;
+    private final TitleRepository titleRepository;
 
-    public SubjectController(SubjectRepository subjectRepository, CollectionRepository collectionRepository) {
+    public SubjectController(SubjectRepository subjectRepository, CollectionRepository collectionRepository, TitleRepository titleRepository) {
         this.subjectRepository = subjectRepository;
         this.collectionRepository = collectionRepository;
+        this.titleRepository = titleRepository;
     }
 
     @GetMapping("/subjects")
@@ -52,6 +54,7 @@ public class SubjectController {
         model.addAttribute("subcategories", subjectRepository.listSubcategories(subject.getId()));
         model.addAttribute("collections", collectionRepository.listBySubject(subject));
         model.addAttribute("titleCountByCollectionId", collectionRepository.countTitlesForCollectionsInSubject(subject.getId()));
+        model.addAttribute("titles", titleRepository.listBySubject(subject));
         return "SubjectView";
     }
 

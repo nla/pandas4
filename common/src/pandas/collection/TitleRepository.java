@@ -188,4 +188,18 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
                    or title.id in (select issue.instance.title.id from Issue issue where issue.url = :url)
             """)
     List<Title> findByUrl(@Param("url") String url);
+
+    interface TitleListItem {
+        long getId();
+        String getName();
+    }
+
+    @Query("""
+            select t.id as id, t.name as name
+            from Title t
+            join t.subjects s
+            where :subject = s
+            order by t.name
+            """)
+    List<TitleListItem> listBySubject(Subject subject);
 }
