@@ -18,7 +18,7 @@
         fetch(pandasUrl + "/titles/check?url=" + encodeURIComponent(url))
             .then(r => r.json())
             .then(titles => {
-                let div = document.createElement('div');
+                let div = document.createElement('span');
                 if (titles.length === 0) {
                     let a = document.createElement("a");
                     a.innerText = "[New Title]";
@@ -33,13 +33,14 @@
                         div.appendChild(document.createElement("br"));
                     })
                 }
-                let div2 = document.createElement('div');
+                let div2 = document.createElement('span');
+                div2.style.display = 'block';
+                div.style.display = 'block';
                 div2.classList.add('pandas-div');
-                div2.innerHTML = '';
                 div2.appendChild(div);
                 let container = link.parentNode;
                 if (location.host === 'www.bing.com') {
-                    container.insertBefore(div2, link.nextSibling ? link.nextSibling.nextSibling : null);
+                    console.log(container.insertBefore(div2, null));
                 } else {
                     container.insertBefore(div2, container.childNodes[0].nextSibling);
                 }
