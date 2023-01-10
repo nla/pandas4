@@ -1,5 +1,6 @@
 package pandas.gatherer.core;
 
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -7,7 +8,6 @@ import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.gather.*;
 
-import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -77,10 +77,15 @@ public class GatherManager implements AutoCloseable {
 		synchronized (pollingLock) {
 			// first consider incomplete instances
 			for (Instance instance : instanceRepository.findIncomplete(gatherMethod)) {
+				String primarySeedHost = instance.getTitle().getPrimarySeedHost();
+				if (primarySeedHost == null) {
+					log.warn("Title.getPrimarySeedHost() returned null for instance {}", instance.getHumanId());
+					primarySeedHost = "unknown";
+				}
 				if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId()) &&
 					!currentlyGatheringHosts.containsKey(instance.getTitle().getPrimarySeedHost())) {
 					currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
-					currentlyGatheringHosts.put(instance.getTitle().getPrimarySeedHost(), threadName);
+					currentlyGatheringHosts.put(primarySeedHost, threadName);
 					return instance;
 				}
 			}
@@ -91,10 +96,15 @@ public class GatherManager implements AutoCloseable {
 			//      as a previous one.
 			Instant startOfThisMinute = LocalDateTime.now().withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
 			for (Title title : titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
+				String primarySeedHost = title.getPrimarySeedHost();
+				if (primarySeedHost == null) {
+					log.warn("Title.getPrimarySeedHost() returned null for title {}", title.getHumanId());
+					primarySeedHost = "unknown";
+				}
 				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
 					!currentlyGatheringHosts.containsKey(title.getPrimarySeedHost())) {
 					currentlyGatheringTitles.put(title.getId(), threadName);
-					currentlyGatheringHosts.put(title.getPrimarySeedHost(), threadName);
+					currentlyGatheringHosts.put(primarySeedHost, threadName);
 					return instanceService.createInstance(gatherMethod, title);
 				}
 			}
