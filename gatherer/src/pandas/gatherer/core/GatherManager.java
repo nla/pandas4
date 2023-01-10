@@ -83,7 +83,7 @@ public class GatherManager implements AutoCloseable {
 					primarySeedHost = "unknown";
 				}
 				if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId()) &&
-					!currentlyGatheringHosts.containsKey(instance.getTitle().getPrimarySeedHost())) {
+					!currentlyGatheringHosts.containsKey(primarySeedHost)) {
 					currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
 					currentlyGatheringHosts.put(primarySeedHost, threadName);
 					return instance;
@@ -102,7 +102,7 @@ public class GatherManager implements AutoCloseable {
 					primarySeedHost = "unknown";
 				}
 				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
-					!currentlyGatheringHosts.containsKey(title.getPrimarySeedHost())) {
+					!currentlyGatheringHosts.containsKey(primarySeedHost)) {
 					currentlyGatheringTitles.put(title.getId(), threadName);
 					currentlyGatheringHosts.put(primarySeedHost, threadName);
 					return instanceService.createInstance(gatherMethod, title);
