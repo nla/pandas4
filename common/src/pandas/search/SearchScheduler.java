@@ -143,12 +143,17 @@ public class SearchScheduler {
 
     private void incrementallyIndexInstances(EntityManager entityManager, SearchSession session, SearchIndexingPlan indexingPlan) {
         if (lastIndexedInstanceDate == null) {
-            var hits = session.search(Instance.class).where(f -> f.exists().field("lastModifiedDate"))
+            var hits = session.search(Instance.class)
+                    .select(f -> f.composite(
+                            f.field("lastModifiedDate", Instant.class),
+                            f.id()
+                    ))
+                    .where(f -> f.exists().field("lastModifiedDate"))
                     .sort(f -> f.field("lastModifiedDate").desc())
                     .fetch(1)
                     .hits();
-            lastIndexedInstanceDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
-            lastInstanceId = hits.isEmpty() ? -1 : hits.get(0).getId();
+            lastIndexedInstanceDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : (Instant)hits.get(0).get(0);
+            lastInstanceId = hits.isEmpty() ? -1 : (Long)hits.get(0).get(1);
             log.info("Resuming incremental instance indexing from {}, {}", lastIndexedInstanceDate, lastInstanceId);
         }
 

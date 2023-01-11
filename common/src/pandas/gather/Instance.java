@@ -4,6 +4,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.engine.backend.types.Projectable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
@@ -128,7 +129,7 @@ public class Instance {
     @JoinColumn(name="PROFILE_ID")
     private Profile profile;
 
-    @GenericField(sortable = Sortable.YES)
+    @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private Instant lastModifiedDate;
