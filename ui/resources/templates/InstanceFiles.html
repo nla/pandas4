@@ -13,7 +13,7 @@
             height: 100vh;
         }
 
-        .facets {
+        .filters {
             overflow: auto;
         }
 
@@ -96,7 +96,7 @@
         <button type="submit" style="display: none"></button>
     </form>
 
-    <aside class="facets" th:replace="TitleSearch.html :: facets">
+    <aside class="filters" th:replace="TitleSearch.html :: filters">
         <header>
             <h3>Status</h3>
             <button class="btn btn-primary" id="filter-clear-button">Clear</button>

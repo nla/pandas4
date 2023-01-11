@@ -140,7 +140,7 @@ public class TitleController {
         model.addAttribute("q", params.getFirst("q"));
         model.addAttribute("sort", params.getFirst("sort"));
         model.addAttribute("orderings", titleSearcher.getOrderings().keySet());
-        model.addAttribute("facets", results.getFacets());
+        model.addAttribute("filters", results.getFacets());
         return "TitleSearch";
     }
 

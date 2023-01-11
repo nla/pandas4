@@ -27,21 +27,21 @@
  * Filters
  */
 
-.facets {
+.filters {
     grid-area: facets;
 }
 
-.facets h3 {
+.filters h3 {
     margin: 8px 8px;
 }
 
-.facets > header {
+.filters > header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
 }
 
-.facets > details {
+.filters > details {
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
     border: 1px solid rgba(0, 0, 0, 0.125);
@@ -49,14 +49,14 @@
     padding: 0;
 }
 
-.facets > details > summary {
+.filters > details > summary {
     padding: .5rem;
     font-weight: bold;
     user-select: none;
     cursor: pointer;
 }
 
-.facets > details > summary > input {
+.filters > details > summary > input {
     float: right;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
@@ -69,23 +69,23 @@
     margin-left: 8px;
 }
 
-.facets > details > summary:after {
+.filters > details > summary:after {
     content: "";
     display: block;
     clear: both;
 }
 
-.facets > details[open] > summary {
+.filters > details[open] > summary {
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.facets > details[open] > summary > input {
+.filters > details[open] > summary > input {
     opacity: 1;
     visibility: visible;
     transition: opacity 0.2s;
 }
 
-.facets > details > fieldset {
+.filters > details > fieldset {
     padding: 0.5rem;
     overflow-y: auto;
     max-height: 200px;
@@ -93,17 +93,17 @@
     border: 0;
 }
 
-.facets > details > fieldset > label {
+.filters > details > fieldset > label {
     display: block;
 }
 
-.facets > details > fieldset.date-range {
+.filters > details > fieldset.date-range {
     display: grid;
     grid-gap: 0.5rem;
     grid-template-columns: auto auto;
     align-items: center;
 }
 
-.facets input[type=date] {
+.filters input[type=date] {
     /*@extend .form-control;*/
 }

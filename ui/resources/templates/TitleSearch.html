@@ -33,12 +33,12 @@
         <input type=search name="q" th:value="${q}" placeholder="Search Titles" data-keybind="f" form=sf>
     </header>
 
-    <aside class="facets" th:fragment="facets">
+    <aside class="filters" th:fragment="filters">
         <header>
             <h3>Filters</h3>
             <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
         </header>
-        <details th:each="filter: ${facets}" th:if="${filter.visible}" th:open="${filter.active}" open>
+        <details th:each="filter: ${filters}" th:if="${filter.visible}" th:open="${filter.active}" open>
             <summary>
                 <th:block th:text="${filter.name}">Subject</th:block>
                 <input form="sf" type="search" th:if="${filter.searchable}" th:value="${filter.search}"
