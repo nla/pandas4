@@ -142,11 +142,11 @@ public class SearchScheduler {
 
     private void incrementallyIndexInstances(EntityManager entityManager, SearchSession session, SearchIndexingPlan indexingPlan) {
         if (lastIndexedInstanceDate == null) {
-            var hits = session.search(Instance.class).where(SearchPredicateFactory::matchAll)
+            var hits = session.search(Instance.class).where(f -> f.exists().field("lastModifiedDate"))
                     .sort(f -> f.field("lastModifiedDate").desc())
                     .fetch(1)
                     .hits();
-            lastIndexedTitleDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
+            lastIndexedInstanceDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
             lastInstanceId = hits.isEmpty() ? -1 : hits.get(0).getId();
         }
 
@@ -157,7 +157,7 @@ public class SearchScheduler {
                 var candidates = (List<Instance>) entityManager.createQuery(
                                 "select i from Instance i where i.lastModifiedDate > :date or " +
                                 "(i.lastModifiedDate = :date and i.id > :id) order by i.lastModifiedDate, i.id")
-                        .setParameter("date", lastIndexedTitleDate)
+                        .setParameter("date", lastIndexedInstanceDate)
                         .setParameter("id", lastInstanceId)
                         .setMaxResults(100)
                         .getResultList();
@@ -167,7 +167,7 @@ public class SearchScheduler {
                     }
                     entityManager.getTransaction().commit();
                     var last = candidates.get(candidates.size() - 1);
-                    lastIndexedTitleDate = last.getLastModifiedDate();
+                    lastIndexedInstanceDate = last.getLastModifiedDate();
                     lastInstanceId = last.getId();
                     log.info("Incrementally indexed {} instances (lastLastModifiedDate={}, lastId={})", candidates.size(), lastIndexedTitleDate, lastInstanceId);
                 } else {
