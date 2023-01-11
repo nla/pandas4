@@ -9,7 +9,7 @@
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Worktrays')}"></nav>
 <main>
-    <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}/gathering')">
+    <header th:replace="~{worktrays/_worktrays.html :: header('/worktrays/{alias}/gathering')}">
     </header>
 
     <nav class="breadcrumb">

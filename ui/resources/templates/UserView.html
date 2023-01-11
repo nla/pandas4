@@ -8,7 +8,7 @@
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
 <main>
     <header>
         <nav>
@@ -36,7 +36,7 @@
 
     <h4>Titles (<span th:text="${titleCount}"></span>)</h4>
     <div th:each="title: ${titles}">
-        <div th:replace="TitleSearch.html :: title-card">
+        <div th:replace="~{TitleSearch.html :: title-card}">
         </div>
     </div>
     <a th:href="@{/titles(owner=${user.id},sort='Newest',page=1)}" class="btn btn-secondary">Next <i class="icon icon-right next"></i></a>

@@ -120,7 +120,7 @@
     <section>
         <h4>Titles</h4>
         <div th:each="title: ${publisher.titles}">
-            <div th:replace="TitleSearch.html :: title-card">
+            <div th:replace="~{TitleSearch.html :: title-card}">
             </div>
         </div>
     </section>

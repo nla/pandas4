@@ -33,7 +33,7 @@
     </style>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
 <main class="full-height">
     <form method=post th:action="@{|/instances/${instance.id}/process}">
         <input th:if="${nextInstance}" type=hidden name=nextInstance th:value="${nextInstance.id}">
@@ -98,7 +98,7 @@
         </span>
         <div class="under-breadcrumbs">
             <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
-            · <th:block th:replace="TitleSearch.html :: title-card-footer"></th:block>
+            · <th:block th:replace="~{TitleSearch.html :: title-card-footer}"></th:block>
         </div>
     </nav>
 

@@ -28,7 +28,7 @@
         ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">1 hour ago</time><br>
         📈 <span th:text="${instance.gather.stats}">1,234 files 20 MB</span>
     </td>
-    <td th:replace="${actions}"></td>
+    <td th:replace="~{${actions}}"></td>
 </tr>
 
 </body>

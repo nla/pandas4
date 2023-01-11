@@ -9,7 +9,7 @@
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Worktrays')}"></nav>
 <main>
-    <header th:replace="worktrays/_worktrays.html :: header('/worktrays/{alias}/permissino-requested')">
+    <header th:replace="~{worktrays/_worktrays.html :: header('/worktrays/{alias}/permissino-requested')}">
     </header>
 
     <nav class="breadcrumb">

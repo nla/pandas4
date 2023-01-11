@@ -74,7 +74,7 @@
     </style>
 </head>
 <body>
-<nav th:replace="_layout.html :: sidebar"></nav>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
 <main class="search">
     <header>
         <nav class="pagination">
@@ -97,7 +97,7 @@
         <button type="submit" style="display: none"></button>
     </form>
 
-    <aside class="filters" th:replace="TitleSearch.html :: filters">
+    <aside class="filters" th:replace="~{TitleSearch.html :: filters}">
         <header>
             <h3>Status</h3>
             <button class="btn btn-primary" id="filter-clear-button">Clear</button>

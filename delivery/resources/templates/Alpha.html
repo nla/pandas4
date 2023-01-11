@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang=en xmlns:th="http://www.thymeleaf.org">
-<head th:replace="_delivery.html :: head(${letter} + ' - PANDORA')"></head>
+<head th:replace="~{_delivery.html :: head(${letter} + ' - PANDORA')}"></head>
 
 <body>
 
-<th:block th:replace="_delivery.html :: body"></th:block>
+<th:block th:replace="~{_delivery.html :: body}"></th:block>
 
 <div id="content">
     <div id="contentBreadcrumbs">
@@ -30,7 +30,7 @@
         </div>
     </th:block>
 
-    <th:block th:replace="_delivery :: pagination(${titles}, ${prefix} + '/alpha/' + ${letter} + '/{page}')" />
+    <th:block th:replace="~{_delivery :: pagination(${titles}, ${prefix} + '/alpha/' + ${letter} + '/{page}')}" />
 
     <div class="itemlist" th:unless="${titles.isEmpty()}">
         <ul>
@@ -40,7 +40,7 @@
         </ul>
     </div>
 
-    <th:block th:replace="_delivery :: pagination(${titles}, ${prefix} + '/alpha/' + ${letter} + '/{page}')" />
+    <th:block th:replace="~{_delivery :: pagination(${titles}, ${prefix} + '/alpha/' + ${letter} + '/{page}')}" />
 
     <table id="alphaFooter">
         <tbody>
@@ -59,7 +59,7 @@
         </tbody>
     </table>
 
-    <div th:replace="_delivery :: credits"></div>
+    <div th:replace="~{_delivery :: credits}"></div>
 
 </div>
 </body>

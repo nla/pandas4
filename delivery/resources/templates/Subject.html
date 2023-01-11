@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang=en xmlns:th="http://www.thymeleaf.org">
-<head th:replace="_delivery.html :: head(${subject.name} + ' - PANDORA')"></head>
+<head th:replace="~{_delivery.html :: head(${subject.name} + ' - PANDORA')}"></head>
 
 <body>
 
-<th:block th:replace="_delivery.html :: body"></th:block>
+<th:block th:replace="~{_delivery.html :: body}"></th:block>
 
 <div id="content">
     <div id="contentBreadcrumbs">
@@ -47,7 +47,7 @@
     </th:block>
 
     <th:block
-            th:replace="_delivery :: paginationWithSearch(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')"/>
+            th:replace="~{_delivery :: paginationWithSearch(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')}"/>
 
     <div class="itemlist" th:unless="${titles.isEmpty()}">
         <ul>
@@ -57,9 +57,9 @@
         </ul>
     </div>
 
-    <th:block th:replace="_delivery :: pagination(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')" />
+    <th:block th:replace="~{_delivery :: pagination(${titles}, ${prefix} + '/subject/' + ${subject.id} + '/{page}')}" />
 
-    <div th:replace="_delivery :: credits"></div>
+    <div th:replace="~{_delivery :: credits}"></div>
 
 </div>
 </body>

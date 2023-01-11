@@ -105,7 +105,7 @@
     </form>
 
     <form id=form method=post th:action="@{''}">
-        <aside class="filters" th:replace="TitleSearch.html :: filters">
+        <aside class="filters" th:replace="~{TitleSearch.html :: filters}">
         </aside>
 
         <table th:fragment="table" class="gathered-table">
