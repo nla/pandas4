@@ -105,6 +105,7 @@ public class SearchScheduler {
                     .hits();
             lastIndexedTitleDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
             lastTitleId = hits.isEmpty() ? -1 : hits.get(0).getId();
+            log.info("Resuming incremental title indexing from {}, {}", lastIndexedTitleDate, lastTitleId);
         }
 
         while (true) {
@@ -148,6 +149,7 @@ public class SearchScheduler {
                     .hits();
             lastIndexedInstanceDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
             lastInstanceId = hits.isEmpty() ? -1 : hits.get(0).getId();
+            log.info("Resuming incremental instance indexing from {}, {}", lastIndexedInstanceDate, lastInstanceId);
         }
 
         while (true) {
