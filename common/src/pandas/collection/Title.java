@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Projectable;
 import org.hibernate.search.engine.backend.types.Searchable;
 import org.hibernate.search.engine.backend.types.Sortable;
@@ -56,6 +57,7 @@ public class Title {
 //  @GeneratedValue(strategy = GenerationType.AUTO, generator = "TITLE_SEQ")
 //  @GenericGenerator(name = "TITLE_SEQ", strategy = "native")
     @JsonView(View.Summary.class)
+    @GenericField(aggregable = Aggregable.YES)
     private Long id;
 
     /**

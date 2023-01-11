@@ -3,6 +3,11 @@ package pandas.gather;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
+import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import org.springframework.data.annotation.LastModifiedDate;
 import pandas.collection.Title;
 
 import jakarta.persistence.*;
@@ -16,6 +21,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Entity
+@Indexed
 @Table(name = "INSTANCE",
         indexes = @Index(name = "instance_title_id_instance_date_index", columnList = "title_id, instance_date"))
 @DynamicUpdate
@@ -31,6 +37,7 @@ public class Instance {
 
     @ManyToOne
     @JoinColumn(name = "TITLE_ID")
+    @IndexedEmbedded(includePaths = {"id", "collections.id", "collectionAncestry.id", "subjects.id", "owner.id", "agency.id"})
     private Title title;
 
     @Column(name = "INSTANCE_DATE")
@@ -38,6 +45,8 @@ public class Instance {
 
     @ManyToOne
     @JoinColumn(name = "CURRENT_STATE_ID")
+    @IndexedEmbedded(includePaths = {"id"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private State state;
 
     @Column(name = "DISPLAY_NOTE", length = 4000)
@@ -93,6 +102,10 @@ public class Instance {
     private String gatherCommand;
 
     @OneToOne(mappedBy = "instance")
+    // XXX: not sure why it can't find the inverse automatically
+    @AssociationInverseSide(
+            inversePath = @ObjectPath( @PropertyValue( propertyName = "instance" ) )
+    )
     private InstanceGather gather;
 
     @OneToMany(mappedBy = "instance")
@@ -112,6 +125,11 @@ public class Instance {
     @ManyToOne
     @JoinColumn(name="PROFILE_ID")
     private Profile profile;
+
+    @GenericField(sortable = Sortable.YES)
+    @LastModifiedDate
+    @Column(name = "LAST_MODIFIED_DATE")
+    private Instant lastModifiedDate;
 
     public State getState() {
         return this.state;
@@ -449,5 +467,21 @@ public class Instance {
         } else {
             return Set.of("No problems");
         }
+    }
+
+    @GenericField(aggregable = Aggregable.YES)
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath({@PropertyValue(propertyName = "gather"), @PropertyValue(propertyName = "size")}),
+    })
+    public Set<Long> getProblemIds() {
+        if (getGather().hasSizeWarning()) {
+            return Set.of(GatherProblem.SIZE_WARNING.id());
+        } else {
+            return Set.of(GatherProblem.NO_RPOBLEMS.id());
+        }
+    }
+
+    public Instant getLastModifiedDate() {
+        return lastModifiedDate;
     }
 }

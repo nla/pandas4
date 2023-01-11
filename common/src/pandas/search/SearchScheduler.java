@@ -16,6 +16,8 @@ import pandas.collection.Title;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import pandas.gather.Instance;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -27,7 +29,9 @@ public class SearchScheduler {
 
     private final EntityManagerFactory entityManagerFactory;
     private long lastTitleId = -1;
+    private long lastInstanceId = -1;
     private Instant lastIndexedTitleDate;
+    private Instant lastIndexedInstanceDate;
     private Long lastCollectionId = null;
 
     public SearchScheduler(EntityManagerFactory entityManagerFactory) {
@@ -54,6 +58,7 @@ public class SearchScheduler {
             SearchIndexingPlan indexingPlan = session.indexingPlan();
             incrementallyIndexTitles(entityManager, session, indexingPlan);
             incrementallyIndexCollections(entityManager, session, indexingPlan);
+            incrementallyIndexInstances(entityManager, session, indexingPlan);
         } finally {
             entityManager.close();
         }
@@ -133,5 +138,47 @@ public class SearchScheduler {
             }
         }
         ;
+    }
+
+    private void incrementallyIndexInstances(EntityManager entityManager, SearchSession session, SearchIndexingPlan indexingPlan) {
+        if (lastIndexedInstanceDate == null) {
+            var hits = session.search(Instance.class).where(SearchPredicateFactory::matchAll)
+                    .sort(f -> f.field("lastModifiedDate").desc())
+                    .fetch(1)
+                    .hits();
+            lastIndexedTitleDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : hits.get(0).getLastModifiedDate();
+            lastInstanceId = hits.isEmpty() ? -1 : hits.get(0).getId();
+        }
+
+        while (true) {
+            entityManager.getTransaction().begin();
+            try {
+                @SuppressWarnings("unchecked")
+                var candidates = (List<Instance>) entityManager.createQuery(
+                                "select i from Instance i where i.lastModifiedDate > :date or " +
+                                "(i.lastModifiedDate = :date and i.id > :id) order by i.lastModifiedDate, t.id")
+                        .setParameter("date", lastIndexedTitleDate)
+                        .setParameter("id", lastInstanceId)
+                        .setMaxResults(100)
+                        .getResultList();
+                if (!candidates.isEmpty()) {
+                    for (var candidate: candidates) {
+                        indexingPlan.addOrUpdate(candidate);
+                    }
+                    entityManager.getTransaction().commit();
+                    var last = candidates.get(candidates.size() - 1);
+                    lastIndexedTitleDate = last.getLastModifiedDate();
+                    lastInstanceId = last.getId();
+                    log.info("Incrementally indexed {} instances (lastLastModifiedDate={}, lastId={})", candidates.size(), lastIndexedTitleDate, lastInstanceId);
+                } else {
+                    // no more to do
+                    entityManager.getTransaction().rollback();
+                    break;
+                }
+            } catch (Exception e) {
+                entityManager.getTransaction().rollback();
+                throw e;
+            }
+        }
     }
 }

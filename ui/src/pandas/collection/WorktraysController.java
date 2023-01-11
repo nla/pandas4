@@ -7,15 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import pandas.agency.*;
 import pandas.core.NotFoundException;
-import pandas.gather.Instance;
-import pandas.gather.InstanceRepository;
-import pandas.gather.PreviousGather;
+import pandas.gather.*;
 import pandas.report.ReportRepository;
 
 import jakarta.servlet.http.HttpSession;
@@ -36,18 +35,22 @@ public class WorktraysController {
 
     private final TitleRepository titleRepository;
     private final InstanceRepository instanceRepository;
+    private final InstanceSearcher instanceSearcher;
     private final UserService userService;
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
+    private final StateRepository stateRepository;
 
-    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, ReportRepository reportRepository) {
+    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, InstanceSearcher instanceSearcher, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, ReportRepository reportRepository, StateRepository stateRepository) {
         this.titleRepository = titleRepository;
         this.instanceRepository = instanceRepository;
+        this.instanceSearcher = instanceSearcher;
         this.userService = userService;
         this.agencyRepository = agencyRepository;
         this.userRepository = userRepository;
         this.reportRepository = reportRepository;
+        this.stateRepository = stateRepository;
     }
 
     @ModelAttribute
@@ -87,7 +90,8 @@ public class WorktraysController {
     }
 
     @GetMapping(value = {"/worktrays", "/worktrays/{alias}"})
-    public String all(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Model model) {
+    public String all(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
+                      @RequestParam MultiValueMap<String, String> params, Model model) {
         Pageable pageable = PageRequest.of(0, 5);
         // Selection
         nominated(agencyId, ownerId, pageable, model);
@@ -101,7 +105,7 @@ public class WorktraysController {
         gathering(agencyId, ownerId, pageable, model);
         // Preserve
         upload(agencyId, ownerId, pageable, model);
-        gathered(agencyId, ownerId, Set.of(), Set.of(), pageable, model);
+        gathered(agencyId, ownerId, params, pageable, model);
         // Publish
         archived(agencyId, ownerId, pageable, model);
         // Catalogue
@@ -166,30 +170,18 @@ public class WorktraysController {
 
     @GetMapping({"/worktrays/gathered", "/worktrays/{alias}/gathered"})
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
-                           @RequestParam(name = "collection", defaultValue = "") Set<Collection> collections,
-                           @RequestParam(name = "problem", defaultValue = "") Set<String> problems,
+                           @RequestParam MultiValueMap<String, String> params,
                            @PageableDefault(size = 100) Pageable pageable, Model model) {
-        Page<Instance> instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, Pageable.unpaged());
+        State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
 
-        instances = new PageImpl<>(instances
-                .filter(i -> (collections.isEmpty() || !Collections.disjoint(collections, i.getTitle().getTopLevelCollections()))
-                        && (problems.isEmpty() || !Collections.disjoint(problems, i.getProblems())))
-                .toList(),
-                pageable, instances.getTotalElements());
-
+        var instances = instanceSearcher.search(gatheredState.getId(), params, pageable);
 
         Map<Long, PreviousGather> previousGathers = new HashMap<>();
         instanceRepository.findPreviousStats(instances.getContent())
                 .forEach(ps -> previousGathers.put(ps.getCurrentInstanceId(), ps));
         model.addAttribute("gatheredInstances", instances);
         model.addAttribute("previousGathers", previousGathers);
-
-        model.addAttribute("filters", List.of(
-                buildFilter("Collection", "collection", instances.toList(), collections,
-                        i -> i.getTitle().getTopLevelCollections(), Collection::getId, Collection::getName),
-                buildFilter("Gather Problem", "problem", instances.toList(), problems, Instance::getProblems,
-                        p -> p, p -> p)
-        ));
+        model.addAttribute("filters", instances.getFacets());
 
         return "worktrays/Gathered";
     }

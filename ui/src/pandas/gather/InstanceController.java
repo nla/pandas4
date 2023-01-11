@@ -1,7 +1,11 @@
 package pandas.gather;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.hibernate.search.mapper.orm.Search;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import pandas.agency.*;
+import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.core.Config;
 import pandas.core.NotFoundException;
@@ -45,6 +50,8 @@ public class InstanceController {
     private final StateHistoryRepository stateHistoryRepository;
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.config = config;
@@ -111,6 +118,14 @@ public class InstanceController {
             instanceService.delete(instance, userService.getCurrentUser());
         }
         return "redirect:" + Requests.backlinkOrDefault("/instances");
+    }
+
+    @GetMapping("/instances/reindex")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
+    public String reindex() throws InterruptedException {
+        Search.session(entityManager).massIndexer(Instance.class).startAndWait();
+        return "ok";
     }
 
     @PostMapping("/instances/bulkchange")
