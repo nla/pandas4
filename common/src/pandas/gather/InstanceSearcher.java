@@ -2,6 +2,8 @@ package pandas.gather;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
+import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import pandas.search.SearchResults;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 @Service
 @ConditionalOnProperty(name = "spring.jpa.properties.hibernate.search.enabled", havingValue = "true", matchIfMissing = true)
@@ -34,12 +37,11 @@ public class InstanceSearcher {
         };
     }
 
-    public SearchResults<Instance> search(long stateId, MultiValueMap<String, String> params, Pageable pageable) {
+    public SearchResults<Instance> search(long stateId, Long agencyId, Long ownerId,
+                                          MultiValueMap<String, String> params, Pageable pageable) {
         var session = Search.session(entityManager);
         var search = session.search(Instance.class)
-                .where(f -> f.bool()
-                        .must(Facet.matchAll(f, params, facets))
-                        .must(f.match().field("state.id").matching(stateId)));
+                .where(buildPredicate(stateId, agencyId, ownerId, params, null));
 
         // we can do inactive facets as part of the main search
         for (Facet facet : facets) {
@@ -58,8 +60,7 @@ public class InstanceSearcher {
             if (facet instanceof EntityFacet && params.containsKey(facet.param)) {
                 // we need to do separate searches for each active entity facets that applies all other facets
                 var facetResult = session.search(Instance.class)
-                        .where(f -> f.bool().must(Facet.matchAllExcept(f, params, facets, facet))
-                                .must(f.match().field("state.id").matching(stateId)))
+                        .where(buildPredicate(stateId, agencyId, ownerId, params, facet))
                         .aggregation(((EntityFacet<?>) facet).key, f -> f.terms().field(facet.field, Long.class)
                                 .maxTermCount(20)).fetch(0);
                 facetResults.add(facet.results(params, facetResult));
@@ -69,6 +70,17 @@ public class InstanceSearcher {
         }
 
         return new SearchResults<>(result, facetResults, pageable);
+    }
+
+    private BiConsumer<SearchPredicateFactory, BooleanPredicateOptionsCollector<?>> buildPredicate(
+            long stateId, Long agencyId, Long ownerId, MultiValueMap<String, String> params, Facet excludedFacet) {
+        return (f, b) ->
+        {
+            b.must(Facet.matchAllExcept(f, params, facets, excludedFacet));
+            b.must(f.match().field("state.id").matching(stateId));
+            if (agencyId != null) b.must(f.match().field("title.agency.id").matching(agencyId));
+            if (ownerId != null) b.must(f.match().field("title.owner.id").matching(ownerId));
+        };
     }
 }
 

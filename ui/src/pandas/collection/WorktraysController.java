@@ -174,7 +174,7 @@ public class WorktraysController {
                            @PageableDefault(size = 100) Pageable pageable, Model model) {
         State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
 
-        var instances = instanceSearcher.search(gatheredState.getId(), params, pageable);
+        var instances = instanceSearcher.search(gatheredState.getId(), agencyId, ownerId, params, pageable);
 
         Map<Long, PreviousGather> previousGathers = new HashMap<>();
         instanceRepository.findPreviousStats(instances.getContent())
