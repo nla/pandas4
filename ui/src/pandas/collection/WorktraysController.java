@@ -204,6 +204,7 @@ public class WorktraysController {
                 .entrySet().stream().map(e -> new FacetEntry(idMapper.apply(e.getKey()).toString(),
                         nameMapper.apply(e.getKey()), e.getValue(),
                         selected.contains(e.getKey())))
+                .sorted(Comparator.comparing(FacetEntry::getCount).reversed())
                 .limit(10)
                 .toList();
         return new FacetResults(name, param, entries, true, false, null);
