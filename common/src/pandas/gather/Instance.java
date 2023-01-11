@@ -8,6 +8,7 @@ import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.collection.Title;
 
 import jakarta.persistence.*;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 @Table(name = "INSTANCE",
         indexes = @Index(name = "instance_title_id_instance_date_index", columnList = "title_id, instance_date"))
 @DynamicUpdate
+@EntityListeners(AuditingEntityListener.class)
 public class Instance {
     public static final DateTimeFormatter instanceDateFormat = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm")
             .withZone(ZoneId.systemDefault());
