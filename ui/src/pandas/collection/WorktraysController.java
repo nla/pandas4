@@ -185,9 +185,9 @@ public class WorktraysController {
         model.addAttribute("previousGathers", previousGathers);
 
         model.addAttribute("filters", List.of(
-                buildFilter("Collections", "collection", instances.toList(), collections,
+                buildFilter("Collection", "collection", instances.toList(), collections,
                         i -> i.getTitle().getTopLevelCollections(), Collection::getId, Collection::getName),
-                buildFilter("Problems", "problem", instances.toList(), problems, Instance::getProblems,
+                buildFilter("Gather Problem", "problem", instances.toList(), problems, Instance::getProblems,
                         p -> p, p -> p)
         ));
 
