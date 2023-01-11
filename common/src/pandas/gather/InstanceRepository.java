@@ -76,7 +76,6 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
 
     @Query("""
         select i from Instance i
-        join i.title.collections c
         where i.state.name = 'gathered'
         and i.title.awaitingConfirmation = false
         and (:agencyId is null or i.title.agency.id = :agencyId)
