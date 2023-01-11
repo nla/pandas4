@@ -12,10 +12,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Entity
@@ -444,5 +441,13 @@ public class Instance {
 
     public Profile getProfile() {
         return profile;
+    }
+
+    public Set<String> getProblems() {
+        if (getGather().hasSizeWarning()) {
+            return Set.of("Size warning");
+        } else {
+            return Set.of("No problems");
+        }
     }
 }

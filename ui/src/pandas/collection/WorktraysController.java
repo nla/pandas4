@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -9,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import pandas.agency.*;
 import pandas.core.NotFoundException;
 import pandas.gather.Instance;
@@ -17,13 +19,16 @@ import pandas.gather.PreviousGather;
 import pandas.report.ReportRepository;
 
 import jakarta.servlet.http.HttpSession;
+import pandas.search.FacetEntry;
+import pandas.search.FacetResults;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Controller
 public class WorktraysController {
@@ -96,7 +101,7 @@ public class WorktraysController {
         gathering(agencyId, ownerId, pageable, model);
         // Preserve
         upload(agencyId, ownerId, pageable, model);
-        gathered(agencyId, ownerId, pageable, model);
+        gathered(agencyId, ownerId, Set.of(), Set.of(), pageable, model);
         // Publish
         archived(agencyId, ownerId, pageable, model);
         // Catalogue
@@ -161,14 +166,59 @@ public class WorktraysController {
 
     @GetMapping({"/worktrays/gathered", "/worktrays/{alias}/gathered"})
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
+                           @RequestParam(name = "collection", defaultValue = "") Set<Collection> collections,
+                           @RequestParam(name = "problem", defaultValue = "") Set<String> problems,
                            @PageableDefault(size = 100) Pageable pageable, Model model) {
-        Page<Instance> instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable);
+        Page<Instance> instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, Pageable.unpaged());
+
+        instances = new PageImpl<>(instances
+                .filter(i -> (collections.isEmpty() || !Collections.disjoint(collections, i.getTitle().getCollections()))
+                        && (problems.isEmpty() || !Collections.disjoint(problems, i.getProblems())))
+                .toList(),
+                pageable, instances.getTotalElements());
+
+
         Map<Long, PreviousGather> previousGathers = new HashMap<>();
         instanceRepository.findPreviousStats(instances.getContent())
                 .forEach(ps -> previousGathers.put(ps.getCurrentInstanceId(), ps));
         model.addAttribute("gatheredInstances", instances);
         model.addAttribute("previousGathers", previousGathers);
+
+        var filters = new ArrayList<FacetResults>();
+
+        var collectionEntries = instances.stream().flatMap(i -> i.getTitle().getCollections().stream())
+                .collect(Collectors.groupingBy(c -> c, Collectors.counting()))
+                .entrySet().stream().map(e -> new FacetEntry(e.getKey().getId() + "",
+                        e.getKey().getName(), e.getValue(), collections.contains(e.getKey())))
+                .sorted(Comparator.comparing(FacetEntry::getCount).reversed())
+                .limit(10)
+                .toList();
+        filters.add(new FacetResults("Collection", "collection", collectionEntries, true,
+                false, null));
+
+
+        model.addAttribute("filters", List.of(
+                buildFilter("Collections", "collection", instances.toList(),
+                        collections, i -> i.getTitle().getCollections(), Collection::getId, Collection::getName),
+                buildFilter("Problems", "problem", instances.toList(), problems, Instance::getProblems,
+                        p -> p, p -> p)
+        ));
+
         return "worktrays/Gathered";
+    }
+
+    <T,R> FacetResults buildFilter(String name, String param, java.util.Collection<T> items,
+                                   Set<R> selected, Function<T,java.util.Collection<R>> mapper,
+                                   Function<R,Object> idMapper, Function<R,String> nameMapper) {
+        var entries = items.stream()
+                .flatMap(i -> mapper.apply(i).stream())
+                .collect(Collectors.groupingBy(e -> e, Collectors.counting()))
+                .entrySet().stream().map(e -> new FacetEntry(idMapper.apply(e.getKey()).toString(),
+                        nameMapper.apply(e.getKey()), e.getValue(),
+                        selected.contains(e.getKey())))
+                .limit(10)
+                .toList();
+        return new FacetResults(name, param, entries, true, false, null);
     }
 
     @GetMapping("/worktrays/{alias}/archived")

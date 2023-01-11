@@ -1,10 +1,14 @@
 package pandas.gather;
 
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
@@ -13,10 +17,11 @@ import pandas.collection.Collection;
 import pandas.collection.Title;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public interface InstanceRepository extends CrudRepository<Instance,Long> {
+public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSpecificationExecutor<Instance> {
     @Query("select i from Instance i where i.state.name in ('gathering', 'gatherPause', 'gatherProcess', " +
             "'archiving', 'deleting') order by i.date")
     List<Instance> findGathering();
@@ -69,13 +74,15 @@ public interface InstanceRepository extends CrudRepository<Instance,Long> {
             "and i.title.owner.id = :ownerId")
     long countGatheredWorktray(@Param("ownerId") Long ownerId);
 
-    @Query("select i from Instance i\n" +
-            "where i.state.name = 'gathered'\n" +
-            "and i.title.awaitingConfirmation = false\n" +
-            "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +
-            "and (:ownerId is null or i.title.owner.id = :ownerId)\n" +
-            "order by i.id desc")
-    Page<Instance> listGatheredWorktray(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+    @Query("""
+        select i from Instance i
+        join i.title.collections c
+        where i.state.name = 'gathered'
+        and i.title.awaitingConfirmation = false
+        and (:agencyId is null or i.title.agency.id = :agencyId)
+        and (:ownerId is null or i.title.owner.id = :ownerId)
+        order by i.id desc""")
+    Page<Instance> listGatheredWorktray(Long agencyId, Long ownerId, Pageable pageable);
 
     @Query("select i from Instance i\n" +
             "where i.state.name = 'gathered'\n" +

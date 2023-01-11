@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Instances in QA - PANDAS</title>
     <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <link rel="stylesheet" href="../../static/assets/Filters.css" th:href="@{/assets/Filters.css}">
     <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
@@ -91,9 +92,22 @@
         .qa-compact-view-active .qa-compact-view {
             display: table-cell;
         }
+
+        #form {
+            display: grid;
+            grid-template-areas: "results facets";
+            grid-template-columns: 1fr 200px;
+        }
     </style>
 
+    <form id=sf method=get th:action="@{''}">
+        <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+    </form>
+
     <form id=form method=post th:action="@{''}">
+        <aside class="filters" th:replace="TitleSearch.html :: filters">
+        </aside>
+
         <table th:fragment="table" class="gathered-table">
             <thead>
             <tr>
@@ -219,3 +233,4 @@
     <div th:replace="worktrays/_worktrays :: pagination(${gatheredInstances})">
     </div>
 </main>
+<script th:src="@{/assets/Search.js}" src="../static/assets/Search.js"></script>
