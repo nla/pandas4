@@ -1,0 +1,76 @@
+.filters {
+    grid-area: facets;
+}
+
+.filters h3 {
+    margin: 8px 8px;
+}
+
+.filters > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.filters > details {
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+    padding: 0;
+}
+
+.filters > details > summary {
+    padding: .5rem;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+}
+
+.filters > details > summary > input {
+    float: right;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    padding: 0 0.4rem;
+    width: 150px;
+    transition: visibility 0.2s, opacity 0.2s;
+    visibility: hidden;
+    opacity: 0;
+    margin: -1px;
+    margin-left: 8px;
+}
+
+.filters > details > summary:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.filters > details[open] > summary {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.filters > details[open] > summary > input {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s;
+}
+
+.filters > details > fieldset {
+    padding: 0.5rem;
+    overflow-y: auto;
+    max-height: 200px;
+    margin: 0;
+    border: 0;
+}
+
+.filters > details > fieldset > label {
+    display: block;
+}
+
+.filters > details > fieldset.date-range {
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: auto auto;
+    align-items: center;
+}
