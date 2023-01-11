@@ -184,22 +184,10 @@ public class WorktraysController {
         model.addAttribute("gatheredInstances", instances);
         model.addAttribute("previousGathers", previousGathers);
 
-        var filters = new ArrayList<FacetResults>();
-
-        var collectionEntries = instances.stream().flatMap(i -> i.getTitle().getCollections().stream())
-                .collect(Collectors.groupingBy(c -> c, Collectors.counting()))
-                .entrySet().stream().map(e -> new FacetEntry(e.getKey().getId() + "",
-                        e.getKey().getName(), e.getValue(), collections.contains(e.getKey())))
-                .sorted(Comparator.comparing(FacetEntry::getCount).reversed())
-                .limit(10)
-                .toList();
-        filters.add(new FacetResults("Collection", "collection", collectionEntries, true,
-                false, null));
-
-
         model.addAttribute("filters", List.of(
-                buildFilter("Collections", "collection", instances.toList(),
-                        collections, i -> i.getTitle().getCollections(), Collection::getId, Collection::getName),
+                buildFilter("Collections", "collection", instances.toList(), collections,
+                        i -> i.getTitle().getCollections().stream().map(Collection::getTopLevel).collect(Collectors.toSet()),
+                        Collection::getId, Collection::getName),
                 buildFilter("Problems", "problem", instances.toList(), problems, Instance::getProblems,
                         p -> p, p -> p)
         ));

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
@@ -204,6 +203,14 @@ public class Collection {
         }
         Collections.reverse(breadcrumbs);
         return breadcrumbs;
+    }
+
+    public Collection getTopLevel() {
+        Collection c = this;
+        while (c.getParent() != null) {
+             c = c.getParent();
+        }
+        return c;
     }
 
     public Collection getParent() {
