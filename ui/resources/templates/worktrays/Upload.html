@@ -43,6 +43,6 @@
         </tbody>
     </table>
 
-    <div th:replace="worktrays/_worktrays :: pagination(${instancesForUpload})">
+    <div th:replace="~{worktrays/_worktrays :: pagination(${instancesForUpload})}">
     </div>
 </main>

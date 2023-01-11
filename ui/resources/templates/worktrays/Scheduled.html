@@ -43,6 +43,6 @@
         </tbody>
     </table>
 
-    <div th:replace="worktrays/_worktrays :: pagination(${scheduledTitles})">
+    <div th:replace="~{worktrays/_worktrays :: pagination(${scheduledTitles})}">
     </div>
 </main>

@@ -41,6 +41,6 @@
         </tbody>
     </table>
 
-    <div th:replace="worktrays/_worktrays :: pagination(${permissionRequestedTitles})">
+    <div th:replace="~{worktrays/_worktrays :: pagination(${permissionRequestedTitles})}">
     </div>
 </main>

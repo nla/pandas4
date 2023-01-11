@@ -230,7 +230,7 @@
     </script>
 
 
-    <div th:replace="worktrays/_worktrays :: pagination(${gatheredInstances})">
+    <div th:replace="~{worktrays/_worktrays :: pagination(${gatheredInstances})}">
     </div>
 </main>
 <script th:src="@{/assets/Search.js}" src="../static/assets/Search.js"></script>
