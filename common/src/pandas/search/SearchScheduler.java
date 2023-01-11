@@ -156,7 +156,7 @@ public class SearchScheduler {
                 @SuppressWarnings("unchecked")
                 var candidates = (List<Instance>) entityManager.createQuery(
                                 "select i from Instance i where i.lastModifiedDate > :date or " +
-                                "(i.lastModifiedDate = :date and i.id > :id) order by i.lastModifiedDate, t.id")
+                                "(i.lastModifiedDate = :date and i.id > :id) order by i.lastModifiedDate, i.id")
                         .setParameter("date", lastIndexedTitleDate)
                         .setParameter("id", lastInstanceId)
                         .setMaxResults(100)
