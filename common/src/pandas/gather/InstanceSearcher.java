@@ -79,7 +79,10 @@ public class InstanceSearcher {
             long stateId, Long agencyId, Long ownerId, MultiValueMap<String, String> params, Facet excludedFacet) {
         return (f, b) ->
         {
-            b.must(Facet.matchAllExcept(f, params, facets, excludedFacet));
+            for (Facet facet : facets) {
+                if (facet == excludedFacet) continue;
+                facet.mustMatch(f, b, params);
+            }
             b.must(f.match().field("state.id").matching(stateId));
             if (agencyId != null) b.must(f.match().field("title.agency.id").matching(agencyId));
             if (ownerId != null) b.must(f.match().field("title.owner.id").matching(ownerId));

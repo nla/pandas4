@@ -2,6 +2,7 @@ package pandas.search;
 
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
+import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.springframework.util.MultiValueMap;
@@ -54,7 +55,7 @@ public class EntityFacet<T> extends Facet {
     }
 
     @Override
-    public void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams) {
+    public void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> queryParams) {
         mustMatchAny(predicateFactory, bool, field, parseParam(queryParams));
     }
 

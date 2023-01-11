@@ -1,6 +1,7 @@
 package pandas.search;
 
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
+import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.springframework.util.MultiValueMap;
@@ -23,7 +24,7 @@ public class DateFacet extends Facet {
     }
 
     @Override
-    public void mustMatch(SearchPredicateFactory f, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> form) {
+    public void mustMatch(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> form) {
         LocalDate start = parseDate(form.getFirst(param + ".start"));
         LocalDate end = parseDate(form.getFirst(param + ".end"));
         boolean never = "on".equals(form.getFirst(param + ".never"));

@@ -1,6 +1,7 @@
 package pandas.search;
 
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
+import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
 import org.hibernate.search.engine.search.predicate.dsl.PredicateFinalStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 
@@ -14,7 +15,7 @@ public class SearchUtils {
                 f.bool().mustNot(f.exists().field(field)) : f.match().field(field).matching(value))));
     }
 
-    public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateClausesStep<?> b, String field, java.util.Collection<?> values) {
+    public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> b, String field, java.util.Collection<?> values) {
         if (values != null && !values.isEmpty()) b.must(matchAny(f, field, values));
     }
 }
