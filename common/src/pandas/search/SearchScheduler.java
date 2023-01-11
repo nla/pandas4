@@ -169,7 +169,7 @@ public class SearchScheduler {
                     var last = candidates.get(candidates.size() - 1);
                     lastIndexedInstanceDate = last.getLastModifiedDate();
                     lastInstanceId = last.getId();
-                    log.info("Incrementally indexed {} instances (lastLastModifiedDate={}, lastId={})", candidates.size(), lastIndexedTitleDate, lastInstanceId);
+                    log.info("Incrementally indexed {} instances (lastLastModifiedDate={}, lastId={})", candidates.size(), lastIndexedInstanceDate, lastInstanceId);
                 } else {
                     // no more to do
                     entityManager.getTransaction().rollback();
