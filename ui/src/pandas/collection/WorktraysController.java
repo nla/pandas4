@@ -172,7 +172,7 @@ public class WorktraysController {
         Page<Instance> instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, Pageable.unpaged());
 
         instances = new PageImpl<>(instances
-                .filter(i -> (collections.isEmpty() || !Collections.disjoint(collections, i.getTitle().getCollections()))
+                .filter(i -> (collections.isEmpty() || !Collections.disjoint(collections, i.getTitle().getTopLevelCollections()))
                         && (problems.isEmpty() || !Collections.disjoint(problems, i.getProblems())))
                 .toList(),
                 pageable, instances.getTotalElements());
@@ -186,8 +186,7 @@ public class WorktraysController {
 
         model.addAttribute("filters", List.of(
                 buildFilter("Collections", "collection", instances.toList(), collections,
-                        i -> i.getTitle().getCollections().stream().map(Collection::getTopLevel).collect(Collectors.toSet()),
-                        Collection::getId, Collection::getName),
+                        i -> i.getTitle().getTopLevelCollections(), Collection::getId, Collection::getName),
                 buildFilter("Problems", "problem", instances.toList(), problems, Instance::getProblems,
                         p -> p, p -> p)
         ));

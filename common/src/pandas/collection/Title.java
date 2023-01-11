@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -482,6 +483,10 @@ public class Title {
 
     public Set<Collection> getCollections() {
         return Collections.unmodifiableSet(collections);
+    }
+
+    public Set<Collection> getTopLevelCollections() {
+        return collections.stream().map(Collection::getTopLevel).collect(Collectors.toUnmodifiableSet());
     }
 
     @IndexedEmbedded(includePaths = {"id", "name"})
