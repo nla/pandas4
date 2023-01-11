@@ -26,7 +26,7 @@
             </button>
             <button id="compactViewButton" class="btn btn-secondary" type="button">Compact View</button>
         </nav>
-        <th:block th:include="worktrays/_worktrays.html :: header('/worktrays/{alias}/gathered')">
+        <th:block th:include="~{worktrays/_worktrays.html :: header('/worktrays/{alias}/gathered')}">
         </th:block>
     </header>
     <script>
