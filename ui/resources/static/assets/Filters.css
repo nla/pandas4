@@ -66,6 +66,8 @@
 
 .filters > details > fieldset > label {
     display: block;
+    text-indent: -26px;
+    padding-left: 26px;
 }
 
 .filters > details > fieldset.date-range {
