@@ -29,10 +29,9 @@ public class SearchScheduler {
 
     private final EntityManagerFactory entityManagerFactory;
     private long lastTitleId = -1;
-    private long lastInstanceId = -1;
     private Instant lastIndexedTitleDate;
-    private Instant lastIndexedInstanceDate;
     private Long lastCollectionId = null;
+    InstanceIndexer instanceIndexer = new InstanceIndexer();
 
     public SearchScheduler(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
@@ -58,7 +57,7 @@ public class SearchScheduler {
             SearchIndexingPlan indexingPlan = session.indexingPlan();
             incrementallyIndexTitles(entityManager, session, indexingPlan);
             incrementallyIndexCollections(entityManager, session, indexingPlan);
-            incrementallyIndexInstances(entityManager, session, indexingPlan);
+            instanceIndexer.run(entityManager, session, indexingPlan);
         } finally {
             entityManager.close();
         }
@@ -141,50 +140,55 @@ public class SearchScheduler {
         ;
     }
 
-    private void incrementallyIndexInstances(EntityManager entityManager, SearchSession session, SearchIndexingPlan indexingPlan) {
-        if (lastIndexedInstanceDate == null) {
-            var hits = session.search(Instance.class)
-                    .select(f -> f.composite(
-                            f.field("lastModifiedDate", Instant.class),
-                            f.id()
-                    ))
-                    .where(f -> f.exists().field("lastModifiedDate"))
-                    .sort(f -> f.field("lastModifiedDate").desc())
-                    .fetch(1)
-                    .hits();
-            lastIndexedInstanceDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : (Instant)hits.get(0).get(0);
-            lastInstanceId = hits.isEmpty() ? -1 : (Long)hits.get(0).get(1);
-            log.info("Resuming incremental instance indexing from {}, {}", lastIndexedInstanceDate, lastInstanceId);
-        }
+    private static class InstanceIndexer {
+        Instant lastDate;
+        long lastId;
 
-        while (true) {
-            entityManager.getTransaction().begin();
-            try {
-                @SuppressWarnings("unchecked")
-                var candidates = (List<Instance>) entityManager.createQuery(
-                                "select i from Instance i where i.lastModifiedDate > :date or " +
-                                "(i.lastModifiedDate = :date and i.id > :id) order by i.lastModifiedDate, i.id")
-                        .setParameter("date", lastIndexedInstanceDate)
-                        .setParameter("id", lastInstanceId)
-                        .setMaxResults(100)
-                        .getResultList();
-                if (!candidates.isEmpty()) {
-                    for (var candidate: candidates) {
-                        indexingPlan.addOrUpdate(candidate);
+        void run(EntityManager entityManager, SearchSession session, SearchIndexingPlan indexingPlan) {
+            if (lastDate == null) {
+                var hits = session.search(Instance.class)
+                        .select(f -> f.composite(
+                                f.field("lastModifiedDate", Instant.class),
+                                f.id()
+                        ))
+                        .where(f -> f.exists().field("lastModifiedDate"))
+                        .sort(f -> f.field("lastModifiedDate").desc())
+                        .fetch(1)
+                        .hits();
+                lastDate = hits.isEmpty() ? Instant.parse("1987-01-01T00:00:00Z") : (Instant)hits.get(0).get(0);
+                lastId = hits.isEmpty() ? -1 : (Long)hits.get(0).get(1);
+                log.info("Resuming incremental instance indexing from {}, {}", lastDate, lastId);
+            }
+
+            while (true) {
+                entityManager.getTransaction().begin();
+                try {
+                    @SuppressWarnings("unchecked")
+                    var candidates = (List<Instance>) entityManager.createQuery(
+                                    "select i from Instance i where i.lastModifiedDate > :date or " +
+                                    "(i.lastModifiedDate = :date and i.id > :id) order by i.lastModifiedDate, i.id")
+                            .setParameter("date", lastDate)
+                            .setParameter("id", lastId)
+                            .setMaxResults(100)
+                            .getResultList();
+                    if (!candidates.isEmpty()) {
+                        for (var candidate: candidates) {
+                            indexingPlan.addOrUpdate(candidate);
+                        }
+                        entityManager.getTransaction().commit();
+                        var last = candidates.get(candidates.size() - 1);
+                        lastDate = last.getLastModifiedDate();
+                        lastId = last.getId();
+                        log.info("Incrementally indexed {} instances (lastLastModifiedDate={}, lastId={})", candidates.size(), lastDate, lastId);
+                    } else {
+                        // no more to do
+                        entityManager.getTransaction().rollback();
+                        break;
                     }
-                    entityManager.getTransaction().commit();
-                    var last = candidates.get(candidates.size() - 1);
-                    lastIndexedInstanceDate = last.getLastModifiedDate();
-                    lastInstanceId = last.getId();
-                    log.info("Incrementally indexed {} instances (lastLastModifiedDate={}, lastId={})", candidates.size(), lastIndexedInstanceDate, lastInstanceId);
-                } else {
-                    // no more to do
+                } catch (Exception e) {
                     entityManager.getTransaction().rollback();
-                    break;
+                    throw e;
                 }
-            } catch (Exception e) {
-                entityManager.getTransaction().rollback();
-                throw e;
             }
         }
     }
