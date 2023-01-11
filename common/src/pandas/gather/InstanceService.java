@@ -95,7 +95,7 @@ public class InstanceService {
         Instant now = Instant.now();
         State state = stateRepository.findByName(stateName).orElseThrow();
         instance.setState(state);
-        instanceRepository.updateState(instance.getId(), stateName);
+        instanceRepository.updateState(instance.getId(), stateName, now);
         stateHistoryReposistory.markPreviousStateEnd(instance.getId(), now);
         insertStateHistory(instance, state, now, user);
     }

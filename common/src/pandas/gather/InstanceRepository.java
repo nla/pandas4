@@ -36,8 +36,8 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
     String getStateName(long instanceId);
 
     @Modifying
-    @Query("update Instance i set i.state = (select s from State s where s.name = ?2) where i.id = ?1")
-    void updateState(Long id, String stateName);
+    @Query("update Instance i set i.state = (select s from State s where s.name = ?2), i.lastModifiedDate = ?3 where i.id = ?1")
+    void updateState(Long id, String stateName, Instant now);
 
     @Query("select i from Instance i where not exists (select it from InstanceThumbnail it where it.instanceId = i.id) " +
             "and i.state.name = 'archived'")
