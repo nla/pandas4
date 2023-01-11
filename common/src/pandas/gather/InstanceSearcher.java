@@ -5,6 +5,8 @@ import jakarta.persistence.PersistenceContext;
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.mapper.orm.Search;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.function.BiConsumer;
 @Service
 @ConditionalOnProperty(name = "spring.jpa.properties.hibernate.search.enabled", havingValue = "true", matchIfMissing = true)
 public class InstanceSearcher {
+    private static final Logger log = LoggerFactory.getLogger(InstanceSearcher.class);
     private final Facet[] facets;
     @PersistenceContext
     EntityManager entityManager;
@@ -51,9 +54,9 @@ public class InstanceSearcher {
         }
 
         var searchQuery = search.toQuery();
-        System.out.println(searchQuery.queryString());
         var result = searchQuery.fetch((int) pageable.getOffset(), pageable.getPageSize());
-        System.out.println("total " + result.total());
+        log.info("Instance search (hits={} time={}ms}: {}", result.total(), result.took().toMillis(),
+                searchQuery.queryString());
 
         List<FacetResults> facetResults = new ArrayList<>();
         for (Facet facet : facets) {
