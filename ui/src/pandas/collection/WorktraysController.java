@@ -174,14 +174,14 @@ public class WorktraysController {
                            @PageableDefault(size = 100) Pageable pageable, Model model) {
         State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
 
-        var instances = instanceSearcher.search(gatheredState.getId(), agencyId, ownerId, params, pageable);
+        var instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable);
 
         Map<Long, PreviousGather> previousGathers = new HashMap<>();
         instanceRepository.findPreviousStats(instances.getContent())
                 .forEach(ps -> previousGathers.put(ps.getCurrentInstanceId(), ps));
         model.addAttribute("gatheredInstances", instances);
         model.addAttribute("previousGathers", previousGathers);
-        model.addAttribute("filters", instances.getFacets());
+        model.addAttribute("filters", List.of());
 
         return "worktrays/Gathered";
     }
