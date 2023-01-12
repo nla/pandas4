@@ -100,7 +100,7 @@
                 <col style="width: 24px">
                 <col style="width: 300px">
                 <col>
-                <col style="width: 200px">
+                <col style="width: 170px">
                 <col style="width: 48px">
             </colgroup>
             <tr>
@@ -137,7 +137,7 @@
                             <option></option>
                             <option th:each="instance: ${title.instances}" th:value="${instance.id}"
                                     th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"
-                                    th:selected="${instance == issue.instance}"></option>
+                                    th:selected="${instance == issue.instance}">15 Nov 2022 11:26am</option>
                         </select>
                     </td>
                     <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
