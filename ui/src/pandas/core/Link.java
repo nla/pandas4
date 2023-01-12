@@ -1,5 +1,7 @@
 package pandas.core;
 
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -14,11 +16,17 @@ import pandas.util.DateFormats;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.time.Instant;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.web.util.UriUtils.encodePathSegment;
 
 @Service
 public class Link {
+
+    @Value("${pandas.deliveryBaseUrl:https://webarchive.nla.gov.au/awa/}")
+    private String deliveryBaseUrl = "https://webarchive.nla.gov.au/awa/";
+
     private String link(String path) {
         return servletRequest().getContextPath().replaceFirst("/+$", "") + path;
     }
@@ -31,17 +39,20 @@ public class Link {
         return ServletUriComponentsBuilder.fromContextPath(servletRequest()).path("/login/check-session-reply").toUriString();
     }
 
+    public String delivery(Instant date, String url) {
+        return deliveryBaseUrl + (date == null ? "*" : DateFormats.ARC_DATE.format(date)) + "/" + url;
+    }
+
     public String delivery(Instance instance) {
         if (instance.getState().isArchived()) {
-            return "https://webarchive.nla.gov.au/awa/" + DateFormats.ARC_DATE.format(instance.getDate()) + "/" +
-                    instance.getTepUrlAbsolute();
+            return delivery(instance.getDate(), instance.getTepUrlAbsolute());
         } else {
             return to(instance) + "/process";
         }
     }
 
     public String delivery(Issue issue) {
-        return issue.getUrl();
+        return delivery(issue.getDate(), issue.getDeliveryUrl());
     }
 
     public String edit(Agency agency) {

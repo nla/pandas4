@@ -64,7 +64,7 @@
     <!-- Instances -->
     <table th:unless="${instances.isEmpty()}" cellspacing="0" border="0" cellpadding="0" style="margin-bottom: 20px; margin-top: 20px">
         <tbody>
-        <tr th:each="instance : ${instances}" th:if="${instance.isDisplayed == 1}">
+        <tr th:each="instance : ${instances}" th:if="${instance.isDisplayed}">
             <td width="20px">
                 <img th:unless="${restrictions.get(instance).allowed ?: true}" th:src="@{/assets/images/lock.png}" tile="Restricted">
             </td>
@@ -97,7 +97,7 @@
                     <img th:unless="${restrictions.get(issue.instance).allowed ?: true}" th:src="@{/assets/images/lock.png}" tile="Issue restricted">
                 </td>
                 <td>
-                    <a th:text="${issue.name}" th:href="${issue.url}" target="_blank">An issue</a></li> archived
+                    <a th:text="${issue.name}" th:href="${issue.deliveryUrl}" target="_blank">An issue</a></li> archived
                     <time th:text="${dateTimeFormat.format(issue.instance.date)}"></time>
 
 <!--                    TODO: <%= render :partial => "hovernotes",-->

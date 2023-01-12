@@ -1,8 +1,11 @@
 package pandas.collection;
 
+import pandas.delivery.DeliveryUrls;
 import pandas.gather.Instance;
 
 import jakarta.persistence.*;
+
+import java.time.Instant;
 
 /**
  * An alternate entry point into a archived instance. This is published in the display system in addition to the
@@ -74,6 +77,28 @@ public class Issue {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getDeliveryUrl() {
+        return DeliveryUrls.applyRewriteRules(getUrl(), false);
+    }
+
+    public Instant getDate() {
+        if (instance != null) {
+            return instance.getDate();
+        }
+        String deliveryUrl = getDeliveryUrl();
+        if (deliveryUrl != null) {
+            return DeliveryUrls.extractDateFromUrl(deliveryUrl);
+        }
+        var lastInstance = getGroup().getTep().getTitle().getInstances().stream()
+                .filter(instance -> instance.getState().isArchived() && instance.getIsDisplayed())
+                .reduce((first, second) -> second)
+                .orElse(null);
+        if (lastInstance != null) {
+            return lastInstance.getDate();
+        }
+        return null;
     }
 
     public void setUrl(String url) {

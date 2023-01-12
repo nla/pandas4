@@ -26,8 +26,6 @@ import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -673,10 +671,6 @@ public class ApiController {
         }
     }
 
-    private static final Pattern REPLAY_URL_PATTERN = Pattern.compile("https://[^/]+/awa/([0-9]{14})/.*");
-    private static final Pattern PANDORA_URL_PATTERN = Pattern.compile(".*/pandora\\.nla\\.gov\\.au/pan/[0-9]+/([0-9]{8}(?:-[0-9]{4})?)/.*");
-    private static final DateTimeFormatter PAN_DATE = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm", Locale.US).withZone(ZoneId.of("Australia/Sydney"));
-
     public static class IssueJson implements AccessChecker.Restrictable {
         public final long id;
         public final String name;
@@ -690,33 +684,16 @@ public class ApiController {
         public IssueJson(Issue issue) {
             id = issue.getId();
             name = issue.getName();
-            url = Util.applyRewriteRules(issue.getUrl(), false);
-
-            // try to parse date from url
-            Date date = null;
-            if (url != null) {
-                try {
-                    Matcher m;
-                    if ((m = REPLAY_URL_PATTERN.matcher(url)).matches()) {
-                        date = Date.from(DateFormats.ARC_DATE.parse(m.group(1), Instant::from));
-                    } else if ((m = PANDORA_URL_PATTERN.matcher(url)).matches()) {
-                        String string = m.group(1);
-                        if (!string.contains("-")) {
-                            string += "-0000";
-                        }
-                        date = Date.from(PAN_DATE.parse(string, Instant::from));
-                    }
-                } catch (DateTimeParseException e) {
-                    // aww
-                }
-            }
-            if (date == null) {
+            url = issue.getDeliveryUrl();
+            Instant instant = issue.getDate();
+            if (instant == null) {
                 // this probably means the issue has a bogus url so its probably broken anyway
                 // but trove will probably NullPointException if we return null so just
                 // return a placeholder epoch date.
                 date = new Date(0);
+            } else {
+                date = Date.from(instant);
             }
-            this.date = date;
         }
 
         @Override
