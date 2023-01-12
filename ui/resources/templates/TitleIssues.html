@@ -87,11 +87,10 @@
                     <input name="id" type="hidden">
                     <input name="name" placeholder="Group name" required>
                 </td>
-                <td>
+                <td colspan="2">
                     <button type=button class="add-issue-button btn btn-secondary btn-compact"><i class="icon add"></i> Add issue</button>
                     <button type=button class="add-issue-group-button btn btn-secondary btn-compact"><i class="icon add"></i> Add group</button>
                 </td>
-                <td></td>
                 <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
             </tr>
         </template>
@@ -118,11 +117,10 @@
                         <input name="id" th:value="${group.id}" type="hidden">
                         <input name="name" th:value="${group.name}" placeholder="Group name" required>
                     </td>
-                    <td>
+                    <td colspan="2">
                         <button type=button class="add-issue-button btn btn-secondary btn-compact"><i class="icon add"></i> Add issue</button>
                         <button type=button class="add-issue-group-button btn btn-secondary btn-compact"><i class="icon add"></i> Add group</button>
                     </td>
-                    <td></td>
                     <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
                 </tr>
                 <tr class="issue" th:each="issue, i: ${group.issues}">
