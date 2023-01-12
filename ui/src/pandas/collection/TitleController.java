@@ -276,12 +276,16 @@ public class TitleController {
                                @RequestParam(value = "type", defaultValue = "") String[] types,
                                @RequestParam(value = "id", defaultValue = "") Long[] ids,
                                @RequestParam(value = "name", defaultValue = "") ArrayDeque<String> names,
-                               @RequestParam(value = "url", defaultValue = "") ArrayDeque<String> urls) {
+                               @RequestParam(value = "url", defaultValue = "") ArrayDeque<String> urls,
+                               @RequestParam(value = "instance", defaultValue = "") ArrayDeque<Optional<Instance>> instances) {
         Tep tep = title.getTep();
 
         // workaround @RequestParam turning a single ?id= into [] instead of [null]
         if (ids.length == 0) {
             ids = new Long[]{null};
+        }
+        if (instances.isEmpty()) {
+            instances.add(Optional.empty());
         }
 
         // First, build an index of all the existing groups and issues.
@@ -328,6 +332,7 @@ public class TitleController {
                     Issue issue = id == null ? new Issue() : issueMap.get(id);
                     issue.setName(names.pop());
                     issue.setUrl(urls.pop());
+                    issue.setInstance(instances.pop().orElse(null));
                     issue.setOrder(group.getIssues().size());
                     group.addIssue(issue);
                 }

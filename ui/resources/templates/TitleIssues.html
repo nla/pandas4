@@ -26,6 +26,10 @@
             box-sizing: border-box
         }
 
+        .issue select[name=instance] {
+            width: 100%;
+        }
+
         .issue-group input[name=name] {
             width: 100%;
             box-sizing: border-box;
@@ -64,6 +68,13 @@
                     <input name="name" placeholder="Issue name" required>
                 </td>
                 <td><input name="url" placeholder="URL" required></td>
+                <td>
+                    <select name="instance">
+                        <option></option>
+                        <option th:each="instance: ${title.instances}" th:value="${instance.id}"
+                                th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"></option>
+                    </select>
+                </td>
                 <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
             </tr>
         </template>
@@ -71,7 +82,7 @@
         <template id="issueGroupTemplate">
             <tr class="issue-group">
                 <td class="drag-handle">⠿</td>
-                <td colspan=2>
+                <td colspan=3>
                     <input name="type" value="IssueGroup" type="hidden">
                     <input name="id" type="hidden">
                     <input name="name" placeholder="Group name" required>
@@ -83,13 +94,13 @@
                 <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
             </tr>
         </template>
-
         <table id="issueTable" style="table-layout:fixed; width: 100%">
             <colgroup>
                 <col style="width: 24px">
                 <col style="width: 24px">
                 <col style="width: 300px">
                 <col>
+                <col style="width: 160px">
                 <col style="width: 48px">
             </colgroup>
             <tr>
@@ -101,7 +112,7 @@
             <th:block th:if="${title.tep != null}" th:each="group: ${issueGroups}">
                 <tr class="issue-group" th:unless="${group.isNone()}">
                     <td class="drag-handle">⠿</td>
-                    <td colspan=2>
+                    <td colspan=3>
                         <input name="type" value="IssueGroup" type="hidden">
                         <input name="id" th:value="${group.id}" type="hidden">
                         <input name="name" th:value="${group.name}" placeholder="Group name" required>
@@ -121,11 +132,18 @@
                         <input name="name" th:value="${issue.name}" required>
                     </td>
                     <td><input name="url" th:value="${issue.url}" required></td>
+                    <td>
+                        <select name="instance">
+                            <option></option>
+                            <option th:each="instance: ${title.instances}" th:value="${instance.id}"
+                                    th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"
+                                    th:selected="${instance == issue.instance}"></option>
+                        </select>
+                    </td>
                     <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
                 </tr>
             </th:block>
         </table>
-
     </form>
 </main>
 <script th:src="@{/assets/TitleIssues.js}" src="../static/assets/TitleIssues.js"></script>
