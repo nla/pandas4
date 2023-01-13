@@ -3,17 +3,24 @@
     let selector;
     if (location.host === 'www.bing.com') {
         selector = '#b_results > li cite';
-    } else {
+    } else if (location.host === 'www.google.com') {
         selector = '#search a > h3';
+    } else {
+        selector = 'a[href]';
     }
     Array.from(document.querySelectorAll(selector)).forEach(link => {
         let pandasUrl = "https://pandas.nla.gov.au/admin";
         let url;
         if (location.host === 'www.bing.com') {
             url = link.innerText;
-        } else {
+        } else if (location.host === 'www.google.com') {
             link = link.parentNode;
             url = link.href;
+        } else {
+            url = link.href;
+            if (link.host === location.host) {
+                return;
+            }
         }
         fetch(pandasUrl + "/titles/check?url=" + encodeURIComponent(url))
             .then(r => r.json())
@@ -22,6 +29,9 @@
                 if (titles.length === 0) {
                     let a = document.createElement("a");
                     a.innerText = "[New Title]";
+                    if (link.host.endsWith(".au")) {
+                        a.innerText += " (AU)";
+                    }
                     a.href = pandasUrl + "/titles/new?url=" + encodeURIComponent(url);
                     div.appendChild(a);
                 } else {
@@ -41,8 +51,10 @@
                 let container = link.parentNode;
                 if (location.host === 'www.bing.com') {
                     console.log(container.insertBefore(div2, null));
-                } else {
+                } else if (location.host === 'www.google.com') {
                     container.insertBefore(div2, container.childNodes[0].nextSibling);
+                } else {
+                    container.insertBefore(div2, link.nextSibling);
                 }
             });
     })
