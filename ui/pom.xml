@@ -210,11 +210,6 @@
             <version>4.5.0</version>
         </dependency>
         <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>pdf-js</artifactId>
-            <version>2.5.207</version>
-        </dependency>
-        <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>slim-select</artifactId>
             <version>1.24.0</version>
