@@ -2,7 +2,7 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 
 <header th:fragment="header(url)">
-    <select name="agency" onchange="window.location.href = this.value">
+    <select name="agency" onchange="window.location.href = this.value" style="max-width: 250px">
         <option th:value="@{${url}(alias=${currentUser.userid})}">- Personal Worktray -</option>
         <option th:if="${ownerId != null && ownerId != currentUser.id}" th:value="@{${url}(alias=${alias})}" th:text="|${alias}'s Worktray|" selected>jsmith</option>
         <option th:each="agency: ${agencies}" th:value="@{${url}(alias=${agency.organisation.alias})}" th:text="${agency.name}"
