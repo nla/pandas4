@@ -11,6 +11,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import pandas.agency.User;
+import pandas.agency.UserRepository;
 import pandas.collection.*;
 import pandas.search.EntityFacet;
 import pandas.search.Facet;
@@ -29,12 +31,22 @@ public class InstanceSearcher {
     @PersistenceContext
     EntityManager entityManager;
 
-    public InstanceSearcher(CollectionRepository collectionRepository, SubjectRepository subjectRepository) {
+    public InstanceSearcher(CollectionRepository collectionRepository,
+                            GatherMethodRepository gatherMethodRepository,
+                            GatherScheduleRepository gatherScheduleRepository,
+                            SubjectRepository subjectRepository,
+                            UserRepository userRepository) {
         this.facets = new Facet[]{
                 new EntityFacet<>("Collection", "collection", "title.collectionAncestry.id",
                         collectionRepository::findAllById, Collection::getId, Collection::getFullName),
+                new EntityFacet<>("Gather Method", "method", "title.gather.method.id",
+                        gatherMethodRepository::findAllById, GatherMethod::getId, GatherMethod::getName),
+                new EntityFacet<>("Gather Schedule", "schedule", "title.gather.schedule.id",
+                        gatherScheduleRepository::findAllById, GatherSchedule::getId, GatherSchedule::getName),
                 new EntityFacet<>("Gather Problem", "problem", "problemIds",
                         GatherProblem::findAllById, GatherProblem::id, GatherProblem::text),
+                new EntityFacet<>("Owner", "owner", "title.owner.id",
+                        userRepository::findAllById, User::getId, User::getName),
                 new EntityFacet<>("Subject", "subject", "title.subjects.id",
                         subjectRepository::findAllById, Subject::getId, Subject::getName),
         };

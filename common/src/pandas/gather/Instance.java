@@ -40,7 +40,16 @@ public class Instance {
 
     @ManyToOne
     @JoinColumn(name = "TITLE_ID")
-    @IndexedEmbedded(includePaths = {"id", "collections.id", "collectionAncestry.id", "subjects.id", "owner.id", "agency.id"})
+    @IndexedEmbedded(includePaths = {
+            "agency.id",
+            "collectionAncestry.id",
+            "collections.id",
+            "gather.method.id",
+            "gather.schedule.id",
+            "id",
+            "owner.id",
+            "subjects.id",
+    })
     private Title title;
 
     @Column(name = "INSTANCE_DATE")
