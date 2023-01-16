@@ -109,9 +109,10 @@ public class TitleController {
         model.addAttribute("dateFormat", DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));
         model.addAttribute("title", title);
         Comparator<Integer> comparator = Comparator.naturalOrder();
-        model.addAttribute("instancesByYear", title.getInstances().stream().collect(
-                groupingBy(i -> i.getDate().atZone(ZoneId.systemDefault()).getYear(),
-                () -> new TreeMap<>(comparator.reversed()), toList())));
+        model.addAttribute("instancesByYear", title.getInstances().stream()
+                .sorted(Comparator.comparing(Instance::getDate).reversed())
+                .collect(groupingBy(i -> i.getDate().atZone(ZoneId.systemDefault()).getYear(),
+                        () -> new TreeMap<>(comparator.reversed()), toList())));
         model.addAttribute("deletedInstancesCount", title.getInstances().stream().filter(instance -> instance.getState().isDeleted()).count());
         model.addAttribute("issueGroups", issueGroupRepository.findByTepTitleOrderByOrder(title));
         return "TitleView";
