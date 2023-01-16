@@ -229,8 +229,13 @@
         updateSelected();
     </script>
 
-
-    <div th:replace="~{worktrays/_worktrays :: pagination(${gatheredInstances})}">
-    </div>
+    <nav class="pagination">
+        <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind=","
+                th:value="${gatheredInstances.hasPrevious() ? gatheredInstances.previousPageable().pageNumber : ''}"
+                tabindex="-1" th:disabled="${!gatheredInstances.hasPrevious()}"><i class="icon previous"></i>Previous</button>
+        <button form="sf" type="submit" name="page" class="btn btn-secondary" data-keybind="."
+                th:value="${gatheredInstances.hasNext() ? gatheredInstances.nextPageable().pageNumber : ''}"
+                th:disabled="${!gatheredInstances.hasNext()}">Next<i class="icon icon-right next"></i></button>
+    </nav>
 </main>
 <script th:src="@{/assets/Search.js}" src="../static/assets/Search.js"></script>
