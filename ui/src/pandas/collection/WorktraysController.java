@@ -186,6 +186,24 @@ public class WorktraysController {
         return "worktrays/Gathered";
     }
 
+    @GetMapping({"/worktrays/gathered2", "/worktrays/{alias}/gathered2"})
+    public String gathered2(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
+                           @RequestParam MultiValueMap<String, String> params,
+                           @PageableDefault(size = 100) Pageable pageable, Model model) {
+        State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
+
+        var instances = instanceSearcher.search(gatheredState.getId(), agencyId, ownerId, params, pageable);
+
+        Map<Long, PreviousGather> previousGathers = new HashMap<>();
+        instanceRepository.findPreviousStats(instances.getContent())
+                .forEach(ps -> previousGathers.put(ps.getCurrentInstanceId(), ps));
+        model.addAttribute("gatheredInstances", instances);
+        model.addAttribute("previousGathers", previousGathers);
+        model.addAttribute("filters", instances.getFacets());
+
+        return "worktrays/Gathered";
+    }
+
     <T,R> FacetResults buildFilter(String name, String param, java.util.Collection<T> items,
                                    Set<R> selected, Function<T,java.util.Collection<R>> mapper,
                                    Function<R,Object> idMapper, Function<R,String> nameMapper) {
