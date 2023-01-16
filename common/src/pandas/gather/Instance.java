@@ -44,6 +44,7 @@ public class Instance {
     private Title title;
 
     @Column(name = "INSTANCE_DATE")
+    @GenericField(sortable = Sortable.YES)
     private Instant date;
 
     @ManyToOne

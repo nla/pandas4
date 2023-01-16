@@ -44,7 +44,8 @@ public class InstanceSearcher {
                                           MultiValueMap<String, String> params, Pageable pageable) {
         var session = Search.session(entityManager);
         var search = session.search(Instance.class)
-                .where(buildPredicate(stateId, agencyId, ownerId, params, null));
+                .where(buildPredicate(stateId, agencyId, ownerId, params, null))
+                .sort(f -> f.field("date").desc());
 
         // we can do inactive facets as part of the main search
         for (Facet facet : facets) {
