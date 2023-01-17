@@ -38,10 +38,10 @@ import static pandas.gather.InstanceThumbnail.Type.REPLAY;
  */
 @SpringBootTest(classes = PandasGatherer.class, properties = {
         "spring.datasource.url = jdbc:h2:mem:it;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
-        "spring.jpa.properties.hibernate.dialect = pandas.core.PandasH2Dialect",
         "heritrix.url = https://localhost:18443/engine",
         "heritrix.password = password",
-        "bamboo.crawlSeriesId = 1"})
+        "bamboo.crawlSeriesId = 1",
+        "spring.jpa.hibernate.ddl-auto=create-drop"})
 @ContextConfiguration(initializers = GathererIT.Initializer.class)
 @MockServerTest("bamboo.url = http://127.0.0.1:${mockServerPort}/bamboo")
 public class GathererIT {
