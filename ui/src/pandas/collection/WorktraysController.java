@@ -1,7 +1,6 @@
 package pandas.collection;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -16,8 +15,6 @@ import pandas.agency.*;
 import pandas.core.NotFoundException;
 import pandas.gather.*;
 import pandas.report.ReportRepository;
-
-import jakarta.servlet.http.HttpSession;
 import pandas.search.FacetEntry;
 import pandas.search.FacetResults;
 
@@ -170,24 +167,6 @@ public class WorktraysController {
 
     @GetMapping({"/worktrays/gathered", "/worktrays/{alias}/gathered"})
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
-                           @RequestParam MultiValueMap<String, String> params,
-                           @PageableDefault(size = 100) Pageable pageable, Model model) {
-        State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
-
-        var instances = instanceRepository.listGatheredWorktray(agencyId, ownerId, pageable);
-
-        Map<Long, PreviousGather> previousGathers = new HashMap<>();
-        instanceRepository.findPreviousStats(instances.getContent())
-                .forEach(ps -> previousGathers.put(ps.getCurrentInstanceId(), ps));
-        model.addAttribute("gatheredInstances", instances);
-        model.addAttribute("previousGathers", previousGathers);
-        model.addAttribute("filters", List.of());
-
-        return "worktrays/Gathered";
-    }
-
-    @GetMapping({"/worktrays/gathered2", "/worktrays/{alias}/gathered2"})
-    public String gathered2(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
                            @RequestParam MultiValueMap<String, String> params,
                            @PageableDefault(size = 100) Pageable pageable, Model model) {
         State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
