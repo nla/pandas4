@@ -85,7 +85,7 @@
             th:src="${registration.providerDetails.getAuthorizationUri() + '?response_type=none&prompt=none' +
                 '&client_id=' + registration.getClientId() + '&redirect_uri='} + ${@link.checkSessionReply()}"
             style="display: none" class="checkSessionIframe"
-            onload="if (this.contentWindow.location.search.match('session_state=')) window.location = this.dataset.loginurl"
+            onload="if (this.contentWindow.location.search.match('session_state=')) location.assign(this.dataset.loginurl)"
             th:data-loginurl="@{/oauth2/authorization/{id}(id=${registration.registrationId})}"></iframe>
 </th:block>
 </body>

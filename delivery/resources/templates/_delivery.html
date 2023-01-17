@@ -62,7 +62,7 @@
     </div>
     <div class="searchFormRight">
         <span>Subjects Menu:</span>
-        <select onchange="javascript:window.location.href=this.options[this.selectedIndex].value" id="subjectDD">
+        <select onchange="javascript:location.assign(this.options[this.selectedIndex].value)" id="subjectDD">
             <option>Browse Subjects</option>
             <option th:each="subject : ${@subjectRepository.findAllByOrderByName()}"
                     th:value="@{|${prefix}/subject/${subject.id}|}" th:text="${subject.name}">Arts
