@@ -12,7 +12,12 @@
     <header>
         <nav><a th:href="@{/schedules/new}" href="GatherScheduleEdit.html" class="btn btn-primary">New Schedule</a></nav>
     </header>
-    <h2>Gather Schedules</h2>
+    <nav class="breadcrumb">
+        <ol>
+            <li class="section"><a th:href="@{/settings}">System Settings</a>
+            <li class="active">Gather Schedules
+        </ol>
+    </nav>
 
     <p th:text="${danger}" th:if="${danger}" class="alert alert-danger"></p>
 

@@ -409,6 +409,10 @@ button.btn-danger:hover, a.btn-danger:hover {
     color: var(--color-black);
 }
 
+.breadcrumb li.section {
+    font-weight: bold;
+}
+
 .under-breadcrumbs {
     font-size: 70%;
     color: #666;

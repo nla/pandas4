@@ -12,8 +12,12 @@
     <header>
         <nav><a th:href="@{/profiles/new}" href="ProfileEdit.html" class="btn btn-primary">New Profile</a></nav>
     </header>
-
-    <h1>Gather Profiles</h1>
+    <nav class="breadcrumb">
+        <ol>
+            <li class="section"><a th:href="@{/settings}">System Settings</a>
+            <li class="active">Gather Profiles
+        </ol>
+    </nav>
 
     <table>
         <thead>

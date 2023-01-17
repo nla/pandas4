@@ -79,9 +79,7 @@
 
     <!-- Gather option administration -->
     <ul sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')">
-        <li><a th:href="@{/profiles}">Gather Profiles</a>
-        <li><a th:href="@{/schedules}">Gather Schedules</a>
-        <li><a th:href="@{/gather/filterpresets}">Filter Presets</a>
+        <li><a th:href="@{/settings}">System Settings</a>
     </ul>
     <ul>
         <li style="padding-left: 1rem; color: #999">User: <span sec:authentication="name">jsmith</span></li>

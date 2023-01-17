@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>System Settings - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='System Settings')}"></nav>
+<main>
+    <header>
+    </header>
+    <h1>System Settings</h1>
+    <section>
+        General
+        <ul>
+            <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies and Users</a>
+        </ul>
+    </section>
+    <section>
+        Gather Settings
+        <ul>
+            <li sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')"><a th:href="@{/gather/filterpresets}">Filter Presets</a></li>
+            <li sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')"><a th:href="@{/profiles}">Gather Profiles</a></li>
+            <li sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')"><a th:href="@{/schedules}">Gather Schedules</a></li>
+        </ul>
+    </section>
+</main>
