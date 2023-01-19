@@ -1,6 +1,11 @@
 package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.hibernate.search.engine.search.query.SearchScroll;
@@ -32,11 +37,6 @@ import pandas.util.Requests;
 import pandas.util.SURT;
 import pandas.util.Strings;
 
-import jakarta.persistence.EntityManager;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
@@ -497,7 +497,7 @@ public class TitleController {
         }
 
         TitleEditForm form = titleService.newTitleForm(collections, subjects);
-        form.setTitleUrl(url);
+        form.setSeedUrls(url);
         form.setPublisherAbn(publisherAbn);
 
         // Copy basic gather settings to the new form when using "Save and add another"
