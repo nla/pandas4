@@ -54,7 +54,7 @@ public class InstanceIntegrationTest extends IntegrationTest {
 
     private Title createTitle() {
         var titleForm = titleService.newTitleForm(Collections.emptySet(), Collections.emptySet());
-        titleForm.setTitleUrl("http://example.org/");
+        titleForm.setSeedUrls("http://example.org/");
         titleForm.setName("Test Title");
         return titleService.save(titleForm, userService.getCurrentUser());
     }

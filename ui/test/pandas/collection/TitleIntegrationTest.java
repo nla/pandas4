@@ -28,7 +28,7 @@ class TitleIntegrationTest extends IntegrationTest {
     @Transactional
     public void testBulkChange() throws Exception {
         var titleForm = titleService.newTitleForm(Collections.emptySet(), Collections.emptySet());
-        titleForm.setTitleUrl("http://example.org/");
+        titleForm.setSeedUrls("http://example.org/");
         titleForm.setName("Bulk Change Integration Test Title");
         User user = userService.getCurrentUser();
         Title title = titleService.save(titleForm, user);

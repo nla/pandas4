@@ -56,7 +56,7 @@ class ApiControllerTest {
         TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("Test title");
         form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
-        form.setTitleUrl("http://example.com/");
+        form.setSeedUrls("http://example.com/");
         form.getCollections().add(parentCollection);
         title = titleService.save(form, null);
 

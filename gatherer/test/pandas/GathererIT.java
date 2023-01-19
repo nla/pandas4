@@ -97,7 +97,7 @@ public class GathererIT {
             TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
             form.setName("Heritrix title");
             form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
-            form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
+            form.setSeedUrls("http://127.0.0.1:" + mockServer.getPort() + "/target/");
             form.setOneoffDates(List.of(Instant.now()));
             Title title = titleService.save(form, null);
 
@@ -152,7 +152,7 @@ public class GathererIT {
         TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("HTTrack title");
         form.setGatherMethod(gatherMethodRepository.findByName("HTTrack").orElseThrow());
-        form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
+        form.setSeedUrls("http://127.0.0.1:" + mockServer.getPort() + "/target/");
         form.setOneoffDates(List.of(Instant.now()));
         Title title = titleService.save(form, null);
 
@@ -195,7 +195,7 @@ public class GathererIT {
         TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("Browsertrix title");
         form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.BROWSERTRIX).orElseThrow());
-        form.setTitleUrl("http://127.0.0.1:" + mockServer.getPort() + "/target/");
+        form.setSeedUrls("http://127.0.0.1:" + mockServer.getPort() + "/target/");
         form.setOneoffDates(List.of(Instant.now()));
         Title title = titleService.save(form, null);
 
