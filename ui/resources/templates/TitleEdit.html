@@ -74,8 +74,11 @@
 
             <div>
                 <label style="flex-grow: 1">
-                    Web address (URL)
-                    <input th:field="*{titleUrl}" required class="form-control">
+                    <span id="seedUrlsLabelText">Seed URL</span>
+                    <span style="display: flex; gap: 2px">
+                        <textarea th:field="*{seedUrls}" rows="1"></textarea>
+                        <button id="urlPlusButton" type="button" class="btn btn-compact btn-secondary" style="height: 32px">➕</button>
+                    </span>
                 </label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Status
                     <select th:field="*{status}" onchange="updateReasons()" th:data-current="${form.status.id}">
@@ -187,6 +190,10 @@
                            onchange="this.value = this.value.replace(/[ -]/g, '')">
                 </labe>
             </div>
+            <label>
+                Title URL
+                <input th:field="*{titleUrl}">
+            </label>
             <div>
                 <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under
                     legal deposit</label>
@@ -346,7 +353,9 @@
                     </select>
                 </label>
 
-                <details th:open="${form.seedUrls != form.titleUrl}">
+                <div id="surtsHint"></div>
+
+                <details>
                     <summary>Crawl options</summary>
                     <label style="margin: var(--gutter) 0">Profile
                         <select th:field="*{activeProfile}" id="activeProfile">
@@ -383,11 +392,6 @@
                         </script>
                     </label>
 
-                    <label>
-                        Seed URLs:
-                        <textarea th:field="*{seedUrls}" rows="5"></textarea>
-                        <div id="surtsHint"></div>
-                    </label>
                     <label>
                         Filters:
                         <textarea th:field="*{filters}" rows="5"></textarea>

@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +13,6 @@ import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.util.Strings;
 
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
@@ -109,7 +109,6 @@ public class TitleService {
         title.setShortDisplayName(title.getName().length() > 60 ? (title.getName().substring(0, 60) + "...") : title.getName());
         title.setNotes(Strings.emptyToNull(form.getNotes()));
         title.setSubjects(form.getSubjects());
-        title.setTitleUrl(form.getTitleUrl());
         title.setUnableToArchive(form.isUnableToArchive());
 
         Tep tep = title.getTep(); // ensure we have a tep
@@ -144,12 +143,12 @@ public class TitleService {
         }
 
         // set seed url
-        String[] seeds = new String[0];
-        if (Strings.isNullOrBlank(form.getSeedUrls())) {
-            title.setSeedUrl(form.getTitleUrl());
+        String[] seeds = form.getSeedUrls().split("\\s+");
+        title.setSeedUrl(seeds[0]);
+        if (form.getTitleUrl() == null || form.getTitleUrl().isBlank()) {
+            title.setTitleUrl(seeds[0]);
         } else {
-            seeds = form.getSeedUrls().split("\\s+");
-            title.setSeedUrl(seeds[0]);
+            title.setTitleUrl(form.getTitleUrl());
         }
 
         if (title.getId() == null) {

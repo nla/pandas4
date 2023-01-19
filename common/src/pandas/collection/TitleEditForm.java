@@ -1,10 +1,10 @@
 package pandas.collection;
 
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 import pandas.gather.*;
 
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotBlank;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,6 @@ import static pandas.util.Strings.emptyToNull;
 
 public class TitleEditForm {
     private Long id;
-    @NotBlank
     private String titleUrl;
     @NotBlank
     private String name;
@@ -71,12 +70,20 @@ public class TitleEditForm {
         setPublisher(title.getPublisher());
         setStatus(title.getStatus());
         setSubjects(title.getSubjects());
-        setTitleUrl(title.getTitleUrl());
         if (title.getSeedUrl() != null) {
             setSeedUrls(title.getSeedUrl());
         } else {
             setSeedUrls(title.getTitleUrl());
         }
+
+        // if the title url is the same as the first seed url, leave it blank on the form
+        if (title.getSeedUrl().equals(title.getTitleUrl()) ||
+                title.getSeedUrl().startsWith(title.getTitleUrl() + "\n")) {
+            setTitleUrl(null);
+        } else {
+            setTitleUrl(title.getTitleUrl());
+        }
+
         setUnableToArchive(title.isUnableToArchive());
 
         TitleGather gather = title.getGather();

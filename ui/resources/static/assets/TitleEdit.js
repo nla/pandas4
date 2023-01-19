@@ -37,7 +37,7 @@ document.getElementById('collections').addEventListener('change', function (even
     }
 });
 
-let titleUrlField = document.getElementById("titleUrl");
+let seedUrlsField = document.getElementById("seedUrls");
 
 function escapeHtml(text) {
     var element = document.createElement('p');
@@ -100,7 +100,7 @@ if (document.getElementById("publisher")) {
                 document.getElementById("publisherType").required = true;
                 document.getElementById("newPublisherFields").style.display = "inherit";
 
-                const urlString = titleUrlField.value;
+                const urlString = getPrimarySeedUrl();
                 if (urlString) {
                     const host = new URL(urlString).host;
                     const publisherTypeOptions = document.getElementById("publisherType").options;
@@ -183,19 +183,52 @@ function nameChanged() {
         });
 }
 
-function titleUrlChanged () {
+function getSeedUrls() {
+    return document.getElementById("seedUrls").value.split(/\s+/);
+}
+
+function getPrimarySeedUrl() {
+    return getSeedUrls()[0];
+}
+
+function setPrimarySeedUrl(url) {
+    let urls = getSeedUrls();
+    if (url === urls[0]) return;
+    urls[0] = url;
+    seedUrlsField.value = urls.join("\n");
+}
+
+function normalizeSeedUrls() {
+    let urls = [];
+    let changedAnything = false;
+    for (let url of getSeedUrls()) {
+        let originalUrl = url;
+        if (url === "") continue;
+        if (!url.match(/^[a-z]+:\/\//)) {
+            url = "http://" + url;
+        }
+        url = url.replace(/^https?:\/\/(nitter\.net|nitter\.mstdn\.social|mobile\.twitter\.com|twitter\.com)\//, "https://nitter.archive.org.au/");
+        urls.push(url);
+        if (url !== originalUrl) {
+            changedAnything = true;
+        }
+    }
+    if (changedAnything) {
+        seedUrlsField.value = urls.join("\n");
+    }
+}
+
+function seedUrlsChanged () {
     let fetchAlert = document.getElementById("fetchAlert");
     fetchAlert.innerHTML = '';
     fetchAlert.style.display = 'none'
     document.getElementById("duplicateAlert").innerHTML = '';
     document.getElementById("duplicateAlert").style.display = 'none'
 
-    if (!titleUrlField.value.match(/^[a-z]+:\/\//)) {
-        titleUrlField.value = "http://" + titleUrlField.value;
-    }
-    titleUrlField.value = titleUrlField.value.replace(/^https?:\/\/(nitter\.net|nitter\.mstdn\.social|mobile\.twitter\.com|twitter\.com)\//, "https://nitter.archive.org.au/");
+    normalizeSeedUrls();
+
     /* ensure all pages on this website can't be selected for nitter */
-    if (titleUrlField.value.startsWith("https://nitter.archive.org.au/")) {
+    if (getPrimarySeedUrl().startsWith("https://nitter.archive.org.au/")) {
         if (!document.querySelectorAll("input[type=radio][name=scope]")[2].checked) {
             document.querySelectorAll("input[type=radio][name=scope]")[1].checked = true;
         }
@@ -204,7 +237,7 @@ function titleUrlChanged () {
         document.querySelectorAll("input[type=radio][name=scope]")[1].disabled = false;
     }
 
-    fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
+    fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()))
         .then(response => response.json())
         .then(titles => {
             titles = titles.filter(title => title.id !== thisTitleId);
@@ -224,11 +257,11 @@ function titleUrlChanged () {
 
             if (titles.length >= 4) {
                 warningDiv.appendChild(createLink("More...", titlesEndpoint + "?q=" +
-                    encodeURIComponent(titleUrlField.value), "_blank"));
+                    encodeURIComponent(getPrimarySeedUrl()), "_blank"));
             }
         });
 
-    fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(titleUrlField.value))
+    fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()))
         .catch(reason => console.log(reason))
         .then(response => response.json())
         .then(info => {
@@ -236,9 +269,9 @@ function titleUrlChanged () {
                 return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
             }
 
-            if (info.location && normalize(titleUrlField.value).localeCompare(normalize(info.location), 'en', { sensitivity: 'base' }) === 0) {
-                titleUrlField.value = info.location;
-                titleUrlChanged();
+            if (info.location && normalize(getPrimarySeedUrl()).localeCompare(normalize(info.location), 'en', { sensitivity: 'base' }) === 0) {
+                setPrimarySeedUrl(info.location);
+                seedUrlsChanged();
                 return;
             }
 
@@ -276,10 +309,6 @@ function titleUrlChanged () {
 
 function checkSurts() {
     let seeds = document.getElementById('seedUrls').value;
-    if (!seeds) {
-        seeds = document.getElementById('titleUrl').value;
-    }
-
     const surtsHint = document.getElementById('surtsHint');
     let selectedGatherMethod = document.getElementById('gatherMethod').selectedOptions;
     if (!seeds || selectedGatherMethod.length === 0 || selectedGatherMethod[0].text !== 'Heritrix') {
@@ -306,10 +335,31 @@ function showOrHideFilters() {
     document.getElementById('filters').parentElement.style.display = httrackMethodIsSelected ? 'inherit' : 'none';
 }
 
+// When a newline is entered in the URL field, expand it to multiple lines
+function autoExpandSeedUrlField() {
+    if (seedUrlsField.rows === 1 && seedUrlsField.value.includes('\n')) {
+        seedUrlsField.rows = 5;
+        document.getElementById('urlPlusButton').style.display = 'none';
+        document.getElementById('seedUrlsLabelText').innerText += "s";
+    }
+}
+document.getElementById('seedUrls').addEventListener('input', autoExpandSeedUrlField);
+autoExpandSeedUrlField();
+
+// When the URL field's "+" button is clicked, expand it
+document.getElementById('urlPlusButton').addEventListener('click', function() {
+    let seedUrlsTextArea = document.getElementById("seedUrls");
+    if (!seedUrlsTextArea.value.endsWith("\n")) {
+        seedUrlsTextArea.value += "\n";
+    }
+    autoExpandSeedUrlField();
+    seedUrlsTextArea.focus();
+});
+
 // Setup event listeners
 
-titleUrlField.addEventListener("change", function() {
-    titleUrlChanged();
+seedUrlsField.addEventListener("change", function() {
+    seedUrlsChanged();
     checkSurts();
 });
 document.getElementById('seedUrls').addEventListener("change", checkSurts);
@@ -321,8 +371,8 @@ nameField.addEventListener("change", nameChanged);
 
 // Fire initial change events
 
-if (titleUrlField.value !== "") {
-    titleUrlChanged();
+if (seedUrlsField.value !== "") {
+    seedUrlsChanged();
 }
 showOrHideFilters();
 checkSurts();
