@@ -82,16 +82,20 @@ public class GatherManager implements AutoCloseable {
 					log.warn("Title.getPrimarySeedHost() returned null for instance {}", instance.getHumanId());
 					primarySeedHost = "unknown";
 				}
-				if (instance.getState().isGatheringOrCreation()) {
-					if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId()) &&
-							!currentlyGatheringHosts.containsKey(primarySeedHost)) {
-						currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
-						currentlyGatheringHosts.put(primarySeedHost, threadName);
-						return instance;
-					}
-				} else {
-					return instance;
+
+				if (currentlyGatheringTitles.containsKey(instance.getTitle().getId())) {
+					continue;
 				}
+
+				if (instance.getState().isGatheringOrCreation()) {
+					if (currentlyGatheringHosts.containsKey(primarySeedHost)) {
+						continue;
+					}
+					currentlyGatheringHosts.put(primarySeedHost, threadName);
+				}
+
+				currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
+				return instance;
 			}
 
 			// now look for titles scheduled for a new gather
