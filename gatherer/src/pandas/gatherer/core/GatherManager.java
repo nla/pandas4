@@ -82,10 +82,14 @@ public class GatherManager implements AutoCloseable {
 					log.warn("Title.getPrimarySeedHost() returned null for instance {}", instance.getHumanId());
 					primarySeedHost = "unknown";
 				}
-				if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId()) &&
-					!currentlyGatheringHosts.containsKey(primarySeedHost)) {
-					currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
-					currentlyGatheringHosts.put(primarySeedHost, threadName);
+				if (instance.getState().isGatheringOrCreation()) {
+					if (!currentlyGatheringTitles.containsKey(instance.getTitle().getId()) &&
+							!currentlyGatheringHosts.containsKey(primarySeedHost)) {
+						currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
+						currentlyGatheringHosts.put(primarySeedHost, threadName);
+						return instance;
+					}
+				} else {
 					return instance;
 				}
 			}

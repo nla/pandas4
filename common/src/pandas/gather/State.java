@@ -64,4 +64,8 @@ public class State {
             default -> false;
         };
     }
+
+    public boolean isGatheringOrCreation() {
+        return getName().equals(GATHERING) || getName().equals(CREATION);
+    }
 }
