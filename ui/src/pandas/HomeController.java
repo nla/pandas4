@@ -1,12 +1,17 @@
 package pandas;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -45,7 +50,9 @@ public class HomeController {
      */
     @GetMapping("/sudo")
     @PreAuthorize("hasAuthority('PRIV_SUDO')")
-    public String sudo(@RequestParam("role") String role, Authentication auth, @RequestHeader("referer") String referer) {
+    public String sudo(@RequestParam("role") String role, Authentication auth, @RequestHeader("referer") String referer,
+                       HttpServletRequest request, HttpServletResponse response,
+                       @Autowired HttpSessionSecurityContextRepository securityContextRepository) {
         var newAuthorities = new HashSet<GrantedAuthority>();
         for (var authority : auth.getAuthorities()) {
             if (authority instanceof SimpleGrantedAuthority) {
@@ -63,7 +70,10 @@ public class HomeController {
                 break;
             default: throw new IllegalArgumentException("this only support infouser, stduser and agadmin currently");
         }
-        SecurityContextHolder.getContext().setAuthentication(new AuthenticationWrapper(auth, newAuthorities));
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(new AuthenticationWrapper(auth, newAuthorities));
+        securityContextRepository.saveContext(context, request, response);
+
         return "redirect:" + (referer != null ? referer : "/");
     }
 

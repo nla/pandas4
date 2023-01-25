@@ -1,6 +1,7 @@
 package pandas.core;
 
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.AgencyRepository;
 import pandas.agency.User;
 import pandas.agency.UserRepository;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
@@ -67,7 +70,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    protected HttpSessionSecurityContextRepository httpSessionSecurityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    protected SecurityFilterChain configure(HttpSecurity http,
+                                            HttpSessionSecurityContextRepository httpSessionSecurityContextRepository) throws Exception {
         http.securityMatcher("/login/check-session-reply").headers().frameOptions().sameOrigin().and().securityMatcher("/**");
         if (config.getAutologin() != null) {
             PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
@@ -120,6 +129,12 @@ public class SecurityConfig {
                 auth.formLogin().defaultSuccessUrl("/")
                     .and().httpBasic().realmName("PANDAS");
         }
+
+        // This is the same as the default, but the sudo function needs a reference to
+        // httpSessionSecurityContextRepository, so we construct it ourselves and stash it in a bean.
+        http.securityContext().securityContextRepository(new DelegatingSecurityContextRepository(
+                new RequestAttributeSecurityContextRepository(), httpSessionSecurityContextRepository));
+
         return http.build();
     }
 
