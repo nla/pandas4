@@ -18,6 +18,8 @@ import java.util.List;
 
 @Repository
 public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSpecificationExecutor<Instance> {
+    List<Instance> findByStateInOrderByDate(List<State> states);
+
     @Query("select i from Instance i where i.state.name in ('gathering', 'gatherPause', 'gatherProcess', " +
             "'archiving', 'deleting') order by i.date")
     List<Instance> findGathering();
