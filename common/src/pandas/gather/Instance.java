@@ -447,6 +447,11 @@ public class Instance {
         return stateHistory;
     }
 
+    public Instant getLastStateChangeDate() {
+        if (getStateHistory().isEmpty()) return date;
+        return stateHistory.get(stateHistory.size() - 1).getStartDate();
+    }
+
     public State getStateBeforeFailure() {
         if (!getState().isFailed()) return null;
         for (int i = getStateHistory().size() - 1; i >= 0; i--) {

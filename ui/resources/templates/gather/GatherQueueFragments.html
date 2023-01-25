@@ -25,7 +25,7 @@
         <span th:text="${instance.state.name}" class="gather-state" th:classappend="${'gather-state-' + instance.state.name}">Gathering</span>
     </td>
     <td class="start-time">
-        ⏱ <time th:datetime="${instance.date}" th:text="${@dateFormats.dayDateTime.format(instance.date)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.date)}">1 hour ago</time><br>
+        ⏱ <time th:datetime="${instance.lastStateChangeDate}" th:text="${@dateFormats.dayDateTime.format(instance.lastStateChangeDate)}" th:title="${'Started ' + @dateFormats.dayDateTime.format(instance.lastStateChangeDate)}">1 hour ago</time><br>
         📈 <span th:text="${instance.gather.stats}">1,234 files 20 MB</span>
     </td>
     <td th:replace="${actions}"></td>
