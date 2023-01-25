@@ -83,6 +83,9 @@
     </ul>
     <ul>
         <li style="padding-left: 1rem; color: #999">User: <span sec:authentication="name">jsmith</span></li>
+        <li sec:authorize="hasAuthority('IS_MASQUERADING')" style="padding-left: 1rem; color: #999">
+            Acting as: <span th:text="${@userService.effectiveRole}"></span>
+        </li>
         <li><form th:action="@{/logout}" method=post id=logoutForm></form><a href="#" onclick="document.getElementById('logoutForm').submit()">Sign Out</a></li>
         <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=infouser}">Become infouser</a></li>
         <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=stduser}">Become stduser</a></li>

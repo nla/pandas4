@@ -70,6 +70,7 @@ public class HomeController {
                 break;
             default: throw new IllegalArgumentException("this only support infouser, stduser and agadmin currently");
         }
+        newAuthorities.add(new SimpleGrantedAuthority("IS_MASQUERADING"));
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(new AuthenticationWrapper(auth, newAuthorities));
         securityContextRepository.saveContext(context, request, response);
