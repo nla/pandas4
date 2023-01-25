@@ -28,7 +28,8 @@ import static java.util.stream.Collectors.toSet;
  * Information about the gather settings and options for a title.
  */
 @Entity
-@Table(name = "TITLE_GATHER")
+@Table(name = "TITLE_GATHER",
+        indexes = {@Index(name = "TITLE_GATHER_NEXT_GATHER_DATE", columnList = "NEXT_GATHER_DATE")})
 @DynamicUpdate
 public class TitleGather {
     @Id
