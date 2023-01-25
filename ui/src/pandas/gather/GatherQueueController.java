@@ -32,12 +32,11 @@ public class GatherQueueController {
     @GetMapping("/queue")
     public String gatherQueue(Model model) {
         Instant endOfToday = LocalDateTime.of(LocalDate.now(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant();
-        var gatheringStates = stateRepository.findByNameIn(List.of(GATHERING, GATHER_PAUSE, GATHER_PROCESS,
-                ARCHIVING, DELETING));
-        var failedStates = stateRepository.findByNameIn(List.of(FAILED));
+        var gatheringStates = stateRepository.mustFindByName(GATHERING, GATHER_PAUSE, GATHER_PROCESS,
+                ARCHIVING, DELETING);
         model.addAttribute("queuedGathers", titleGatherRepository.findQueuedBefore(endOfToday));
         model.addAttribute("gatheringInstances", instanceRepository.findByStateInOrderByDate(gatheringStates));
-        model.addAttribute("failedInstances", instanceRepository.findByStateInOrderByDate(failedStates));
+        model.addAttribute("failedInstances", listFailedInstances());
         return "gather/GatherQueue";
     }
 
@@ -51,10 +50,13 @@ public class GatherQueueController {
     @PostMapping("/queue/retry-all")
     @Transactional
     public String retryAll() {
-        for (Instance instance : instanceRepository.findFailed()) {
+        for (Instance instance : listFailedInstances()) {
             instanceService.retryAfterFailure(instance, userService.getCurrentUser());
         }
         return "redirect:/queue";
     }
 
+    private List<Instance> listFailedInstances() {
+        return instanceRepository.findByStateInOrderByDate(stateRepository.mustFindByName(FAILED));
+    }
 }
