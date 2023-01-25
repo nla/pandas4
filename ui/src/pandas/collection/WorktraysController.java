@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import pandas.agency.*;
 import pandas.core.NotFoundException;
+import pandas.core.Privileges;
 import pandas.gather.*;
 import pandas.report.ReportRepository;
 import pandas.search.FacetEntry;
@@ -52,7 +54,7 @@ public class WorktraysController {
 
     @ModelAttribute
     public void commonAttributes(@PathVariable(name = "alias", required = false) String alias, Model model,
-                                 HttpSession session) {
+                                 HttpSession session, Authentication authentication) {
         // Make the worktrays sticky by stashing the alias in the session.
         if (alias == null || alias.isBlank()) {
             alias = (String) session.getAttribute(LAST_ALIAS);
@@ -77,13 +79,19 @@ public class WorktraysController {
         if (agencyId == null && ownerId == null) {
             ownerId = currentUser.getId();
         }
+
+        if (authentication.getAuthorities().contains(Privileges.VIEW_ALL_AGENCY_WORKTRAYS)) {
+            model.addAttribute("worktrayAgencies", agencyRepository.findAllOrdered());
+        } else {
+            model.addAttribute("worktrayAgencies", List.of(currentUser.getAgency()));
+        }
+
         model.addAttribute("alias", alias);
         model.addAttribute("agencyId", agencyId);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("ownerId", ownerId);
         model.addAttribute("dateFormat", DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault()));
         model.addAttribute("dateTimeFormat", DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").withZone(ZoneId.systemDefault()));
-        model.addAttribute("agencies", agencyRepository.findAllOrdered());
     }
 
     @GetMapping(value = {"/worktrays", "/worktrays/{alias}"})

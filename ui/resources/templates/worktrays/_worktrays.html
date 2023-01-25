@@ -5,7 +5,7 @@
     <select name="agency" onchange="location.assign(this.value)" style="max-width: 250px">
         <option th:value="@{${url}(alias=${currentUser.userid})}">- Personal Worktray -</option>
         <option th:if="${ownerId != null && ownerId != currentUser.id}" th:value="@{${url}(alias=${alias})}" th:text="|${alias}'s Worktray|" selected>jsmith</option>
-        <option th:each="agency: ${agencies}" th:value="@{${url}(alias=${agency.organisation.alias})}" th:text="${agency.name}"
+        <option th:each="agency: ${worktrayAgencies}" th:value="@{${url}(alias=${agency.organisation.alias})}" th:text="${agency.name}"
                 th:selected="${agency.organisation.alias == alias}">
             My Agency
         </option>

@@ -27,6 +27,8 @@ public class Privileges {
     public static final SimpleGrantedAuthority EDIT_SUBJECTS = new SimpleGrantedAuthority("PRIV_EDIT_SUBJECTS");
     public static final SimpleGrantedAuthority EDIT_DISCOVERY_SOURCES = new SimpleGrantedAuthority("PRIV_EDIT_DISCOVERY_SOURCES");
 
+
+    public static final SimpleGrantedAuthority VIEW_ALL_AGENCY_WORKTRAYS  = new SimpleGrantedAuthority("PRIV_VIEW_ALL_AGENCY_WORKTRAYS");
     public static final SimpleGrantedAuthority VIEW_GATHER_QUEUE = new SimpleGrantedAuthority("PRIV_VIEW_GATHER_QUEUE");
     public static final SimpleGrantedAuthority ADMIN_GATHER_OPTIONS = new SimpleGrantedAuthority("PRIV_ADMIN_GATHER_OPTIONS");
     public static final SimpleGrantedAuthority SUDO = new SimpleGrantedAuthority("PRIV_SUDO");
@@ -38,6 +40,7 @@ public class Privileges {
             "stduser", Set.of(SELECT_TITLES, EDIT_PUBLISHERS, VIEW_GATHER_QUEUE, EDIT_AGENCY_TITLES),
             "agadmin", Set.of(EDIT_AGENCY_USERS, EDIT_OWN_AGENCY, BULK_EDIT_TITLES),
             "panadmin", Set.of(EDIT_ALL_TITLES, EDIT_ALL_USERS, BULK_EDIT_TITLES_ADVANCED,
-                    EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO, EDIT_DISCOVERY_SOURCES, EDIT_ALL_AGENCIES),
+                    EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO, EDIT_DISCOVERY_SOURCES, EDIT_ALL_AGENCIES,
+                    VIEW_ALL_AGENCY_WORKTRAYS),
             "sysadmin", Set.of(SYSADMIN));
 }
