@@ -93,37 +93,39 @@ if (document.getElementById("publisher")) {
             delete this.pandasSavedSearch;
         },
         onChange: function (info) {
+            let publisherType = document.getElementById("publisherType");
             if (info.value === "new") {
                 document.getElementById("publisherId").value = "";
                 document.getElementById("publisherName").value = info.text;
-                document.getElementById("publisherType").selectedIndex = 0;
-                document.getElementById("publisherType").required = true;
+                publisherType.required = true;
                 document.getElementById("newPublisherFields").style.display = "inherit";
 
                 const urlString = getPrimarySeedUrl();
                 if (urlString) {
                     const host = new URL(urlString).host;
-                    const publisherTypeOptions = document.getElementById("publisherType").options;
+                    const publisherTypeOptions = publisherType.options;
 
                     // try to preselect an appropriate publisher type based on the domain suffix
-                    outer:
-                        for (let i = 0; i < publisherTypeOptions.length; i++) {
-                            const option = publisherTypeOptions[i];
-                            if (option.dataset.domainsuffixes) {
-                                for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
-                                    if (host.endsWith(suffix)) {
-                                        document.getElementById("publisherType").selectedIndex = i;
-                                        break outer;
+                    if (publisherType.selectedIndex === 0) {
+                        outer:
+                            for (let i = 0; i < publisherTypeOptions.length; i++) {
+                                const option = publisherTypeOptions[i];
+                                if (option.dataset.domainsuffixes) {
+                                    for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
+                                        if (host.endsWith(suffix)) {
+                                            publisherType.selectedIndex = i;
+                                            break outer;
+                                        }
                                     }
                                 }
                             }
-                        }
+                    }
                 }
             } else {
                 document.getElementById("publisherId").value = info.value === undefined ? "" : info.value;
                 document.getElementById("publisherName").value = "";
-                document.getElementById("publisherType").selectedIndex = 0;
-                document.getElementById("publisherType").required = false;
+                publisherType.selectedIndex = 0;
+                publisherType.required = false;
                 document.getElementById("newPublisherFields").style.display = "none";
             }
         }

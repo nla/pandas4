@@ -482,6 +482,7 @@ public class TitleController {
                           @RequestParam(value = "publisher", required = false) Publisher publisher,
                           @RequestParam(value = "url", required = false) String url,
                           @RequestParam(value = "publisherAbn", required = false) String publisherAbn,
+                          @RequestParam(value = "publisherType", required = false) String publisherType,
                           @RequestParam(value = "created", required = false) Title created,
                           @RequestParam(value = "backlink", required = false) String backlink,
                           Model model) {
@@ -510,6 +511,10 @@ public class TitleController {
 
         if (publisher != null) {
             form.setPublisher(publisher);
+        }
+
+        if (publisherType != null) {
+            form.setPublisherType(publisherTypeRepository.findByName(publisherType).orElse(null));
         }
 
         if (backlink == null) {

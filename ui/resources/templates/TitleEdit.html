@@ -181,7 +181,8 @@
                     <select id="publisherType" name="publisherType">
                         <option></option>
                         <option th:each="type : ${allPublisherTypes}" th:value="${type.id}" th:text="${type.name}"
-                                th:data-domainsuffixes="${type.domainSuffixes}"></option>
+                                th:data-domainsuffixes="${type.domainSuffixes}"
+                                th:selected="${type == form.publisherType}"></option>
                     </select>
                 </label>
                 <labe>
