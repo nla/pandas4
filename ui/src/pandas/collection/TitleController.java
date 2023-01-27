@@ -480,6 +480,7 @@ public class TitleController {
     public String newForm(@RequestParam(value = "collection", defaultValue = "") Set<Collection> collections,
                           @RequestParam(value = "subject", defaultValue = "") Set<Subject> subjects,
                           @RequestParam(value = "publisher", required = false) Publisher publisher,
+                          @RequestParam(value = "gatherNow", defaultValue = "false") boolean gatherNow,
                           @RequestParam(value = "url", required = false) String url,
                           @RequestParam(value = "publisherAbn", required = false) String publisherAbn,
                           @RequestParam(value = "publisherType", required = false) String publisherType,
@@ -508,6 +509,8 @@ public class TitleController {
             form.setActiveProfile(created.getGather().getActiveProfile());
             form.setScope(created.getGather().getScope());
         }
+
+        if (gatherNow) form.getOneoffDates().add(Instant.now());
 
         if (publisher != null) {
             form.setPublisher(publisher);
