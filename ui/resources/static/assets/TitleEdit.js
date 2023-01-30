@@ -132,6 +132,16 @@ if (document.getElementById("publisher")) {
     });
 }
 
+// Hide ABN field for personal publisher type
+function handlePublisherTypeChange() {
+    let publisherAbnLabel = document.getElementById("publisherAbn").parentElement;
+    if (document.getElementById("publisherType").selectedOptions[0].text === "Personal") {
+        publisherAbnLabel.style.display = "none";
+    } else {
+        publisherAbnLabel.style.display = "";
+    }
+}
+
 function createLink(text, href, target, className) {
     let link = document.createElement("a");
     link.href = href;
@@ -370,6 +380,8 @@ document.getElementById('gatherMethod').addEventListener("change", function () {
     checkSurts();
 });
 nameField.addEventListener("change", nameChanged);
+document.getElementById("publisherType").addEventListener("change", handlePublisherTypeChange);
+
 
 // Fire initial change events
 
@@ -379,7 +391,7 @@ if (seedUrlsField.value !== "") {
 showOrHideFilters();
 checkSurts();
 if (nameField.value) nameChanged();
-
+handlePublisherTypeChange();
 
 // we keep the form disabled until the page is fully loaded
 // otherwise it could be submitted with partial values which results in data loss

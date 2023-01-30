@@ -185,11 +185,11 @@
                                 th:selected="${type == form.publisherType}"></option>
                     </select>
                 </label>
-                <labe>
+                <label>
                     ABN (optional)
                     <input th:field="*{publisherAbn}" pattern="[0-9]{11}" title="11-digit Australian Business Number"
                            onchange="this.value = this.value.replace(/[ -]/g, '')">
-                </labe>
+                </label>
             </div>
             <label>
                 Title URL (optional)
