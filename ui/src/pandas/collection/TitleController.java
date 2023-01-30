@@ -536,7 +536,11 @@ public class TitleController {
         return editForm(model, form);
     }
 
-    @PostMapping(value = "/titles", produces = "application/json")
+    @GetMapping("/titles/bulkadd")
+    public String bulkAddForm() {
+        return "TitleBulkAdd";
+    }
+
     public String update(
             @RequestParam(value = "action", required = false) String action,
             @RequestParam(value = "backlink", required = false) String backlink,

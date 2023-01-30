@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulk Add Title - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Titles')}"></nav>
+<main>
+    <form method=post th:action="@{/titles/bulkadd}" th:object="${form}" id="titleBulkAddForm">
+        <header>
+            <div>
+                <button type="submit" data-keybind=s class="btn btn-primary" id="actionSave"><i class="icon save"></i> <span>Add titles</span></button>
+                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
+            </div>
+        </header>
+
+        <h1>Bulk Title Add</h1>
+
+        <label>
+            URLs
+            <textarea id="urls" rows="10" style="width: 100%"></textarea>
+        </label>
+
+        <table id="titleTable">
+            <thead>
+            <tr>
+                <th>URL</th>
+                <th>Name</th>
+                <th>Publisher</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </form>
+
+    <template id="titleTableRow">
+        <tr>
+            <td>
+                <input name="url">
+            </td>
+            <td>
+                <input name="name">
+            </td>
+            <td>
+                <input name="publisherName">
+            </td>
+            <td>
+                <a class="btn btn-compact btn-danger" onclick="this.closest('tr').remove()"><i class="icon cancel"></i></a>
+            </td>
+        </tr>
+    </template>
+
+    <script th:inline="javascript">
+        var titleCheckEndpoint = /*[[@{/titles/check}]]*/ '../titles/check';
+        var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
+
+        document.getElementById("urls").focus();
+        document.getElementById("urls").addEventListener("change", function() {
+            var urls = document.getElementById("urls").value.split(/\n/);
+            var table = document.getElementById("titleTable");
+            for (let url of urls) {
+                url = url.trim();
+                if (url === "") {
+                    continue;
+                }
+                const row = document.getElementById("titleTableRow").content.cloneNode(true).firstElementChild;
+                row.querySelector("input[name=url]").value = url;
+                table.querySelector("tbody").appendChild(row);
+
+                fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(url))
+                        .then(response => response.json())
+                        .then(data => {
+                            row.querySelector("input[name=name]").value = data.title;
+                            row.querySelector("input[name=publisherName]").value = data.title;
+                        });
+            }
+        });
+    </script>
+</main>
