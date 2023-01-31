@@ -1,6 +1,8 @@
 package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.Valid;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -15,8 +17,6 @@ import pandas.gather.GatherScheduleRepository;
 import pandas.gather.GatherService;
 import pandas.search.SearchResults;
 
-import jakarta.persistence.EntityManager;
-import jakarta.validation.Valid;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.LinkedHashMap;
@@ -46,16 +46,18 @@ public class CollectionController {
     @GetMapping("/collections")
     public String search(@RequestParam(value = "q", required = false) String rawQ,
                          @RequestParam(value = "subject", required = false, defaultValue = "") List<Long> subjectIds,
+                         @RequestParam(value = "displayed", required = false) Boolean displayed,
                          @PageableDefault(size = 50) Pageable pageable,
                          Model model) {
         String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
 
         var search = Search.session(entityManager).search(Collection.class)
-                .where(f -> f.bool(b -> {
+                .where((f, b) -> {
                     b.must(f.matchAll());
                     if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
+                    if (displayed != null) b.must(f.match().field("displayed").matching(displayed));
                     mustMatchAny(f, b, "subjects.id", subjectIds);
-                })).sort(f -> q == null ? f.field("createdDate").desc() : f.score());
+                }).sort(f -> q == null ? f.field("createdDate").desc() : f.score());
 
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         SearchResults<Collection> results = new SearchResults<>(result, null, pageable);

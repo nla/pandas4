@@ -3,6 +3,7 @@ package pandas.collection;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.search.engine.backend.types.Aggregable;
@@ -19,8 +20,6 @@ import pandas.agency.User;
 import pandas.core.View;
 import pandas.gather.GatherSchedule;
 import pandas.util.TimeFrame;
-
-import jakarta.persistence.*;
 
 import java.sql.Types;
 import java.time.Instant;
@@ -53,7 +52,10 @@ public class Collection {
     @JdbcTypeCode(Types.LONGVARCHAR)
     private String displayComment;
     private Integer displayOrder;
+
+    @GenericField(aggregable = Aggregable.YES)
     private boolean isDisplayed = true;
+
     private String thumbnailUrl;
 
     @FullTextField(analyzer = "english")
