@@ -1,8 +1,8 @@
 package pandas.collection;
 
+import jakarta.validation.constraints.NotBlank;
 import pandas.gather.GatherSchedule;
 
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -13,7 +13,7 @@ public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
                                  String description, Integer startMonth,
                                  Integer startYear, Integer endMonth, Integer endYear,
                                  Collection parent, GatherSchedule gatherSchedule,
-                                 boolean closed) {
+                                 boolean displayed, boolean closed) {
     public static CollectionEditForm of(Collection collection) {
         Integer startMonth = null, startYear = null;
         if (collection.getStartDate() != null) {
@@ -29,7 +29,7 @@ public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
         }
         return new CollectionEditForm(collection.getName(), collection.getSubjects(), collection.getDescription(),
                 startMonth, startYear, endMonth, endYear, collection.getParent(), collection.getGatherSchedule(),
-                collection.isClosed());
+                collection.isDisplayed(), collection.isClosed());
     }
 
     public void applyTo(Collection collection) {
@@ -53,6 +53,7 @@ public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
         } else {
             collection.setEndDate(null);
         }
+        collection.setDisplayed(displayed);
         collection.setClosed(closed);
     }
 }
