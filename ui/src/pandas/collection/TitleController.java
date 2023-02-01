@@ -541,6 +541,7 @@ public class TitleController {
         return "TitleBulkAdd";
     }
 
+    @PostMapping(value = "/titles", produces = "application/json")
     public String update(
             @RequestParam(value = "action", required = false) String action,
             @RequestParam(value = "backlink", required = false) String backlink,
