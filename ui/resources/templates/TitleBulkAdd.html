@@ -1,39 +1,68 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang=en xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Bulk Add Title - PANDAS</title>
+    <title>Add websites - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
-<nav th:replace="~{_layout.html :: sidebar (activeItem='Titles')}"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Collections')}"></nav>
 <main>
-    <form method=post th:action="@{/titles/bulkadd}" th:object="${form}" id="titleBulkAddForm">
-        <header>
-            <div>
-                <button type="submit" data-keybind=s class="btn btn-primary" id="actionSave"><i class="icon save"></i> <span>Add titles</span></button>
-                <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
-            </div>
-        </header>
+    <header>
+    </header>
 
-        <h1>Bulk Title Add</h1>
+    <!--/* FIXME: Factor this out into a fragment */-->
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/collections}"
+                                             href="CollectionSearch.html">Collections</a></li>
+            <li th:each="breadcrumb: ${collection.collectionBreadcrumbs}">
+                <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}">Australian
+                    Broadcasting Corporation (ABC)</a>
+            </li>
+            <li><a th:href="${@link.to(collection)}" th:text="${collection.name}">Television shows</a>
+                <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
+            </li>
+            <li class="active">Add websites</li>
+        </ol>
+    </nav>
 
+
+    <section class="form" id="urlsForm">
         <label>
             URLs
             <textarea id="urls" rows="10" style="width: 100%"></textarea>
         </label>
+        <div>
+            <button id="nextButton">Next</button>
+        </div>
+    </section>
 
-        <table id="titleTable">
+    <form method=post th:action="@{/titles/bulkadd}" th:object="${form}" class="form" id="titleBulkAddForm"
+          style="display: none">
+        <fieldset>
+            <legend>Options</legend>
+            <input type="hidden" name="collection" th:value="${collection.id}">
+            <label><input type="checkbox"> Gather immediately</label>
+        </fieldset>
+
+        <table id="titleTable" style="display: none">
             <thead>
             <tr>
                 <th>URL</th>
                 <th>Name</th>
                 <th>Publisher</th>
+                <th>Publisher Type</th>
             </tr>
             </thead>
             <tbody></tbody>
         </table>
+
+        <div>
+            <button type="submit" class="btn btn-primary"><i class="icon save"></i>Add Titles</button>
+            <button style="float: right" onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
+        </div>
     </form>
 
     <template id="titleTableRow">
@@ -48,6 +77,13 @@
                 <input name="publisherName">
             </td>
             <td>
+                <select name="publisherType">
+                    <option></option>
+                    <option th:each="type : ${@publisherTypeRepository.findAll()}" th:value="${type.id}"
+                            th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
+                </select>
+            </td>
+            <td>
                 <a class="btn btn-compact btn-danger" onclick="this.closest('tr').remove()"><i class="icon cancel"></i></a>
             </td>
         </tr>
@@ -58,23 +94,50 @@
         var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
 
         document.getElementById("urls").focus();
-        document.getElementById("urls").addEventListener("change", function() {
-            var urls = document.getElementById("urls").value.split(/\n/);
-            var table = document.getElementById("titleTable");
+        document.getElementById("nextButton").addEventListener("click", function() {
+            document.getElementById("urlsForm").style.display = 'none';
+            document.getElementById("titleBulkAddForm").style.display = '';
+
+            const urls = document.getElementById("urls").value.split(/\n/);
+            const tbody = document.querySelector("#titleTable > tbody");
+            tbody.innerHTML = '';
+
+            document.getElementById("titleTable").style.display = "";
+
             for (let url of urls) {
                 url = url.trim();
-                if (url === "") {
-                    continue;
-                }
+                if (url === "") continue;
+                if (!url.match(/^[a-z]+:.*/)) url = "http://" + url;
                 const row = document.getElementById("titleTableRow").content.cloneNode(true).firstElementChild;
                 row.querySelector("input[name=url]").value = url;
-                table.querySelector("tbody").appendChild(row);
+                tbody.appendChild(row);
+
+                // preselect publisher type based on domain suffix
+                const host = new URL(url).host;
+                const publisherType = row.querySelector("select[name=publisherType]");
+                outer: for (const option of publisherType.options) {
+                    if (option.dataset.domainsuffixes) {
+                        for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
+                            if (host.endsWith(suffix)) {
+                                publisherType.selectedIndex = option.index;
+                                break outer;
+                            }
+                        }
+                    }
+                }
+
+                // require publisher type if publisher name is set
+                row.querySelector("input[name=publisherName]").addEventListener("change", function() {
+                    this.closest("tr").querySelector("select[name=publisherType]").required = !!this.value;
+                });
 
                 fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(url))
                         .then(response => response.json())
                         .then(data => {
+                            if (data.location) row.querySelector("input[name=url]").value = data.location;
                             row.querySelector("input[name=name]").value = data.title;
                             row.querySelector("input[name=publisherName]").value = data.title;
+                            row.querySelector("select[name=publisherType]").required  = !!data.title;
                         });
             }
         });

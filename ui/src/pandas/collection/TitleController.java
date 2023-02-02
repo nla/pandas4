@@ -540,8 +540,31 @@ public class TitleController {
     }
 
     @GetMapping("/titles/bulkadd")
-    public String bulkAddForm() {
+    public String bulkAddForm(@RequestParam("collection") Collection collection, Model model) {
+        model.addAttribute("collection", collection);
         return "TitleBulkAdd";
+    }
+
+    @PostMapping("/titles/bulkadd")
+    @Transactional
+    public String bulkAdd(
+            @RequestParam("collection") Collection collection,
+            @RequestParam(value = "gatherNow", defaultValue = "false") boolean gatherNow,
+            @RequestParam("url") List<String> urls,
+            @RequestParam("name") List<String> names,
+            @RequestParam("publisherName") List<String> publisherNames,
+            @RequestParam("publisherType") List<PublisherType> publisherTypes) {
+        User currentUser = userService.getCurrentUser();
+        for (int i = 0; i < urls.size(); i++) {
+            var form = titleService.newTitleForm(Set.of(collection), null);
+            form.setSeedUrls(urls.get(i));
+            form.setName(names.get(i));
+            form.setPublisherName(publisherNames.get(i));
+            form.setPublisherType(publisherTypes.get(i));
+            if (gatherNow) form.getOneoffDates().add(Instant.now());
+            titleService.save(form, currentUser);
+        }
+        return "redirect:/collections/" + collection.getId();
     }
 
     @PostMapping(value = "/titles", produces = "application/json")
