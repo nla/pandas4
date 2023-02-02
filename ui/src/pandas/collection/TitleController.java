@@ -277,20 +277,17 @@ public class TitleController {
     @PreAuthorize("hasPermission(#title, 'edit')")
     @Transactional
     public String updateIssues(@PathVariable("titleId") Title title,
-                               @RequestParam(value = "type", defaultValue = "") String[] types,
-                               @RequestParam(value = "id", defaultValue = "") Long[] ids,
-                               @RequestParam(value = "name", defaultValue = "") ArrayDeque<String> names,
-                               @RequestParam(value = "url", defaultValue = "") ArrayDeque<String> urls,
-                               @RequestParam(value = "instance", defaultValue = "") ArrayDeque<Optional<Instance>> instances) {
+                               @RequestParam(value = "type", required = false) List<String> types,
+                               @RequestParam(value = "id", required = false) List<Long> ids,
+                               @RequestParam(value = "name", required = false) ArrayDeque<String> names,
+                               @RequestParam(value = "url", required = false) ArrayDeque<String> urls,
+                               @RequestParam(value = "instance", required = false) ArrayDeque<Optional<Instance>> instances) {
         Tep tep = title.getTep();
 
-        // workaround @RequestParam turning a single ?id= into [] instead of [null]
-        if (ids.length == 0) {
-            ids = new Long[]{null};
-        }
-        if (instances.isEmpty()) {
-            instances.add(Optional.empty());
-        }
+        if (types == null) types = Collections.emptyList();
+        if (ids == null) ids = Collections.emptyList();
+        if (names == null) names = new ArrayDeque<>();
+        if (instances == null) instances = new ArrayDeque<>();
 
         // First, build an index of all the existing groups and issues.
         Map<Long, IssueGroup> groupMap = new HashMap<>();
@@ -315,9 +312,9 @@ public class TitleController {
 
         // Add all the new and updated groups and issues back in.
         IssueGroup group = theNoneGroup;
-        for (int i = 0; i < types.length; i++) {
-            Long id = ids[i];
-            switch (types[i]) {
+        for (int i = 0; i < types.size(); i++) {
+            Long id = ids.get(i);
+            switch (types.get(i)) {
                 case "IssueGroup" -> {
                     group = id == null ? new IssueGroup() : groupMap.get(id);
                     group.setName(names.pop());
@@ -480,8 +477,8 @@ public class TitleController {
     }
 
     @GetMapping("/titles/new")
-    public String newForm(@RequestParam(value = "collection", defaultValue = "") Set<Collection> collections,
-                          @RequestParam(value = "subject", defaultValue = "") Set<Subject> subjects,
+    public String newForm(@RequestParam(value = "collection", required = false) Set<Collection> collections,
+                          @RequestParam(value = "subject", required = false) Set<Subject> subjects,
                           @RequestParam(value = "publisher", required = false) Publisher publisher,
                           @RequestParam(value = "gatherNow", defaultValue = "false") boolean gatherNow,
                           @RequestParam(value = "url", required = false) String url,

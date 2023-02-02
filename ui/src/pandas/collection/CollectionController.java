@@ -45,7 +45,7 @@ public class CollectionController {
 
     @GetMapping("/collections")
     public String search(@RequestParam(value = "q", required = false) String rawQ,
-                         @RequestParam(value = "subject", required = false, defaultValue = "") List<Long> subjectIds,
+                         @RequestParam(value = "subject", required = false) List<Long> subjectIds,
                          @RequestParam(value = "displayed", required = false) Boolean displayed,
                          @PageableDefault(size = 50) Pageable pageable,
                          Model model) {
