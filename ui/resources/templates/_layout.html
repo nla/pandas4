@@ -14,6 +14,7 @@
 <!--</header>-->
 
 <nav th:fragment="sidebar">
+    <script th:if="${@environment.acceptsProfiles('dev')}" src="http://localhost:35729/livereload.js"></script>
     <header>
         <a th:href="@{/}">Web Archive</a>
     </header>
