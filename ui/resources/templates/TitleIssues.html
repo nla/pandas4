@@ -135,7 +135,7 @@
                     <td>
                         <select name="instance">
                             <option></option>
-                            <option th:each="instance: ${title.instances}" th:value="${instance.id}"
+                            <option th:each="instance: ${instances}" th:value="${instance.id}"
                                     th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"
                                     th:selected="${instance == issue.instance}">15 Nov 2022 11:26am</option>
                         </select>
