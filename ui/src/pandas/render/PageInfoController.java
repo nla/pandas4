@@ -22,7 +22,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.regex.Pattern;
 
 @Controller
 public class PageInfoController {
@@ -31,7 +30,7 @@ public class PageInfoController {
     private final OkHttpClient httpClient;
 
     public PageInfoController(OkHttpClient httpClient) {
-        this.httpClient = httpClient.newBuilder().followRedirects(false).followSslRedirects(false).build();
+        this.httpClient = httpClient.newBuilder().followRedirects(true).followSslRedirects(true).build();
     }
 
     @GetMapping(value = "/pageinfo", produces = "application/json")
@@ -79,7 +78,11 @@ public class PageInfoController {
                 }
                 title = handler.title.replaceAll("\\s\\s+", " ").trim();
             }
-            return new PageInfo(response.code(), reason, contentType, charsetName, title, response.header("Location"));
+            String location = null;
+            if (response.priorResponse() != null) {
+                location = response.request().url().toString();
+            }
+            return new PageInfo(response.code(), reason, contentType, charsetName, title, location);
         } catch (UnknownHostException e) {
             return new PageInfo(-1, e.getMessage(), null, null, null, null);
         }
