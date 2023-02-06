@@ -71,7 +71,7 @@
                 <td>
                     <select name="instance">
                         <option></option>
-                        <option th:each="instance: ${title.instances}" th:value="${instance.id}"
+                        <option th:each="instance: ${instances}" th:value="${instance.id}"
                                 th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"></option>
                     </select>
                 </td>
