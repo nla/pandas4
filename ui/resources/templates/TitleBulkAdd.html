@@ -5,6 +5,18 @@
     <title>Add websites - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        #titleTable {
+            margin: 16px 0px;
+        }
+        #titleTable th {
+            text-align: left;
+        }
+        #titleTable input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Collections')}"></nav>
@@ -36,10 +48,11 @@
         </label>
         <div>
             <button id="nextButton">Next</button>
+            <button style="float: right" onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
         </div>
     </section>
 
-    <form method=post th:action="@{/titles/bulkadd}" th:object="${form}" class="form" id="titleBulkAddForm"
+    <form method=post th:action="@{/titles/bulkadd}" th:object="${form}" id="titleBulkAddForm"
           style="display: none">
         <fieldset>
             <legend>Options</legend>
@@ -47,13 +60,22 @@
             <label><input type="checkbox"> Gather immediately</label>
         </fieldset>
 
-        <table id="titleTable" style="display: none">
+        <table id="titleTable" style="display: none; width: 100%">
+            <colgroup>
+                <col>
+                <col style="width: 33%">
+                <col style="width: 33%">
+                <col style="width: 33%">
+                <col>
+                <col>
+            </colgroup>
             <thead>
             <tr>
+                <th></th>
                 <th>URL</th>
                 <th>Name</th>
                 <th>Publisher</th>
-                <th>Publisher Type</th>
+                <th colspan="2">Publisher Type</th>
             </tr>
             </thead>
             <tbody></tbody>
@@ -67,6 +89,8 @@
 
     <template id="titleTableRow">
         <tr>
+            <td class="http-status">
+            </td>
             <td>
                 <input name="url">
             </td>
@@ -80,7 +104,7 @@
                 <select name="publisherType">
                     <option></option>
                     <option th:each="type : ${@publisherTypeRepository.findAll()}" th:value="${type.id}"
-                            th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}"></option>
+                            th:text="${type.name}" th:data-domainsuffixes="${type.domainSuffixes}">Organisation</option>
                 </select>
             </td>
             <td>
@@ -134,6 +158,7 @@
                 fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(url))
                         .then(response => response.json())
                         .then(data => {
+                            row.querySelector(".http-status").textContent = data.status;
                             if (data.location) row.querySelector("input[name=url]").value = data.location;
                             row.querySelector("input[name=name]").value = data.title;
                             row.querySelector("input[name=publisherName]").value = data.title;
