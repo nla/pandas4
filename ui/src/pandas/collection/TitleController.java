@@ -488,6 +488,9 @@ public class TitleController {
                           @RequestParam(value = "backlink", required = false) String backlink,
                           Model model) {
 
+        if (collections == null) collections = new HashSet<>();
+        if (subjects == null) subjects = new HashSet<>();
+
         // If the user pressed "Save and add another" copy the subjects & collections to the new form
         model.addAttribute("created", created);
         if (created != null) {
