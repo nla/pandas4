@@ -68,8 +68,11 @@ public class TitleService {
 
     @PreAuthorize("hasPermission(null, 'Title', 'edit')")
     public TitleEditForm newTitleForm(Set<Collection> collections, Set<Subject> subjects) {
+        if (collections == null) collections = new HashSet<>();
+        if (subjects == null) subjects = new HashSet<>();
+
         // prefill subjects based on the collections
-        if ((subjects == null || subjects.isEmpty()) && (collections != null && !collections.isEmpty())) {
+        if (subjects.isEmpty() && !collections.isEmpty()) {
             subjects = new HashSet<>();
             for (Collection collection: collections) {
                 subjects.addAll(collection.getInheritedSubjects());
