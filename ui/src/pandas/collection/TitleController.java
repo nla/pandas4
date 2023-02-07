@@ -267,6 +267,7 @@ public class TitleController {
     public String issues(@PathVariable("id") Title title, Model model) {
         model.addAttribute("title", title);
         List<Instance> instances = new ArrayList<>(title.getInstances());
+        instances.removeIf(i -> !i.getState().isArchived());
         Collections.reverse(instances);
         model.addAttribute("instances", instances);
         model.addAttribute("issueGroups", issueGroupRepository.findByTepTitleOrderByOrder(title));
