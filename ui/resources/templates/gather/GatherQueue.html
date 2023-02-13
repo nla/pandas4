@@ -125,6 +125,9 @@
         <form th:action="@{/queue/retry-all}" method="post">
             <button type="submit" class="btn-danger">Retry all</button>
         </form>
+        <form th:action="@{/queue/delete-all-failed}" method="post">
+            <button type="submit" class="btn-danger">Delete all</button>
+        </form>
 
         <table>
             <th:block th:each="instance: ${failedInstances}">

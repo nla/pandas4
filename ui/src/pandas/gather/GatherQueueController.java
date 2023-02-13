@@ -56,6 +56,16 @@ public class GatherQueueController {
         return "redirect:/queue";
     }
 
+    @PostMapping("/queue/delete-all-failed")
+    @Transactional
+    public String deleteAllFailed() {
+        for (Instance instance : listFailedInstances()) {
+            instanceService.delete(instance, userService.getCurrentUser());
+        }
+        return "redirect:/queue";
+    }
+
+
     private List<Instance> listFailedInstances() {
         return instanceRepository.findByStateInOrderByDate(stateRepository.mustFindByName(FAILED));
     }
