@@ -482,6 +482,7 @@ public class TitleController {
                           @RequestParam(value = "subject", required = false) Set<Subject> subjects,
                           @RequestParam(value = "publisher", required = false) Publisher publisher,
                           @RequestParam(value = "gatherNow", defaultValue = "false") boolean gatherNow,
+                          @RequestParam(value = "name", required = false) String name,
                           @RequestParam(value = "url", required = false) String url,
                           @RequestParam(value = "publisherAbn", required = false) String publisherAbn,
                           @RequestParam(value = "publisherType", required = false) String publisherType,
@@ -515,6 +516,7 @@ public class TitleController {
         }
 
         if (gatherNow) form.getOneoffDates().add(Instant.now());
+        if (name != null) form.setName(name);
 
         if (publisher != null) {
             form.setPublisher(publisher);
