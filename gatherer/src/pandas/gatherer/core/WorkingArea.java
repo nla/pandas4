@@ -67,7 +67,11 @@ public class WorkingArea {
         Path sz = uploadDir.resolve("ps-ar2-" + pi + "-" + date + ".sz");
         Path md5 = uploadDir.resolve("ps-ar2-" + pi + "-" + date + ".md5");
 
-        fixDirectoryPermsRecursively(pwd);
+        try {
+            fixDirectoryPermsRecursively(pwd);
+        } catch (IOException e) {
+            log.warn("Error recursively fixing directory permissions under {}", pwd, e);
+        }
 
         exec(workingdir, "tar", "-zcf", tgz.toString(), pi + "/" + date);
         execRedir(workingdir, lst,"find", pi + "/" + date, "-type", "f", "-exec", "ls", "-l", "{}", ";");
