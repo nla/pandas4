@@ -189,6 +189,8 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             """)
     List<Title> findByUrl(@Param("url") String url);
 
+    List<Title> findBySeedUrlLike(String seedUrlPattern);
+
     interface TitleListItem {
         long getId();
         String getName();

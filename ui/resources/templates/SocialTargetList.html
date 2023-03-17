@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Social - PANDAS</title>
+  <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+  <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Social')}"></nav>
+<main>
+  <header>
+    <nav>
+    </nav>
+  </header>
+
+  <nav class=breadcrumb>
+    <ol>
+      <li class="active" style="font-weight: bold">Social</li>
+    </ol>
+  </nav>
+
+  <table>
+    <tr>
+      <th>Server</th>
+      <th>Query</th>
+      <th>Posts</th>
+    </tr>
+    <tr th:each="target : ${targets}">
+      <td th:text="${target.server}"></td>
+      <td th:text="${target.query}"></td>
+      <td th:text="${target.postCount}"></td>
+    </tr>
+  </table>
+</main>
