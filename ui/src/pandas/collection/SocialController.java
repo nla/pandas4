@@ -2,6 +2,7 @@ package pandas.collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,8 @@ public class SocialController {
 
     @GetMapping("/social")
     public String targetList(Model model) {
-        model.addAttribute("targets", socialTargetRepository.findByOrderByQueryAsc());
+        var targets = socialTargetRepository.findAll(Sort.by(Sort.Order.asc("query").ignoreCase()));
+        model.addAttribute("targets", targets);
         return "SocialTargetList";
     }
 
@@ -42,11 +44,12 @@ public class SocialController {
             accountName = accountName.replaceFirst("^@", "");
             if (accountName.isBlank()) {
                 log.warn("Blank account name for pi={} url={}", title.getPi(), title.getSeedUrl());
+                return;
             }
             String query = "from:" + accountName;
             log.info("sync {}", query);
             if (socialTargetRepository.findByTitle(title).isEmpty() &&
-                socialTargetRepository.findByServerAndQuery(server, query).isEmpty()) {
+                socialTargetRepository.findByServerAndQueryIgnoreCase(server, query).isEmpty()) {
                 SocialTarget target = new SocialTarget(server, query, title);
                 socialTargetRepository.save(target);
                 added.incrementAndGet();
