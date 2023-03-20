@@ -39,6 +39,10 @@ public class SocialController {
         titleRepository.findBySeedUrlLike(nitterBaseUrl + "%").forEach(title -> {
             String accountName = title.getSeedUrl().substring(nitterBaseUrl.length());
             accountName = accountName.replaceFirst("[#?/].*", "");
+            accountName = accountName.replaceFirst("^@", "");
+            if (accountName.isBlank()) {
+                log.warn("Blank account name for pi={} url={}", title.getPi(), title.getSeedUrl());
+            }
             String query = "from:" + accountName;
             log.info("sync {}", query);
             if (socialTargetRepository.findByTitle(title).isEmpty() &&
