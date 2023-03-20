@@ -1,9 +1,9 @@
 package pandas.collection;
 
+import jakarta.persistence.*;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
-import jakarta.persistence.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +90,14 @@ public class Status {
 
     public boolean isRejected() {
         return id != null && id.equals(REJECTED_ID);
+    }
+
+    public boolean isActive() {
+        return !isCeased() && !isRejected() && !isNominated();
+    }
+
+    private boolean isNominated() {
+        return id != null && id.equals(NOMINATED_ID);
     }
 
     public List<Long> getAllowedTransitionIds() {
