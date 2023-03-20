@@ -68,6 +68,9 @@
         <li sec:authorize="hasRole('panadmin')"><a th:href="@{/discoveries}" href=discovery/DiscoverySearch.html
                                                    th:classappend="${activeItem == 'Discover'}? 'active'">
             <i class="icon discovery"></i> Discover</a></li>
+        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/social}" href=discovery/SocialTargetList.html
+                                                   th:classappend="${activeItem == 'Social'}? 'active'">
+            <i class="icon forum"></i> Social</a></li>
     </ul>
 
     <ul>
