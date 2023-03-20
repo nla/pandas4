@@ -46,6 +46,9 @@ public class SocialController {
                 log.warn("Blank account name for pi={} url={}", title.getPi(), title.getSeedUrl());
                 return;
             }
+            if (title.getStatus().isCeased() || title.getStatus().isRejected()) {
+                return;
+            }
             String query = "from:" + accountName;
             log.info("sync {}", query);
             if (socialTargetRepository.findByTitle(title).isEmpty() &&
