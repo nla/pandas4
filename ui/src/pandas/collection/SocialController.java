@@ -24,7 +24,7 @@ public class SocialController {
 
     @GetMapping("/social")
     public String targetList(Model model) {
-        model.addAttribute("targets", socialTargetRepository.findAll());
+        model.addAttribute("targets", socialTargetRepository.findByOrderByQueryAsc());
         return "SocialTargetList";
     }
 

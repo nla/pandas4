@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang=en xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+>
 <head>
   <meta charset="UTF-8">
   <title>Social - PANDAS</title>
@@ -31,6 +31,8 @@
       <td th:text="${target.server}"></td>
       <td th:text="${target.query}"></td>
       <td th:text="${target.postCount}"></td>
+      <td><a th:if="${target.title != null}" th:text="${target.title.name}"
+             th:href="${@link.to(target.title)}"></a></td>
     </tr>
   </table>
 </main>
