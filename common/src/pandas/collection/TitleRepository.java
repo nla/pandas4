@@ -12,6 +12,7 @@ import pandas.agency.User;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 public interface TitleRepository extends CrudRepository<Title,Long> {
@@ -189,7 +190,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             """)
     List<Title> findByUrl(@Param("url") String url);
 
-    List<Title> findBySeedUrlLike(String seedUrlPattern);
+    Stream<Title> findBySeedUrlLike(String seedUrlPattern);
 
     interface TitleListItem {
         long getId();
