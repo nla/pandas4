@@ -79,12 +79,12 @@
         <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')"
               th:if="${gathererStatus.contains('running')}"
               th:action="@{/queue/pause}" method="post" style="display: inline">
-            <button class="btn btn-secondary">Pause</button>
+            <button class="btn btn-secondary">Pause Gatherer</button>
         </form>
         <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')"
                th:unless="${gathererStatus.contains('running')}"
                th:action="@{/queue/unpause}" method="post" style="display: inline">
-            <button class="btn btn-secondary">Unpause</button>
+            <button class="btn btn-secondary">Unpause Gatherer</button>
         </form>
     </div>
 
