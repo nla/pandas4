@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Gather Queue - PANDAS</title>
@@ -72,6 +73,20 @@
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Gather Queue')}"></nav>
 <main>
     <header></header>
+
+    <div>
+        <strong>Status:</strong> <span th:text="${gathererStatus}"></span>
+        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')"
+              th:if="${gathererStatus.contains('running')}"
+              th:action="@{/queue/pause}" method="post" style="display: inline">
+            <button class="btn btn-secondary">Pause</button>
+        </form>
+        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')"
+               th:unless="${gathererStatus.contains('running')}"
+               th:action="@{/queue/unpause}" method="post" style="display: inline">
+            <button class="btn btn-secondary">Unpause</button>
+        </form>
+    </div>
 
     <h2>Gathering</h2>
 

@@ -17,6 +17,7 @@ public class Config {
     private Path dataPath;
     private Path working;
     private int bulkChangeLimit = 1000;
+    private String gathererUrl;
 
     public String getAutologin() {
         return autologin;
@@ -89,5 +90,13 @@ public class Config {
 
     public void setBulkChangeLimit(int bulkChangeLimit) {
         this.bulkChangeLimit = bulkChangeLimit;
+    }
+
+    public String getGathererUrl() {
+        return gathererUrl;
+    }
+
+    public void setGathererUrl(String gathererUrl) {
+        this.gathererUrl = gathererUrl;
     }
 }
