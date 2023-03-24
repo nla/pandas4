@@ -55,8 +55,9 @@ public class EntityFacet<T> extends Facet {
     }
 
     @Override
-    public void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> queryParams) {
-        mustMatchAny(predicateFactory, bool, field, parseParam(queryParams));
+    public void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> queryParams,
+                          boolean not) {
+        mustMatchAny(predicateFactory, bool, field, parseParam(queryParams), not);
     }
 
     @Override

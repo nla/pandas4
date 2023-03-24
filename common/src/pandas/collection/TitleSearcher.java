@@ -1,5 +1,7 @@
 package pandas.collection;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.dsl.PredicateFinalStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
@@ -22,8 +24,6 @@ import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.search.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,12 +122,14 @@ public class TitleSearcher {
         private final Pageable pageable;
         private final String q;
         private final String url;
+        private boolean not;
 
         private Query(MultiValueMap<String, String> params, Pageable pageable) {
             this.session = Search.session(entityManager);
             this.params = params;
             this.pageable = pageable;
             String rawQ = params.getFirst("q");
+            not = params.containsKey("not");
 
             StringBuilder qTerms = new StringBuilder();
             StringBuilder urlTerms = new StringBuilder();
@@ -172,7 +174,7 @@ public class TitleSearcher {
                 for (Facet facet : facets) {
                     facet.search(f, b, params);
                     if (facet == exceptFacet) continue;
-                    facet.mustMatch(f, b, params);
+                    facet.mustMatch(f, b, params, not);
                 }
             });
         }

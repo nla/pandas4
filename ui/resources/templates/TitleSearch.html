@@ -37,6 +37,7 @@
     <aside class="filters" th:fragment="filters">
         <header>
             <h3>Filters</h3>
+            <label><input form="sf" type="checkbox" name="not" th:checked="${filtersNot}"> Not</label>
             <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
         </header>
         <details th:each="filter: ${filters}" th:if="${filter.visible}" th:open="${filter.active}" open>

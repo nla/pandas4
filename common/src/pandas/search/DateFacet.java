@@ -24,7 +24,8 @@ public class DateFacet extends Facet {
     }
 
     @Override
-    public void mustMatch(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> form) {
+    public void mustMatch(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> form,
+                          boolean not) {
         LocalDate start = parseDate(form.getFirst(param + ".start"));
         LocalDate end = parseDate(form.getFirst(param + ".end"));
         boolean never = "on".equals(form.getFirst(param + ".never"));

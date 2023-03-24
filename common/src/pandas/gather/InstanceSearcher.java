@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import pandas.agency.User;
 import pandas.agency.UserRepository;
-import pandas.collection.*;
+import pandas.collection.Collection;
+import pandas.collection.CollectionRepository;
+import pandas.collection.Subject;
+import pandas.collection.SubjectRepository;
 import pandas.search.EntityFacet;
 import pandas.search.Facet;
 import pandas.search.FacetResults;
@@ -94,7 +97,7 @@ public class InstanceSearcher {
         {
             for (Facet facet : facets) {
                 if (facet == excludedFacet) continue;
-                facet.mustMatch(f, b, params);
+                facet.mustMatch(f, b, params, false);
             }
             b.must(f.match().field("state.id").matching(stateId));
             if (agencyId != null) b.must(f.match().field("title.agency.id").matching(agencyId));

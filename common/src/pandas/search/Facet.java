@@ -17,7 +17,8 @@ public abstract class Facet {
         this.field = field;
     }
 
-    public abstract void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> queryParams);
+    public abstract void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> queryParams,
+                                   boolean not);
 
     public abstract void search(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams);
 
