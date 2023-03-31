@@ -18,6 +18,7 @@ public class Config {
     private Path working;
     private int bulkChangeLimit = 1000;
     private String gathererUrl;
+    private String socialUrl;
 
     public String getAutologin() {
         return autologin;
@@ -98,5 +99,13 @@ public class Config {
 
     public void setGathererUrl(String gathererUrl) {
         this.gathererUrl = gathererUrl;
+    }
+
+    public String getSocialUrl() {
+        return socialUrl;
+    }
+
+    public void setSocialUrl(String socialUrl) {
+        this.socialUrl = socialUrl;
     }
 }

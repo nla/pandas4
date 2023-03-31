@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+  <meta charset="UTF-8">
+  <title>Social Search - PANDAS</title>
+  <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+  <link rel="stylesheet" href="../static/assets/SocialPost.css" th:href="@{/assets/SocialPost.css}">
+  <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Social')}"></nav>
+<main>
+  <form id="sf" th:action="@{/social/search}">
+    <!-- hidden default submit button -->
+    <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+  </form>
+
+  <header>
+    <input style="flex-grow: 1" type=search name="q" th:value="${q}" placeholder="Search social media archive" data-keybind="f" form=sf>
+  </header>
+
+  <section class="results">
+    <header>
+      <span th:if="${results.totalHits() != null}">
+        Found <strong th:text="${#numbers.formatInteger(results.totalHits(), 0, 'COMMA')}">42</strong> matching posts.
+      </span>
+
+      <label>
+        Sort by:
+        <select form="sf" name="sort" class="auto-submit" data-default="Relevance" onchange="form.submit()">
+          <option th:each="ordering : ${orderings}" th:text="${ordering}" th:selected="${ordering.equals(sort)}">Relevance</option>
+        </select>
+      </label>
+    </header>
+
+    <th:block th:each="post : ${results.posts}" th:utext="${post}">
+    </th:block>
+  </section>
+</main>

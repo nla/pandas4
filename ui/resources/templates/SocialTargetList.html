@@ -10,9 +10,12 @@
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Social')}"></nav>
 <main>
+  <form id="sf" th:action="@{/social/search}">
+    <!-- hidden default submit button -->
+    <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+  </form>
   <header>
-    <nav>
-    </nav>
+    <input style="flex-grow: 1" type=search name="q" th:value="${q}" placeholder="Search social media archive" data-keybind="f" form=sf>
   </header>
 
   <nav class=breadcrumb>
@@ -30,7 +33,7 @@
     </tr>
     <tr th:each="target : ${targets}">
       <td th:text="${target.server}"></td>
-      <td th:text="${target.query}"></td>
+      <td><a th:text="${target.query}" th:href="@{/social/search(q=${target.query})}">from:username</a> </td>
       <td th:text="${target.postCount}"></td>
       <td><a th:if="${target.title != null}" th:text="${target.title.name}"
              th:href="${@link.to(target.title)}"></a></td>

@@ -1,0 +1,63 @@
+.post {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px 16px;
+    max-width: 600px;
+    box-sizing: border-box;
+    margin: 16px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.post > header {
+    display: flex;
+    gap: 8px;
+}
+
+.post > header {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+/* Post Author Avatar */
+.post > header > img {
+    width: 48px;
+    height: 48px;
+}
+
+/* Post Author column */
+.post > header > address {
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* Post Author Username */
+.post > header > address > span {
+    color: #555;
+}
+
+/* Post Creation Date Link */
+.post > header > a {
+    color: #666;
+    text-decoration: none;
+}
+
+.post > header > a:hover {
+    text-decoration: underline;
+}
+
+/* Post body text */
+.post > section[itemprop="articleBody"] {
+    white-space: pre-wrap;
+}
+
+.post > footer {
+    border-top: 1px solid #ccc;
+    margin-top: 8px;
+    padding-top: 8px;
+    color: #555;
+    display: flex;
+    gap: 16px;
+    cursor: default;
+}
