@@ -33,7 +33,7 @@ public class PywbService implements DisposableBean {
         Files.write(working.resolve("templates").resolve("banner.html"), new byte[0]);
 
         process = new ProcessBuilder("pywb", "-b", pywbConfig.getBindAddress(),
-                "-p", String.valueOf(pywbConfig.getPort()))
+                "-p", String.valueOf(pywbConfig.getPort()), "--record")
                 .directory(working.toFile())
                 .inheritIO()
                 .start();

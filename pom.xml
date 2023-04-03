@@ -55,5 +55,6 @@
         <module>gatherer</module>
         <module>cli</module>
         <module>delivery</module>
+        <module>social</module>
     </modules>
 </project>
