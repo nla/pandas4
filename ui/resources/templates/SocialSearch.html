@@ -34,7 +34,28 @@
       </label>
     </header>
 
-    <th:block th:each="post : ${results.posts}" th:utext="${post}">
-    </th:block>
+    <article th:each="post : ${results.posts()}" class="post">
+      <header>
+        <img th:src="${post.author.avatar}" alt="">
+        <address>
+          <strong th:text="${post.author.displayName}">Somebody}</strong>
+          <span th:text="'@' + ${post.author.username}">@somebody</span>
+        </address>
+        <address>
+          <a href="details?url={{url}}">
+          <time th:datetime="${post.createdAt}" th:title="${post.createdDateTime}" itemprop="dateCreated"
+                th:text="${post.createdDate}"></time>
+        </a>
+          <div>
+        <span th:each="stat : ${post.statistics}" th:if="${stat.count() != null && stat.count() > 0}"
+              th:title="${stat.longText}" th:text="${stat.shortText}">🗨 6</span>
+          </div>
+        </address>
+      </header>
+      <section th:utext="${post.content}">Hello world</section>
+      <section class="post--attachments" th:if="${post.hasAttachments}">
+        <img th:each="attachment: ${post.attachments}" th:src="${attachment.url}" th:alt="${attachment.altText}">
+      </section>
+    </article>
   </section>
 </main>

@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Json {
+public class SocialJson {
 
     public static final JsonMapper mapper = JsonMapper.builder()
             .addModule(new JavaTimeModule())

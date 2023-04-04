@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities;
-import pandas.social.generic.Attachment;
-import pandas.social.generic.Post;
-import pandas.social.generic.Site;
+import org.jsoup.safety.Safelist;
+import pandas.social.Attachment;
+import pandas.social.Post;
+import pandas.social.Site;
 
 import java.net.URI;
 import java.time.Instant;
@@ -104,6 +107,8 @@ public record Tweet(
         builder.append(Entities.escape(fullText.substring(position)));
 
         String htmlContent = builder.toString();
+
+        htmlContent = Jsoup.clean(htmlContent, "", Safelist.basic(), new Document.OutputSettings().prettyPrint(false));
 
         List<Attachment> attachments = Collections.emptyList();
         if (extendedEntities != null) {

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pandas.PandasSocialConfig;
-import pandas.social.generic.Post;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -66,7 +65,7 @@ public class SocialIndexer implements Closeable {
             doc.add(new StringField(MENTIONS, post.to().toLowerCase(Locale.ROOT), Field.Store.NO));
         }
         doc.add(new TextField(TEXT, html.text(), Field.Store.NO));
-        doc.add(new StoredField(JSON, Json.mapper.writeValueAsString(post)));
+        doc.add(new StoredField(JSON, SocialJson.mapper.writeValueAsString(post)));
         doc.add(new StringField(WARC_FILENAME, warcFilename, Field.Store.YES));
         doc.add(new StoredField(WARC_OFFSET, position));
         doc.add(new SortedNumericDocValuesField(WARC_DATE, warcDate.toEpochMilli()));

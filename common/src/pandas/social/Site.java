@@ -1,4 +1,4 @@
-package pandas.social.generic;
+package pandas.social;
 
 public record Site(
         String name

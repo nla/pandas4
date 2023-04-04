@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.jetbrains.annotations.NotNull;
-import pandas.social.generic.Account;
+import pandas.social.Account;
 
 import java.net.URL;
 

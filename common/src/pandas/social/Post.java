@@ -1,9 +1,4 @@
-package pandas.social.generic;
-
-import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Safelist;
+package pandas.social;
 
 import java.net.URI;
 import java.time.Instant;
@@ -20,14 +15,11 @@ public record Post(
         String to,
         List<String> mentions,
         String content,
-        @NotNull List<Attachment> attachments,
+        List<Attachment> attachments,
         Long replyCount,
         Long reblogCount,
         Long quoteCount,
         Long favouriteCount) {
-    public String contentSafe() {
-        return Jsoup.clean(content, "", Safelist.basic(), new Document.OutputSettings().prettyPrint(false));
-    }
 
     public String createdDate() {
         return createdAt.atZone(ZoneId.systemDefault())
@@ -54,7 +46,7 @@ public record Post(
 
     public record Statistic(String name, String emoji, Long count) {
         public String shortText() {
-            return String.format("%s %,d", emoji, count);
+            return String.format("%s%,d", emoji, count);
         }
 
         public String longText() {

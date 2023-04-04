@@ -8,7 +8,7 @@ import org.netpreserve.jwarc.WarcCompression;
 import org.netpreserve.jwarc.WarcWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pandas.social.Json;
+import pandas.social.SocialJson;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -190,7 +190,7 @@ public class AdaptiveSearcher {
             if (httpResponse.headers().first("x-rate-limit-remaining").map(Integer::parseInt).orElse(10) < 10) {
                 invalidateSession();
             }
-            var adaptiveResponse = Json.mapper.readValue(httpResponse.body().stream(), AdaptiveSearch.class);
+            var adaptiveResponse = SocialJson.mapper.readValue(httpResponse.body().stream(), AdaptiveSearch.class);
             var tweets = adaptiveResponse.tweets();
             if (log.isTraceEnabled()) {
                 log.trace("Got tweets {}", tweets.stream().map(Tweet::id).toList());
@@ -294,7 +294,7 @@ public class AdaptiveSearcher {
 
         SortedMap<String, QueryState> stateMap = new TreeMap<>();
         if (stateFile != null && Files.exists(stateFile)) {
-            stateMap = Json.mapper.readValue(stateFile.toFile(), new TypeReference<>() {
+            stateMap = SocialJson.mapper.readValue(stateFile.toFile(), new TypeReference<>() {
             });
         }
 
@@ -325,7 +325,7 @@ public class AdaptiveSearcher {
     private synchronized static void writeState(Path stateFile, SortedMap<String, QueryState> stateMap) {
         try {
             log.trace("Updating state file {}", stateFile);
-            Json.mapper.writeValue(stateFile.toFile(), stateMap);
+            SocialJson.mapper.writeValue(stateFile.toFile(), stateMap);
         } catch (IOException e) {
             log.error("Failed to write state file {}", stateFile, e);
         }

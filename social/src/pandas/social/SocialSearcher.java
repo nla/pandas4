@@ -6,7 +6,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.QueryBuilder;
 import org.springframework.stereotype.Service;
-import pandas.social.generic.Post;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class SocialSearcher implements Closeable {
         return query.build();
     }
 
-    public Results search(String query, String sortString) throws IOException {
+    public SocialResults search(String query, String sortString) throws IOException {
         Sort sort = SORTS.get(sortString);
         if (sort == null) throw new IllegalArgumentException("Unknown sort: " + sortString);
         var topHits = indexSearcher.search(parseQuery(query), 40, sort);
@@ -75,12 +74,9 @@ public class SocialSearcher implements Closeable {
         var posts = new ArrayList<Post>(topHits.scoreDocs.length);
         for (int i = 0; i < topHits.scoreDocs.length; i++) {
             var doc = indexSearcher.doc(topHits.scoreDocs[i].doc, fieldsToLoad);
-            posts.add(Json.mapper.readValue(doc.get(JSON), Post.class));
+            posts.add(SocialJson.mapper.readValue(doc.get(JSON), Post.class));
         }
-        return new Results(topHits.totalHits.value, posts);
-    }
-
-    public record Results(long totalHits, List<Post> posts) {
+        return new SocialResults(topHits.totalHits.value, posts);
     }
 
 
@@ -90,7 +86,7 @@ public class SocialSearcher implements Closeable {
         if (topHits.scoreDocs.length == 0) return null;
         var doc = indexSearcher.doc(topHits.scoreDocs[0].doc,
                 Set.of(JSON, WARC_FILENAME, WARC_OFFSET, WARC_DATE_STORED));
-        Post post = Json.mapper.readValue(doc.get(JSON), Post.class);
+        Post post = SocialJson.mapper.readValue(doc.get(JSON), Post.class);
         return new PostDetails(post, doc.get(WARC_FILENAME), doc.getField(WARC_OFFSET).numericValue().longValue(),
                 Instant.ofEpochMilli(doc.getField(WARC_DATE_STORED).numericValue().longValue()));
     }

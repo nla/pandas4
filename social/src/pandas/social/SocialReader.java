@@ -2,7 +2,6 @@ package pandas.social;
 
 import org.netpreserve.jwarc.WarcReader;
 import org.netpreserve.jwarc.WarcResponse;
-import pandas.social.generic.Post;
 import pandas.social.twitter.AdaptiveSearch;
 
 import java.io.Closeable;
@@ -27,7 +26,7 @@ public class SocialReader implements Closeable {
                 if (response.http().status() != 200) continue; // ignore error responses
                 if (response.payload().isEmpty()) continue;
                 if (response.target().startsWith("https://api.twitter.com/2/search/adaptive.json?")) {
-                    return Json.mapper.readValue(response.payload().get().body().stream(), AdaptiveSearch.class).posts();
+                    return SocialJson.mapper.readValue(response.payload().get().body().stream(), AdaptiveSearch.class).posts();
                 }
             }
         }

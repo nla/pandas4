@@ -23,8 +23,8 @@ public class SocialApiController {
 
     @GetMapping(value = "/search", produces = "application/json")
     @ResponseBody
-    public SocialSearcher.Results search(@RequestParam("q") String query,
-                                         @RequestParam(value = "sort", defaultValue = "relevance") String sort) throws IOException {
+    public SocialResults search(@RequestParam("q") String query,
+                                @RequestParam(value = "sort", defaultValue = "relevance") String sort) throws IOException {
         return searcher.search(query, sort);
     }
 }

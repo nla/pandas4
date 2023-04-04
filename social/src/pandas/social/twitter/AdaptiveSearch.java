@@ -3,7 +3,7 @@ package pandas.social.twitter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pandas.social.generic.Post;
+import pandas.social.Post;
 
 import java.util.ArrayList;
 import java.util.List;
