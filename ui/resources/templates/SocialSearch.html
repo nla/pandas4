@@ -42,10 +42,13 @@
           <span th:text="'@' + ${post.author.username}">@somebody</span>
         </address>
         <div>
-          <a href="details?url={{url}}">
-            <time th:datetime="${post.createdAt}" th:title="${post.createdDateTime}" itemprop="dateCreated"
-                  th:text="${post.createdDate}"></time>
-          </a>
+          <div>
+            <a th:href="@{/social/details(url=${post.url})}">
+              <time th:datetime="${post.createdAt}" th:title="${post.createdDateTime}" itemprop="dateCreated"
+                    th:text="${post.createdDate}"></time>
+            </a>
+            <a class="post-original-link" th:href="${post.url()}">⧉</a>
+          </div>
           <div class="post-stats">
             <span th:each="stat : ${post.statistics}" th:if="${stat.count() != null && stat.count() > 0}"
                   th:title="${stat.longText}" th:text="${stat.shortText}">🗨 6</span>

@@ -55,7 +55,7 @@ public class SocialIndexer implements Closeable {
         var html = Jsoup.parse(post.content());
         var doc = new Document();
         doc.add(new SortedNumericDocValuesField(CREATED_AT, post.createdAt().toEpochMilli()));
-        doc.add(new StringField(URL, post.url().toString(), Field.Store.YES));
+        doc.add(new StringField(URL, post.url(), Field.Store.YES));
         doc.add(new StringField(FROM, post.author().username().toLowerCase(Locale.ROOT), Field.Store.NO));
         for (var username: post.mentions()) {
             doc.add(new StringField(MENTIONS, username.toLowerCase(Locale.ROOT), Field.Store.NO));
@@ -71,7 +71,7 @@ public class SocialIndexer implements Closeable {
         doc.add(new SortedNumericDocValuesField(WARC_DATE, warcDate.toEpochMilli()));
         doc.add(new StoredField(WARC_DATE_STORED, warcDate.toEpochMilli()));
         log.info(doc.getFields().toString());
-        indexWriter.updateDocument(new Term(URL, post.url().toString()), doc);
+        indexWriter.updateDocument(new Term(URL, post.url()), doc);
     }
 
     @Override

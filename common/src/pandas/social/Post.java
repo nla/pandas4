@@ -8,7 +8,7 @@ import java.time.format.FormatStyle;
 import java.util.List;
 
 public record Post(
-        URI url,
+        String url,
         Instant createdAt,
         Account author,
         Site site,

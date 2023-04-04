@@ -119,7 +119,7 @@ public record Tweet(
 
         User user = users.get(userIdStr);
         return new Post(
-                URI.create("https://twitter.com/" + user.screenName() + "/status/" + id),
+                "https://twitter.com/" + user.screenName() + "/status/" + id,
                 createdAt,
                 user.toGenericAccount(),
                 new Site("Twitter"),

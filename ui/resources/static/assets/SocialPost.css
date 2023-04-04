@@ -51,6 +51,16 @@
     margin-top: 1px;
 }
 
+.post-original-link {
+    font-size: 0.8em;
+    vertical-align: top;
+}
+
+a.post-original-link:hover {
+    text-decoration: none;
+    color: #2f5aa5;
+}
+
 /* Post Creation Date Link */
 .post > header a {
     color: #666;
