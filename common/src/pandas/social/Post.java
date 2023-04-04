@@ -1,5 +1,7 @@
 package pandas.social;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -16,8 +18,10 @@ public record Post(
         String content,
         List<Attachment> attachments,
         Long replyCount,
+        @JsonAlias("reblogCount")
         Long repostCount,
         Long quoteCount,
+        @JsonAlias("favouriteCount")
         Long likeCount) {
 
     public String createdDate() {
