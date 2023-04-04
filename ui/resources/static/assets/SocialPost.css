@@ -37,13 +37,27 @@
     color: #555;
 }
 
+/* Post Date and Stats */
+.post > header > div {
+    text-align: right;
+}
+
+.post-stats {
+    display: flex;
+    color: #888;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 0.8em;
+    margin-top: 1px;
+}
+
 /* Post Creation Date Link */
-.post > header > a {
+.post > header a {
     color: #666;
     text-decoration: none;
 }
 
-.post > header > a:hover {
+.post > header a:hover {
     text-decoration: underline;
 }
 

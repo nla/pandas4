@@ -41,16 +41,16 @@
           <strong th:text="${post.author.displayName}">Somebody}</strong>
           <span th:text="'@' + ${post.author.username}">@somebody</span>
         </address>
-        <address>
+        <div>
           <a href="details?url={{url}}">
-          <time th:datetime="${post.createdAt}" th:title="${post.createdDateTime}" itemprop="dateCreated"
-                th:text="${post.createdDate}"></time>
-        </a>
-          <div>
-        <span th:each="stat : ${post.statistics}" th:if="${stat.count() != null && stat.count() > 0}"
-              th:title="${stat.longText}" th:text="${stat.shortText}">🗨 6</span>
+            <time th:datetime="${post.createdAt}" th:title="${post.createdDateTime}" itemprop="dateCreated"
+                  th:text="${post.createdDate}"></time>
+          </a>
+          <div class="post-stats">
+            <span th:each="stat : ${post.statistics}" th:if="${stat.count() != null && stat.count() > 0}"
+                  th:title="${stat.longText}" th:text="${stat.shortText}">🗨 6</span>
           </div>
-        </address>
+        </div>
       </header>
       <section th:utext="${post.content}">Hello world</section>
       <section class="post--attachments" th:if="${post.hasAttachments}">
