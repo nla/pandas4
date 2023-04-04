@@ -19,7 +19,7 @@ public class PandasSocial {
         http
                 .csrf().disable()
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/search", "/warcs").permitAll()
+                        .requestMatchers("/", "/search", "/warcs", "/reindex").permitAll()
                         .anyRequest().authenticated()
                 );
 

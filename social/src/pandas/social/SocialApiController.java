@@ -1,5 +1,6 @@
 package pandas.social;
 
+import org.netpreserve.jwarc.WarcReader;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,10 +14,12 @@ import java.nio.file.Paths;
 public class SocialApiController {
     private final SocialIndexer indexer;
     private final SocialSearcher searcher;
+    private final BambooClient bambooClient;
 
-    public SocialApiController(SocialIndexer indexer, SocialSearcher searcher) {
+    public SocialApiController(SocialIndexer indexer, SocialSearcher searcher, BambooClient bambooClient) {
         this.indexer = indexer;
         this.searcher = searcher;
+        this.bambooClient = bambooClient;
     }
 
     @GetMapping(value = "/", produces = "text/html;charset=UTF-8")
@@ -43,5 +46,19 @@ public class SocialApiController {
     public String addWarc(@RequestParam("filename") String filename) throws IOException {
         indexer.addWarc(Paths.get(filename));
         return "Added " + filename;
+    }
+
+    @GetMapping("/reindex")
+    @ResponseBody
+    public String reindex() throws IOException {
+        long warcCount = 0;
+        long postCount = 0;
+        for (long warcId : bambooClient.listWarcIds()) {
+            try (var warcReader = new WarcReader(bambooClient.openWarc(warcId))) {
+                postCount += indexer.addWarc(warcReader, Long.toString(warcId));
+                warcCount++;
+            }
+        }
+        return "Indexed " + postCount + " posts from " + warcCount + " warcs";
     }
 }

@@ -36,16 +36,19 @@ public class SocialIndexer implements Closeable {
         }
     }
 
-    public void addWarc(WarcReader warcReader, String warcFilename) throws IOException {
+    public long addWarc(WarcReader warcReader, String warcFilename) throws IOException {
+        long postCount = 0;
         SocialReader socialReader = new SocialReader(warcReader);
         for (var posts = socialReader.nextBatch(); posts != null; posts = socialReader.nextBatch()) {
             var warcResponse = socialReader.warcResponse();
             for (var post : posts) {
                 log.info("Adding {}:{} {}", warcFilename, warcReader.position(), post.url());
                 addPost(post, warcFilename, warcReader.position(), warcResponse.date());
+                postCount++;
             }
         }
         indexWriter.commit();
+        return postCount;
     }
 
     public void addPost(Post post,
