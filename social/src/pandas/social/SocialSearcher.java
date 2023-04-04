@@ -1,5 +1,6 @@
 package pandas.social;
 
+import jakarta.annotation.PreDestroy;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
@@ -18,8 +19,7 @@ import static pandas.social.SocialIndexFields.*;
 
 @Service
 public class SocialSearcher implements Closeable {
-    private final DirectoryReader directoryReader;
-    private final IndexSearcher indexSearcher;
+    private final SearcherManager searcherManager;
     private static final Pattern TOKENISER = Pattern.compile("\"([^\"]*)\"|\\S+");
 
     private static final Map<String, Sort> SORTS = Map.of(
@@ -28,8 +28,7 @@ public class SocialSearcher implements Closeable {
             "relevance", new Sort(SortField.FIELD_SCORE));
 
     public SocialSearcher(SocialIndexer indexer) throws IOException {
-        this.directoryReader = DirectoryReader.open(indexer.indexWriter);
-        this.indexSearcher = new IndexSearcher(directoryReader);
+        searcherManager = new SearcherManager(indexer.indexWriter, null);
     }
 
     private static Query parseQuery(String queryString) {
@@ -67,35 +66,47 @@ public class SocialSearcher implements Closeable {
     }
 
     public SocialResults search(String query, String sortString) throws IOException {
-        Sort sort = SORTS.get(sortString);
-        if (sort == null) throw new IllegalArgumentException("Unknown sort: " + sortString);
-        var topHits = indexSearcher.search(parseQuery(query), 40, sort);
-        var fieldsToLoad = Set.of(JSON);
-        var posts = new ArrayList<Post>(topHits.scoreDocs.length);
-        for (int i = 0; i < topHits.scoreDocs.length; i++) {
-            var doc = indexSearcher.doc(topHits.scoreDocs[i].doc, fieldsToLoad);
-            posts.add(SocialJson.mapper.readValue(doc.get(JSON), Post.class));
+        searcherManager.maybeRefresh();
+        IndexSearcher indexSearcher = searcherManager.acquire();
+        try {
+            Sort sort = SORTS.get(sortString);
+            if (sort == null) throw new IllegalArgumentException("Unknown sort: " + sortString);
+            var topHits = indexSearcher.search(parseQuery(query), 40, sort);
+            var fieldsToLoad = Set.of(JSON);
+            var posts = new ArrayList<Post>(topHits.scoreDocs.length);
+            for (int i = 0; i < topHits.scoreDocs.length; i++) {
+                var doc = indexSearcher.doc(topHits.scoreDocs[i].doc, fieldsToLoad);
+                posts.add(SocialJson.mapper.readValue(doc.get(JSON), Post.class));
+            }
+            return new SocialResults(topHits.totalHits.value, posts);
+        } finally {
+            searcherManager.release(indexSearcher);
         }
-        return new SocialResults(topHits.totalHits.value, posts);
     }
 
 
     public PostDetails findByUrl(String url) throws IOException {
-        System.err.println("findByUrl: " + url);
-        var topHits = indexSearcher.search(new TermQuery(new Term(URL, url)), 1);
-        if (topHits.scoreDocs.length == 0) return null;
-        var doc = indexSearcher.doc(topHits.scoreDocs[0].doc,
-                Set.of(JSON, WARC_FILENAME, WARC_OFFSET, WARC_DATE_STORED));
-        Post post = SocialJson.mapper.readValue(doc.get(JSON), Post.class);
-        return new PostDetails(post, doc.get(WARC_FILENAME), doc.getField(WARC_OFFSET).numericValue().longValue(),
-                Instant.ofEpochMilli(doc.getField(WARC_DATE_STORED).numericValue().longValue()));
+        IndexSearcher indexSearcher = searcherManager.acquire();
+        try {
+            System.err.println("findByUrl: " + url);
+            var topHits = indexSearcher.search(new TermQuery(new Term(URL, url)), 1);
+            if (topHits.scoreDocs.length == 0) return null;
+            var doc = indexSearcher.doc(topHits.scoreDocs[0].doc,
+                    Set.of(JSON, WARC_FILENAME, WARC_OFFSET, WARC_DATE_STORED));
+            Post post = SocialJson.mapper.readValue(doc.get(JSON), Post.class);
+            return new PostDetails(post, doc.get(WARC_FILENAME), doc.getField(WARC_OFFSET).numericValue().longValue(),
+                    Instant.ofEpochMilli(doc.getField(WARC_DATE_STORED).numericValue().longValue()));
+        } finally {
+            searcherManager.release(indexSearcher);
+        }
     }
 
     public record PostDetails(Post post, String warcFile, long warcOffset, Instant warcDate) {
     }
 
+    @PreDestroy
     @Override
     public void close() throws IOException {
-        directoryReader.close();
+        searcherManager.close();
     }
 }

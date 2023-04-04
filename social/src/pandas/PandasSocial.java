@@ -18,7 +18,7 @@ public class PandasSocial {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/search").permitAll()
+                        .requestMatchers("/", "/search", "/warcs").permitAll()
                         .anyRequest().authenticated()
                 );
 
