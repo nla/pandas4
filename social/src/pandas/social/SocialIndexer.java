@@ -64,6 +64,12 @@ public class SocialIndexer implements Closeable {
             doc.add(new StringField(FROM, post.to().toLowerCase(Locale.ROOT), Field.Store.NO));
             doc.add(new StringField(MENTIONS, post.to().toLowerCase(Locale.ROOT), Field.Store.NO));
         }
+
+        addSortedNumericField(doc, REPLY_COUNT, post.replyCount());
+        addSortedNumericField(doc, LIKE_COUNT, post.favouriteCount());
+        addSortedNumericField(doc, REPOST_COUNT, post.reblogCount());
+        addSortedNumericField(doc, QUOTE_COUNT, post.quoteCount());
+
         doc.add(new TextField(TEXT, html.text(), Field.Store.NO));
         doc.add(new StoredField(JSON, SocialJson.mapper.writeValueAsString(post)));
         doc.add(new StringField(WARC_FILENAME, warcFilename, Field.Store.YES));
@@ -72,6 +78,12 @@ public class SocialIndexer implements Closeable {
         doc.add(new StoredField(WARC_DATE_STORED, warcDate.toEpochMilli()));
         log.info(doc.getFields().toString());
         indexWriter.updateDocument(new Term(URL, post.url()), doc);
+    }
+
+    public void addSortedNumericField(Document doc, String field, Long value) {
+        if (value != null) {
+            doc.add(new SortedNumericDocValuesField(field, value));
+        }
     }
 
     @Override

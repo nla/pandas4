@@ -41,7 +41,8 @@ public class SocialController {
                          Model model) throws IOException {
         model.addAttribute("q", q);
         model.addAttribute("sort", sort);
-        model.addAttribute("orderings", List.of("Relevance", "Newest", "Oldest"));
+        model.addAttribute("orderings", List.of("Relevance", "Newest", "Oldest",
+                "Likes", "Replies", "Reposts", "Quotes"));
         model.addAttribute("results", socialClient.search(q, sort.toLowerCase()));
         return "SocialSearch";
     }

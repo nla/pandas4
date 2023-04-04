@@ -17,6 +17,7 @@ public class PandasSocial {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/search", "/warcs").permitAll()
                         .anyRequest().authenticated()

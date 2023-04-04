@@ -25,7 +25,11 @@ public class SocialSearcher implements Closeable {
     private static final Map<String, Sort> SORTS = Map.of(
             "newest", new Sort(new SortedNumericSortField(CREATED_AT, SortField.Type.LONG, true)),
             "oldest", new Sort(new SortedNumericSortField(CREATED_AT, SortField.Type.LONG, false)),
-            "relevance", new Sort(SortField.FIELD_SCORE));
+            "relevance", new Sort(SortField.FIELD_SCORE),
+            "likes", new Sort(new SortedNumericSortField(LIKE_COUNT, SortField.Type.LONG, true)),
+            "reposts", new Sort(new SortedNumericSortField(REPOST_COUNT, SortField.Type.LONG, true)),
+            "quotes", new Sort(new SortedNumericSortField(QUOTE_COUNT, SortField.Type.LONG, true)),
+            "replies", new Sort(new SortedNumericSortField(REPLY_COUNT, SortField.Type.LONG, true)));
 
     public SocialSearcher(SocialIndexer indexer) throws IOException {
         searcherManager = new SearcherManager(indexer.indexWriter, null);
