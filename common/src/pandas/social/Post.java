@@ -1,6 +1,5 @@
 package pandas.social;
 
-import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -17,9 +16,9 @@ public record Post(
         String content,
         List<Attachment> attachments,
         Long replyCount,
-        Long reblogCount,
+        Long repostCount,
         Long quoteCount,
-        Long favouriteCount) {
+        Long likeCount) {
 
     public String createdDate() {
         return createdAt.atZone(ZoneId.systemDefault())
@@ -38,9 +37,9 @@ public record Post(
     public List<Statistic> statistics() {
         return List.of(
                 new Statistic("replies", "🗨", replyCount),
-                new Statistic("reblogs", "↻", reblogCount),
+                new Statistic("reposts", "↻", repostCount),
                 new Statistic("quotes", "❞", quoteCount),
-                new Statistic("likes", "❤", favouriteCount));
+                new Statistic("likes", "❤", likeCount));
 
     }
 

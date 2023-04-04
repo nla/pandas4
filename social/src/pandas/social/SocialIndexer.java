@@ -66,8 +66,8 @@ public class SocialIndexer implements Closeable {
         }
 
         addSortedNumericField(doc, REPLY_COUNT, post.replyCount());
-        addSortedNumericField(doc, LIKE_COUNT, post.favouriteCount());
-        addSortedNumericField(doc, REPOST_COUNT, post.reblogCount());
+        addSortedNumericField(doc, LIKE_COUNT, post.likeCount());
+        addSortedNumericField(doc, REPOST_COUNT, post.repostCount());
         addSortedNumericField(doc, QUOTE_COUNT, post.quoteCount());
 
         doc.add(new TextField(TEXT, html.text(), Field.Store.NO));
