@@ -5,24 +5,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pandas.social.SocialService;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Controller
 public class SocialController {
     private final Logger log = LoggerFactory.getLogger(SocialController.class);
+    private final SocialService socialService;
     private final SocialClient socialClient;
     private final SocialTargetRepository socialTargetRepository;
     private final TitleRepository titleRepository;
 
-    public SocialController(SocialClient socialClient, SocialTargetRepository socialTargetRepository, TitleRepository titleRepository) {
+    public SocialController(SocialService socialService,
+                            SocialClient socialClient, SocialTargetRepository socialTargetRepository, TitleRepository titleRepository) {
+        this.socialService = socialService;
         this.socialClient = socialClient;
         this.socialTargetRepository = socialTargetRepository;
         this.titleRepository = titleRepository;
@@ -50,32 +52,8 @@ public class SocialController {
     @GetMapping("/social/sync")
     @ResponseBody
     @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
-    @Transactional
     public String sync() {
-        String server = "twitter.com";
-        String nitterBaseUrl = "https://nitter.archive.org.au/";
-        AtomicLong added = new AtomicLong();
-        titleRepository.findBySeedUrlLike(nitterBaseUrl + "%").forEach(title -> {
-            String accountName = title.getSeedUrl().substring(nitterBaseUrl.length());
-            accountName = accountName.replaceFirst("[#?/].*", "");
-            accountName = accountName.replaceFirst("^@", "");
-            if (accountName.isBlank()) {
-                log.warn("Blank account name for pi={} url={}", title.getPi(), title.getSeedUrl());
-                return;
-            }
-            if (!title.getStatus().isActive()) {
-                return;
-            }
-            String query = "from:" + accountName;
-            log.info("sync {}", query);
-            if (socialTargetRepository.findByTitle(title).isEmpty() &&
-                socialTargetRepository.findByServerAndQueryIgnoreCase(server, query).isEmpty()) {
-                SocialTarget target = new SocialTarget(server, query, title);
-                socialTargetRepository.save(target);
-                added.incrementAndGet();
-            }
-        });
-        return "Added " + added.get() + " targets";
+        return socialService.syncTitlesToSocialTargets();
     }
 
 }

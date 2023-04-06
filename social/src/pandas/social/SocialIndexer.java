@@ -1,5 +1,6 @@
 package pandas.social;
 
+import jakarta.annotation.PreDestroy;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
@@ -11,7 +12,6 @@ import org.netpreserve.jwarc.WarcReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pandas.PandasSocialConfig;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class SocialIndexer implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(SocialIndexer.class);
     final IndexWriter indexWriter;
 
-    public SocialIndexer(PandasSocialConfig config) throws IOException {
+    public SocialIndexer(SocialConfig config) throws IOException {
         this.indexWriter = new IndexWriter(new MMapDirectory(config.getIndexDir()), new IndexWriterConfig(new EnglishAnalyzer()));
     }
 
@@ -89,8 +89,13 @@ public class SocialIndexer implements Closeable {
         }
     }
 
+    @PreDestroy
     @Override
     public void close() throws IOException {
         indexWriter.close();
+    }
+
+    public void enqueueWarcId(long warcId) {
+        // TODO
     }
 }

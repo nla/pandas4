@@ -61,4 +61,12 @@ public class SocialApiController {
         }
         return "Indexed " + postCount + " posts from " + warcCount + " warcs";
     }
+
+    @GetMapping("/archiver")
+    @ResponseBody
+    public String archiver() {
+
+
+        return "pants";
+    }
 }

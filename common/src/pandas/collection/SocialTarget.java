@@ -34,7 +34,7 @@ public class SocialTarget {
 
     private long postCount;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TITLE_ID")
     private Title title;
 
@@ -53,14 +53,17 @@ public class SocialTarget {
     private Instant lastModifiedDate;
 
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CREATED_BY")
     private User createdBy;
 
     @LastModifiedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LAST_MODIFIED_BY")
     private User lastModifiedBy;
+
+    private String currentRangePosition;
+    private String currentRangeEnd;
 
     public SocialTarget() {
     }
@@ -126,5 +129,48 @@ public class SocialTarget {
 
     public User getLastModifiedBy() {
         return lastModifiedBy;
+    }
+
+    @Override
+    public String toString() {
+        return "SocialTarget{" +
+                "id=" + id +
+                ", server='" + server + '\'' +
+                ", query='" + query + '\'' +
+                '}';
+    }
+
+    public String getCurrentRangePosition() {
+        return currentRangePosition;
+    }
+
+    public void setCurrentRangePosition(String currentRangePosition) {
+        this.currentRangePosition = currentRangePosition;
+    }
+
+    public String getCurrentRangeEnd() {
+        return currentRangeEnd;
+    }
+
+    public void setCurrentRangeEnd(String currentRangeEnd) {
+        this.currentRangeEnd = currentRangeEnd;
+    }
+
+    public void setLastVisitedDate(Instant lastVisitedDate) {
+        this.lastVisitedDate = lastVisitedDate;
+    }
+
+    public void incrementPostCount(long delta) {
+        postCount += delta;
+    }
+
+    public void setNewestPost(String id, Instant date) {
+        newestPostId = id;
+        newestPostDate = date;
+    }
+
+    public void setOldestPost(String id, Instant date) {
+        oldestPostId = id;
+        oldestPostDate = date;
     }
 }

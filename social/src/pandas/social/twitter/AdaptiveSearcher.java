@@ -1,13 +1,11 @@
 package pandas.social.twitter;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.netpreserve.jwarc.HttpRequest;
 import org.netpreserve.jwarc.HttpResponse;
-import org.netpreserve.jwarc.WarcCompression;
 import org.netpreserve.jwarc.WarcWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pandas.collection.SocialTarget;
 import pandas.social.SocialJson;
 
 import java.io.ByteArrayInputStream;
@@ -18,18 +16,14 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse.BodySubscribers;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.*;
 import static org.netpreserve.jwarc.MessageVersion.HTTP_1_0;
 
 public class AdaptiveSearcher {
@@ -53,37 +47,6 @@ public class AdaptiveSearcher {
 
     public AdaptiveSearcher(String userAgent) {
         this.userAgent = userAgent;
-    }
-
-    public static class QueryState {
-        public long tweetCount;
-        public Long newestTweetId;
-        public Instant newestTweetTimestamp;
-        public Long oldestTweetId;
-        public Instant oldestTweetTimestamp;
-        public Instant createdAt;
-        public Instant lastSuccessfulAt;
-        public Instant lastAttemptedAt;
-        public Long currentRangePosition;
-        public Long currentRangeEnd;
-
-
-        // Legacy fields. To be removed.
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        public String cursor;
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        public Boolean backfilled;
-
-        public void migrateLegacyFields() {
-            if (cursor != null) cursor = null;
-            if (backfilled != null) {
-                if (!backfilled) {
-                    currentRangePosition = oldestTweetId;
-                    currentRangeEnd = null;
-                }
-                backfilled = null;
-            }
-        }
     }
 
     private record Session(String cookies, String guestToken, long createdAtMillis) {
@@ -157,7 +120,7 @@ public class AdaptiveSearcher {
         return session;
     }
 
-    private void innerSearch(String query, WarcWriter warcWriter, QueryState state) throws IOException, InterruptedException {
+    private void innerSearch(String query, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {
         int page = 0;
         String cursor = null;
         do {
@@ -168,7 +131,7 @@ public class AdaptiveSearcher {
             }
 
             long startNanos = System.nanoTime();
-            state.lastAttemptedAt = Instant.now();
+            Instant now = Instant.now();
             URI uri = URI.create(url);
             Session session = getOrCreateSession();
             var httpRequest = new HttpRequest.Builder("GET", uri.getRawPath() + "?" + uri.getRawQuery())
@@ -195,22 +158,20 @@ public class AdaptiveSearcher {
             if (log.isTraceEnabled()) {
                 log.trace("Got tweets {}", tweets.stream().map(Tweet::id).toList());
             }
+            target.setLastVisitedDate(now);
             if (!tweets.isEmpty()) {
-                state.lastSuccessfulAt = state.lastAttemptedAt;
-                state.tweetCount += tweets.size();
+                target.incrementPostCount(tweets.size());
                 if (page == 0) {
                     var newestTweet = tweets.get(0);
-                    if (state.newestTweetId == null || newestTweet.id() > state.newestTweetId) {
-                        state.newestTweetId = newestTweet.id();
-                        state.newestTweetTimestamp = newestTweet.createdAt();
+                    if (target.getNewestPostId() == null || newestTweet.id() > Long.parseLong(target.getNewestPostId())) {
+                        target.setNewestPost(String.valueOf(newestTweet.id()), newestTweet.createdAt());
                     }
                 }
                 var oldestTweet = tweets.get(tweets.size() - 1);
-                if (state.oldestTweetId == null || oldestTweet.id() < state.oldestTweetId) {
-                    state.oldestTweetId = oldestTweet.id();
-                    state.oldestTweetTimestamp = oldestTweet.createdAt();
+                if (target.getOldestPostId() == null || oldestTweet.id() < Long.parseLong(target.getOldestPostId())) {
+                    target.setOldestPost(String.valueOf(oldestTweet.id()), oldestTweet.createdAt());
                 }
-                state.currentRangePosition = oldestTweet.id();
+                target.setCurrentRangePosition(String.valueOf(oldestTweet.id()));
             }
             cursor = adaptiveResponse.nextCursor();
             page++;
@@ -223,111 +184,29 @@ public class AdaptiveSearcher {
         } while (cursor != null);
     }
 
-    public void fetchRange(String query, Long start, Long end, WarcWriter warcWriter, QueryState state) throws IOException, InterruptedException {
-        state.currentRangeEnd = end;
+    public void fetchRange(String query, Long start, Long end, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {
+        target.setCurrentRangeEnd(end == null ? null : end.toString());
 
         if (start != null) query += " max_id:" + start;
         if (end != null) query += " since_id:" + end;
-        innerSearch(query, warcWriter, state);
+        innerSearch(query, warcWriter, target);
 
         // we've finished the current range, so clear it
-        state.currentRangePosition = null;
-        state.currentRangeEnd = null;
+        target.setCurrentRangePosition(null);
+        target.setCurrentRangeEnd(null);
     }
 
-    public void search(String query, WarcWriter warcWriter, QueryState state) throws IOException, InterruptedException {
-        state.migrateLegacyFields();
-
+    public void search(String query, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {
         // if we were interrupted, first finish the current range
-        if (state.currentRangePosition != null) {
+        if (target.getCurrentRangePosition() != null) {
             log.info("Resuming interrupted search for '{}' from {} to {}", query,
-                    state.currentRangePosition, state.currentRangeEnd);
-            fetchRange(query, state.currentRangePosition + 1, state.currentRangeEnd, warcWriter, state);
+                    target.getCurrentRangePosition(), target.getCurrentRangeEnd());
+            fetchRange(query, Long.parseLong(target.getCurrentRangePosition()) + 1,
+                    Long.parseLong(target.getCurrentRangeEnd()), warcWriter, target);
         }
 
         // now check for anything new
-        fetchRange(query, null, state.newestTweetId, warcWriter, state);
-    }
-
-    public void setDelayMillis(int delayMillis) {
-        this.delayMillis = delayMillis;
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        WarcCompression compression = WarcCompression.NONE;
-        List<String> queries = new ArrayList<>();
-        WritableByteChannel outputChannel = Channels.newChannel(System.out);
-        String userAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0";
-        Path stateFile = null;
-        Integer delayMillis = null;
-
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "-A", "--user-agent" -> userAgent = args[++i];
-                case "-c" -> compression = WarcCompression.valueOf(args[++i]);
-                case "-d", "--delay-millis" -> delayMillis = Integer.parseInt(args[++i]);
-                case "-s", "--state-file" -> stateFile = Paths.get(args[++i]);
-                case "-h", "--help" -> {
-                    System.out.println("Usage: tootkeeper twitter [options] query");
-                    System.out.println("  -A, --user-agent user-agent  User agent (default: " + userAgent + ")");
-                    System.out.println("  -c compression               WARC compression " + Arrays.asList(WarcCompression.values()));
-                    System.out.println("  -d, --delay-millis millis    Delay between requests (default: " + DEFAULT_DELAY_MILLIS + ")");
-                    System.out.println("  -s, --state-file file        State file for incremental archiving");
-                    System.out.println("  -o file                      Output file (default: stdout)");
-                    System.exit(0);
-                }
-                case "-o" -> outputChannel = FileChannel.open(Paths.get(args[++i]), CREATE, WRITE, TRUNCATE_EXISTING);
-                default -> {
-                    if (args[i].startsWith("-")) {
-                        System.err.println("Unknown option " + args[i]);
-                        System.exit(1);
-                    }
-                    queries.add(args[i]);
-                }
-            }
-        }
-
-        if (queries.isEmpty()) {
-            System.err.println("Missing query");
-            System.exit(1);
-        }
-
-        SortedMap<String, QueryState> stateMap = new TreeMap<>();
-        if (stateFile != null && Files.exists(stateFile)) {
-            stateMap = SocialJson.mapper.readValue(stateFile.toFile(), new TypeReference<>() {
-            });
-        }
-
-        if (stateFile != null) writeStateOnShutdown(stateFile, stateMap);
-
-        var searcher = new AdaptiveSearcher(userAgent);
-        if (delayMillis != null) searcher.setDelayMillis(delayMillis);
-
-        var finalStateMap = stateMap;
-        queries.sort(Comparator.comparing(query -> {
-            var state = finalStateMap.get(query);
-            if (state == null || state.lastAttemptedAt == null) return Instant.MIN;
-            return state.lastAttemptedAt;
-        }));
-
-        try (WarcWriter warcWriter = new WarcWriter(outputChannel, compression)) {
-            for (var query : queries) {
-                searcher.search(query, warcWriter, stateMap.computeIfAbsent(query, q -> new QueryState()));
-                writeState(stateFile, stateMap);
-            }
-        }
-    }
-
-    private static void writeStateOnShutdown(Path finalStateFile, SortedMap<String, QueryState> finalStateMap) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> writeState(finalStateFile, finalStateMap)));
-    }
-
-    private synchronized static void writeState(Path stateFile, SortedMap<String, QueryState> stateMap) {
-        try {
-            log.trace("Updating state file {}", stateFile);
-            SocialJson.mapper.writeValue(stateFile.toFile(), stateMap);
-        } catch (IOException e) {
-            log.error("Failed to write state file {}", stateFile, e);
-        }
+        Long newestTweetId = target.getNewestPostId() == null ? null : Long.parseLong(target.getNewestPostId());
+        fetchRange(query, null, newestTweetId, warcWriter, target);
     }
 }
