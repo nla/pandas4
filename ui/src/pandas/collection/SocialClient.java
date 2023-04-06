@@ -1,6 +1,5 @@
 package pandas.collection;
 
-import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 import pandas.core.Config;
@@ -9,7 +8,6 @@ import pandas.social.SocialResults;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -19,7 +17,8 @@ public class SocialClient {
     private final String baseUrl;
 
     public SocialClient(Config config) {
-        this.baseUrl = config.getSocialUrl().replaceFirst("/+$", "");
+        this.baseUrl = config.getSocialUrl() == null ? null :
+                config.getSocialUrl().replaceFirst("/+$", "");
     }
 
     private static Pattern MATCHES_RE = Pattern.compile("Found ([0-9,]+) matching");
