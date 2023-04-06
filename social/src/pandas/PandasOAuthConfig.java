@@ -1,5 +1,6 @@
 package pandas;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesRegistrationAdapter;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 
@@ -26,14 +28,18 @@ import java.util.ArrayList;
 @Import(OAuth2ClientAutoConfiguration.class)
 public class PandasOAuthConfig {
 
+    // For non-webapp mode. Spring Boot autoconfigures this in webapp mode.
     @Bean
+    @ConditionalOnMissingBean(ClientRegistrationRepository.class)
     InMemoryClientRegistrationRepository clientRegistrationRepository(OAuth2ClientProperties properties) {
         var registrations = new ArrayList<>(
                 OAuth2ClientPropertiesRegistrationAdapter.getClientRegistrations(properties).values());
         return new InMemoryClientRegistrationRepository(registrations);
     }
 
+    // For non-webapp mode. Spring Boot autoconfigures this in webapp mode.
     @Bean
+    @ConditionalOnMissingBean(OAuth2AuthorizedClientManager.class)
     AuthorizedClientServiceOAuth2AuthorizedClientManager oauth2ClientManager(ClientRegistrationRepository clientRegistrationRepository) {
         var clientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
         return new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository, clientService);
