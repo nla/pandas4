@@ -40,7 +40,7 @@ public class BambooClient {
                         SocialBambooConfig config) {
         this.oauth2ClientManager = oauth2ClientManager;
         collectionId = config.getCollectionId();
-        baseUrl = config.getUrl();
+        baseUrl = config.getUrl().replaceFirst("/+$", "");
         crawlSeriesId = config.getCrawlSeriesId();
     }
 
