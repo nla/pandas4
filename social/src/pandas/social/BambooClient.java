@@ -35,10 +35,11 @@ public class BambooClient {
     private final OAuth2AuthorizedClientManager oauth2ClientManager;
 
 
-    public BambooClient(@Autowired(required = false) OAuth2AuthorizedClientManager oauth2ClientManager) {
+    public BambooClient(@Autowired(required = false) OAuth2AuthorizedClientManager oauth2ClientManager,
+                        SocialBambooConfig config) {
         this.oauth2ClientManager = oauth2ClientManager;
-        collectionId = 1;
-        baseUrl = "http://localhost:8080";
+        collectionId = config.getCollectionId();
+        baseUrl = config.getUrl();
     }
 
     public List<Long> listWarcIds() throws IOException {
