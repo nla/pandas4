@@ -61,7 +61,7 @@ public class SocialArchiver {
             long start = warcWriter.position();
 
             // Create the crawl in bamboo, we do this now so if bamboo is down we fail out early
-            long crawlId = bambooClient.createCrawl(crawlSeriesId, crawlPid);
+            long crawlId = bambooClient.createCrawl(crawlPid);
 
             // Do the actual archiving
             AdaptiveSearcher adaptiveSearcher = new AdaptiveSearcher(config.getUserAgent());

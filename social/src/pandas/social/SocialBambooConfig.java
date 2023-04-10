@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class SocialBambooConfig {
     private String url;
     private long collectionId;
+    private long crawlSeriesId;
 
     public String getUrl() {
         return url;
@@ -23,5 +24,13 @@ public class SocialBambooConfig {
 
     public void setCollectionId(long collectionId) {
         this.collectionId = collectionId;
+    }
+
+    public long getCrawlSeriesId() {
+        return crawlSeriesId;
+    }
+
+    public void setCrawlSeriesId(long crawlSeriesId) {
+        this.crawlSeriesId = crawlSeriesId;
     }
 }

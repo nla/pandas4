@@ -31,6 +31,7 @@ public class BambooClient {
     public static final AnonymousAuthenticationToken ANONYMOUS = new AnonymousAuthenticationToken
             ("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
     private final long collectionId;
+    private final long crawlSeriesId;
     private final String baseUrl;
     private final OAuth2AuthorizedClientManager oauth2ClientManager;
 
@@ -40,6 +41,7 @@ public class BambooClient {
         this.oauth2ClientManager = oauth2ClientManager;
         collectionId = config.getCollectionId();
         baseUrl = config.getUrl();
+        crawlSeriesId = config.getCrawlSeriesId();
     }
 
     public List<Long> listWarcIds() throws IOException {
@@ -51,7 +53,7 @@ public class BambooClient {
         return URI.create(baseUrl + "/warcs/" + warcId).toURL().openStream();
     }
 
-    public long createCrawl(long crawlSeriesId, String name) throws IOException {
+    public long createCrawl(String name) throws IOException {
         byte[] body = ("name=" + UriUtils.encode(name, UTF_8) +
                 "&crawlSeriesId=" + crawlSeriesId).getBytes();
         var connection = (HttpURLConnection)URI.create(baseUrl + "/crawls/new").toURL().openConnection();
