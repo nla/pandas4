@@ -45,8 +45,12 @@ public class BambooClient {
     }
 
     public List<Long> listWarcIds() throws IOException {
-        var refs = SocialJson.mapper.readValue(URI.create(baseUrl + "/collections/" + collectionId + "/warcs/json").toURL(), WarcRef[].class);
-        return Arrays.stream(refs).map(ref -> ref.id).toList();
+        var connection = (HttpURLConnection)URI.create(baseUrl + "/collections/" + collectionId + "/warcs/json").toURL().openConnection();
+        authorize(connection);
+        try (InputStream inputStream = connection.getInputStream()) {
+            var refs = SocialJson.mapper.readValue(inputStream, WarcRef[].class);
+            return Arrays.stream(refs).map(ref -> ref.id).toList();
+        }
     }
 
     public InputStream openWarc(long warcId) throws IOException {
