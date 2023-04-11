@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,12 +42,15 @@ public class AdaptiveSearcher {
             .version(HttpClient.Version.HTTP_1_1)
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
+    private final AtomicBoolean stopSignal;
     private String bearerToken;
     private Session session;
     private int delayMillis = DEFAULT_DELAY_MILLIS;
 
-    public AdaptiveSearcher(String userAgent) {
+    public AdaptiveSearcher(String userAgent, AtomicBoolean stopSignal) {
         this.userAgent = userAgent;
+        this.stopSignal = stopSignal;
+        log.trace("AdaptiveSearcher created (userAgent={})", userAgent);
     }
 
     private record Session(String cookies, String guestToken, long createdAtMillis) {
@@ -174,6 +178,7 @@ public class AdaptiveSearcher {
                 target.setCurrentRangePosition(String.valueOf(oldestTweet.id()));
             }
             cursor = adaptiveResponse.nextCursor();
+            if (stopSignal.get()) return;
             page++;
             long elapsedMillis = (System.nanoTime() - startNanos) / 1_000_000;
             long millisToSleep = delayMillis - elapsedMillis;
@@ -181,7 +186,12 @@ public class AdaptiveSearcher {
                 log.trace("Sleeping for {}ms", millisToSleep);
                 Thread.sleep(millisToSleep);
             }
+            if (stopSignal.get()) return;
         } while (cursor != null);
+
+        // we've finished the current range, so clear it
+        target.setCurrentRangePosition(null);
+        target.setCurrentRangeEnd(null);
     }
 
     public void fetchRange(String query, Long start, Long end, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {
@@ -190,10 +200,6 @@ public class AdaptiveSearcher {
         if (start != null) query += " max_id:" + start;
         if (end != null) query += " since_id:" + end;
         innerSearch(query, warcWriter, target);
-
-        // we've finished the current range, so clear it
-        target.setCurrentRangePosition(null);
-        target.setCurrentRangeEnd(null);
     }
 
     public void search(String query, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {
@@ -202,6 +208,7 @@ public class AdaptiveSearcher {
             log.info("Resuming interrupted search for '{}' from {} to {}", query,
                     target.getCurrentRangePosition(), target.getCurrentRangeEnd());
             fetchRange(query, Long.parseLong(target.getCurrentRangePosition()) + 1,
+                    target.getCurrentRangeEnd() == null ? null :
                     Long.parseLong(target.getCurrentRangeEnd()), warcWriter, target);
         }
 

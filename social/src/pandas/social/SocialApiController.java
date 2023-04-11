@@ -12,11 +12,13 @@ import java.nio.file.Paths;
 
 @Controller
 public class SocialApiController {
+    private final SocialArchiver archiver;
     private final SocialIndexer indexer;
     private final SocialSearcher searcher;
     private final BambooClient bambooClient;
 
-    public SocialApiController(SocialIndexer indexer, SocialSearcher searcher, BambooClient bambooClient) {
+    public SocialApiController(SocialArchiver archiver, SocialIndexer indexer, SocialSearcher searcher, BambooClient bambooClient) {
+        this.archiver = archiver;
         this.indexer = indexer;
         this.searcher = searcher;
         this.bambooClient = bambooClient;
@@ -31,7 +33,12 @@ public class SocialApiController {
                 <input name=filename>
                 <input type=submit>
             </form>
-                """;
+            <p><strong>Archiver:</strong> %s
+            <form method=post>
+               <button type='submit' formaction='start'>Start</button>
+               <button type='submit' formaction='stop'>Stop</button>                
+            </form>
+                """.formatted(archiver.status());
     }
 
     @GetMapping(value = "/search", produces = "application/json")
@@ -62,11 +69,15 @@ public class SocialApiController {
         return "Indexed " + postCount + " posts from " + warcCount + " warcs";
     }
 
-    @GetMapping("/archiver")
-    @ResponseBody
-    public String archiver() {
+    @PostMapping("/start")
+    public String startArchiver() {
+        archiver.start();
+        return "redirect:/";
+    }
 
-
-        return "pants";
+    @PostMapping("/stop")
+    public String stopArchiver() {
+        archiver.stop();
+        return "redirect:/";
     }
 }
