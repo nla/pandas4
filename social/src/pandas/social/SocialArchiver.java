@@ -33,6 +33,7 @@ public class SocialArchiver {
     private final SocialTargetRepository socialTargetRepository;
     private final SocialIndexer socialIndexer;
     private final AdaptiveSearcher adaptiveSearcher;
+    private final SocialConfig socialConfig;
     private Thread thread;
     private AtomicBoolean stopSignal = new AtomicBoolean();
     private AtomicReference<SocialTarget> currentTarget = new AtomicReference<>();
@@ -45,6 +46,7 @@ public class SocialArchiver {
         this.socialService = socialService;
         this.socialTargetRepository = socialTargetRepository;
         this.socialIndexer = socialIndexer;
+        this.socialConfig = socialConfig;
     }
 
     public void run() throws IOException {
@@ -52,6 +54,7 @@ public class SocialArchiver {
         var targets = socialTargetRepository.findAll();
 
         var crawlDate = Instant.now();
+        var startMillis = System.currentTimeMillis();
         var crawlPid = "nla.arc-social-" + DateFormats.ARC_DATE.format(crawlDate);
 
         // Fetch records from targets and write to a temporary warc file
@@ -70,7 +73,6 @@ public class SocialArchiver {
             long crawlId = bambooClient.createCrawl(crawlPid);
 
             // Do the actual archiving
-
             for (var target : targets) {
                 log.info("Archiving {}", target);
                 currentTarget.set(target);
@@ -81,6 +83,14 @@ public class SocialArchiver {
                 }
                 if (stopSignal.get()) {
                     log.info("Social archiver stopped, cleaning up.");
+                    break;
+                }
+                if (warcWriter.position() > socialConfig.getWarcSizeLimitBytes()) {
+                    log.info("Social archiver reached warcSizeLimitBytes ({}), stopping.", socialConfig.getWarcSizeLimitBytes());
+                    break;
+                }
+                if (System.currentTimeMillis() - startMillis > socialConfig.getWarcTimeLimitMillis()) {
+                    log.info("Social archiver reached warcTimeLimitMillis ({}), stopping.", socialConfig.getWarcTimeLimitMillis());
                     break;
                 }
             }
