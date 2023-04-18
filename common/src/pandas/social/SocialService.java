@@ -39,7 +39,7 @@ public class SocialService {
                 return;
             }
             String query = "from:" + accountName;
-            log.info("sync {}", query);
+            log.trace("Syncing {}", query);
             if (socialTargetRepository.findByTitle(title).isEmpty() &&
                     socialTargetRepository.findByServerAndQueryIgnoreCase(server, query).isEmpty()) {
                 SocialTarget target = new SocialTarget(server, query, title);

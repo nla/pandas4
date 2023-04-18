@@ -39,10 +39,11 @@ public class SocialIndexer implements Closeable {
     public long addWarc(WarcReader warcReader, String warcFilename) throws IOException {
         long postCount = 0;
         SocialReader socialReader = new SocialReader(warcReader);
+        log.debug("Indexing {}", warcFilename);
         for (var posts = socialReader.nextBatch(); posts != null; posts = socialReader.nextBatch()) {
             var warcResponse = socialReader.warcResponse();
             for (var post : posts) {
-                log.info("Adding {}:{} {}", warcFilename, warcReader.position(), post.url());
+                log.trace("Adding {}:{} {}", warcFilename, warcReader.position(), post.url());
                 addPost(post, warcFilename, warcReader.position(), warcResponse.date());
                 postCount++;
             }
@@ -79,7 +80,7 @@ public class SocialIndexer implements Closeable {
         doc.add(new StoredField(WARC_OFFSET, position));
         doc.add(new SortedNumericDocValuesField(WARC_DATE, warcDate.toEpochMilli()));
         doc.add(new StoredField(WARC_DATE_STORED, warcDate.toEpochMilli()));
-        log.info(doc.getFields().toString());
+        log.trace(doc.getFields().toString());
         indexWriter.updateDocument(new Term(URL, post.url()), doc);
     }
 
