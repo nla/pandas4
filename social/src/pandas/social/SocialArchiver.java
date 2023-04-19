@@ -112,7 +112,9 @@ public class SocialArchiver {
                 try {
                     adaptiveSearcher.search(target.getQuery(), warcWriter, target);
                 } catch (Exception e) {
-                    log.error("Error archiving {}", target, e);
+                    log.error("Error archiving {}, stopping.", target, e);
+                    stopSignal.set(true);
+                    break;
                 }
                 if (stopSignal.get()) {
                     log.info("Social archiver stopped, cleaning up.");
