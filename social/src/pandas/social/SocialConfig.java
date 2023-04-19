@@ -13,6 +13,8 @@ public class SocialConfig {
     private String userAgent = "pandas-social";
     private long warcSizeLimitBytes = 100 * 1024 * 1024; // 100 MB
     private long warcTimeLimitMillis = TimeUnit.HOURS.toMillis(1);
+    private long archivingIntervalMillis = TimeUnit.DAYS.toMillis(1);
+    private int maxTargetsPerWarcFile = 300;
 
     public Path getIndexDir() {
         return indexDir;
@@ -44,5 +46,21 @@ public class SocialConfig {
 
     public void setWarcTimeLimitMillis(long warcTimeLimitMillis) {
         this.warcTimeLimitMillis = warcTimeLimitMillis;
+    }
+
+    public long getArchivingIntervalMillis() {
+        return archivingIntervalMillis;
+    }
+
+    public void setArchivingIntervalMillis(long archivingIntervalMillis) {
+        this.archivingIntervalMillis = archivingIntervalMillis;
+    }
+
+    public int getMaxTargetsPerWarcFile() {
+        return maxTargetsPerWarcFile;
+    }
+
+    public void setMaxTargetsPerWarcFile(int maxTargetsPerWarcFile) {
+        this.maxTargetsPerWarcFile = maxTargetsPerWarcFile;
     }
 }
