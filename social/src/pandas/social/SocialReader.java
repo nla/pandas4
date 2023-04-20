@@ -1,7 +1,10 @@
 package pandas.social;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.netpreserve.jwarc.WarcReader;
 import org.netpreserve.jwarc.WarcResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pandas.social.twitter.AdaptiveSearch;
 
 import java.io.Closeable;
@@ -10,11 +13,19 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class SocialReader implements Closeable {
+    private final Logger log = LoggerFactory.getLogger(SocialReader.class);
     private final WarcReader warcReader;
+    private final String warcFilename;
     private WarcResponse warcResponse;
 
     public SocialReader(WarcReader warcReader) {
         this.warcReader = warcReader;
+        this.warcFilename = null;
+    }
+
+    public SocialReader(WarcReader warcReader, String warcFilename) {
+        this.warcReader = warcReader;
+        this.warcFilename = warcFilename;
     }
 
     public List<Post> nextBatch() throws IOException {
@@ -26,7 +37,11 @@ public class SocialReader implements Closeable {
                 if (response.http().status() != 200) continue; // ignore error responses
                 if (response.payload().isEmpty()) continue;
                 if (response.target().startsWith("https://api.twitter.com/2/search/adaptive.json?")) {
-                    return SocialJson.mapper.readValue(response.payload().get().body().stream(), AdaptiveSearch.class).posts();
+                    try {
+                        return SocialJson.mapper.readValue(response.payload().get().body().stream(), AdaptiveSearch.class).posts();
+                    } catch (JsonMappingException e) {
+                        log.warn("Error parsing {} @ {}", warcFilename, warcReader.position(), e);
+                    }
                 }
             }
         }

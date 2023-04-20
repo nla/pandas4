@@ -38,7 +38,7 @@ public class SocialIndexer implements Closeable {
 
     public long addWarc(WarcReader warcReader, String warcFilename) throws IOException {
         long postCount = 0;
-        SocialReader socialReader = new SocialReader(warcReader);
+        SocialReader socialReader = new SocialReader(warcReader, warcFilename);
         log.debug("Indexing {}", warcFilename);
         for (var posts = socialReader.nextBatch(); posts != null; posts = socialReader.nextBatch()) {
             var warcResponse = socialReader.warcResponse();
