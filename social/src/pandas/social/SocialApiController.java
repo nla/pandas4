@@ -1,6 +1,8 @@
 package pandas.social;
 
 import org.netpreserve.jwarc.WarcReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,7 @@ import java.nio.file.Paths;
 
 @Controller
 public class SocialApiController {
+    private final Logger log = LoggerFactory.getLogger(SocialApiController.class);
     private final SocialArchiver archiver;
     private final SocialIndexer indexer;
     private final SocialSearcher searcher;
@@ -62,7 +65,11 @@ public class SocialApiController {
         long postCount = 0;
         for (long warcId : bambooClient.listWarcIds()) {
             try (var warcReader = new WarcReader(bambooClient.openWarc(warcId))) {
-                postCount += indexer.addWarc(warcReader, Long.toString(warcId));
+                try {
+                    postCount += indexer.addWarc(warcReader, Long.toString(warcId));
+                } catch (IOException e) {
+                    log.warn("Error indexing warc {} @ {}", warcId, warcReader.position(), e);
+                }
                 warcCount++;
             }
         }
