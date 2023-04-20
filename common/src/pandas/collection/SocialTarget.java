@@ -98,8 +98,16 @@ public class SocialTarget {
         return oldestPostId;
     }
 
+    public Long getOldestPostIdLong() {
+        return oldestPostId == null ? null : Long.parseLong(oldestPostId);
+    }
+
     public String getNewestPostId() {
         return newestPostId;
+    }
+
+    public Long getNewestPostIdLong() {
+        return newestPostId == null ? null : Long.parseLong(newestPostId);
     }
 
     public Instant getOldestPostDate() {
@@ -148,12 +156,20 @@ public class SocialTarget {
         this.currentRangePosition = currentRangePosition;
     }
 
+    public void setCurrentRangePositionLong(Long currentRangePosition) {
+        this.currentRangePosition = currentRangePosition == null ? null : currentRangePosition.toString();
+    }
+
     public String getCurrentRangeEnd() {
         return currentRangeEnd;
     }
 
     public void setCurrentRangeEnd(String currentRangeEnd) {
         this.currentRangeEnd = currentRangeEnd;
+    }
+
+    public void setCurrentRangeEndLong(Long currentRangeEnd) {
+        this.currentRangeEnd = currentRangeEnd == null ? null : currentRangeEnd.toString();
     }
 
     public void setLastVisitedDate(Instant lastVisitedDate) {
@@ -164,13 +180,21 @@ public class SocialTarget {
         postCount += delta;
     }
 
-    public void setNewestPost(String id, Instant date) {
-        newestPostId = id;
+    public void setNewestPost(Long id, Instant date) {
+        newestPostId = id == null ? null : id.toString();
         newestPostDate = date;
     }
 
-    public void setOldestPost(String id, Instant date) {
-        oldestPostId = id;
+    public void setOldestPost(Long id, Instant date) {
+        oldestPostId = id == null ? null : id.toString();
         oldestPostDate = date;
+    }
+
+    public Long getCurrentRangePositionLong() {
+        return currentRangePosition == null ? null : Long.parseLong(currentRangePosition);
+    }
+
+    public Long getCurrentRangeEndLong() {
+        return currentRangeEnd == null ? null : Long.parseLong(currentRangeEnd);
     }
 }

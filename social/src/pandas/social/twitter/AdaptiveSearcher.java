@@ -166,16 +166,18 @@ public class AdaptiveSearcher {
             if (!tweets.isEmpty()) {
                 target.incrementPostCount(tweets.size());
                 if (page == 0) {
-                    var newestTweet = tweets.get(0);
-                    if (target.getNewestPostId() == null || newestTweet.id() > Long.parseLong(target.getNewestPostId())) {
-                        target.setNewestPost(String.valueOf(newestTweet.id()), newestTweet.createdAt());
+                    var newestFetchedTweet = tweets.get(0);
+                    Long prevNewestTweetId = target.getNewestPostIdLong();
+                    if (prevNewestTweetId == null || newestFetchedTweet.id() > prevNewestTweetId) {
+                        target.setNewestPost(newestFetchedTweet.id(), newestFetchedTweet.createdAt());
                     }
                 }
-                var oldestTweet = tweets.get(tweets.size() - 1);
-                if (target.getOldestPostId() == null || oldestTweet.id() < Long.parseLong(target.getOldestPostId())) {
-                    target.setOldestPost(String.valueOf(oldestTweet.id()), oldestTweet.createdAt());
+                var oldestFetchedTweet = tweets.get(tweets.size() - 1);
+                var prevOldestTweetId = target.getOldestPostIdLong();
+                if (prevOldestTweetId == null || oldestFetchedTweet.id() < prevOldestTweetId) {
+                    target.setOldestPost(oldestFetchedTweet.id(), oldestFetchedTweet.createdAt());
                 }
-                target.setCurrentRangePosition(String.valueOf(oldestTweet.id()));
+                target.setCurrentRangePositionLong(oldestFetchedTweet.id());
             }
             cursor = adaptiveResponse.nextCursor();
             if (stopSignal.get()) return;
@@ -195,7 +197,7 @@ public class AdaptiveSearcher {
     }
 
     public void fetchRange(String query, Long start, Long end, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {
-        target.setCurrentRangeEnd(end == null ? null : end.toString());
+        target.setCurrentRangeEndLong(end);
 
         if (start != null) query += " max_id:" + start;
         if (end != null) query += " since_id:" + end;
@@ -207,13 +209,12 @@ public class AdaptiveSearcher {
         if (target.getCurrentRangePosition() != null) {
             log.info("Resuming interrupted search for '{}' from {} to {}", query,
                     target.getCurrentRangePosition(), target.getCurrentRangeEnd());
-            fetchRange(query, Long.parseLong(target.getCurrentRangePosition()) + 1,
-                    target.getCurrentRangeEnd() == null ? null :
-                    Long.parseLong(target.getCurrentRangeEnd()), warcWriter, target);
+            fetchRange(query, target.getCurrentRangePositionLong() + 1,
+                    target.getCurrentRangeEndLong(), warcWriter, target);
         }
 
         // now check for anything new
-        Long newestTweetId = target.getNewestPostId() == null ? null : Long.parseLong(target.getNewestPostId());
+        Long newestTweetId = target.getNewestPostIdLong();
         fetchRange(query, null, newestTweetId, warcWriter, target);
     }
 }
