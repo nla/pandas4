@@ -127,6 +127,7 @@ public class AdaptiveSearcher {
     private void innerSearch(String query, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {
         int page = 0;
         String cursor = null;
+        int tries = 0;
         do {
             log.trace("Searching for '{}' with cursor '{}'", query, cursor);
             String url = ADAPTIVE_SEARCH_URL + "&q=" + URLEncoder.encode(query, UTF_8);
@@ -152,7 +153,18 @@ public class AdaptiveSearcher {
             var httpResponse = HttpResponse.parse(Channels.newChannel(new ByteArrayInputStream(buffer.toByteArray())));
             if (httpResponse.status() != 200) {
                 log.error("Status {} from {}", httpResponse.status(), uri);
-                break;
+                if (tries++ < 5) {
+                    long secondsToSleep = ((1L << tries) - 1) * 110 - 80;
+                    log.info("Backing off for {} seconds", secondsToSleep);
+                    Thread.sleep(secondsToSleep * 1000);
+                    invalidateSession();
+                    // TODO: expire cursor?
+                    continue;
+                } else {
+                    log.error("Too many retries, stopping archiver");
+                    stopSignal.set(true);
+                    break;
+                }
             }
             if (httpResponse.headers().first("x-rate-limit-remaining").map(Integer::parseInt).orElse(10) < 10) {
                 invalidateSession();
