@@ -35,7 +35,7 @@ public class AdaptiveSearcher {
     private static final Pattern SET_COOKIE_REGEX = Pattern.compile("document.cookie=\"([^;]*?);");
     private static final Pattern SERVICE_WORKER_JS_REGEX = Pattern.compile("\"(https://abs.twimg.com/responsive-web/client-serviceworker/serviceworker.[a-z0-9]+.js)\"");
     private static final Pattern BEARER_TOKEN_REGEX = Pattern.compile("\"(AAAA[a-zA-Z0-9%]{30,}A)\"");
-    public static final int DEFAULT_DELAY_MILLIS = 5000;
+    public static final int DEFAULT_DELAY_MILLIS = 8000;
 
     private final String userAgent;
     private final HttpClient httpClient = HttpClient.newBuilder()
