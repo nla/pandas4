@@ -6,15 +6,13 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.jetbrains.annotations.NotNull;
 import pandas.social.Account;
 
-import java.net.URL;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(SnakeCaseStrategy.class)
 public record User(
         long id,
         @NotNull String name,
         @NotNull String screenName,
-        @NotNull URL profileImageUrlHttps
+        @NotNull String profileImageUrlHttps
 ) {
     public Account toGenericAccount() {
         return new Account(screenName, name, profileImageUrlHttps);

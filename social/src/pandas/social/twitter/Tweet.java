@@ -13,7 +13,6 @@ import pandas.social.Attachment;
 import pandas.social.Post;
 import pandas.social.Site;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -84,7 +83,7 @@ public record Tweet(
         @JsonIgnoreProperties(ignoreUnknown = true)
         @JsonNaming(SnakeCaseStrategy.class)
         public record Media(
-                @NotNull URI mediaUrlHttps,
+                @NotNull String mediaUrlHttps,
                 @NotNull String type,
                 String extAltText) {
             public Attachment toGenericMediaAttachment() {
