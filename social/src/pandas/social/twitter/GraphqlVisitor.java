@@ -51,6 +51,7 @@ public class GraphqlVisitor {
             var tweets = timeline.tweets();
             if (tweets.isEmpty()) {
                 log.debug("No more tweets for {}", target);
+                break;
             }
             log.trace("Got tweets {}", tweets.stream().map(TimelineV2.TweetV2::restId).toList());
             if (newestTweet == null) newestTweet = tweets.get(0);
