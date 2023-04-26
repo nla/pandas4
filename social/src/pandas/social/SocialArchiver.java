@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pandas.collection.SocialTarget;
 import pandas.collection.SocialTargetRepository;
+import pandas.social.mastodon.MastodonVisitor;
 import pandas.social.twitter.AdaptiveSearcher;
 import pandas.util.DateFormats;
 
@@ -110,7 +111,11 @@ public class SocialArchiver {
                 log.info("Archiving {}", target);
                 currentTarget.set(target);
                 try {
-                    adaptiveSearcher.search(target.getQuery(), warcWriter, target);
+                    if (target.getServer().equals("twitter.com")) {
+                        adaptiveSearcher.search(target.getQuery(), warcWriter, target);
+                    } else {
+                        new MastodonVisitor(socialConfig.getUserAgent()).visitTarget(target, warcWriter);
+                    }
                 } catch (Exception e) {
                     log.error("Error archiving {}, stopping.", target, e);
                     stopSignal.set(true);

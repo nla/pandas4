@@ -92,16 +92,10 @@ public class AdaptiveSearcher {
                 target.incrementPostCount(tweets.size());
                 if (page == 0) {
                     var newestFetchedTweet = tweets.get(0);
-                    Long prevNewestTweetId = target.getNewestPostIdLong();
-                    if (prevNewestTweetId == null || newestFetchedTweet.id() > prevNewestTweetId) {
-                        target.setNewestPost(newestFetchedTweet.id(), newestFetchedTweet.createdAt());
-                    }
+                    target.expandOldestAndNewest(newestFetchedTweet.id(), newestFetchedTweet.createdAt());
                 }
                 var oldestFetchedTweet = tweets.get(tweets.size() - 1);
-                var prevOldestTweetId = target.getOldestPostIdLong();
-                if (prevOldestTweetId == null || oldestFetchedTweet.id() < prevOldestTweetId) {
-                    target.setOldestPost(oldestFetchedTweet.id(), oldestFetchedTweet.createdAt());
-                }
+                target.expandOldestAndNewest(oldestFetchedTweet.id(), oldestFetchedTweet.createdAt());
                 target.setCurrentRangePositionLong(oldestFetchedTweet.id());
             }
             cursor = adaptiveResponse.nextCursor();
@@ -117,8 +111,7 @@ public class AdaptiveSearcher {
         } while (cursor != null);
 
         // we've finished the current range, so clear it
-        target.setCurrentRangePosition(null);
-        target.setCurrentRangeEnd(null);
+        target.clearRange();
     }
 
     public void fetchRange(String query, Long start, Long end, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {

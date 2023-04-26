@@ -99,7 +99,7 @@ public class SocialTarget {
     }
 
     public Long getOldestPostIdLong() {
-        return oldestPostId == null ? null : Long.parseLong(oldestPostId);
+        return oldestPostId == null ? null : Long.parseUnsignedLong(oldestPostId);
     }
 
     public String getNewestPostId() {
@@ -107,7 +107,7 @@ public class SocialTarget {
     }
 
     public Long getNewestPostIdLong() {
-        return newestPostId == null ? null : Long.parseLong(newestPostId);
+        return newestPostId == null ? null : Long.parseUnsignedLong(newestPostId);
     }
 
     public Instant getOldestPostDate() {
@@ -191,10 +191,24 @@ public class SocialTarget {
     }
 
     public Long getCurrentRangePositionLong() {
-        return currentRangePosition == null ? null : Long.parseLong(currentRangePosition);
+        return currentRangePosition == null ? null : Long.parseUnsignedLong(currentRangePosition);
     }
 
     public Long getCurrentRangeEndLong() {
-        return currentRangeEnd == null ? null : Long.parseLong(currentRangeEnd);
+        return currentRangeEnd == null ? null : Long.parseUnsignedLong(currentRangeEnd);
+    }
+
+    public void expandOldestAndNewest(long postId, Instant createdAt) {
+        if (newestPostId == null || postId > getNewestPostIdLong()) {
+            setNewestPost(postId, createdAt);
+        }
+        if (oldestPostId == null || postId < getOldestPostIdLong()) {
+            setOldestPost(postId, createdAt);
+        }
+    }
+
+    public void clearRange() {
+        setCurrentRangePosition(null);
+        setCurrentRangeEnd(null);
     }
 }
