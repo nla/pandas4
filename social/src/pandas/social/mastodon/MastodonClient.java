@@ -74,7 +74,7 @@ public class MastodonClient {
     @NotNull
     private HttpResponse sendRequestInner(String path) throws IOException {
         var uri = URI.create(server + path);
-        log.debug("GET {}", uri);
+        log.trace("GET {}", uri);
         var httpRequest = new HttpRequest.Builder("GET", uri.getRawPath() + "?" + uri.getRawQuery())
                 .version(HTTP_1_0)
                 .addHeader("Connection", "close")
@@ -84,7 +84,7 @@ public class MastodonClient {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         warcWriter.fetch(uri, httpRequest, buffer);
         var httpResponse = HttpResponse.parse(Channels.newChannel(new ByteArrayInputStream(buffer.toByteArray())));
-        log.debug("{} {} ({} bytes) from {}", httpResponse.status(), httpResponse.reason(),
+        log.trace("{} {} ({} bytes) from {}", httpResponse.status(), httpResponse.reason(),
                 httpResponse.body().size(), uri);
         return httpResponse;
     }

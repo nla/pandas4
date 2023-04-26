@@ -116,9 +116,12 @@ public class GraphqlClient {
 
     @NotNull
     private HttpResponse sendRequestInner(URI uri, HttpRequest httpRequest) throws IOException {
+        log.trace("GET {}", uri);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         warcWriter.fetch(uri, httpRequest, buffer);
         var httpResponse = HttpResponse.parse(Channels.newChannel(new ByteArrayInputStream(buffer.toByteArray())));
+        log.trace("{} {} ({} bytes) from {}", httpResponse.status(), httpResponse.reason(),
+                httpResponse.body().size(), uri);
         return httpResponse;
     }
 }
