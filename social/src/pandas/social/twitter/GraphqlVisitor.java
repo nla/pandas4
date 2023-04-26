@@ -33,6 +33,7 @@ public class GraphqlVisitor {
         var user = client.userByScreenName(screenName);
         if (user == null) {
             log.warn("Account {} not found on {}", screenName, target.getServer());
+            target.setLastVisitedDate(Instant.now());
             return;
         }
         String cursor = null;
@@ -42,8 +43,12 @@ public class GraphqlVisitor {
         do {
             Instant now = Instant.now();
             var timeline = client.tweetsAndReplies(user.restId(), cursor);
-            var tweets = timeline.tweets();
             target.setLastVisitedDate(now);
+            if (timeline == null) {
+                log.warn("Failed to get tweets for {} (maybe private account)", target);
+                break;
+            }
+            var tweets = timeline.tweets();
             if (tweets.isEmpty()) {
                 log.debug("No more tweets for {}", target);
             }
