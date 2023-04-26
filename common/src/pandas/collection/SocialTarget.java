@@ -199,9 +199,17 @@ public class SocialTarget {
     }
 
     public void expandOldestAndNewest(long postId, Instant createdAt) {
+        expandNewest(postId, createdAt);
+        expandOldest(postId, createdAt);
+    }
+
+    public void expandNewest(long postId, Instant createdAt) {
         if (newestPostId == null || postId > getNewestPostIdLong()) {
             setNewestPost(postId, createdAt);
         }
+    }
+
+    public void expandOldest(long postId, Instant createdAt) {
         if (oldestPostId == null || postId < getOldestPostIdLong()) {
             setOldestPost(postId, createdAt);
         }

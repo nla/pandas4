@@ -50,7 +50,7 @@ public class GraphqlVisitor {
             log.trace("Got tweets {}", tweets.stream().map(TimelineV2.TweetV2::restId).toList());
             if (newestTweet == null) newestTweet = tweets.get(0);
             var oldestTweet = tweets.get(tweets.size() - 1);
-            target.expandOldestAndNewest(Long.parseLong(oldestTweet.restId()), oldestTweet.legacy().createdAt());
+            target.expandOldest(Long.parseLong(oldestTweet.restId()), oldestTweet.legacy().createdAt());
             if (sinceId != null && Long.parseLong(oldestTweet.restId()) <= sinceId) {
                 log.debug("Reached end of range for {}", target);
                 break;
@@ -59,9 +59,9 @@ public class GraphqlVisitor {
         } while (cursor != null && !stopSignal.get());
 
         if (!stopSignal.get() && newestTweet != null) {
-            // only save newestTweet if we weren't interrupted
+            // only save expand newest if we weren't interrupted
             // otherwise we'll end up with gaps since we can't resume mid-way
-            target.expandOldestAndNewest(Long.parseLong(newestTweet.restId()), newestTweet.legacy().createdAt());
+            target.expandNewest(Long.parseLong(newestTweet.restId()), newestTweet.legacy().createdAt());
         }
     }
 }
