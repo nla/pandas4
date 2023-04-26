@@ -46,11 +46,11 @@ public class GraphqlVisitor {
             if (tweets.isEmpty()) {
                 log.debug("No more tweets for {}", target);
             }
+            log.trace("Got tweets {}", tweets.stream().map(TimelineV2.TweetV2::restId).toList());
             for (var tweet : tweets) {
-                target.expandOldestAndNewest(tweet.legacy().id(), tweet.legacy().createdAt());
+                target.expandOldestAndNewest(Long.parseLong(tweet.restId()), tweet.legacy().createdAt());
             }
-            log.trace("Got tweets {}", tweets.stream().map(t -> t.legacy().id()).toList());
-            if (sinceId != null && tweets.get(tweets.size() - 1).legacy().id() <= sinceId) {
+            if (sinceId != null && Long.parseLong(tweets.get(tweets.size() - 1).restId()) <= sinceId) {
                 log.debug("Reached end of range for {}", target);
                 break;
             }
