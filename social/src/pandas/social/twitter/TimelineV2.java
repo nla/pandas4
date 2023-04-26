@@ -135,6 +135,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     }
 
     public String nextCursor() {
+        if (timeline == null) return null; // e.g. account is private
         for (var instruction : timeline.instructions()) {
             if (instruction instanceof TimelineAddEntries addEntries) {
                 for (var entry : addEntries.entries()) {
