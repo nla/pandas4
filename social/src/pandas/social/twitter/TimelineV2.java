@@ -121,7 +121,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     }
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public record Core(UserV2.Results userResults) {
+    public record Core(UserResponse.Results userResults) {
     }
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

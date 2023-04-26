@@ -57,9 +57,11 @@ public class GraphqlClient {
     public UserV2 userByScreenName(@NotNull String screenName) throws IOException, InterruptedException {
         Map<String, Object> variables = Map.of("screen_name", screenName, "withSafetyModeUserFields", true);
         var features = "{\"blue_business_profile_image_shape_enabled\":true,\"responsive_web_graphql_exclude_directive_enabled\":true,\"verified_phone_label_enabled\":false,\"responsive_web_graphql_skip_user_profile_image_extensions_enabled\":false,\"responsive_web_graphql_timeline_navigation_enabled\":true}";
-        var data = sendRequest("sLVLhk0bGj3MVFEKTdax1w/UserByScreenName", variables, features, UserV2.Response.class).data();
-        if (data.user() == null) return null;
-        return data.user().result();
+        var data = sendRequest("sLVLhk0bGj3MVFEKTdax1w/UserByScreenName", variables, features, UserResponse.class).data();
+        if (data.user() != null && data.user().result() instanceof UserV2 user) {
+            return user;
+        }
+        return null;
     }
 
     public TimelineV2 tweetsAndReplies(@NotNull String userId, @Nullable String cursor) throws IOException, InterruptedException {

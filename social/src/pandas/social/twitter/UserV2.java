@@ -21,13 +21,5 @@ public record UserV2(
         Boolean isProfileTranslatable,
         Object verificationInfo,
         Object businessAccount
-) {
-    public record Response(ResponseData data) {
-    }
-
-    public record ResponseData(Results user) {
-    }
-
-    public record Results(UserV2 result) {
-    }
+) implements UserResponse.UserOrError {
 }
