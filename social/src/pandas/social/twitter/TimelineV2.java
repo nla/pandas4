@@ -98,6 +98,17 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     public record TimelineTweetResults(TweetV2 result) {
     }
 
+    public record TweetOrTombstoneResult(TweetOrTombstone result) {
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
+    @JsonSubTypes({
+            @JsonSubTypes.Type(TweetV2.class),
+            @JsonSubTypes.Type(TweetTombstone.class),
+    })
+    public interface TweetOrTombstone {
+    }
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
     @JsonTypeName("Tweet")
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -112,12 +123,17 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             boolean isTranslatable,
             Views views,
             String source,
-            TimelineTweetResults quotedStatusResult,
+            TweetOrTombstoneResult quotedStatusResult,
             Tweet legacy
-    ) {
+    ) implements TweetOrTombstone {
         public long id() {
             return Long.parseUnsignedLong(restId());
         }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
+    @JsonTypeName("TweetTombstone")
+    public record TweetTombstone(Object tombstone) implements TweetOrTombstone {
     }
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
