@@ -55,7 +55,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     @JsonSubTypes({
             @JsonSubTypes.Type(value = TimelineClearCache.class, name = "TimelineClearCache"),
             @JsonSubTypes.Type(value = TimelineAddEntries.class, name = "TimelineAddEntries"),
-            @JsonSubTypes.Type(value = TimelineAddEntries.class, name = "TimelinePinEntry"),
+            @JsonSubTypes.Type(value = TimelinePinEntry.class, name = "TimelinePinEntry"),
     })
     public interface Instruction {
     }
