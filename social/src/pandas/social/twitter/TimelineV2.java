@@ -17,7 +17,9 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             if (instruction instanceof TimelineAddEntries addEntries) {
                 for (var entry: addEntries.entries()) {
                     if (entry.content() instanceof TimelineItem item) {
-                        tweets.add(item.itemContent().tweet_results().result());
+                        if (item.itemContent().tweet_results().result() instanceof TweetV2 tweet) {
+                            tweets.add(tweet);
+                        }
                     }
                 }
             }
@@ -95,10 +97,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
                                 String ruxContext) {
     }
 
-    public record TimelineTweetResults(TweetV2 result) {
-    }
-
-    public record TweetOrTombstoneResult(TweetOrTombstone result) {
+    public record TimelineTweetResults(TweetOrTombstone result) {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
@@ -123,7 +122,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             boolean isTranslatable,
             Views views,
             String source,
-            TweetOrTombstoneResult quotedStatusResult,
+            TimelineTweetResults quotedStatusResult,
             Tweet legacy
     ) implements TweetOrTombstone {
         public long id() {
