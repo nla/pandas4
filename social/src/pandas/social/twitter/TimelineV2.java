@@ -12,7 +12,7 @@ import java.util.List;
 
 public record TimelineV2(TimelineV2Timeline timeline) {
     public List<TweetV2> tweets() {
-        if (timeline == null) return List.of(); // e.g. account is suspended
+        if (timeline == null) return List.of(); // e.g. account is private
         var tweets = new ArrayList<TweetV2>();
         for (var instruction : timeline().instructions()) {
             if (instruction instanceof TimelineAddEntries addEntries) {
