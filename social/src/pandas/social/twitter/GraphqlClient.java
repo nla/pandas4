@@ -1,9 +1,6 @@
 package pandas.social.twitter;
 
-import dev.failsafe.Failsafe;
-import dev.failsafe.FailsafeExecutor;
-import dev.failsafe.RateLimiter;
-import dev.failsafe.RetryPolicy;
+import dev.failsafe.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.netpreserve.jwarc.HttpRequest;
@@ -40,6 +37,16 @@ public class GraphqlClient {
                     .build(),
             RateLimiter.<HttpResponse>smoothBuilder(100, Duration.ofMinutes(15))
                     .withMaxWaitTime(Duration.ofMinutes(5))
+                    .build(),
+            CircuitBreaker.<HttpResponse>builder()
+                    .handleResultIf(response -> response.status() >= 400)
+                    .handle(IOException.class)
+                    .onOpen(e -> log.warn("Circuit breaker open"))
+                    .onClose(e -> log.warn("Circuit breaker closed"))
+                    .onHalfOpen(e -> log.warn("Circuit breaker half-opened"))
+                    .withFailureThreshold(8)
+                    .withSuccessThreshold(1)
+                    .withDelay(Duration.ofMinutes(30))
                     .build());
 
     public GraphqlClient(SessionManager sessionManager, WarcWriter warcWriter) {
