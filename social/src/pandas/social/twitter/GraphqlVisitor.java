@@ -36,8 +36,8 @@ public class GraphqlVisitor {
             return;
         }
         String cursor = null;
-        Long maxId = target.getNewestPostIdLong();
-        log.trace("Visiting tweets in {} until id {}", screenName, maxId);
+        Long sinceId = target.getNewestPostIdLong();
+        log.trace("Visiting tweets in {} until id {}", screenName, sinceId);
         do {
             Instant now = Instant.now();
             var timeline = client.tweetsAndReplies(user.restId(), cursor);
@@ -50,7 +50,7 @@ public class GraphqlVisitor {
                 target.expandOldestAndNewest(tweet.legacy().id(), tweet.legacy().createdAt());
             }
             log.trace("Got tweets {}", tweets.stream().map(t -> t.legacy().id()).toList());
-            if (maxId != null && tweets.get(tweets.size() - 1).legacy().id() >= maxId) {
+            if (sinceId != null && tweets.get(tweets.size() - 1).legacy().id() <= sinceId) {
                 log.debug("Reached end of range for {}", target);
                 break;
             }
