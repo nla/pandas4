@@ -204,13 +204,13 @@ public class SocialTarget {
     }
 
     public void expandNewest(long postId, Instant createdAt) {
-        if (newestPostId == null || postId > getNewestPostIdLong()) {
+        if (newestPostId == null || Long.compareUnsigned(postId, getNewestPostIdLong()) > 0) {
             setNewestPost(postId, createdAt);
         }
     }
 
     public void expandOldest(long postId, Instant createdAt) {
-        if (oldestPostId == null || postId < getOldestPostIdLong()) {
+        if (oldestPostId == null || Long.compareUnsigned(postId, getOldestPostIdLong()) < 0) {
             setOldestPost(postId, createdAt);
         }
     }

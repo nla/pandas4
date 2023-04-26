@@ -107,6 +107,9 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             TimelineTweetResults quotedStatusResult,
             Tweet legacy
     ) {
+        public long id() {
+            return Long.parseUnsignedLong(restId());
+        }
     }
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
