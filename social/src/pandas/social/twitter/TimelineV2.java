@@ -1,5 +1,6 @@
 package pandas.social.twitter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -53,7 +54,9 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
             @JsonSubTypes.Type(value = TimelineClearCache.class, name = "TimelineClearCache"),
-            @JsonSubTypes.Type(value = TimelineAddEntries.class, name = "TimelineAddEntries")})
+            @JsonSubTypes.Type(value = TimelineAddEntries.class, name = "TimelineAddEntries"),
+            @JsonSubTypes.Type(value = TimelineAddEntries.class, name = "TimelinePinEntry"),
+    })
     public interface Instruction {
     }
 
@@ -61,6 +64,10 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     }
 
     public record TimelineAddEntries(List<Entry> entries) implements Instruction {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true) // TODO
+    public record TimelinePinEntry() implements Instruction {
     }
 
     public record Entry(String entryId, String sortIndex, Content content) {
