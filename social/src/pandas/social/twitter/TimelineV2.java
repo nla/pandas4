@@ -17,8 +17,11 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             if (instruction instanceof TimelineAddEntries addEntries) {
                 for (var entry: addEntries.entries()) {
                     if (entry.content() instanceof TimelineItem item) {
-                        if (item.itemContent().tweet_results().result() instanceof TweetV2 tweet) {
+                        TweetOrTombstone result = item.itemContent().tweet_results().result();
+                        if (result instanceof TweetV2 tweet) {
                             tweets.add(tweet);
+                        } else if (result instanceof TweetWithVisibilityResults tweetWithVisibilityResults) {
+                            tweets.add(tweetWithVisibilityResults.tweet());
                         }
                     }
                 }
@@ -104,8 +107,14 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     @JsonSubTypes({
             @JsonSubTypes.Type(TweetV2.class),
             @JsonSubTypes.Type(TweetTombstone.class),
+            @JsonSubTypes.Type(TweetWithVisibilityResults.class)
     })
     public interface TweetOrTombstone {
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
+    @JsonTypeName("TweetWithVisibilityResults")
+    public record TweetWithVisibilityResults(TweetV2 tweet) implements TweetOrTombstone {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
