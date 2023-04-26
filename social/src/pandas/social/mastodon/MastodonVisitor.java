@@ -9,13 +9,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MastodonVisitor {
     private static final Logger log = LoggerFactory.getLogger(MastodonVisitor.class);
     private final String userAgent;
+    private final AtomicBoolean stopSignal;
 
-    public MastodonVisitor(String userAgent) {
+    public MastodonVisitor(String userAgent, AtomicBoolean stopSignal) {
         this.userAgent = userAgent;
+        this.stopSignal = stopSignal;
     }
 
     public void visitTarget(SocialTarget target, WarcWriter warcWriter) throws IOException {
@@ -52,7 +55,7 @@ public class MastodonVisitor {
                                    Account account) throws IOException {
         log.trace("Visiting posts in {} from {} to {}", account.acct(), target.getCurrentRangePosition(),
                 target.getCurrentRangeEnd());
-        while (true) {
+        while (!stopSignal.get()) {
             Instant now = Instant.now();
             var statuses = client.getAccountStatuses(account.id(), target.getCurrentRangePosition(), target.getCurrentRangeEnd());
             log.trace("Got posts for {}: {}", account.acct(), statuses);
@@ -72,6 +75,6 @@ public class MastodonVisitor {
         var server = args[0];
         var acct = args[1];
         var target = new SocialTarget(server, "from:" + acct, null);
-        new MastodonVisitor("test").visitTarget(target, new WarcWriter(Files.newOutputStream(Paths.get("/tmp/test.warc"))));
+        new MastodonVisitor("test", new AtomicBoolean()).visitTarget(target, new WarcWriter(Files.newOutputStream(Paths.get("/tmp/test.warc"))));
     }
 }

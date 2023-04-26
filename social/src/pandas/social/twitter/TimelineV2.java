@@ -6,9 +6,24 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record TimelineV2(TimelineV2Timeline timeline) {
+    public List<TweetV2> tweets() {
+        var tweets = new ArrayList<TweetV2>();
+        for (var instruction : timeline().instructions()) {
+            if (instruction instanceof TimelineAddEntries addEntries) {
+                for (var entry: addEntries.entries()) {
+                    if (entry.content() instanceof TimelineItem item) {
+                        tweets.add(item.itemContent().tweet_results().result());
+                    }
+                }
+            }
+        }
+        return tweets;
+    }
+
     public record Response(ResponseData data) {
     }
 

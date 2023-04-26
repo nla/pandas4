@@ -30,11 +30,11 @@ public class AdaptiveSearcher {
     private int delayMillis = DEFAULT_DELAY_MILLIS;
     private final SessionManager sessionManager;
 
-    public AdaptiveSearcher(String userAgent, AtomicBoolean stopSignal) {
-        this.userAgent = userAgent;
+    public AdaptiveSearcher(SessionManager sessionManager, AtomicBoolean stopSignal) {
+        this.userAgent = sessionManager.getUserAgent();
         this.stopSignal = stopSignal;
+        this.sessionManager = sessionManager;
         log.trace("AdaptiveSearcher created (userAgent={})", userAgent);
-        sessionManager = new SessionManager(userAgent);
     }
 
     private void innerSearch(String query, WarcWriter warcWriter, SocialTarget target) throws IOException, InterruptedException {

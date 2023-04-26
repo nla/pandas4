@@ -14,6 +14,8 @@ import pandas.collection.SocialTarget;
 import pandas.collection.SocialTargetRepository;
 import pandas.social.mastodon.MastodonVisitor;
 import pandas.social.twitter.AdaptiveSearcher;
+import pandas.social.twitter.GraphqlVisitor;
+import pandas.social.twitter.SessionManager;
 import pandas.util.DateFormats;
 
 import java.io.IOException;
@@ -37,6 +39,7 @@ public class SocialArchiver {
     private final SocialIndexer socialIndexer;
     private final AdaptiveSearcher adaptiveSearcher;
     private final SocialConfig socialConfig;
+    private final SessionManager sessionManager;
     private Thread thread;
     private AtomicBoolean stopSignal = new AtomicBoolean();
     private AtomicReference<SocialTarget> currentTarget = new AtomicReference<>();
@@ -45,7 +48,8 @@ public class SocialArchiver {
     public SocialArchiver(SocialConfig socialConfig, BambooClient bambooClient, SocialService socialService,
                           SocialTargetRepository socialTargetRepository,
                           @Autowired(required = false) SocialIndexer socialIndexer) {
-        this.adaptiveSearcher = new AdaptiveSearcher(socialConfig.getUserAgent(), stopSignal);
+        this.sessionManager = new SessionManager(socialConfig.getUserAgent());
+        this.adaptiveSearcher = new AdaptiveSearcher(sessionManager, stopSignal);
         this.bambooClient = bambooClient;
         this.socialService = socialService;
         this.socialTargetRepository = socialTargetRepository;
@@ -112,9 +116,10 @@ public class SocialArchiver {
                 currentTarget.set(target);
                 try {
                     if (target.getServer().equals("twitter.com")) {
-                        adaptiveSearcher.search(target.getQuery(), warcWriter, target);
+                        new GraphqlVisitor(sessionManager, stopSignal).visitTarget(target, warcWriter);
+//                        adaptiveSearcher.search(target.getQuery(), warcWriter, target);
                     } else {
-                        new MastodonVisitor(socialConfig.getUserAgent()).visitTarget(target, warcWriter);
+                        new MastodonVisitor(socialConfig.getUserAgent(), stopSignal).visitTarget(target, warcWriter);
                     }
                 } catch (Exception e) {
                     log.error("Error archiving {}, stopping.", target, e);

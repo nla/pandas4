@@ -32,14 +32,14 @@ public class MastodonClient {
     private final String userAgent;
     private final WarcWriter warcWriter;
     private static final FailsafeExecutor<HttpResponse> failsafe = Failsafe.with(
-            RateLimiter.<HttpResponse>smoothBuilder(100, Duration.ofMinutes(5))
-                    .withMaxWaitTime(Duration.ofMinutes(5))
-                    .build(),
             RetryPolicy.<HttpResponse>builder()
-                    .handleResultIf(response -> response.status() != 200)
+                    .handleResultIf(response -> response.status() >= 400)
                     .handle(IOException.class)
                     .withBackoff(10, 10 * 60, ChronoUnit.SECONDS, 4)
                     .onRetry(e -> log.warn("Failure #{}. Retrying.", e.getAttemptCount(), e.getLastException()))
+                    .build(),
+            RateLimiter.<HttpResponse>smoothBuilder(100, Duration.ofMinutes(5))
+                    .withMaxWaitTime(Duration.ofMinutes(5))
                     .build());
 
     public MastodonClient(String server, String userAgent, WarcWriter warcWriter) {
@@ -65,6 +65,9 @@ public class MastodonClient {
     @NotNull
     private <T> T sendRequest(String path, Class<T> returnType) throws IOException {
         HttpResponse httpResponse = failsafe.get(() -> sendRequestInner(path));
+        if (httpResponse.status() != 200) {
+            throw new IOException("Unexpected response " + httpResponse.status() + " " + httpResponse.reason()  + " from " + server + path);
+        }
         return SocialJson.mapper.readValue(httpResponse.body().stream(), returnType);
     }
 

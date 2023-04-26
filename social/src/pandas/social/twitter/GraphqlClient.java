@@ -1,5 +1,9 @@
 package pandas.social.twitter;
 
+import dev.failsafe.Failsafe;
+import dev.failsafe.FailsafeExecutor;
+import dev.failsafe.RateLimiter;
+import dev.failsafe.RetryPolicy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.netpreserve.jwarc.HttpRequest;
@@ -16,6 +20,8 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +31,16 @@ public class GraphqlClient {
     private static final Logger log = LoggerFactory.getLogger(GraphqlClient.class);
     private final SessionManager sessionManager;
     private final WarcWriter warcWriter;
+    private final static FailsafeExecutor<HttpResponse> failsafe = Failsafe.with(
+            RetryPolicy.<HttpResponse>builder()
+                    .handleResultIf(response -> response.status() >= 400)
+                    .handle(IOException.class)
+                    .withBackoff(10, 10 * 60, ChronoUnit.SECONDS, 4)
+                    .onRetry(e -> log.warn("Failure #{}. Retrying.", e.getAttemptCount(), e.getLastException()))
+                    .build(),
+            RateLimiter.<HttpResponse>smoothBuilder(100, Duration.ofMinutes(15))
+                    .withMaxWaitTime(Duration.ofMinutes(5))
+                    .build());
 
     public GraphqlClient(SessionManager sessionManager, WarcWriter warcWriter) {
         this.sessionManager = sessionManager;
@@ -87,9 +103,7 @@ public class GraphqlClient {
                 .addHeader("x-twitter-active-user", "yes")
                 .addHeader("x-twitter-client-language", "en")
                 .build();
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        warcWriter.fetch(uri, httpRequest, buffer);
-        var httpResponse = HttpResponse.parse(Channels.newChannel(new ByteArrayInputStream(buffer.toByteArray())));
+        HttpResponse httpResponse = failsafe.get(() -> sendRequestInner(uri, httpRequest));
         if (httpResponse.status() != 200) {
             log.error("Status {} from {}", httpResponse.status(), uri);
             throw new IOException("Status " + httpResponse.status() + " from " + uri);
@@ -98,5 +112,13 @@ public class GraphqlClient {
             sessionManager.invalidateSession();
         }
         return SocialJson.mapper.readValue(httpResponse.body().stream(), responseClass);
+    }
+
+    @NotNull
+    private HttpResponse sendRequestInner(URI uri, HttpRequest httpRequest) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        warcWriter.fetch(uri, httpRequest, buffer);
+        var httpResponse = HttpResponse.parse(Channels.newChannel(new ByteArrayInputStream(buffer.toByteArray())));
+        return httpResponse;
     }
 }
