@@ -101,6 +101,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
     @JsonTypeName("Tweet")
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonIgnoreProperties(ignoreUnknown = true) // TODO
     public record TweetV2(
             String restId,
             Core core,
