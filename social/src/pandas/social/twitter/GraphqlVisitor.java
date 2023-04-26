@@ -38,6 +38,7 @@ public class GraphqlVisitor {
         String cursor = null;
         Long sinceId = target.getNewestPostIdLong();
         log.trace("Visiting tweets in {} until id {}", screenName, sinceId);
+        TimelineV2.TweetV2 newestTweet = null;
         do {
             Instant now = Instant.now();
             var timeline = client.tweetsAndReplies(user.restId(), cursor);
@@ -47,14 +48,20 @@ public class GraphqlVisitor {
                 log.debug("No more tweets for {}", target);
             }
             log.trace("Got tweets {}", tweets.stream().map(TimelineV2.TweetV2::restId).toList());
-            for (var tweet : tweets) {
-                target.expandOldestAndNewest(Long.parseLong(tweet.restId()), tweet.legacy().createdAt());
-            }
-            if (sinceId != null && Long.parseLong(tweets.get(tweets.size() - 1).restId()) <= sinceId) {
+            if (newestTweet == null) newestTweet = tweets.get(0);
+            var oldestTweet = tweets.get(tweets.size() - 1);
+            target.expandOldestAndNewest(Long.parseLong(oldestTweet.restId()), oldestTweet.legacy().createdAt());
+            if (sinceId != null && Long.parseLong(oldestTweet.restId()) <= sinceId) {
                 log.debug("Reached end of range for {}", target);
                 break;
             }
             cursor = timeline.nextCursor();
         } while (cursor != null && !stopSignal.get());
+
+        if (!stopSignal.get() && newestTweet != null) {
+            // only save newestTweet if we weren't interrupted
+            // otherwise we'll end up with gaps since we can't resume mid-way
+            target.expandOldestAndNewest(Long.parseLong(newestTweet.restId()), newestTweet.legacy().createdAt());
+        }
     }
 }
