@@ -27,7 +27,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
         return tweets;
     }
 
-    public record Response(ResponseData data) {
+    public record Response(ResponseData data, List<Error> errors) {
     }
 
     public record ResponseData(ResponseUser user) {

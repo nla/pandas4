@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-public record UserResponse(UserResponse.ResponseData data) {
+import java.util.List;
+
+public record UserResponse(UserResponse.ResponseData data, List<Error> errors) {
 
     record ResponseData(Results user) {
     }
