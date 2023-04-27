@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pandas.social.SocialJson;
 
+import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -132,5 +133,11 @@ public class GraphqlClient {
         log.trace("{} {} ({} bytes) from {}", httpResponse.status(), httpResponse.reason(),
                 httpResponse.body().size(), uri);
         return httpResponse;
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        var sessionManager = new SessionManager(System.getenv().getOrDefault("USER_AGENT", "test"));
+        var client = new GraphqlClient(sessionManager, new WarcWriter(System.out));
+        System.out.println(client.userByScreenName(args[0]));
     }
 }
