@@ -1,7 +1,11 @@
 package pandas.social.twitter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pandas.social.SocialJson;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,8 +22,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SessionManager {
     private static final Logger log = LoggerFactory.getLogger(SessionManager.class);
-    private static final URI SESSION_URL = URI.create("https://twitter.com/search");
-    private static final Pattern SET_COOKIE_REGEX = Pattern.compile("document.cookie=\"([^;]*?);");
     private static final URI SW_JS_URL = URI.create("https://twitter.com/sw.js");
     private static final Pattern SERVICE_WORKER_JS_REGEX = Pattern.compile("\"(https://abs.twimg.com/responsive-web/client-serviceworker/serviceworker.[a-z0-9]+.js)\"");
     private static final Pattern BEARER_TOKEN_REGEX = Pattern.compile("\"(AAAA[a-zA-Z0-9%]{30,}A)\"");
@@ -51,16 +53,24 @@ public class SessionManager {
         this.session = null;
     }
 
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public record TokenResponse(String guestToken) {
+    }
+
     public synchronized Session getOrCreateSession() throws IOException, InterruptedException {
         if (session == null || session.isTooOld()) {
             log.trace("Creating new session");
-            var response = findInUrl(SET_COOKIE_REGEX, SESSION_URL);
+//            var response = findInUrl(SET_COOKIE_REGEX, SESSION_URL);
+            var request = HttpRequest.newBuilder(URI.create("https://api.twitter.com/1.1/guest/activate.json"))
+                    .setHeader("User-Agent", userAgent)
+                    .setHeader("Authorization", "Bearer " + getOrFetchBearerToken())
+                    .POST(HttpRequest.BodyPublishers.noBody());
+            var response = httpClient.send(request.build(), HttpResponse.BodyHandlers.ofString());
             var cookies = new ArrayList<String>();
-            cookies.add(response.body());
             response.headers().allValues("set-cookie").forEach(cookie -> cookies.add(cookie.split(";")[0]));
-            var guestToken = cookies.stream().filter(cookie -> cookie.startsWith("gt=")).findFirst()
-                    .orElseThrow(() -> new IOException("Missing gt cookie"))
-                    .substring(3);
+            var guestToken = SocialJson.mapper.readValue(response.body(), TokenResponse.class).guestToken();
             session = new Session(String.join("; ", cookies), guestToken, System.currentTimeMillis());
         }
         return session;
