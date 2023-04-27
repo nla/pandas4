@@ -117,7 +117,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     public record TweetWithVisibilityResults(TweetV2 tweet) implements TweetOrTombstone {
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename", defaultImpl = TweetV2.class)
     @JsonTypeName("Tweet")
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonIgnoreProperties(ignoreUnknown = true)
