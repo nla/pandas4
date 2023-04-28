@@ -6,13 +6,16 @@ import org.netpreserve.jwarc.WarcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pandas.social.twitter.AdaptiveSearch;
+import pandas.social.twitter.TimelineV2;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class SocialReader implements Closeable {
+    public static final Pattern TWEETS_AND_REPLIES_RE = Pattern.compile("https://twitter.com/i/api/graphql/[^/]+/UserTweetsAndReplies\\?.*");
     private final Logger log = LoggerFactory.getLogger(SocialReader.class);
     private final WarcReader warcReader;
     private final String warcFilename;
@@ -36,12 +39,14 @@ public class SocialReader implements Closeable {
                 this.warcResponse = response;
                 if (response.http().status() != 200) continue; // ignore error responses
                 if (response.payload().isEmpty()) continue;
-                if (response.target().startsWith("https://api.twitter.com/2/search/adaptive.json?")) {
-                    try {
+                try {
+                    if (response.target().startsWith("https://api.twitter.com/2/search/adaptive.json?")) {
                         return SocialJson.mapper.readValue(response.payload().get().body().stream(), AdaptiveSearch.class).posts();
-                    } catch (JsonMappingException e) {
-                        log.warn("Error parsing {} @ {}", warcFilename, warcReader.position(), e);
+                    } else if (TWEETS_AND_REPLIES_RE.matcher(response.target()).matches()) {
+                        return SocialJson.mapper.readValue(response.payload().get().body().stream(), TimelineV2.Response.class).posts();
                     }
+                } catch (JsonMappingException e) {
+                    log.warn("Error parsing {} @ {}", warcFilename, warcReader.position(), e);
                 }
             }
         }
@@ -52,14 +57,17 @@ public class SocialReader implements Closeable {
     }
 
     public static void main(String[] args) throws IOException {
-        try (var reader = new SocialReader(new WarcReader(Paths.get(args[0])))) {
-            while (true) {
-                var batch = reader.nextBatch();
-                if (batch == null) break;
-                for (var post : batch) {
-                    System.out.println(post.createdAt() + " " + post.url() + " "
-                            + post.author().username() + ": "
-                            + post.content());
+        for (var arg : args) {
+            Path path = Path.of(arg);
+            try (var reader = new SocialReader(new WarcReader(path))) {
+                while (true) {
+                    var batch = reader.nextBatch();
+                    if (batch == null) break;
+                    for (var post : batch) {
+                        System.out.println(path.getFileName() + " " + post.createdAt() + " " + post.url() + " "
+                                + post.author().username() + ": "
+                                + post.content());
+                    }
                 }
             }
         }

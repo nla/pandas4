@@ -52,7 +52,7 @@ public record AdaptiveSearch(GlobalObjects globalObjects, Timeline timeline) {
 
     public List<Post> posts() {
         return tweets().stream()
-                .map(tweet -> tweet.toGenericPost(globalObjects().users()))
+                .map(tweet -> tweet.toPost(globalObjects().users()))
                 .toList();
     }
 

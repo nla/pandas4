@@ -26,6 +26,50 @@
                             "__typename": "TweetWithVisibilityResults",
                             "tweet": {
                               "rest_id": "1711392519734270000",
+                              "core": {
+                                "user_results": {
+                                  "result": {
+                                    "__typename": "User",
+                                    "id": "hasdkhadsjkhdas",
+                                    "rest_id": "3213312",
+                                    "affiliates_highlighted_label": {},
+                                    "is_blue_verified": true,
+                                    "profile_image_shape": "Circle",
+                                    "legacy": {
+                                      "created_at": "Wed Mar 01 22:00:00 +0000 2023",
+                                      "default_profile": true,
+                                      "default_profile_image": false,
+                                      "description": "",
+                                      "entities": {
+                                        "description": {
+                                          "urls": []
+                                        }
+                                      },
+                                      "fast_followers_count": 0,
+                                      "favourites_count": 42,
+                                      "followers_count": 42,
+                                      "friends_count": 42,
+                                      "has_custom_timelines": true,
+                                      "is_translator": false,
+                                      "listed_count": 42,
+                                      "location": "Nowhere",
+                                      "media_count": 42,
+                                      "name": "Somebody",
+                                      "normal_followers_count": 42,
+                                      "pinned_tweet_ids_str": [],
+                                      "possibly_sensitive": false,
+                                      "profile_banner_url": "https://example.com/",
+                                      "profile_image_url_https": "https://example.com/",
+                                      "profile_interstitial_type": "",
+                                      "screen_name": "somebody",
+                                      "statuses_count": 42,
+                                      "translator_type": "none",
+                                      "verified": false,
+                                      "withheld_in_countries": []
+                                    }
+                                  }
+                                }
+                              },
                               "legacy": {
                                 "bookmark_count": 0,
                                 "bookmarked": false,
@@ -36,6 +80,31 @@
                                   42
                                 ],
                                 "favorite_count": 0,
+                                "entities": {
+                                  "user_mentions": [
+                                    {
+                                      "id_str": "321321",
+                                      "name": "Some Body",
+                                      "screen_name": "somebody",
+                                      "indices": [
+                                        3,
+                                        12
+                                      ]
+                                    },
+                                    {
+                                      "id_str": "444444",
+                                      "name": "Somebody Else",
+                                      "screen_name": "bar",
+                                      "indices": [
+                                        26,
+                                        30
+                                      ]
+                                    }
+                                  ],
+                                  "urls": [],
+                                  "hashtags": [],
+                                  "symbols": []
+                                },
                                 "favorited": false,
                                 "full_text": "This is a test",
                                 "is_quote_status": false,

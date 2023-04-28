@@ -121,4 +121,9 @@ public class SessionManager {
         }
         return null;
     }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        var sm = new SessionManager("pandas-social");
+        System.out.println(sm.getOrFetchBearerToken());
+    }
 }

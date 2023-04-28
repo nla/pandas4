@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import pandas.social.Post;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,19 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     }
 
     public record Response(ResponseData data, List<Error> errors) {
+        public List<Post> posts() {
+            var posts = new ArrayList<Post>();
+            var timeline = data().user().result().timeline_v2();
+            if (timeline == null) return posts;
+            var tweets = timeline.tweets();
+            for (var tweet: tweets) {
+                UserResponse.UserOrError userResult = tweet.core().userResults().result();
+                if (userResult instanceof UserV2 user) {
+                    posts.add(tweet.legacy().toPost(user.legacy()));
+                }
+            }
+            return posts;
+        }
     }
 
     public record ResponseData(ResponseUser user) {
@@ -136,6 +150,15 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     ) implements TweetOrTombstone {
         public long id() {
             return Long.parseUnsignedLong(restId());
+        }
+
+        public Post toPost() {
+            var user = core.userResults().result();
+            if (user instanceof UserV2 userV2) {
+                return legacy.toPost(userV2.legacy());
+            } else {
+                throw new RuntimeException("Unexpected user type: " + user.getClass());
+            }
         }
     }
 

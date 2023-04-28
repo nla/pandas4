@@ -24,6 +24,7 @@ import java.util.Map;
 public record Tweet(
         @NotNull @JsonFormat(pattern = "EEE MMM dd HH:mm:ss Z yyyy", locale = "ENGLISH") Instant createdAt,
         long id,
+        String idStr,
         @NotNull String fullText,
         @NotNull String userIdStr,
         TEntities entities,
@@ -92,8 +93,12 @@ public record Tweet(
         }
     }
 
+    public Post toPost(Map<String, User> users) {
+        User user = users.get(userIdStr);
+        return toPost(user);
+    }
 
-    public Post toGenericPost(Map<String, User> users) {
+    public Post toPost(User user) {
         StringBuilder builder = new StringBuilder();
         int position = 0;
         for (var url : entities.urls()) {
@@ -115,10 +120,8 @@ public record Tweet(
                     .map(ExtendedEntities.Media::toGenericMediaAttachment)
                     .toList();
         }
-
-        User user = users.get(userIdStr);
         return new Post(
-                "https://twitter.com/" + user.screenName() + "/status/" + id,
+                "https://twitter.com/" + user.screenName() + "/status/" + idStr(),
                 createdAt,
                 user.toGenericAccount(),
                 new Site("Twitter"),
