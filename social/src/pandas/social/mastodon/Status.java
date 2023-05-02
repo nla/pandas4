@@ -75,6 +75,7 @@ public record Status(
     }
 
     public Post toGenericPost(Site site) {
+        Post repost = reblog == null ? null : reblog.toGenericPost(site);
         return new Post(
                 url,
                 createdAt,
@@ -84,6 +85,8 @@ public record Status(
                 mentions().stream().map(Mention::username).toList(),
                 content,
                 mediaAttachments.stream().map(MediaAttachment::toGenericMediaAttachment).toList(),
+                repost,
+                null,
                 repliesCount,
                 reblogsCount,
                 null,

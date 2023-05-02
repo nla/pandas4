@@ -17,6 +17,8 @@ public record Post(
         List<String> mentions,
         String content,
         List<Attachment> attachments,
+        Post repost,
+        Post quotedPost,
         Long replyCount,
         @JsonAlias("reblogCount")
         Long repostCount,

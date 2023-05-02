@@ -26,6 +26,10 @@ public class SocialReader implements Closeable {
         this.warcFilename = null;
     }
 
+    public SocialReader(Path path) throws IOException {
+        this(new WarcReader(path));
+    }
+
     public SocialReader(WarcReader warcReader, String warcFilename) {
         this.warcReader = warcReader;
         this.warcFilename = warcFilename;

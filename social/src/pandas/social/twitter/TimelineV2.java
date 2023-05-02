@@ -38,10 +38,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             if (timeline == null) return posts;
             var tweets = timeline.tweets();
             for (var tweet: tweets) {
-                UserResponse.UserOrError userResult = tweet.core().userResults().result();
-                if (userResult instanceof UserV2 user) {
-                    posts.add(tweet.legacy().toPost(user.legacy()));
-                }
+                posts.add(tweet.toPost());
             }
             return posts;
         }
@@ -153,9 +150,13 @@ public record TimelineV2(TimelineV2Timeline timeline) {
         }
 
         public Post toPost() {
+            Post quotedPost = null;
+            if (quotedStatusResult != null && quotedStatusResult.result() instanceof TweetV2 quotedTweet) {
+                quotedPost = quotedTweet.toPost();
+            }
             var user = core.userResults().result();
             if (user instanceof UserV2 userV2) {
-                return legacy.toPost(userV2.legacy());
+                return legacy.toPost(userV2.legacy(), quotedPost);
             } else {
                 throw new RuntimeException("Unexpected user type: " + user.getClass());
             }
