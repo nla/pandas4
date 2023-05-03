@@ -161,6 +161,10 @@ public record TimelineV2(TimelineV2Timeline timeline) {
                 throw new RuntimeException("Unexpected user type: " + user.getClass());
             }
         }
+
+        public boolean isNewerThan(Long id) {
+            return Long.compareUnsigned(this.id(), id) > 0;
+        }
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")

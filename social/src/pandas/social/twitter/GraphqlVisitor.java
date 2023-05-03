@@ -58,11 +58,11 @@ public class GraphqlVisitor {
             if (newestTweet == null) newestTweet = tweets.get(0);
             var oldestTweet = tweets.get(tweets.size() - 1);
             target.expandOldest(oldestTweet.id(), oldestTweet.legacy().createdAt());
-            if (sinceId != null && Long.compareUnsigned(oldestTweet.id(), sinceId) <= 0) {
+            if (sinceId != null && !oldestTweet.isNewerThan(sinceId)) {
                 log.debug("Reached end of range for {}", target);
                 // count just the portion of the range that's novel
                 novelTweetCount += tweets.stream()
-                        .filter(tweet -> Long.compareUnsigned(tweet.id(), sinceId) > 0)
+                        .filter(tweet -> tweet.isNewerThan(sinceId))
                         .count();
                 break;
             }
