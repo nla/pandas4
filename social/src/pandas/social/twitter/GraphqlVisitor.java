@@ -40,6 +40,7 @@ public class GraphqlVisitor {
         Long sinceId = target.getNewestPostIdLong();
         log.trace("Visiting tweets in {} until id {}", screenName, sinceId);
         TimelineV2.TweetV2 newestTweet = null;
+        long novelTweetCount = 0;
         do {
             Instant now = Instant.now();
             var timeline = client.tweetsAndReplies(user.restId(), cursor);
@@ -57,10 +58,15 @@ public class GraphqlVisitor {
             if (newestTweet == null) newestTweet = tweets.get(0);
             var oldestTweet = tweets.get(tweets.size() - 1);
             target.expandOldest(oldestTweet.id(), oldestTweet.legacy().createdAt());
-            if (sinceId != null && Long.compareUnsigned(oldestTweet.id(), sinceId) < 0) {
+            if (sinceId != null && Long.compareUnsigned(oldestTweet.id(), sinceId) <= 0) {
                 log.debug("Reached end of range for {}", target);
+                // count just the portion of the range that's novel
+                novelTweetCount += tweets.stream()
+                        .filter(tweet -> Long.compareUnsigned(tweet.id(), sinceId) > 0)
+                        .count();
                 break;
             }
+            novelTweetCount += tweets.size();
             cursor = timeline.nextCursor();
         } while (cursor != null && !stopSignal.get());
 
@@ -68,6 +74,7 @@ public class GraphqlVisitor {
             // only save expand newest if we weren't interrupted
             // otherwise we'll end up with gaps since we can't resume mid-way
             target.expandNewest(newestTweet.id(), newestTweet.legacy().createdAt());
+            target.incrementPostCount(novelTweetCount);
         }
     }
 }
