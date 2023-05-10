@@ -12,9 +12,10 @@ public record User(
         long id,
         @NotNull String name,
         @NotNull String screenName,
-        @NotNull String profileImageUrlHttps
+        @NotNull String profileImageUrlHttps,
+        String profileBannerUrl
 ) {
     public Account toGenericAccount() {
-        return new Account(screenName, name, profileImageUrlHttps);
+        return new Account(screenName, name, profileImageUrlHttps, profileBannerUrl);
     }
 }

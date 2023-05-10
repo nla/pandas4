@@ -18,7 +18,11 @@ public class AttachmentArchiver {
 
     private static void visit(Post post, String prefix) {
         if (post == null) return;
+
         System.out.println(prefix + post.url() + " " + (post.repost() != null));
+        System.out.println(prefix + "  avatar " + post.author().username() + " " + post.author().avatarUrl());
+        System.out.println(prefix + "  banner " + post.author().username() + " " + post.author().bannerUrl());
+
         for (var attachment : post.attachments()) {
             System.out.println(prefix + "  " + attachment.type() + " " + attachment.url());
             for (var source : attachment.sources()) {

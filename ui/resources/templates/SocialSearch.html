@@ -36,7 +36,7 @@
 
     <article th:each="post : ${results.posts()}" class="post">
       <header>
-        <img th:src="${post.author.avatar}" alt="">
+        <img th:src="${post.author.avatarUrl}" alt="">
         <address>
           <strong th:text="${post.author.displayName}">Somebody}</strong>
           <span th:text="'@' + ${post.author.username}">@somebody</span>

@@ -46,8 +46,8 @@ public record Account(
         return new pandas.social.Account(
                 username,
                 displayName,
-                avatar
-        );
+                avatar,
+                header);
     }
 
     // https://docs.joinmastodon.org/entities/Account/#Field
