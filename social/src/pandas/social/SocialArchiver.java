@@ -1,9 +1,6 @@
 package pandas.social;
 
 import jakarta.annotation.PreDestroy;
-import org.netpreserve.jwarc.WarcCompression;
-import org.netpreserve.jwarc.WarcWriter;
-import org.netpreserve.jwarc.Warcinfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +16,12 @@ import pandas.social.twitter.SessionManager;
 import pandas.util.DateFormats;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static java.nio.file.StandardOpenOption.*;
 
 @Service
 public class SocialArchiver {
@@ -70,24 +63,24 @@ public class SocialArchiver {
             var crawlDate = Instant.now();
             var crawlPid = "nla.arc-social-" + DateFormats.ARC_DATE.format(crawlDate);
             long crawlId = bambooClient.createCrawl(crawlPid);
+            try (var warcManager = new WarcManager(bambooClient, crawlId, crawlPid, socialIndexer, socialConfig)) {
+                while (!stopSignal.get()) {
+                    var targets = findCandidateTargets();
+                    if (targets.isEmpty()) {
+                        log.info("Finished all targets");
+                        break;
+                    }
 
-            for (int fileSeqNo = 0; !stopSignal.get(); fileSeqNo++) {
-                String filename = crawlPid + "-" + fileSeqNo + ".warc.gz";
-                var targets = findCandidateTargets();
-                if (targets.isEmpty()) {
-                    log.info("Finished all targets");
-                    break;
-                }
+                    archiveTargets(crawlId, warcManager, targets);
 
-                archiveTargets(crawlId, filename, targets);
-
-                if (!stopSignal.get()) {
-                    int sleepMillis = 10 * 1000;
-                    log.info("Waiting {}ms before starting next file", sleepMillis);
-                    try {
-                        Thread.sleep(sleepMillis);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                    if (!stopSignal.get()) {
+                        int sleepMillis = 10 * 1000;
+                        log.info("Waiting {}ms before starting next file", sleepMillis);
+                        try {
+                            Thread.sleep(sleepMillis);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
@@ -96,19 +89,11 @@ public class SocialArchiver {
         }
     }
 
-    private void archiveTargets(long crawlId, String filename, List<SocialTarget> targets) throws IOException {
+    private void archiveTargets(long crawlId, WarcManager warcManager, List<SocialTarget> targets) throws IOException {
         // Fetch records from targets and write to a temporary warc file
         Path tempFile = Files.createTempFile("pandas-social-", ".warc.gz");
-        try (FileChannel channel = FileChannel.open(tempFile, DELETE_ON_CLOSE, READ, WRITE)) {
-            WarcWriter warcWriter = new WarcWriter(channel, WarcCompression.GZIP);
-            warcWriter.write(new Warcinfo.Builder()
-                    .filename(filename)
-                    .fields(Map.of("software", List.of("pandas-social")))
-                    .build());
 
-            long startMillis = System.currentTimeMillis();
-            long warcStartPosition = warcWriter.position();
-
+        try {
             // Do the actual archiving
             status = "Archiving";
             for (var target : targets) {
@@ -116,10 +101,9 @@ public class SocialArchiver {
                 currentTarget.set(target);
                 try {
                     if (target.getServer().equals("twitter.com")) {
-                        new GraphqlVisitor(sessionManager, stopSignal).visitTarget(target, warcWriter);
-//                        adaptiveSearcher.search(target.getQuery(), warcWriter, target);
+                        new GraphqlVisitor(sessionManager, stopSignal).visitTarget(target, warcManager.writer());
                     } else {
-                        new MastodonVisitor(socialConfig.getUserAgent(), stopSignal).visitTarget(target, warcWriter);
+                        new MastodonVisitor(socialConfig.getUserAgent(), stopSignal).visitTarget(target, warcManager.writer());
                     }
                 } catch (Exception e) {
                     log.error("Error archiving {}, stopping.", target, e);
@@ -130,12 +114,8 @@ public class SocialArchiver {
                     log.info("Social archiver stopped, cleaning up.");
                     break;
                 }
-                if (warcWriter.position() > socialConfig.getWarcSizeLimitBytes()) {
-                    log.info("Reached warcSizeLimitBytes ({}), finishing file.", socialConfig.getWarcSizeLimitBytes());
-                    break;
-                }
-                if (System.currentTimeMillis() - startMillis > socialConfig.getWarcTimeLimitMillis()) {
-                    log.info("Reached warcTimeLimitMillis ({}), finishing file.", socialConfig.getWarcTimeLimitMillis());
+                if (warcManager.hasReachedLimit()) {
+                    log.info("Reached WARC size or time limit, finishing file.");
                     break;
                 }
             }
@@ -143,12 +123,8 @@ public class SocialArchiver {
             currentTarget.set(null);
 
             // Upload to bamboo if we actually wrote anything
-            if (warcWriter.position() > warcStartPosition) {
-                status = "Storing " + filename;
-                channel.position(0);
-                long warcId = bambooClient.putWarcIfNotExists(crawlId, filename, channel, channel.size());
-                socialIndexer.enqueueWarcId(warcId);
-            }
+            status = "Uploading " + warcManager.currentFilename();
+            warcManager.uploadCurrentFile();
 
             // Now the WARC is safely uploaded we can update the target state
             status = "Updating targets in database";
