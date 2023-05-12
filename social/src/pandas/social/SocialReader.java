@@ -10,6 +10,7 @@ import pandas.social.twitter.TimelineV2;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,6 +34,10 @@ public class SocialReader implements Closeable {
     public SocialReader(WarcReader warcReader, String warcFilename) {
         this.warcReader = warcReader;
         this.warcFilename = warcFilename;
+    }
+
+    public SocialReader(URI warcUri) throws IOException {
+        this(new WarcReader(warcUri.toURL().openStream()), Path.of(warcUri.getPath()).getFileName().toString());
     }
 
     public List<Post> nextBatch() throws IOException {
