@@ -21,7 +21,7 @@ import static java.nio.file.StandardOpenOption.*;
  * by the caller. This is so the caller can decide to finish the file at an appropriate boundary and persist its
  * state in the database.
  */
-public class WarcManager implements Closeable {
+public class BambooWarcManager implements Closeable, WarcWriterSupplier {
     private final BambooClient bambooClient;
     private final long crawlId;
     private final String basename;
@@ -34,8 +34,8 @@ public class WarcManager implements Closeable {
     private long startPosition;
     private long startTimeMillis;
 
-    public WarcManager(BambooClient bambooClient, long crawlId, String basename, SocialIndexer socialIndexer,
-                       SocialConfig socialConfig) {
+    public BambooWarcManager(BambooClient bambooClient, long crawlId, String basename, SocialIndexer socialIndexer,
+                             SocialConfig socialConfig) {
         this.bambooClient = bambooClient;
         this.crawlId = crawlId;
         this.basename = basename;

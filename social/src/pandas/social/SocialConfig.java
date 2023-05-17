@@ -15,6 +15,7 @@ public class SocialConfig {
     private long warcTimeLimitMillis = TimeUnit.HOURS.toMillis(1);
     private long archivingIntervalMillis = TimeUnit.DAYS.toMillis(1);
     private int maxTargetsPerWarcFile = 300;
+    private String cdxServerUrl;
 
     public Path getIndexDir() {
         return indexDir;
@@ -62,5 +63,13 @@ public class SocialConfig {
 
     public void setMaxTargetsPerWarcFile(int maxTargetsPerWarcFile) {
         this.maxTargetsPerWarcFile = maxTargetsPerWarcFile;
+    }
+
+    public String getCdxServerUrl() {
+        return cdxServerUrl;
+    }
+
+    public void setCdxServerUrl(String cdxServerUrl) {
+        this.cdxServerUrl = cdxServerUrl;
     }
 }

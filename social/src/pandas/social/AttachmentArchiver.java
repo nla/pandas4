@@ -30,7 +30,7 @@ public class AttachmentArchiver {
     private final String cdxServerUrl;
     private final boolean dryRun;
     private final String userAgent;
-    private final WarcWriter warcWriter;
+    private final WarcWriterSupplier warcWriterSupplier;
     private final Map<String, Instant> cache = new HashMap<>();
 
     private final static FailsafeExecutor<FetchResult> failsafe = Failsafe.with(
@@ -56,8 +56,8 @@ public class AttachmentArchiver {
                     .withDelay(Duration.ofMinutes(30))
                     .build());
 
-    public AttachmentArchiver(WarcWriter warcWriter, String cdxServerUrl, boolean dryRun, String userAgent) {
-        this.warcWriter = warcWriter;
+    public AttachmentArchiver(WarcWriterSupplier warcWriterSupplier, String cdxServerUrl, boolean dryRun, String userAgent) {
+        this.warcWriterSupplier = warcWriterSupplier;
         this.cdxServerUrl = cdxServerUrl;
         this.dryRun = dryRun;
         this.userAgent = userAgent;
@@ -101,7 +101,7 @@ public class AttachmentArchiver {
 
             try (var warcWriter = outputFile == null ? new WarcWriter(System.out) :
                     new WarcWriter(FileChannel.open(outputFile, WRITE, CREATE, APPEND), WarcCompression.GZIP)) {
-                var archiver = new AttachmentArchiver(warcWriter, cdxServerUrl, dryRun, userAgent);
+                var archiver = new AttachmentArchiver(() -> warcWriter, cdxServerUrl, dryRun, userAgent);
                 for (var warcUri : warcUris) {
                     archiver.processWarc(warcUri);
                 }
@@ -111,10 +111,14 @@ public class AttachmentArchiver {
 
     private void processWarc(URI warcUri) throws IOException {
         try (SocialReader socialReader = new SocialReader(warcUri)) {
-            for (var batch = socialReader.nextBatch(); batch != null; batch = socialReader.nextBatch()) {
-                for (var post : batch) {
-                    visit(post, "");
-                }
+            processWarc(socialReader);
+        }
+    }
+
+    public void processWarc(SocialReader socialReader) throws IOException {
+        for (var batch = socialReader.nextBatch(); batch != null; batch = socialReader.nextBatch()) {
+            for (var post : batch) {
+                visit(post, "");
             }
         }
     }
@@ -184,6 +188,7 @@ public class AttachmentArchiver {
     private FetchResult fetchInner(URI uri, String via, HttpRequest httpRequest) throws IOException {
         log.info("GET {}", uri);
         var startTimeMillis = System.currentTimeMillis();
+        WarcWriter warcWriter = warcWriterSupplier.writer();
         var result = warcWriter.fetch(uri, httpRequest, null);
         var metadata = new WarcMetadata.Builder()
                 .date(result.response().date())

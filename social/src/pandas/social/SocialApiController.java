@@ -16,12 +16,16 @@ import java.nio.file.Paths;
 public class SocialApiController {
     private final Logger log = LoggerFactory.getLogger(SocialApiController.class);
     private final SocialArchiver archiver;
+    private final AttachmentArchiverTask attachmentArchiverTask;
     private final SocialIndexer indexer;
     private final SocialSearcher searcher;
     private final BambooClient bambooClient;
 
-    public SocialApiController(SocialArchiver archiver, SocialIndexer indexer, SocialSearcher searcher, BambooClient bambooClient) {
+    public SocialApiController(SocialArchiver archiver,
+                               AttachmentArchiverTask attachmentArchiverTask,
+                               SocialIndexer indexer, SocialSearcher searcher, BambooClient bambooClient) {
         this.archiver = archiver;
+        this.attachmentArchiverTask = attachmentArchiverTask;
         this.indexer = indexer;
         this.searcher = searcher;
         this.bambooClient = bambooClient;
@@ -39,9 +43,14 @@ public class SocialApiController {
             <p><strong>Archiver:</strong> %s
             <form method=post>
                <button type='submit' formaction='start'>Start</button>
-               <button type='submit' formaction='stop'>Stop</button>                
+               <button type='submit' formaction='stop'>Stop</button>
             </form>
-                """.formatted(archiver.status());
+            <p><strong>Attachment Archiver:</strong> %s
+            <form method=post>
+               <button type='submit' formaction='attachments/start'>Start</button>
+               <button type='submit' formaction='attachments/stop'>Stop</button>
+            </form>
+                """.formatted(archiver.status(), attachmentArchiverTask.status());
     }
 
     @GetMapping(value = "/search", produces = "application/json")
@@ -85,6 +94,12 @@ public class SocialApiController {
     @PostMapping("/stop")
     public String stopArchiver() {
         archiver.stop();
+        return "redirect:/";
+    }
+
+    @PostMapping("/attachments/start")
+    public String startAttachmentArchiver() {
+        attachmentArchiverTask.start();
         return "redirect:/";
     }
 }

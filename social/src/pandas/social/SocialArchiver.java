@@ -63,7 +63,7 @@ public class SocialArchiver {
             var crawlDate = Instant.now();
             var crawlPid = "nla.arc-social-" + DateFormats.ARC_DATE.format(crawlDate);
             long crawlId = bambooClient.createCrawl(crawlPid);
-            try (var warcManager = new WarcManager(bambooClient, crawlId, crawlPid, socialIndexer, socialConfig)) {
+            try (var warcManager = new BambooWarcManager(bambooClient, crawlId, crawlPid, socialIndexer, socialConfig)) {
                 while (!stopSignal.get()) {
                     var targets = findCandidateTargets();
                     if (targets.isEmpty()) {
@@ -89,7 +89,7 @@ public class SocialArchiver {
         }
     }
 
-    private void archiveTargets(long crawlId, WarcManager warcManager, List<SocialTarget> targets) throws IOException {
+    private void archiveTargets(long crawlId, BambooWarcManager bambooWarcManager, List<SocialTarget> targets) throws IOException {
         // Fetch records from targets and write to a temporary warc file
         Path tempFile = Files.createTempFile("pandas-social-", ".warc.gz");
 
@@ -101,9 +101,9 @@ public class SocialArchiver {
                 currentTarget.set(target);
                 try {
                     if (target.getServer().equals("twitter.com")) {
-                        new GraphqlVisitor(sessionManager, stopSignal).visitTarget(target, warcManager.writer());
+                        new GraphqlVisitor(sessionManager, stopSignal).visitTarget(target, bambooWarcManager.writer());
                     } else {
-                        new MastodonVisitor(socialConfig.getUserAgent(), stopSignal).visitTarget(target, warcManager.writer());
+                        new MastodonVisitor(socialConfig.getUserAgent(), stopSignal).visitTarget(target, bambooWarcManager.writer());
                     }
                 } catch (Exception e) {
                     log.error("Error archiving {}, stopping.", target, e);
@@ -114,7 +114,7 @@ public class SocialArchiver {
                     log.info("Social archiver stopped, cleaning up.");
                     break;
                 }
-                if (warcManager.hasReachedLimit()) {
+                if (bambooWarcManager.hasReachedLimit()) {
                     log.info("Reached WARC size or time limit, finishing file.");
                     break;
                 }
@@ -123,8 +123,8 @@ public class SocialArchiver {
             currentTarget.set(null);
 
             // Upload to bamboo if we actually wrote anything
-            status = "Uploading " + warcManager.currentFilename();
-            warcManager.uploadCurrentFile();
+            status = "Uploading " + bambooWarcManager.currentFilename();
+            bambooWarcManager.uploadCurrentFile();
 
             // Now the WARC is safely uploaded we can update the target state
             status = "Updating targets in database";

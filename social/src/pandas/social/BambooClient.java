@@ -1,6 +1,7 @@
 package pandas.social;
 
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,11 @@ public class BambooClient {
     }
 
     public InputStream openWarc(long warcId) throws IOException {
-        return URI.create(baseUrl + "/warcs/" + warcId).toURL().openStream();
+        return URI.create(urlForWarc(warcId)).toURL().openStream();
+    }
+
+    public String urlForWarc(long warcId) {
+        return baseUrl + "/warcs/" + warcId;
     }
 
     public long createCrawl(String name) throws IOException {
@@ -111,6 +116,17 @@ public class BambooClient {
         connection.setRequestProperty("Authorization", "Bearer " + token);
     }
 
-    public record WarcRef (long id, Long urlCount) {
+    public List<WarcRef> syncWarcsInCollection(@Nullable String resumptionToken, int limit) throws IOException {
+        var connection = (HttpURLConnection)URI.create(baseUrl + "/collections/" + collectionId +
+                        "/warcs/sync?limit=" + limit +
+                        (resumptionToken == null ? "" : "&after=" + resumptionToken))
+                .toURL().openConnection();
+        authorize(connection);
+        try (InputStream inputStream = connection.getInputStream()) {
+            return Arrays.asList(SocialJson.mapper.readValue(inputStream, WarcRef[].class));
+        }
+    }
+
+    public record WarcRef (long id, String resumptionToken, Long urlCount) {
     }
 }
