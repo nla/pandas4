@@ -98,8 +98,8 @@ public class SocialApiController {
     }
 
     @PostMapping("/attachments/start")
-    public String startAttachmentArchiver() {
-        attachmentArchiverTask.start();
+    public String startAttachmentArchiver(@RequestParam(value = "dryRun", defaultValue = "false") boolean dryRun) {
+        attachmentArchiverTask.start(dryRun);
         return "redirect:/";
     }
 }

@@ -33,16 +33,19 @@ public class SocialArchiver {
     private final AdaptiveSearcher adaptiveSearcher;
     private final SocialConfig socialConfig;
     private final SessionManager sessionManager;
+    private final SocialBambooConfig bambooConfig;
     private Thread thread;
     private AtomicBoolean stopSignal = new AtomicBoolean();
     private AtomicReference<SocialTarget> currentTarget = new AtomicReference<>();
     private volatile String status = "Idle";
 
-    public SocialArchiver(SocialConfig socialConfig, BambooClient bambooClient, SocialService socialService,
+    public SocialArchiver(SocialConfig socialConfig, SocialBambooConfig bambooConfig,
+                          BambooClient bambooClient, SocialService socialService,
                           SocialTargetRepository socialTargetRepository,
                           @Autowired(required = false) SocialIndexer socialIndexer) {
         this.sessionManager = new SessionManager(socialConfig.getUserAgent());
         this.adaptiveSearcher = new AdaptiveSearcher(sessionManager, stopSignal);
+        this.bambooConfig = bambooConfig;
         this.bambooClient = bambooClient;
         this.socialService = socialService;
         this.socialTargetRepository = socialTargetRepository;
@@ -62,7 +65,7 @@ public class SocialArchiver {
 
             var crawlDate = Instant.now();
             var crawlPid = "nla.arc-social-" + DateFormats.ARC_DATE.format(crawlDate);
-            long crawlId = bambooClient.createCrawl(crawlPid);
+            long crawlId = bambooClient.createCrawl(bambooConfig.getCrawlSeriesId(), crawlPid);
             try (var warcManager = new BambooWarcManager(bambooClient, crawlId, crawlPid, socialIndexer, socialConfig)) {
                 while (!stopSignal.get()) {
                     var targets = findCandidateTargets();

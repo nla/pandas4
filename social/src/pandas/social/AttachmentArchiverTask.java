@@ -15,11 +15,14 @@ public class AttachmentArchiverTask {
     private final BambooClient bambooClient;
     private final SocialIndexer socialIndexer;
     private final SocialConfig socialConfig;
+    private final SocialBambooConfig bambooConfig;
 
-    public AttachmentArchiverTask(BambooClient bambooClient, SocialIndexer socialIndexer, SocialConfig socialConfig) {
+    public AttachmentArchiverTask(BambooClient bambooClient, SocialIndexer socialIndexer, SocialConfig socialConfig,
+                                  SocialBambooConfig bambooConfig) {
         this.bambooClient = bambooClient;
         this.socialIndexer = socialIndexer;
         this.socialConfig = socialConfig;
+        this.bambooConfig = bambooConfig;
     }
 
     public void run(boolean dryRun) throws IOException {
@@ -28,7 +31,7 @@ public class AttachmentArchiverTask {
 
         Instant crawlDate = Instant.now();
         String crawlPid = "nla.arc-social-attachments-" + DateFormats.ARC_DATE.format(crawlDate);
-        long crawlId = dryRun ? -1 : bambooClient.createCrawl(crawlPid);
+        long crawlId = dryRun ? -1 : bambooClient.createCrawl(bambooConfig.getAttachmentCrawlSeriesId(), crawlPid);
         try (var warcManager = new BambooWarcManager(bambooClient, crawlId, crawlPid, socialIndexer, socialConfig)) {
             AttachmentArchiver archiver = new AttachmentArchiver(warcManager, socialConfig.getCdxServerUrl(), dryRun, socialConfig.getUserAgent());
             log.info("Starting attachment archiving run {}", crawlPid);
@@ -45,14 +48,15 @@ public class AttachmentArchiverTask {
                 }
             } finally {
                 warcManager.uploadCurrentFile();
+                log.info("Finished archiving attachments");
             }
         }
     }
 
-    public void start() {
+    public void start(boolean dryRun) {
         new Thread(() -> {
             try {
-                this.run(true);
+                this.run(dryRun);
             } catch (IOException e) {
                 log.error("Attachment archiver exception", e);
             }

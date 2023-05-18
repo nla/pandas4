@@ -12,7 +12,8 @@ public class SocialBambooConfig {
     @NotNull
     private String url;
     private long collectionId;
-    private long crawlSeriesId;
+    private Long crawlSeriesId;
+    private Long attachmentCrawlSeriesId;
 
     public String getUrl() {
         return url;
@@ -30,11 +31,19 @@ public class SocialBambooConfig {
         this.collectionId = collectionId;
     }
 
-    public long getCrawlSeriesId() {
+    public Long getCrawlSeriesId() {
         return crawlSeriesId;
     }
 
-    public void setCrawlSeriesId(long crawlSeriesId) {
+    public void setCrawlSeriesId(Long crawlSeriesId) {
         this.crawlSeriesId = crawlSeriesId;
+    }
+
+    public Long getAttachmentCrawlSeriesId() {
+        return attachmentCrawlSeriesId;
+    }
+
+    public void setAttachmentCrawlSeriesId(Long attachmentCrawlSeriesId) {
+        this.attachmentCrawlSeriesId = attachmentCrawlSeriesId;
     }
 }
