@@ -49,6 +49,7 @@ public class SocialApiController {
             <form method=post>
                <button type='submit' formaction='attachments/start'>Start</button>
                <button type='submit' formaction='attachments/stop'>Stop</button>
+               <label><input type='checkbox' name='dryRun'> Dry Run</label>
             </form>
                 """.formatted(archiver.status(), attachmentArchiverTask.status());
     }
