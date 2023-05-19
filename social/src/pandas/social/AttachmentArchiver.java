@@ -155,9 +155,9 @@ public class AttachmentArchiver {
         }
         long urlHash = LongHashFunction.xx3().hashChars(url);
 
-        Instant cachedVisit = Instant.ofEpochMilli(seenUrlHashes.get(urlHash));
-        if (cachedVisit != null) {
-            log.debug("Cache already contains {} at {}", url, cachedVisit);
+        Long cachedVisitMillis = seenUrlHashes.get(urlHash);
+        if (cachedVisitMillis != null) {
+            log.debug("Cache already contains {} at {}", url, Instant.ofEpochMilli(cachedVisitMillis));
             return;
         }
 
