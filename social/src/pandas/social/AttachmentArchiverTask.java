@@ -40,9 +40,13 @@ public class AttachmentArchiverTask {
                 for (var warcRef : warcRefs) {
                     log.info("Archiving attachments for {}", warcRef);
                     try (var socialReader = new SocialReader(new WarcReader(bambooClient.openWarc(warcRef.id())), bambooClient.urlForWarc(warcRef.id()))) {
-                        archiver.processWarc(socialReader);
-                        if (warcManager.hasReachedLimit()) {
-                            warcManager.uploadCurrentFile();
+                        for (var batch = socialReader.nextBatch(); batch != null; batch = socialReader.nextBatch()) {
+                            for (var post : batch) {
+                                archiver.visit(post, "");
+                            }
+                            if (warcManager.hasReachedLimit()) {
+                                warcManager.uploadCurrentFile();
+                            }
                         }
                     }
                 }

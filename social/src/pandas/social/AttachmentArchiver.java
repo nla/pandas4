@@ -128,7 +128,7 @@ public class AttachmentArchiver {
         }
     }
 
-    private void visit(Post post, String prefix) throws IOException {
+    void visit(Post post, String prefix) throws IOException {
         if (post == null) return;
 
         fetch("avatar", post.author().avatarUrl(), null, post.url());
