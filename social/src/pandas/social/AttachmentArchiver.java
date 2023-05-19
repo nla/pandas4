@@ -2,6 +2,7 @@ package pandas.social;
 
 import dev.failsafe.*;
 import net.openhft.hashing.LongHashFunction;
+import org.agrona.collections.Long2LongHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.netpreserve.jwarc.*;
 import org.netpreserve.jwarc.cdx.CdxReader;
@@ -19,7 +20,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +36,8 @@ public class AttachmentArchiver {
     // Map from 64-bit URL hash to epoch millis.
     // Assumption: We aren't fetching millions of attachments in a single run so the probability of hash collision
     // is low enough to ignore.
-    private final Map<Long, Long> seenUrlHashes = new HashMap<>();
+    private final Long2LongHashMap seenUrlHashes = new Long2LongHashMap(MISSING_VALUE);
+    private static final long MISSING_VALUE = 0;
 
     private final static FailsafeExecutor<FetchResult> failsafe = Failsafe.with(
             RetryPolicy.<FetchResult>builder()
@@ -155,8 +156,8 @@ public class AttachmentArchiver {
         }
         long urlHash = LongHashFunction.xx3().hashChars(url);
 
-        Long cachedVisitMillis = seenUrlHashes.get(urlHash);
-        if (cachedVisitMillis != null) {
+        long cachedVisitMillis = seenUrlHashes.get(urlHash);
+        if (cachedVisitMillis != MISSING_VALUE) {
             log.debug("Cache already contains {} at {}", url, Instant.ofEpochMilli(cachedVisitMillis));
             return;
         }
