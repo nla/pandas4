@@ -156,9 +156,9 @@ public class AttachmentArchiver {
         }
         long urlHash = LongHashFunction.xx3().hashChars(url);
 
-        long cachedVisitMillis = seenUrlHashes.get(urlHash);
-        if (cachedVisitMillis != MISSING_VALUE) {
-            log.debug("Cache already contains {} at {}", url, Instant.ofEpochMilli(cachedVisitMillis));
+        long lastVisitMillis = seenUrlHashes.get(urlHash);
+        if (lastVisitMillis != MISSING_VALUE) {
+            log.debug("Already seen {} at {}", url, Instant.ofEpochMilli(lastVisitMillis));
             return;
         }
 
