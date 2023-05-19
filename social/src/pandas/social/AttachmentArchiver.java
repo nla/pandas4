@@ -1,6 +1,7 @@
 package pandas.social;
 
 import dev.failsafe.*;
+import net.openhft.hashing.LongHashFunction;
 import org.jetbrains.annotations.NotNull;
 import org.netpreserve.jwarc.*;
 import org.netpreserve.jwarc.cdx.CdxReader;
@@ -31,7 +32,11 @@ public class AttachmentArchiver {
     private final boolean dryRun;
     private final String userAgent;
     private final WarcWriterSupplier warcWriterSupplier;
-    private final Map<String, Instant> cache = new HashMap<>();
+
+    // Map from 64-bit URL hash to epoch millis.
+    // Assumption: We aren't fetching millions of attachments in a single run so the probability of hash collision
+    // is low enough to ignore.
+    private final Map<Long, Long> cache = new HashMap<>();
 
     private final static FailsafeExecutor<FetchResult> failsafe = Failsafe.with(
             RetryPolicy.<FetchResult>builder()
@@ -148,8 +153,9 @@ public class AttachmentArchiver {
             log.warn("Skipping invalid URL \"{}\" via {}", url, via);
             return;
         }
+        long urlHash = LongHashFunction.xx3().hashChars(url);
 
-        Instant cachedVisit = cache.get(url);
+        Instant cachedVisit = Instant.ofEpochMilli(cache.get(urlHash));
         if (cachedVisit != null) {
             log.debug("Cache already contains {} at {}", url, cachedVisit);
             return;
@@ -161,7 +167,7 @@ public class AttachmentArchiver {
                 var record = reader.next();
                 if (record.isPresent()) {
                     log.debug("CDX index already contains {} at {}", url, record.get().date());
-                    cache.putIfAbsent(url, record.get().date());
+                    cache.putIfAbsent(urlHash, record.get().date().toEpochMilli());
                     return;
                 }
             }
@@ -181,7 +187,7 @@ public class AttachmentArchiver {
                 .addHeader("User-Agent", userAgent)
                 .build();
         FetchResult result = failsafe.get(() -> fetchInner(uri, via, httpRequest));
-        cache.putIfAbsent(url, result.response().date());
+        cache.putIfAbsent(urlHash, result.response().date().toEpochMilli());
     }
 
     @NotNull
