@@ -36,7 +36,7 @@ public class AttachmentArchiver {
     // Map from 64-bit URL hash to epoch millis.
     // Assumption: We aren't fetching millions of attachments in a single run so the probability of hash collision
     // is low enough to ignore.
-    private final Map<Long, Long> cache = new HashMap<>();
+    private final Map<Long, Long> seenUrlHashes = new HashMap<>();
 
     private final static FailsafeExecutor<FetchResult> failsafe = Failsafe.with(
             RetryPolicy.<FetchResult>builder()
@@ -155,7 +155,7 @@ public class AttachmentArchiver {
         }
         long urlHash = LongHashFunction.xx3().hashChars(url);
 
-        Instant cachedVisit = Instant.ofEpochMilli(cache.get(urlHash));
+        Instant cachedVisit = Instant.ofEpochMilli(seenUrlHashes.get(urlHash));
         if (cachedVisit != null) {
             log.debug("Cache already contains {} at {}", url, cachedVisit);
             return;
@@ -167,7 +167,7 @@ public class AttachmentArchiver {
                 var record = reader.next();
                 if (record.isPresent()) {
                     log.debug("CDX index already contains {} at {}", url, record.get().date());
-                    cache.putIfAbsent(urlHash, record.get().date().toEpochMilli());
+                    seenUrlHashes.putIfAbsent(urlHash, record.get().date().toEpochMilli());
                     return;
                 }
             }
@@ -187,7 +187,7 @@ public class AttachmentArchiver {
                 .addHeader("User-Agent", userAgent)
                 .build();
         FetchResult result = failsafe.get(() -> fetchInner(uri, via, httpRequest));
-        cache.putIfAbsent(urlHash, result.response().date().toEpochMilli());
+        seenUrlHashes.putIfAbsent(urlHash, result.response().date().toEpochMilli());
     }
 
     @NotNull
