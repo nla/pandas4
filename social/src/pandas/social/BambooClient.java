@@ -94,13 +94,21 @@ public class BambooClient {
 
         @Override
         public int read(byte @NotNull [] buffer, int off, int len) throws IOException {
+            if (len == 0) return 0;
             if (eof) return -1;
             return failsafe.get(() -> {
                 log.debug("GET range bytes={}-{} from {}", position, position + len - 1, url);
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                 connection.setRequestProperty("Range", "bytes=" + position + "-" + (position + len - 1));
                 try (InputStream stream = connection.getInputStream()) {
+                    if (connection.getResponseCode() != 206) {
+                        throw new IOException("Expected response code 206 but got " + connection.getResponseCode() + " from " + url);
+                    }
                     int n = IOUtils.read(stream, buffer, off, len);
+                    long contentLength = connection.getContentLengthLong();
+                    if (contentLength != -1 && n < contentLength) {
+                        throw new EOFException("Content-Length suggested " + contentLength + " bytes but only got " + n);
+                    }
                     if (n < len) eof = true;
                     position += n;
                     return n;
