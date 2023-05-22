@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class SocialConfig {
     private Path indexDir = Path.of("data/social-index");
     private String userAgent = "pandas-social";
-    private long warcSizeLimitBytes = 100 * 1024 * 1024; // 100 MB
+    private long warcSizeLimitBytes = 1024 * 1024 * 1024; // 1 GiB
     private long warcTimeLimitMillis = TimeUnit.HOURS.toMillis(1);
     private long archivingIntervalMillis = TimeUnit.DAYS.toMillis(1);
     private int maxTargetsPerWarcFile = 300;
