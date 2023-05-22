@@ -1,6 +1,10 @@
 package pandas.social;
 
+import dev.failsafe.Failsafe;
+import dev.failsafe.FailsafeExecutor;
+import dev.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +17,13 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,6 +35,14 @@ public class BambooClient {
 
     public static final AnonymousAuthenticationToken ANONYMOUS = new AnonymousAuthenticationToken
             ("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+
+    private final static FailsafeExecutor<Integer> failsafe = Failsafe.with(
+            RetryPolicy.<Integer>builder()
+                    .abortOn(FileNotFoundException.class)
+                    .handle(IOException.class)
+                    .withBackoff(1, 10 * 60, ChronoUnit.SECONDS, 4)
+                    .onRetry(e -> log.warn("Failure #{}. Retrying.", e.getAttemptCount(), e.getLastException()))
+                    .build());
     private final long collectionId;
     private final String baseUrl;
     private final OAuth2AuthorizedClientManager oauth2ClientManager;
@@ -54,6 +66,47 @@ public class BambooClient {
 
     public InputStream openWarc(long warcId) throws IOException {
         return URI.create(urlForWarc(warcId)).toURL().openStream();
+    }
+
+    /**
+     * Opens a WARC file in a way that avoids holding a connection open with long pauses when reading from the file.
+     * This is achieved by using a {@link BufferedInputStream} with a large buffer and a {@link UrlRangeInputStream}
+     * that requests a range of bytes from the server.
+     */
+    public InputStream openWarcWithRangeBuffering(long warcId) throws IOException {
+        int bufferSize = 16 * 1024 * 1024;
+        return new BufferedInputStream(new UrlRangeInputStream(URI.create(urlForWarc(warcId)).toURL()), bufferSize);
+    }
+
+    public static class UrlRangeInputStream extends InputStream {
+        private long position = 0;
+        private boolean eof = false;
+        private final URL url;
+
+        public UrlRangeInputStream(URL url) {
+            this.url = url;
+        }
+
+        @Override
+        public int read() {
+            throw new UnsupportedOperationException("Not implemented");
+        }
+
+        @Override
+        public int read(byte @NotNull [] buffer, int off, int len) throws IOException {
+            if (eof) return -1;
+            return failsafe.get(() -> {
+                log.debug("GET range bytes={}-{} from {}", position, position + len - 1, url);
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                connection.setRequestProperty("Range", "bytes=" + position + "-" + (position + len - 1));
+                try (InputStream stream = connection.getInputStream()) {
+                    int n = IOUtils.read(stream, buffer, off, len);
+                    if (n < len) eof = true;
+                    position += n;
+                    return n;
+                }
+            });
+        }
     }
 
     public String urlForWarc(long warcId) {
