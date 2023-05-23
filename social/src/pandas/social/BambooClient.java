@@ -129,7 +129,7 @@ public class BambooClient {
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-        connection.setRequestProperty("Content-Length", String.valueOf(body.length));
+        connection.setFixedLengthStreamingMode(body.length);
         authorize(connection);
         try (OutputStream stream = connection.getOutputStream()) {
             stream.write(body);
@@ -152,7 +152,7 @@ public class BambooClient {
         connection.setDoOutput(true);
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/warc");
-        connection.setRequestProperty("Content-Length", String.valueOf(length));
+        connection.setFixedLengthStreamingMode(length);
         authorize(connection);
         try (OutputStream stream = connection.getOutputStream()) {
             IOUtils.copy(Channels.newInputStream(channel), stream);
