@@ -47,7 +47,7 @@ public class AttachmentArchiver {
                     .withBackoff(10, 10 * 60, ChronoUnit.SECONDS, 4)
                     .onRetry(e -> log.warn("Failure #{}. Retrying.", e.getAttemptCount(), e.getLastException()))
                     .build(),
-            RateLimiter.<FetchResult>smoothBuilder(100, Duration.ofMinutes(5))
+            RateLimiter.<FetchResult>smoothBuilder(60, Duration.ofMinutes(1))
                     .withMaxWaitTime(Duration.ofMinutes(5))
                     .build(),
             CircuitBreaker.<FetchResult>builder()
