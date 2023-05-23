@@ -156,7 +156,7 @@ public class SocialArchiver {
         // start run() in a thread only if not already running
         if (thread == null || !thread.isAlive()) {
             stopSignal.set(false);
-            thread = new Thread(this::tryRun);
+            thread = new Thread(this::tryRun, "SocialArchiver");
             thread.start();
         }
     }

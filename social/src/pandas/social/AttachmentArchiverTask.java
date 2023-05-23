@@ -65,7 +65,7 @@ public class AttachmentArchiverTask {
             } catch (IOException e) {
                 log.error("Attachment archiver exception", e);
             }
-        }).start();
+        }, "AttachmentArchiver").start();
     }
 
     public String status() {
