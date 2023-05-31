@@ -39,10 +39,12 @@ public class AttachmentArchiver {
     private final Long2LongHashMap seenUrlHashes = new Long2LongHashMap(MISSING_VALUE);
     private static final long MISSING_VALUE = 0;
 
+    // Status 403 is returned for outdated profile pictures, so we don't want to retry those.
     private final static FailsafeExecutor<FetchResult> failsafe = Failsafe.with(
             RetryPolicy.<FetchResult>builder()
                     .handleResultIf(result -> result.response().http().status() > 400 &&
-                            result.response().http().status() != 404)
+                            result.response().http().status() != 404 &&
+                            result.response().http().status() != 403)
                     .handle(IOException.class)
                     .withBackoff(10, 10 * 60, ChronoUnit.SECONDS, 4)
                     .onRetry(e -> log.warn("Failure #{}. Retrying.", e.getAttemptCount(), e.getLastException()))
@@ -52,7 +54,8 @@ public class AttachmentArchiver {
                     .build(),
             CircuitBreaker.<FetchResult>builder()
                     .handleResultIf(result -> result.response().http().status() > 400 &&
-                            result.response().http().status() != 404)
+                            result.response().http().status() != 404 &&
+                            result.response().http().status() != 403)
                     .handle(IOException.class)
                     .onOpen(e -> log.warn("Circuit breaker open"))
                     .onClose(e -> log.warn("Circuit breaker closed"))
