@@ -73,18 +73,19 @@ public class BambooClient {
      * This is achieved by using a {@link BufferedInputStream} with a large buffer and a {@link UrlRangeInputStream}
      * that requests a range of bytes from the server.
      */
-    public InputStream openWarcWithRangeBuffering(long warcId) throws IOException {
+    public InputStream openWarcWithRangeBuffering(long warcId, long position) throws IOException {
         int bufferSize = 16 * 1024 * 1024;
-        return new BufferedInputStream(new UrlRangeInputStream(URI.create(urlForWarc(warcId)).toURL()), bufferSize);
+        return new BufferedInputStream(new UrlRangeInputStream(URI.create(urlForWarc(warcId)).toURL(), position), bufferSize);
     }
 
     public static class UrlRangeInputStream extends InputStream {
-        private long position = 0;
+        private long position;
         private boolean eof = false;
         private final URL url;
 
-        public UrlRangeInputStream(URL url) {
+        public UrlRangeInputStream(URL url, long position) {
             this.url = url;
+            this.position = position;
         }
 
         @Override

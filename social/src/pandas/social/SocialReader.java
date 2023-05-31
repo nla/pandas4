@@ -86,4 +86,8 @@ public class SocialReader implements Closeable {
     public void close() throws IOException {
         warcReader.close();
     }
+
+    public long position() {
+        return warcReader.position();
+    }
 }
