@@ -183,6 +183,23 @@ public class HeritrixClient {
                     }
                 }
                 callJob(jobName, "action", "teardown");
+                long waitStartTime = System.currentTimeMillis();
+                delay = 500;
+                while (true) {
+                    var state = getJob(jobName).crawlControllerState;
+                    if (state == null) break;
+                    if (System.currentTimeMillis() - waitStartTime > 300000) {
+                        log.error("Gave up waiting for teardown of job {} (state={})", jobName, state);
+                        break;
+                    }
+                    log.warn("Still waiting for teardown of job {} (state={}), delaying {}ms", jobName, state, delay);
+                    try {
+                        Thread.sleep(delay);
+                        delay *= 2;
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
                 break;
             } catch (FileNotFoundException e) {
                 log.warn("Job not found for teardown: {}", jobName);
