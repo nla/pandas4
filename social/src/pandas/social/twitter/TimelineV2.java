@@ -18,11 +18,12 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             if (instruction instanceof TimelineAddEntries addEntries) {
                 for (var entry: addEntries.entries()) {
                     if (entry.content() instanceof TimelineItem item) {
-                        TweetOrTombstone result = item.itemContent().tweet_results().result();
-                        if (result instanceof TweetV2 tweet) {
-                            tweets.add(tweet);
-                        } else if (result instanceof TweetWithVisibilityResults tweetWithVisibilityResults) {
-                            tweets.add(tweetWithVisibilityResults.tweet());
+                        var tweet = item.itemContent().tweet_results().result().tweet();
+                        if (tweet != null) tweets.add(tweet);
+                    } else if (entry.content() instanceof TimelineModule module) {
+                        for (var item: module.items()) {
+                            var tweet = item.item().itemContent().tweet_results().result().tweet();
+                            if (tweet != null) tweets.add(tweet);
                         }
                     }
                 }
@@ -64,7 +65,7 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     public record SearchByRawQuery(TimelineV2 searchTimeline) {
     }
 
-    public record TimelineV2Timeline(List<Instruction> instructions, Object responseObjects) {
+    public record TimelineV2Timeline(List<Instruction> instructions, Object responseObjects, Object metadata) {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -91,8 +92,9 @@ public record TimelineV2(TimelineV2Timeline timeline) {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
     @JsonSubTypes({
+            @JsonSubTypes.Type(TimelineCursor.class),
             @JsonSubTypes.Type(TimelineItem.class),
-            @JsonSubTypes.Type(TimelineCursor.class)})
+            @JsonSubTypes.Type(TimelineModule.class)})
     public interface Content {
     }
 
@@ -103,6 +105,21 @@ public record TimelineV2(TimelineV2Timeline timeline) {
     @JsonTypeName("TimelineTimelineCursor")
     public record TimelineCursor(String entryType, String value, String cursorType,
                                  boolean stopOnEmptyResponse) implements Content {
+    }
+
+    @JsonTypeName("TimelineTimelineModule")
+    public record TimelineModule(
+            String entryType,
+            List<ModuleItem> items,
+            Object metadata,
+            String displayType,
+            Object clientEventInfo) implements Content {
+    }
+
+    public record ModuleItem(String entryId, ModuleEntry item) {
+    }
+
+    public record ModuleEntry(TimelineTweet itemContent, Object clientEventInfo) {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
@@ -121,11 +138,12 @@ public record TimelineV2(TimelineV2Timeline timeline) {
             @JsonSubTypes.Type(TweetWithVisibilityResults.class)
     })
     public interface TweetOrTombstone {
+        TweetV2 tweet();
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
     @JsonTypeName("TweetWithVisibilityResults")
-    public record TweetWithVisibilityResults(TweetV2 tweet) implements TweetOrTombstone {
+    public record TweetWithVisibilityResults(TweetV2 tweet, Object tweetInterstitial) implements TweetOrTombstone {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename", defaultImpl = TweetV2.class)
@@ -165,11 +183,20 @@ public record TimelineV2(TimelineV2Timeline timeline) {
         public boolean isNewerThan(Long id) {
             return Long.compareUnsigned(this.id(), id) > 0;
         }
+
+        @Override
+        public TweetV2 tweet() {
+            return this;
+        }
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "__typename")
     @JsonTypeName("TweetTombstone")
     public record TweetTombstone(Object tombstone) implements TweetOrTombstone {
+        @Override
+        public TweetV2 tweet() {
+            return null;
+        }
     }
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
