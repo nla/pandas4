@@ -371,7 +371,12 @@ public class Instance {
     }
 
     public boolean canArchive() {
-        return State.GATHERED.equals(getState().getName());
+        return getState().isGathered();
+    }
+
+    public boolean canFindAndReplace() {
+        return getState().isGathered() &&
+                Set.of(GatherMethod.HTTRACK, GatherMethod.UPLOAD).contains(getGatherMethodName());
     }
 
     public boolean canDelete() {

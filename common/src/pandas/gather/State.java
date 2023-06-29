@@ -68,4 +68,8 @@ public class State {
     public boolean isGatheringOrCreation() {
         return getName().equals(GATHERING) || getName().equals(CREATION);
     }
+
+    public boolean isGathered() {
+        return getName().equals(GATHERED);
+    }
 }

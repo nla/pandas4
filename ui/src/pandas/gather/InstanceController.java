@@ -5,7 +5,6 @@ import jakarta.persistence.PersistenceContext;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.hibernate.search.mapper.orm.Search;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import pandas.agency.*;
-import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.core.Config;
 import pandas.core.NotFoundException;
@@ -32,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -50,10 +49,11 @@ public class InstanceController {
     private final StateHistoryRepository stateHistoryRepository;
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
+    private final GathererClient gathererClient;
     @PersistenceContext
     private EntityManager entityManager;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository, GathererClient gathererClient) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
@@ -62,6 +62,7 @@ public class InstanceController {
         this.agencyRepository = agencyRepository;
         this.userRepository = userRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
+        this.gathererClient = gathererClient;
     }
 
     @GetMapping("/instances/{id}")
@@ -274,6 +275,23 @@ public class InstanceController {
         return Paths.get("data/working/" + instance.getPi() + "/" +
                 instance.getDateString() + "/nla.arc-" + instance.getPi() + "-" +
                 instance.getDateString() + "/latest/logs/crawl.log");
+    }
+
+    @GetMapping(value = "/instances/{id}/find-and-replace")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
+    public String findAndReplaceForm(@PathVariable("id") Instance instance, Model model) {
+        if (!instance.canFindAndReplace()) throw new IllegalStateException("Instance is not in a state to find and replace");
+        model.addAttribute("instance", instance);
+        model.addAttribute("form", FindAndReplaceForm.DEFAULTS);
+        return "InstanceFindAndReplace";
+    }
+
+    @PostMapping(value = "/instances/{id}/find-and-replace")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
+    public String executeFindAndReplace(@PathVariable("id") Instance instance, FindAndReplaceForm form) throws InterruptedException, IOException {
+        if (!instance.canFindAndReplace()) throw new IllegalStateException("Instance is not in a state to find and replace");
+        gathererClient.replaceAllInInstance(instance, form, userService.getCurrentUser().getEmail());
+        return "redirect:/instances/" + instance.getId() + "/process";
     }
 
 }

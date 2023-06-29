@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Find &amp; Replace - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
+<main>
+    <header>
+    </header>
+
+    <nav class="breadcrumb">
+        <ol>
+            <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
+                   th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
+            <li>
+                <a th:href="${@link.to(instance)}">
+                    <span th:text="${instance.gatherMethodName}"></span> gather from <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span>
+                </a>
+            </li>
+            <li class="active">Find & Replace</li>
+        </ol>
+        <div class="under-breadcrumbs">
+            <span th:text="${instance.humanId}">nla.arc-186737-20210824-1143</span>
+        </div>
+    </nav>
+
+    <form method=post class=form th:object="${form}" th:action="@{''}" enctype=multipart/form-data id=form>
+        <fieldset>
+            <label>Directory <input th:field="*{directory}"></label>
+            <label>Filename <input th:field="*{filename}" required></label>
+            <label><input type=checkbox th:field="*{recursive}"> Recursive</label>
+        </fieldset>
+        <fieldset>
+            <label>Find <input th:field="*{find}" required></label>
+            <label>Replace with <input th:field="*{replaceWith}"></label>
+        </fieldset>
+
+        <div>
+            <button type="submit" data-keybind=s class="btn btn-primary" form="form" name="reportMode" value="true">Generate Report</button>
+            <button type="submit" class="btn btn-secondary" name="reportMode" value="false">Replace All</button>
+            <button style="float:right" onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i> Cancel</button>
+        </div>
+    </form>
+</main>

@@ -45,6 +45,9 @@
                         class="btn btn-primary" title="Archive (Ctrl+Enter)" data-keybind="Ctrl+Enter">
                     <i class="icon archive"></i> Archive
                 </button>
+                <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canFindAndReplace()}"
+                   th:href="@{|/instances/${instance.id}/find-and-replace|}"
+                   class="btn btn-secondary">Find &amp; Replace</a>
             </nav>
             <nav th:if="${worktray}">
                 <a th:if="${prevInstance}" th:href="@{/instances/{id}/process(id=${prevInstance.id},worktray=${worktray})}"
