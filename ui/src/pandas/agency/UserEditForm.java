@@ -8,7 +8,7 @@ import static info.freelibrary.util.StringUtils.trimToNull;
 
 public record UserEditForm(
         @NotBlank String userid,
-        boolean disabled,
+        Boolean disabled,
         @NotBlank String nameGiven,
         @NotBlank String nameFamily,
         @NotBlank String email,
@@ -27,7 +27,7 @@ public record UserEditForm(
 
     public void applyTo(User user, boolean editingSelf) {
         user.setUserid(trimToNull(userid));
-        if (!editingSelf) {
+        if (disabled != null && !editingSelf) {
             user.setActive(!disabled);
         }
         user.setNameGiven(trimToNull(nameGiven));
