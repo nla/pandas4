@@ -20,7 +20,7 @@
             <li sec:authorize="hasRole('stduser')"><a th:href="@{/marcexport}">MARC Export</a>
         </ul>
     </section>
-    <section>
+    <section sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')">
         Gather Settings
         <ul>
             <li sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')"><a th:href="@{/gather/filterpresets}">Filter Presets</a></li>
