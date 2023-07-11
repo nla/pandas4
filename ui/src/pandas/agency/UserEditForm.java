@@ -25,9 +25,11 @@ public record UserEditForm(
                 user.getRole() == null ? null : user.getRole().getType(), null, null);
     }
 
-    public void applyTo(User user) {
+    public void applyTo(User user, boolean editingSelf) {
         user.setUserid(trimToNull(userid));
-        user.setActive(!disabled);
+        if (!editingSelf) {
+            user.setActive(!disabled);
+        }
         user.setNameGiven(trimToNull(nameGiven));
         user.setNameFamily(trimToNull(nameFamily));
         user.setEmail(trimToNull(email));

@@ -10,6 +10,7 @@ import pandas.collection.Publisher;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -154,5 +155,17 @@ public abstract class Individual {
     public void setRole(Role role) {
         this.role = role;
         role.setIndividual(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Individual that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

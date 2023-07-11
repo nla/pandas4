@@ -66,6 +66,7 @@ public class UserController {
         model.addAttribute("user", user);
         model.addAttribute("form", UserEditForm.of(user));
         model.addAttribute("allowedRoles", getRoleNamesAllowedForCurrentUser());
+        model.addAttribute("editingSelf", user.equals(userService.getCurrentUser()));
         return "UserEdit";
     }
 
@@ -92,7 +93,8 @@ public class UserController {
                 !authentication.getAuthorities().contains(Privileges.EDIT_ALL_USERS)) {
             throw new AccessDeniedException("not allowed to change agency");
         }
-        form.applyTo(user);
+        boolean editingSelf = user.equals(userService.getCurrentUser());
+        form.applyTo(user, editingSelf);
         userRepository.save(user);
         return "redirect:/users/" + user.getUserid();
     }

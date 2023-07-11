@@ -140,6 +140,14 @@ body > nav ul > li > a.active {
     font-weight: bold;
 }
 
+body > nav ul > li > a.disabled {
+    color: #999;
+}
+
+body > nav ul > li > a.disabled:hover {
+    background: inherit;
+}
+
 body > nav ul > li > a:hover {
     background: var(--color-sidebar-hover);
     text-decoration: none;

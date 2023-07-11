@@ -19,7 +19,9 @@
         <fieldset>
             <div>
                 <label>Username <input th:field="*{userid}" required></label>
-                <label style="align-self: center"><br><input type=checkbox th:field="*{disabled}"> Account disabled</label>
+                <label style="align-self: center" th:unless="${editingSelf}">
+                    <br><input type=checkbox th:field="*{disabled}"> Account disabled
+                </label>
             </div>
         </fieldset>
 

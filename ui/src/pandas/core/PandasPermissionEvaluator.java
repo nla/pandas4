@@ -79,6 +79,9 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                     return false; // not an actual user
                 }
                 User currentUser = userRepository.findByUserid(authentication.getName()).orElseThrow();
+                if (currentUser.equals(targetUser)) {
+                    return true; // can edit own details
+                }
                 if (authorities.contains(EDIT_AGENCY_USERS) && currentUser.getAgency().equals(targetUser.getAgency())) {
                     return true;
                 }

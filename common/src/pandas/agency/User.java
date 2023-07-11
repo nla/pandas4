@@ -9,10 +9,7 @@ import pandas.core.LinkedAccount;
 
 import jakarta.persistence.*;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class User extends Individual {
