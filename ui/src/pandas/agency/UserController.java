@@ -71,14 +71,14 @@ public class UserController {
     }
 
     @PostMapping("/users/{userid}/edit")
-    @PreAuthorize("hasPermission(#collection, 'User', 'edit')")
+    @PreAuthorize("hasPermission(#userid, 'User', 'edit')")
     public String update(@PathVariable("userid") String userid, @Valid UserEditForm form, Authentication authentication) {
         User user = userRepository.findByUserid(userid).orElseThrow(NotFoundException::new);
         return save(form, authentication, user);
     }
 
     @PostMapping("/users/{userid}/delete")
-    @PreAuthorize("hasPermission(#collection, 'User', 'edit')")
+    @PreAuthorize("hasPermission(#userid, 'User', 'edit')")
     public String delete(@PathVariable("userid") String userid) {
         User user = userRepository.findByUserid(userid).orElseThrow();
         userRepository.delete(user);
