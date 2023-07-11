@@ -31,7 +31,7 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Object target, Object permission) {
         var authorities = authentication.getAuthorities();
         switch (target.getClass().getSimpleName() + ":" + permission) {
-            case "Agency:create-user": {
+            case "Agency:create-user" -> {
                 if (authorities.contains(EDIT_ALL_USERS)) {
                     return true;
                 }
@@ -42,7 +42,7 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 }
                 return false;
             }
-            case "Agency:edit": {
+            case "Agency:edit" -> {
                 if (authorities.contains(EDIT_ALL_AGENCIES)) {
                     return true;
                 }
@@ -53,13 +53,16 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 }
                 return false;
             }
-            case "Collection:edit":
+            case "Collection:edit" -> {
                 return authorities.contains(EDIT_COLLECTIONS);
-            case "Publisher:edit":
+            }
+            case "Publisher:edit" -> {
                 return authorities.contains(EDIT_PUBLISHERS);
-            case "Subject:edit":
+            }
+            case "Subject:edit" -> {
                 return authorities.contains(EDIT_SUBJECTS);
-            case "Title:edit": {
+            }
+            case "Title:edit" -> {
                 if (authorities.contains(EDIT_ALL_TITLES))
                     return true;
                 Title title = (Title) target;
@@ -70,7 +73,7 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                     return true;
                 return false;
             }
-            case "User:edit": {
+            case "User:edit" -> {
                 if (authorities.contains(EDIT_ALL_USERS)) {
                     return true;
                 }
@@ -87,8 +90,8 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 }
                 return false;
             }
-            default:
-                throw new IllegalArgumentException("Unknown permission " + target.getClass().getSimpleName() + ":" + permission);
+            default ->
+                    throw new IllegalArgumentException("Unknown permission " + target.getClass().getSimpleName() + ":" + permission);
         }
     }
 
@@ -96,30 +99,33 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
         var authorities = authentication.getAuthorities();
         switch (targetType + ":" + permission) {
-            case "Agency:create-user": {
-                Agency agency = agencyRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
+            case "Agency:create-user" -> {
+                Agency agency = agencyRepository.findById((Long) targetId).orElseThrow(NotFoundException::new);
                 return hasPermission(authentication, agency, permission);
             }
-            case "Agency:edit": {
+            case "Agency:edit" -> {
                 if (targetId == null) {
                     return authorities.contains(EDIT_ALL_AGENCIES);
                 }
-                Agency agency = agencyRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
+                Agency agency = agencyRepository.findById((Long) targetId).orElseThrow(NotFoundException::new);
                 return hasPermission(authentication, agency, permission);
             }
-            case "Collection:edit":
+            case "Collection:edit" -> {
                 return authorities.contains(EDIT_COLLECTIONS);
-            case "Publisher:edit":
+            }
+            case "Publisher:edit" -> {
                 return authorities.contains(EDIT_PUBLISHERS);
-            case "Subject:edit":
+            }
+            case "Subject:edit" -> {
                 return authorities.contains(EDIT_SUBJECTS);
-            case "Title:edit": {
+            }
+            case "Title:edit" -> {
                 if (targetId == null)
                     return authorities.contains(NOMINATE_TITLES);
-                Title title = titleRepository.findById((Long)targetId).orElseThrow(NotFoundException::new);
+                Title title = titleRepository.findById((Long) targetId).orElseThrow(NotFoundException::new);
                 return hasPermission(authentication, title, permission);
             }
-            case "User:edit": {
+            case "User:edit" -> {
                 if (targetId == null) {
                     return authorities.contains(EDIT_ALL_USERS); // TODO: agadmins probably need to create users
                 }
@@ -133,8 +139,8 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
                 }
                 return hasPermission(authentication, user, permission);
             }
-            default:
-                throw new IllegalArgumentException("Unknown permission " + targetType + "(" + targetId + "):" + permission);
+            default ->
+                    throw new IllegalArgumentException("Unknown permission " + targetType + "(" + targetId + "):" + permission);
         }
     }
 }
