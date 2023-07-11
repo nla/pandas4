@@ -81,7 +81,7 @@
     </ul>
 
     <!-- Gather option administration -->
-    <ul sec:authorize="hasAuthority('stduser')">
+    <ul sec:authorize="hasRole('stduser')">
         <li><a th:href="@{/settings}">System Settings</a>
     </ul>
     <ul>
