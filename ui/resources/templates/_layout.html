@@ -76,12 +76,12 @@
     <ul>
         <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${activeItem == 'Gather Queue'}? 'active'">Gather Queue</a>
         <li><a th:href="@{/statistics}">Statistics</a>
-        <li sec:authorize="hasRole('stduser')"><a th:href="@{/marcexport}">MARC Export</a>
+        <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies</a>
         <li sec:authorize="hasRole('stduser')"><a href="https://wr.archive.org.au/api/v1/auth/oidc">Webrecorder</a>
     </ul>
 
     <!-- Gather option administration -->
-    <ul sec:authorize="hasAuthority('PRIV_ADMIN_GATHER_OPTIONS')">
+    <ul sec:authorize="hasAuthority('stduser')">
         <li><a th:href="@{/settings}">System Settings</a>
     </ul>
     <ul>
