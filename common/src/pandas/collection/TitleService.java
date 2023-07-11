@@ -315,6 +315,7 @@ public class TitleService {
             if (form.isEditOwner()) {
                 if (!Objects.equals(title.getOwner(), form.getOwner())) {
                     title.setOwner(form.getOwner());
+                    title.setAgency(form.getOwner().getAgency());
                     OwnerHistory ownerHistory = new OwnerHistory();
                     ownerHistory.setTitle(title);
                     ownerHistory.setDate(now);
