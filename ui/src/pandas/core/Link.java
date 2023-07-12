@@ -1,11 +1,11 @@
 package pandas.core;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 import pandas.agency.Agency;
 import pandas.agency.AgencySummary;
 import pandas.agency.User;
@@ -16,6 +16,7 @@ import pandas.util.DateFormats;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -26,6 +27,12 @@ public class Link {
 
     @Value("${pandas.deliveryBaseUrl:https://webarchive.nla.gov.au/awa/}")
     private String deliveryBaseUrl = "https://webarchive.nla.gov.au/awa/";
+
+    private final String bambooBaseUrl;
+
+    public Link(Config config) {
+        this.bambooBaseUrl = config.getBambooUrl().replaceFirst("/+$", "");
+    }
 
     private String link(String path) {
         return servletRequest().getContextPath().replaceFirst("/+$", "") + path;
@@ -154,6 +161,14 @@ public class Link {
 
     public String to(Title title) {
         return link("/titles/" + title.getId());
+    }
+
+    public String toBambooCrawl(long crawlId) {
+        return bambooBaseUrl + "/crawl/" + crawlId;
+    }
+
+    public String toBambooWarc(String filename) {
+        return bambooBaseUrl + "/warcs/" + UriUtils.encodePathSegment(filename, UTF_8) + "/details";
     }
 
     public String unflag(Title title) {

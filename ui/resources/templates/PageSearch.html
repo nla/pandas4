@@ -48,11 +48,12 @@
             <td>Type</td>
             <td>Digest</td>
             <td>URL</td>
+            <td>Crawl</td>
             <td>WARC File</td>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="capture : ${captures}">
+        <tr th:each="capture : ${captures}" th:with="crawl = ${crawlsByFilenameMap.get(capture.file)}">
             <td><a th:href="@{/replay(url=${capture.url},date=${capture.date})}">View</a></td>
             <td><a th:href="${capture.replayUrl}" th:text="${dateTimeFormat.format(capture.date)}"></a></td>
             <td><span th:text="${capture.status}" th:class="${capture.statusClass}"
@@ -69,7 +70,10 @@
                    style="font-family: monospace">EF7YLJG</a>
             </td>
             <td th:text="${capture.url}" class="url"></td>
-            <td><a th:href="@{|https://pandas.nla.gov.au/bamboo/warcs/${capture.file}/details|}"
+            <td><a th:if="${crawl != null}"
+                   th:href="${crawl.pandasInstanceId() != null ? @link.toInstance(crawl.pandasInstanceId()) : @link.toBambooCrawl(crawl.crawlId())}"
+                   th:text="${crawl.crawlName()}">test crawl</a></td>
+            <td><a th:href="${@link.toBambooWarc(capture.file)}"
                    th:text="${capture.file}">test.warc.gz</a></td>
         </tr>
         </tbody>
