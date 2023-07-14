@@ -2,8 +2,10 @@ package pandas.gather;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.hibernate.search.engine.search.predicate.SearchPredicate;
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
+import org.hibernate.search.engine.search.predicate.dsl.SimpleBooleanPredicateClausesCollector;
 import org.hibernate.search.mapper.orm.Search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +60,9 @@ public class InstanceSearcher {
     public SearchResults<Instance> search(long stateId, Long agencyId, Long ownerId,
                                           MultiValueMap<String, String> params, Pageable pageable) {
         var session = Search.session(entityManager);
-        var search = session.search(Instance.class)
-                .where(buildPredicate(stateId, agencyId, ownerId, params, null))
+        var scope = session.scope(Instance.class);
+        var search = session.search(scope)
+                .where(buildPredicate(scope.predicate(), stateId, agencyId, ownerId, params, null))
                 .sort(f -> f.field("date").desc());
 
         // we can do inactive facets as part of the main search
@@ -78,8 +81,8 @@ public class InstanceSearcher {
         for (Facet facet : facets) {
             if (facet instanceof EntityFacet && params.containsKey(facet.param)) {
                 // we need to do separate searches for each active entity facets that applies all other facets
-                var facetResult = session.search(Instance.class)
-                        .where(buildPredicate(stateId, agencyId, ownerId, params, facet))
+                var facetResult = session.search(scope)
+                        .where(buildPredicate(scope.predicate(), stateId, agencyId, ownerId, params, facet))
                         .aggregation(((EntityFacet<?>) facet).key, f -> f.terms().field(facet.field, Long.class)
                                 .maxTermCount(20)).fetch(0);
                 facetResults.add(facet.results(params, facetResult));
@@ -91,18 +94,17 @@ public class InstanceSearcher {
         return new SearchResults<>(result, facetResults, pageable);
     }
 
-    private BiConsumer<SearchPredicateFactory, BooleanPredicateOptionsCollector<?>> buildPredicate(
+    private SearchPredicate buildPredicate(SearchPredicateFactory f,
             long stateId, Long agencyId, Long ownerId, MultiValueMap<String, String> params, Facet excludedFacet) {
-        return (f, b) ->
-        {
-            for (Facet facet : facets) {
-                if (facet == excludedFacet) continue;
-                facet.mustMatch(f, b, params, false);
-            }
-            b.must(f.match().field("state.id").matching(stateId));
-            if (agencyId != null) b.must(f.match().field("title.agency.id").matching(agencyId));
-            if (ownerId != null) b.must(f.match().field("title.owner.id").matching(ownerId));
-        };
+        var b = f.bool();
+        for (Facet facet : facets) {
+            if (facet == excludedFacet) continue;
+            facet.mustMatch(f, b, params, false);
+        }
+        b.must(f.match().field("state.id").matching(stateId));
+        if (agencyId != null) b.must(f.match().field("title.agency.id").matching(agencyId));
+        if (ownerId != null) b.must(f.match().field("title.owner.id").matching(ownerId));
+        return b.toPredicate();
     }
 }
 

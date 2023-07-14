@@ -22,8 +22,8 @@ public class DeliverySearcher {
     public Map<Long, Long> getTitleCountsForCollectionTree(long rootCollectionId) {
         AggregationKey<Map<Long, Long>> countsByCollectionId = AggregationKey.of("countsByCollectionId");
         var result = Search.session(entityManager).search(Title.class)
-                .where((f, b) -> b.must(f.match().field("collectionAncestry.id").matching(rootCollectionId))
-                        .must(f.match().field("hasArchivedInstances").matching(true)))
+                .where((f, b) -> b.add(f.match().field("collectionAncestry.id").matching(rootCollectionId))
+                        .add(f.match().field("hasArchivedInstances").matching(true)))
                 .aggregation(countsByCollectionId, f -> f.terms().field("collectionAncestry.id", Long.class))
                 .fetch(0);
         return result.aggregation(countsByCollectionId);

@@ -13,9 +13,11 @@ public class SearchUtils {
         return f.bool(b -> values.forEach(value -> b.should(Objects.equals(value, ID_NONE) ?
                 f.bool().mustNot(f.exists().field(field)) : f.match().field(field).matching(value))));
     }
+
     public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> b, String field, java.util.Collection<?> values) {
         mustMatchAny(f, b, field, values, false);
     }
+
     public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> b, String field, java.util.Collection<?> values, boolean not) {
         if (values != null && !values.isEmpty()) {
             if (not) {

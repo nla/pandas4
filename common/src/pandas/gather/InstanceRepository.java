@@ -39,7 +39,7 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
     @Query("select i from Instance i where i.title = :title and i.state.name <> 'deleted' order by i.date desc")
     List<Instance> findRecentGathers(@Param("title") Title title, Pageable pageable);
 
-    @Query("select i from Instance i where i.title = :title and i.state.name = 'archived' and i.isDisplayed = 1 order by i.date desc")
+    @Query("select i from Instance i where i.title = :title and i.state.name = 'archived' and i.isDisplayed = true order by i.date desc")
     List<Instance> findDisplayedByTitle(@Param("title") Title title);
 
     @Query("select i from Instance i\n" +

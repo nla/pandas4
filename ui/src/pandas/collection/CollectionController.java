@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 import static pandas.core.Utils.sortBy;
+import static pandas.search.SearchUtils.matchAny;
 import static pandas.search.SearchUtils.mustMatchAny;
 
 @Controller
@@ -53,10 +54,10 @@ public class CollectionController {
 
         var search = Search.session(entityManager).search(Collection.class)
                 .where((f, b) -> {
-                    b.must(f.matchAll());
-                    if (q != null) b.must(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
-                    if (displayed != null) b.must(f.match().field("isDisplayed").matching(displayed));
-                    mustMatchAny(f, b, "subjects.id", subjectIds);
+                    if (q != null) b.add(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
+                    if (displayed != null) b.add(f.match().field("isDisplayed").matching(displayed));
+                    b.add(matchAny(f, "subjects.id", subjectIds));
+                    if (!b.hasClause()) b.add(f.matchAll());
                 }).sort(f -> q == null ? f.field("id").desc() : f.score());
 
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());

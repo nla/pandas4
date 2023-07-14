@@ -21,8 +21,8 @@ public class ToyController {
     public Object test() {
         AggregationKey<Map<Long, Long>> countsByCollectionId = AggregationKey.of("countsByCollectionId");
         var result = Search.session(entityManager).search(Title.class)
-                .where((f, b) -> b.must(f.match().field("collectionAncestry.id").matching(13468L))
-                        .must(f.match().field("deliverable").matching(true)))
+                .where((f, b) -> b.add(f.match().field("collectionAncestry.id").matching(13468L))
+                        .add(f.match().field("deliverable").matching(true)))
                 .aggregation(countsByCollectionId, f -> f.terms().field("collectionAncestry.id", Long.class))
                 .fetch(0);
         System.out.println(result.total().hitCount());

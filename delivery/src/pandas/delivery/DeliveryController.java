@@ -101,10 +101,10 @@ public class DeliveryController {
                                 f.field("name", String.class))
                         .as((id, pi, name) -> new TitleBrief((Long) id, pi, name, null)))
                 .where((f, b) -> {
-                    b.must(f.match().field("subjects.id").matching(subjectId));
-                    b.must(f.match().field("deliverable").matching(true));
+                    b.add(f.match().field("subjects.id").matching(subjectId));
+                    b.add(f.match().field("deliverable").matching(true));
                     if (query != null) {
-                        b.must(f.simpleQueryString().fields("name", "titleUrl", "seedUrl")
+                        b.add(f.simpleQueryString().fields("name", "titleUrl", "seedUrl")
                                 .matching(query)
                                 .defaultOperator(BooleanOperator.AND));
                     }

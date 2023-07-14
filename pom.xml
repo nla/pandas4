@@ -14,8 +14,8 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <hibernate.search.version>6.2.0.Alpha1</hibernate.search.version>
-        <spring.version>3.0.5</spring.version>
+        <hibernate.search.version>6.2.0.Final</hibernate.search.version>
+        <spring.version>3.1.1</spring.version>
     </properties>
 
     <dependencyManagement>
