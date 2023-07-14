@@ -24,7 +24,9 @@ jobs:
           java-version: 17
           cache: 'maven'
       - name: Install httrack and ghostscript
-        run: sudo apt-get install -y httrack ghostscript
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y httrack ghostscript
       - name: Install pywb 2.7.4
         run: sudo pip install pywb==2.7.4
       - name: Build with Maven
