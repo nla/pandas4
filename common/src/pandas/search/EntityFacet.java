@@ -1,8 +1,7 @@
 package pandas.search;
 
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
-import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
-import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
+import org.hibernate.search.engine.search.predicate.SearchPredicate;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.springframework.util.MultiValueMap;
@@ -55,19 +54,20 @@ public class EntityFacet<T> extends Facet {
     }
 
     @Override
-    public void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> queryParams,
-                          boolean not) {
-        mustMatchAny(predicateFactory, bool, field, parseParam(queryParams), not);
+    public SearchPredicate predicate(SearchPredicateFactory predicateFactory, MultiValueMap<String, String> queryParams,
+                                     boolean not) {
+        return mustMatchAny(predicateFactory, field, parseParam(queryParams), not);
     }
 
     @Override
-    public void search(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams) {
+    public SearchPredicate searchPredicate(SearchPredicateFactory f, MultiValueMap<String, String> queryParams) {
         if (searchFields.length != 0) {
             String search = queryParams.getFirst(param + ".name");
             if (search != null && !search.isBlank()) {
-                bool.must(predicateFactory.simpleQueryString().fields(searchFields).matching(search));
+                return f.simpleQueryString().fields(searchFields).matching(search).toPredicate();
             }
         }
+        return f.matchAll().toPredicate();
     }
 
     @Override

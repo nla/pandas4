@@ -145,11 +145,10 @@ public class CollectionController {
     @JsonView(View.CollectionSearchResults.class)
     public Object json(@RequestParam(value = "q", required = true) String q, Pageable pageable) {
         var search = Search.session(entityManager).search(Collection.class)
-                .where(f -> f.bool(b -> {
-                    b.must(f.matchAll());
-                    b.mustNot(f.match().field("ancestorClosed").matching(true));
-                    if (q != null) b.must(f.simpleQueryString().field("fullName").matching(q).defaultOperator(AND));
-                })).sort(f -> f.field("name_sort"));
+                .where((f, root) -> {
+                    root.add(f.not(f.match().field("ancestorClosed").matching(true)));
+                    if (q != null) root.add(f.simpleQueryString().field("fullName").matching(q).defaultOperator(AND));
+                }).sort(f -> f.field("name_sort"));
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         return result.hits();
     }

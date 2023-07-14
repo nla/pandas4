@@ -40,12 +40,12 @@ public class DiscoveryController {
                         Model model) {
         String cleanQ = StringUtils.trimToNull(q);
         var search = Search.session(entityManager).search(Discovery.class)
-                .where(f -> f.bool(b -> {
-                    b.must(f.matchAll());
-                    if (!showDotAu) b.must(f.match().field("dotAu").matching(false));
-                    if (!showAlreadySelected) b.must(f.match().field("alreadySelected").matching(false));
-                    if (cleanQ != null) b.must(f.simpleQueryString().field("name").matching(cleanQ).defaultOperator(AND));
-                })).sort(s -> cleanQ == null ? s.field("createdDate").desc() : s.score());
+                .where((f, root) -> {
+                    if (!showDotAu) root.add(f.match().field("dotAu").matching(false));
+                    if (!showAlreadySelected) root.add(f.match().field("alreadySelected").matching(false));
+                    if (cleanQ != null) root.add(f.simpleQueryString().field("name").matching(cleanQ).defaultOperator(AND));
+                    if (!root.hasClause()) root.add(f.matchAll());
+                }).sort(s -> cleanQ == null ? s.field("createdDate").desc() : s.score());
 
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         SearchResults<Discovery> results = new SearchResults<>(result, null, pageable);

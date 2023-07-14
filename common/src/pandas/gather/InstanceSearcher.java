@@ -3,9 +3,7 @@ package pandas.gather;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.search.engine.search.predicate.SearchPredicate;
-import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
-import org.hibernate.search.engine.search.predicate.dsl.SimpleBooleanPredicateClausesCollector;
 import org.hibernate.search.mapper.orm.Search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +24,6 @@ import pandas.search.SearchResults;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 @Service
 @ConditionalOnProperty(name = "spring.jpa.properties.hibernate.search.enabled", havingValue = "true", matchIfMissing = true)
@@ -96,15 +93,15 @@ public class InstanceSearcher {
 
     private SearchPredicate buildPredicate(SearchPredicateFactory f,
             long stateId, Long agencyId, Long ownerId, MultiValueMap<String, String> params, Facet excludedFacet) {
-        var b = f.bool();
+        var and = f.and();
         for (Facet facet : facets) {
             if (facet == excludedFacet) continue;
-            facet.mustMatch(f, b, params, false);
+            and.add(facet.predicate(f, params, false));
         }
-        b.must(f.match().field("state.id").matching(stateId));
-        if (agencyId != null) b.must(f.match().field("title.agency.id").matching(agencyId));
-        if (ownerId != null) b.must(f.match().field("title.owner.id").matching(ownerId));
-        return b.toPredicate();
+        and.add(f.match().field("state.id").matching(stateId));
+        if (agencyId != null) and.add(f.match().field("title.agency.id").matching(agencyId));
+        if (ownerId != null) and.add(f.match().field("title.owner.id").matching(ownerId));
+        return and.toPredicate();
     }
 }
 

@@ -149,39 +149,36 @@ public class TitleSearcher {
             }
         }
 
-        private Function<SearchPredicateFactory, PredicateFinalStep> predicate(Facet exceptFacet) {
-            return f -> f.bool(b -> {
-                b.must(f.matchAll());
-                if (q != null && !q.isBlank()) {
-                    var simpleQuery = f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes").matching(q).defaultOperator(AND);
-                    if (Utils.isNumeric(q)) {
-                        try {
-                            long longValue = Long.parseLong(q);
-                            var b2 = f.bool();
-                            b2.should(f.match().field("pi").matching(longValue));
-                            b2.should(simpleQuery);
-                            b.must(b2);
-                        } catch (NumberFormatException e) {
-                            b.must(simpleQuery);
-                        }
-                    } else {
-                        b.must(simpleQuery);
+        private PredicateFinalStep predicate(SearchPredicateFactory f, Facet exceptFacet) {
+            var and = f.and();
+            if (q != null && !q.isBlank()) {
+                var simpleQuery = f.simpleQueryString().fields("name", "titleUrl", "seedUrl", "gather.notes").matching(q).defaultOperator(AND);
+                if (Utils.isNumeric(q)) {
+                    try {
+                        long longValue = Long.parseLong(q);
+                        var piQuery = f.match().field("pi").matching(longValue);
+                        and.add(f.or(piQuery, simpleQuery));
+                    } catch (NumberFormatException e) {
+                        and.add(simpleQuery);
                     }
+                } else {
+                    and.add(simpleQuery);
                 }
-                if (url != null && !url.isBlank()) {
-                    b.must(f.phrase().fields("titleUrl", "seedUrl").matching(url));
-                }
-                for (Facet facet : facets) {
-                    facet.search(f, b, params);
-                    if (facet == exceptFacet) continue;
-                    facet.mustMatch(f, b, params, not);
-                }
-            });
+            }
+            if (url != null && !url.isBlank()) {
+                and.add(f.phrase().fields("titleUrl", "seedUrl").matching(url));
+            }
+            for (Facet facet : facets) {
+                and.add(facet.searchPredicate(f, params));
+                if (facet == exceptFacet) continue;
+                and.add(facet.predicate(f, params, not));
+            }
+            return and.hasClause() ? and : f.matchAll();
         }
 
         public SearchResults<Title> execute() {
             var search = session.search(Title.class)
-                    .where(predicate(null))
+                    .where(f -> predicate(f, null))
                     .sort(this::sort);
             // we can do inactive facets as part of the main search
             for (Facet facet : facets) {
@@ -198,7 +195,7 @@ public class TitleSearcher {
                 if (facet instanceof EntityFacet && params.containsKey(facet.param)) {
                     // we need to do separate searches for each active entity facets that applies all other facets
                     var facetResult = session.search(Title.class)
-                            .where(predicate(facet))
+                            .where(f -> predicate(f, facet))
                             .aggregation(((EntityFacet<?>) facet).key, f -> f.terms().field(facet.field, Long.class)
                                     .maxTermCount(20)).fetch(0);
                     facetResults.add(facet.results(params, facetResult));
@@ -212,7 +209,7 @@ public class TitleSearcher {
 
         public SearchScroll<Title> scroll() {
             return session.search(Title.class)
-                    .where(predicate(null))
+                    .where(f -> predicate(f, null))
                     .sort(this::sort)
                     .scroll(100);
         }

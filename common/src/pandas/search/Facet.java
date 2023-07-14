@@ -1,7 +1,6 @@
 package pandas.search;
 
-import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
-import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
+import org.hibernate.search.engine.search.predicate.SearchPredicate;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.springframework.util.MultiValueMap;
@@ -17,10 +16,10 @@ public abstract class Facet {
         this.field = field;
     }
 
-    public abstract void mustMatch(SearchPredicateFactory predicateFactory, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> queryParams,
-                                   boolean not);
+    public abstract SearchPredicate predicate(SearchPredicateFactory predicateFactory, MultiValueMap<String, String> queryParams,
+                                              boolean not);
 
-    public abstract void search(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams);
+    public abstract SearchPredicate searchPredicate(SearchPredicateFactory predicateFactory, MultiValueMap<String, String> queryParams);
 
     public abstract FacetResults results(MultiValueMap<String, String> queryParams, SearchResult<?> result);
 

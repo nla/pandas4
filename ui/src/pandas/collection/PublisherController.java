@@ -63,10 +63,10 @@ public class PublisherController {
     public String search(@RequestParam(value = "q", required = false) String rawQ, Pageable pageable, Model model) {
         String q = (rawQ == null || rawQ.isBlank()) ? null : rawQ;
         var search = Search.session(entityManager).search(Publisher.class)
-                .where(f -> f.bool(b -> {
-                    b.must(f.matchAll());
-                    if (q != null) b.must(f.simpleQueryString().field("organisation.name").matching(q).defaultOperator(AND));
-                })).sort(f -> q == null ? f.field("name_sort") : f.score());
+                .where((f, root) -> {
+                    if (q != null) root.add(f.simpleQueryString().field("organisation.name").matching(q).defaultOperator(AND));
+                    if (!root.hasClause()) root.add(f.matchAll());
+                }).sort(f -> q == null ? f.field("name_sort") : f.score());
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         SearchResults<Publisher> results = new SearchResults<>(result, null, pageable);
         model.addAttribute("results", results);
@@ -79,10 +79,10 @@ public class PublisherController {
     @JsonView(View.Summary.class)
     public Object json(@RequestParam(value = "q", required = true) String q, Pageable pageable) {
         var search = Search.session(entityManager).search(Publisher.class)
-                .where(f -> f.bool(b -> {
-                    b.must(f.matchAll());
-                    if (q != null) b.must(f.simpleQueryString().field("organisation.name").matching(q).defaultOperator(AND));
-                }));
+                .where((f, root) -> {
+                    if (q != null) root.add(f.simpleQueryString().field("organisation.name").matching(q).defaultOperator(AND));
+                    if (!root.hasClause()) root.add(f.matchAll());
+                });
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         return result.hits();
     }

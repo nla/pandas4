@@ -1,8 +1,7 @@
 package pandas.search;
 
-import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
-import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateOptionsCollector;
-import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
+import org.hibernate.search.engine.search.predicate.SearchPredicate;
+import org.hibernate.search.engine.search.predicate.dsl.*;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.springframework.util.MultiValueMap;
 
@@ -24,29 +23,30 @@ public class DateFacet extends Facet {
     }
 
     @Override
-    public void mustMatch(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> bool, MultiValueMap<String, String> form,
-                          boolean not) {
+    public SearchPredicate predicate(SearchPredicateFactory f, MultiValueMap<String, String> form,
+                                     boolean not) {
         LocalDate start = parseDate(form.getFirst(param + ".start"));
         LocalDate end = parseDate(form.getFirst(param + ".end"));
         boolean never = "on".equals(form.getFirst(param + ".never"));
         if (start != null || end != null) {
             Instant lowerBound = start == null ? null : start.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
             Instant upperBound = end == null ? null : end.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+            var isWithinDateRange = f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED);
             if (never) {
-                var or = f.bool();
-                or.should(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
-                or.should(f.matchAll().except(f.exists().field(field)));
-                bool.must(or);
+                var hasNoValue = f.matchAll().except(f.exists().field(field));
+                return f.or(isWithinDateRange, hasNoValue).toPredicate();
             } else {
-                bool.must(f.range().field(field).between(lowerBound, INCLUDED, upperBound, EXCLUDED));
+                return isWithinDateRange.toPredicate();
             }
         } else if (never) {
-            bool.mustNot(f.exists().field(field));
+            return f.not(f.exists().field(field)).toPredicate();
         }
+        return f.matchAll().toPredicate();
     }
 
     @Override
-    public void search(SearchPredicateFactory predicateFactory, BooleanPredicateClausesStep<?> bool, MultiValueMap<String, String> queryParams) {
+    public SearchPredicate searchPredicate(SearchPredicateFactory f, MultiValueMap<String, String> queryParams) {
+        return f.matchAll().toPredicate();
     }
 
     @Override
