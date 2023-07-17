@@ -8,7 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import pandas.core.PandasPermissionEvaluator;
 
 @SpringBootApplication
 @EnableScheduling
@@ -41,5 +44,12 @@ public class Pandas {
     @Bean(name = "httpClient")
     public OkHttpClient httpClient() {
         return new OkHttpClient.Builder().build();
+    }
+
+    @Bean
+    static MethodSecurityExpressionHandler expressionHandler(PandasPermissionEvaluator permissionEvaluator) {
+        var expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setPermissionEvaluator(permissionEvaluator);
+        return expressionHandler;
     }
 }
