@@ -25,6 +25,23 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
             </plugin>
+            <!-- Workaround for https://hibernate.atlassian.net/browse/HSEARCH-4744
+                 Build the jandex index at compile time as it fails at runtime when we're deployed
+                 nested inside a Spring fat jar
+            -->
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <goals>
+                            <goal>jandex</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
