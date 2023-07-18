@@ -49,6 +49,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
         @Index(name = "title_publisher_index", columnList = "publisher_id"),
 })
 public class Title {
+    public static final Comparator<Title> COMPARE_BY_NAME = Comparator.comparing(Title::getName, String.CASE_INSENSITIVE_ORDER);
+
     @Id
     @Column(name = "TITLE_ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "TITLE_SEQ")
@@ -328,7 +330,7 @@ public class Title {
     @OrderBy("date desc")
     private List<TitlePreviousName> previousNames = new ArrayList<>();
 
-    @OneToMany(mappedBy = "ceased")
+    @OneToMany(mappedBy = "ceased", orphanRemoval = true, cascade = CascadeType.ALL)
     @OrderBy("date")
     private List<TitleHistory> continuedBy = new ArrayList<>();
 
@@ -876,5 +878,39 @@ public class Title {
             derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "instances"))})
     public Instant getLastArchivedDate() {
         return getArchivedDates().stream().max(Comparator.naturalOrder()).orElse(null);
+    }
+
+    public void setContinuesTitles(Set<Title> continuesTitles) {
+        if (continuesTitles.contains(this)) throw new IllegalArgumentException("Title cannot continue itself");
+        continues.removeIf(th -> !continuesTitles.contains(th.getCeased()));
+        var existingTitles = continues.stream().map(TitleHistory::getCeased).collect(Collectors.toSet());
+        for (Title title: continuesTitles) {
+            if (!existingTitles.contains(title)) {
+                continues.add(new TitleHistory(title, this));
+            }
+        }
+    }
+
+    public void setContinuedByTitles(Set<Title> continuedByTitles) {
+        if (continuedByTitles.contains(this)) throw new IllegalArgumentException("Title cannot continue itself");
+        continuedBy.removeIf(th -> !continuedByTitles.contains(th.getContinues()));
+        var existingTitles = continuedBy.stream().map(TitleHistory::getContinues).collect(Collectors.toSet());
+        for (Title title: continuedByTitles) {
+            if (!existingTitles.contains(title)) {
+                continuedBy.add(new TitleHistory(this, title));
+            }
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Title title)) return false;
+        return Objects.equals(id, title.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

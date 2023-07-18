@@ -146,6 +146,18 @@ public class TitleController {
         return "TitleSearch";
     }
 
+    @GetMapping(value = "/titles/basicSearch.json", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<BasicSearchResult> basicSearchJson(@RequestParam("q") String q, @RequestParam("notTitle") Long notTitleId) {
+        return titleSearcher.basicSearch(q, notTitleId).stream().map(BasicSearchResult::new).collect(toList());
+    }
+
+    record BasicSearchResult (long id, String name, String humanId) {
+        public BasicSearchResult(Title title) {
+            this(title.getId(), title.getName(), title.getHumanId());
+        }
+    }
+
     @GetMapping("/titles/bulkchange")
     public String bulkEditForm(@RequestParam MultiValueMap<String, String> params, Model model,
                                Authentication authentication) {
@@ -366,7 +378,6 @@ public class TitleController {
 
         return editForm(model, form);
     }
-
 
     @GetMapping("/titles/{id}/clone")
     @PreAuthorize("hasPermission(#title, 'edit')")

@@ -113,7 +113,8 @@
             Continues:
             <ul class="title-list">
                 <li th:each="entry: ${title.continues}">
-                    <a th:href="${@link.to(entry.ceased)}" th:text="${entry.ceased.name}">Previous title</a>
+                    <a th:href="${@link.to(entry.ceased)}" th:text="${entry.ceased.name}"></a>
+                    <time th:if="entry.date != null" th:datetime="${entry.date}" th:text="${@dateFormats.shortDate(entry.date)}"></time>
                 </li>
             </ul>
         </div>
@@ -124,6 +125,7 @@
             <ul class="title-list">
                 <li th:each="entry: ${title.continuedBy}">
                     <a th:href="${@link.to(entry.continues)}" th:text="${entry.continues.name}">Next title</a>
+                    <time th:if="entry.date != null" th:datetime="${entry.date}" th:text="${@dateFormats.shortDate(entry.date)}"></time>
                 </li>
             </ul>
         </div>

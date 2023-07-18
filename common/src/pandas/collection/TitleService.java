@@ -103,6 +103,8 @@ public class TitleService {
         title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
         title.setCollections(form.getCollections());
+        title.setContinuedByTitles(form.getContinuedByTitles());
+        title.setContinuesTitles(form.getContinuesTitles());
         title.setDisappeared(form.isDisappeared());
         title.setFormat(form.getFormat() == null ? formatRepository.findById(Format.DEFAULT_ID).orElseThrow() : form.getFormat());
         title.setLegalDeposit(form.getLegalDeposit());
@@ -129,6 +131,17 @@ public class TitleService {
 
         if (form.getContinues() != null && title.getContinues().isEmpty()) {
             title.getContinues().add(new TitleHistory(form.getContinues(), title));
+        }
+
+        // remove any deleted TitleHistory entries
+        title.getContinuedBy().removeIf(th -> !form.getContinuedByTitles().contains(th.getContinues()));
+
+        // now create any new TitleHistory entries
+
+        for (Title continuedByTitle: form.getContinuedByTitles()) {
+            if (title.getContinuedBy().stream().noneMatch(th -> th.getContinues().equals(continuedByTitle))) {
+                title.getContinuedBy().add(new TitleHistory(title, continuedByTitle));
+            }
         }
 
         // if transitioning to the selected status, try to move to the appropriate permission status if possible

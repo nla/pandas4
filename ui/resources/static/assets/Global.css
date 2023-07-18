@@ -471,6 +471,11 @@ button.btn-danger:hover, a.btn-danger:hover {
     gap: 8px;
 }
 
+.form details > fieldset {
+    border: none;
+    padding-bottom: 0;
+}
+
 .form {
     gap: var(--gutter);
 }
@@ -538,7 +543,7 @@ table.history-table {
 }
 
 /**
- * Subject and Collection lisst
+ * Subject and Collection list
  */
 
 ul.subject-list, ul.collection-list, ul.title-list {
@@ -561,6 +566,11 @@ ul.collection-list a, .collection-link {
 
 ul.subject-list li + li:before {
     content: " · ";
+}
+
+ul.title-list time {
+    color: #666;
+    font-size: 80%;
 }
 
 /**

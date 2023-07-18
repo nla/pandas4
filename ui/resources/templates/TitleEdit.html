@@ -208,12 +208,30 @@
             <details sec:authorize="hasRole('stduser')"
                      th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
                 <summary>Cataloguing</summary>
-                <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
-                <div>
-                    <label>ANBD No. <input th:field="*{anbdNumber}"></label>
-                    <label>Local Reference No. <input th:field="*{localReference}"></label>
-                    <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
-                </div>
+                <fieldset>
+                    <label><input type=checkbox th:field="*{cataloguingNotRequired}"> Cataloguing not required</label>
+                    <div>
+                        <label>ANBD No. <input th:field="*{anbdNumber}"></label>
+                        <label>Local Reference No. <input th:field="*{localReference}"></label>
+                        <label>Local Database No. <input th:field="*{localDatabaseNo}"></label>
+                    </div>
+                </fieldset>
+            </details>
+            <details sec:authorize="hasRole('stduser')"
+                     th:open="${!form.continuedByTitles.isEmpty() || !form.continuesTitles.isEmpty()}">
+                <summary>History</summary>
+                <fieldset>
+                    <label>Continues
+                        <select th:field="*{continuesTitles}" multiple>
+                            <option th:each="title: ${form.continuesTitles}" th:value="${title.id}" th:text="${title.name}"></option>
+                        </select>
+                    </label>
+                    <label>Continued by
+                        <select th:field="*{continuedByTitles}" multiple>
+                            <option th:each="title: ${form.continuedByTitles}" th:value="${title.id}" th:text="${title.name}"></option>
+                        </select>
+                    </label>
+                </fieldset>
             </details>
         </fieldset>
 
@@ -432,6 +450,7 @@
     var publisherJsonEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
     var publishersEndpoint = /*[[@{/publishers}]]*/ '../publishers';
     var titlesEndpoint = /*[[@{/titles}]]*/ '../titles';
+    var titlesBasicSearchEndpoint = /*[[@{/titles/basicSearch.json}]]*/ '../titles/basicSearch.json';
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
     const thisTitleId = /*[[${form.id ?: null}]]*/ null;
 </script>

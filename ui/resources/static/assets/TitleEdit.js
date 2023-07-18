@@ -1,3 +1,25 @@
+
+for (let id of ['#continuesTitles', '#continuedByTitles']) {
+    new SlimSelect({
+        select: id,
+        hideSelectedOption: true,
+        searchFilter: function (option, search) {
+            return true; // leave filtering to the backend
+        },
+        ajax: function (search, callback) {
+            if (!search) return callback(false);
+            fetch(titlesBasicSearchEndpoint + "?q=" + encodeURIComponent(search) + "&notTitle=" + thisTitleId)
+                .then(response => response.json())
+                .then(results => callback(results.map(title => ({
+                    value: title.id,
+                    text: title.name + " [" + title.humanId + "]",
+                }))))
+                .catch(error => callback(false));
+        },
+    });
+}
+
+
 const subjectsSlimSelect = new SlimSelect({
     select: '#subjects',
     hideSelectedOption: true,

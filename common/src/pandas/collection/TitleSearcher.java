@@ -116,6 +116,24 @@ public class TitleSearcher {
                         .matching(name)).fetch(5).hits();
     }
 
+    public List<Title> basicSearch(String q, Long notTitleId) {
+        return Search.session(entityManager).search(Title.class)
+                .where((f, root) -> {
+                    var simpleQuery = f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(q);
+                    if (Utils.isNumeric(q)) {
+                        var longValue = Long.parseLong(q);
+                        var piQuery = f.match().field("pi").matching(longValue);
+                        root.add(f.or(simpleQuery, piQuery));
+                    } else {
+                        root.add(simpleQuery);
+                    }
+                    if (notTitleId != null) {
+                        root.add(f.not(f.id().matching(notTitleId)));
+                    }
+                })
+                .fetch(20).hits();
+    }
+
     private class Query {
         private final SearchSession session;
         private final MultiValueMap<String, String> params;

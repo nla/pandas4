@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static pandas.util.Strings.emptyToNull;
 
@@ -52,6 +53,8 @@ public class TitleEditForm {
     private Profile activeProfile;
     private Scope scope;
     private Title continues;
+    private Set<Title> continuesTitles = new TreeSet<>(Title.COMPARE_BY_NAME);
+    private Set<Title> continuedByTitles = new TreeSet<>(Title.COMPARE_BY_NAME);
 
     public TitleEditForm() {}
 
@@ -59,6 +62,8 @@ public class TitleEditForm {
         setAnbdNumber(title.getAnbdNumber());
         setCataloguingNotRequired(title.isCataloguingNotRequired());
         setCollections(title.getCollections());
+        title.getContinuedBy().forEach(titleHistory -> continuedByTitles.add(titleHistory.getContinues()));
+        title.getContinues().forEach(titleHistory -> continuesTitles.add(titleHistory.getCeased()));
         setDisappeared(title.isDisappeared());
         setFormat(title.getFormat());
         setId(title.getId());
@@ -358,5 +363,23 @@ public class TitleEditForm {
 
     public void setPublisherAbn(String publisherAbn) {
         this.publisherAbn = publisherAbn;
+    }
+
+    public Set<Title> getContinuesTitles() {
+        return continuesTitles;
+    }
+
+    public void setContinuesTitles(Set<Title> continuesTitles) {
+        this.continuesTitles.clear();
+        this.continuesTitles.addAll(continuesTitles);
+    }
+
+    public Set<Title> getContinuedByTitles() {
+        return continuedByTitles;
+    }
+
+    public void setContinuedByTitles(Set<Title> continuedByTitles) {
+        this.continuedByTitles.clear();
+        this.continuedByTitles.addAll(continuedByTitles);
     }
 }
