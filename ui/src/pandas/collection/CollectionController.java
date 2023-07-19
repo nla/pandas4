@@ -56,7 +56,7 @@ public class CollectionController {
                 .where((f, b) -> {
                     if (q != null) b.add(f.simpleQueryString().field("name").matching(q).defaultOperator(AND));
                     if (displayed != null) b.add(f.match().field("isDisplayed").matching(displayed));
-                    b.add(matchAny(f, "subjects.id", subjectIds));
+                    if (subjectIds != null) b.add(matchAny(f, "subjects.id", subjectIds));
                     if (!b.hasClause()) b.add(f.matchAll());
                 }).sort(f -> q == null ? f.field("id").desc() : f.score());
 
