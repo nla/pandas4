@@ -104,7 +104,8 @@ public class SocialArchiver {
                 currentTarget.set(target);
                 try {
                     if (target.getServer().equals("twitter.com")) {
-                        new GraphqlVisitor(sessionManager, stopSignal).visitTarget(target, bambooWarcManager.writer());
+                        // Disabled for now
+                        // new GraphqlVisitor(sessionManager, stopSignal).visitTarget(target, bambooWarcManager.writer());
                     } else {
                         new MastodonVisitor(socialConfig.getUserAgent(), stopSignal).visitTarget(target, bambooWarcManager.writer());
                     }
