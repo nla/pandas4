@@ -75,6 +75,8 @@ public class MastodonVisitor {
         var server = args[0];
         var acct = args[1];
         var target = new SocialTarget(server, "from:" + acct, null);
-        new MastodonVisitor("test", new AtomicBoolean()).visitTarget(target, new WarcWriter(Files.newOutputStream(Paths.get("/tmp/test.warc"))));
+        try (WarcWriter warcWriter = new WarcWriter(Files.newOutputStream(Paths.get("/tmp/test.warc")))) {
+            new MastodonVisitor("test", new AtomicBoolean()).visitTarget(target, warcWriter);
+        }
     }
 }

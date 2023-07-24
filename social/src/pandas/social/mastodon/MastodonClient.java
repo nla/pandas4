@@ -4,6 +4,7 @@ import dev.failsafe.*;
 import org.jetbrains.annotations.NotNull;
 import org.netpreserve.jwarc.HttpRequest;
 import org.netpreserve.jwarc.HttpResponse;
+import org.netpreserve.jwarc.LengthedBody;
 import org.netpreserve.jwarc.WarcWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -90,7 +92,10 @@ public class MastodonClient {
                 .build();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         warcWriter.fetch(uri, httpRequest, buffer);
-        var httpResponse = HttpResponse.parse(Channels.newChannel(new ByteArrayInputStream(buffer.toByteArray())));
+        ByteBuffer byteBuffer = ByteBuffer.allocate(4096);
+        byteBuffer.flip();
+        var body = LengthedBody.create(Channels.newChannel(new ByteArrayInputStream(buffer.toByteArray())), byteBuffer, buffer.size());
+        var httpResponse = HttpResponse.parse(body);
         log.trace("{} {} ({} bytes) from {}", httpResponse.status(), httpResponse.reason(),
                 httpResponse.body().size(), uri);
         return httpResponse;
