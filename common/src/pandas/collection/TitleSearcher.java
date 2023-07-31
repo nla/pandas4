@@ -119,7 +119,7 @@ public class TitleSearcher {
     public List<Title> basicSearch(String q, Long notTitleId) {
         return Search.session(entityManager).search(Title.class)
                 .where((f, root) -> {
-                    var simpleQuery = f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(q);
+                    var simpleQuery = f.simpleQueryString().fields("name", "titleUrl", "seedUrl").matching(q).defaultOperator(AND);
                     if (Utils.isNumeric(q)) {
                         var longValue = Long.parseLong(q);
                         var piQuery = f.match().field("pi").matching(longValue);
