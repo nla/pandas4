@@ -129,8 +129,10 @@ public class TitleService {
             statusChanged = true;
         }
 
-        if (form.getContinues() != null && title.getContinues().isEmpty()) {
-            title.getContinues().add(new TitleHistory(form.getContinues(), title));
+        // Link as the next title in a series
+        if (form.getContinues() != null) {
+            title.setContinuedByTitles(Set.of());
+            title.setContinuesTitles(Set.of(form.getContinues()));
         }
 
         // remove any deleted TitleHistory entries

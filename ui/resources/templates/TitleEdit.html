@@ -36,7 +36,7 @@
         <div th:if="${clonedFrom != null}" class="alert-info">
             Cloning from <a th:text="${clonedFrom.name}" th:href="${@link.to(clonedFrom)}">Example Site</a>
             <label style="margin-top: 8px">
-                <input type="checkbox" name="continues" th:value="${clonedFrom.id}">
+                <input id="continuesCheckbox" type="checkbox" name="continues" th:value="${clonedFrom.id}">
                 Link as the next in a series
             </label>
         </div>
@@ -217,7 +217,7 @@
                     </div>
                 </fieldset>
             </details>
-            <details sec:authorize="hasRole('stduser')"
+            <details id="historyDetails" sec:authorize="hasRole('stduser')"
                      th:open="${!form.continuedByTitles.isEmpty() || !form.continuesTitles.isEmpty()}">
                 <summary>History</summary>
                 <fieldset>

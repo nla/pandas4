@@ -404,6 +404,12 @@ document.getElementById('gatherMethod').addEventListener("change", function () {
 nameField.addEventListener("change", nameChanged);
 document.getElementById("publisherType").addEventListener("change", handlePublisherTypeChange);
 
+// Hide the history details when the "Link as the next in a series" checkbox is checked
+// This ensures the user can't get confused and also try to manually link it.
+document.getElementById("continuesCheckbox").addEventListener("click", function() {
+    const checked = document.getElementById("continuesCheckbox").checked;
+    document.getElementById("historyDetails").style.display = checked ? "none" : "block";
+});
 
 // Fire initial change events
 
