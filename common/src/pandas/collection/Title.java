@@ -49,7 +49,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
         @Index(name = "title_publisher_index", columnList = "publisher_id"),
 })
 public class Title {
-    public static final Comparator<Title> COMPARE_BY_NAME = Comparator.comparing(Title::getName, String.CASE_INSENSITIVE_ORDER);
+    public static final Comparator<Title> COMPARE_BY_NAME =
+            Comparator.comparing(Title::getName, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER))
+                    .thenComparing(Title::getId, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     @Id
     @Column(name = "TITLE_ID")
