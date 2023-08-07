@@ -245,6 +245,7 @@ public class Title {
 
     @NotNull
     @Column(name = "UNABLE_TO_ARCHIVE")
+    @GenericField(aggregable = Aggregable.YES)
     private boolean unableToArchive;
 
     @NotNull

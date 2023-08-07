@@ -142,6 +142,7 @@ public class TitleSearcher {
         private final String url;
         private boolean not;
         private boolean disappeared;
+        private boolean unableToArchive;
 
         private Query(MultiValueMap<String, String> params, Pageable pageable) {
             this.session = Search.session(entityManager);
@@ -150,6 +151,7 @@ public class TitleSearcher {
             String rawQ = params.getFirst("q");
             not = params.containsKey("not");
             disappeared = params.containsKey("disappeared");
+            unableToArchive = params.containsKey("unableToArchive");
 
             StringBuilder qTerms = new StringBuilder();
             StringBuilder urlTerms = new StringBuilder();
@@ -188,9 +190,8 @@ public class TitleSearcher {
             if (url != null && !url.isBlank()) {
                 and.add(f.phrase().fields("titleUrl", "seedUrl").matching(url));
             }
-            if (disappeared) {
-                and.add(f.match().field("disappeared").matching(true));
-            }
+            if (disappeared) and.add(f.match().field("disappeared").matching(true));
+            if (unableToArchive) and.add(f.match().field("unableToArchive").matching(true));
             for (Facet facet : facets) {
                 and.add(facet.searchPredicate(f, params));
                 if (facet == exceptFacet) continue;
