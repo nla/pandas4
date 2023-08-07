@@ -40,7 +40,8 @@
             <label><input form="sf" type="checkbox" name="not" th:checked="${filtersNot}"> Not</label>
             <button form="sf" class="btn btn-primary" id="filter-clear-button">Clear</button>
         </header>
-        <details th:each="filter: ${filters}" th:if="${filter.visible}" th:open="${filter.active}" open>
+        <details th:each="filter: ${filters}" th:if="${filter.visible}"
+                 th:open="${filter.active || (filter.param == 'archived' && disappeared)}" open>
             <summary>
                 <th:block th:text="${filter.name}">Subject</th:block>
                 <input form="sf" type="search" th:if="${filter.searchable}" th:value="${filter.search}"
@@ -51,7 +52,15 @@
                 <span>&mdash;</span>
                 <!--suppress ThymeleafVariablesResolveInspection -->
                 <input form="sf" th:name="${filter.param + '.end'}" th:value="${filter.end}" type=date><br>
-                <label><input form="sf" type="checkbox" th:name="${filter.param + '.never'}" th:checked="${filter.never}"> Never</label><br>
+                <th:block th:switch="${filter.param}">
+                    <th:block th:case="'archived'">
+                        <label><input form="sf" type="checkbox" name="disappeared" th:checked="${disappeared}"> Unable to archive</label><br>
+                        <label><input form="sf" type="checkbox" th:name="${filter.param + '.never'}" th:checked="${filter.never}"> Never archived</label><br>
+                    </th:block>
+                    <th:block th:case="*">
+                        <label><input form="sf" type="checkbox" th:name="${filter.param + '.never'}" th:checked="${filter.never}"> Never</label><br>
+                    </th:block>
+                </th:block>
                 <button form="sf" type=submit class="btn btn-primary btn-sm">Apply</button>
             </fieldset>
             <fieldset th:if="${filter.type == 'entity'}">

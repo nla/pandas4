@@ -3,6 +3,8 @@ package pandas.collection;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Projectable;
@@ -18,9 +20,6 @@ import pandas.agency.User;
 import pandas.core.View;
 import pandas.gather.Instance;
 import pandas.gather.TitleGather;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -250,6 +249,7 @@ public class Title {
 
     @NotNull
     @Column(name = "DISAPPEARED")
+    @GenericField(aggregable = Aggregable.YES)
     private boolean disappeared;
 
     /**

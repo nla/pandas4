@@ -141,6 +141,7 @@ public class TitleSearcher {
         private final String q;
         private final String url;
         private boolean not;
+        private boolean disappeared;
 
         private Query(MultiValueMap<String, String> params, Pageable pageable) {
             this.session = Search.session(entityManager);
@@ -148,6 +149,7 @@ public class TitleSearcher {
             this.pageable = pageable;
             String rawQ = params.getFirst("q");
             not = params.containsKey("not");
+            disappeared = params.containsKey("disappeared");
 
             StringBuilder qTerms = new StringBuilder();
             StringBuilder urlTerms = new StringBuilder();
@@ -185,6 +187,9 @@ public class TitleSearcher {
             }
             if (url != null && !url.isBlank()) {
                 and.add(f.phrase().fields("titleUrl", "seedUrl").matching(url));
+            }
+            if (disappeared) {
+                and.add(f.match().field("disappeared").matching(true));
             }
             for (Facet facet : facets) {
                 and.add(facet.searchPredicate(f, params));

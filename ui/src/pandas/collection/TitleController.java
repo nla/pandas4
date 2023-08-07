@@ -140,6 +140,7 @@ public class TitleController {
         model.addAttribute("results", results);
         model.addAttribute("q", params.getFirst("q"));
         model.addAttribute("filtersNot", params.containsKey("not"));
+        model.addAttribute("disappeared", params.containsKey("disappeared"));
         model.addAttribute("sort", params.getFirst("sort"));
         model.addAttribute("orderings", titleSearcher.getOrderings().keySet());
         model.addAttribute("filters", results.getFacets());
