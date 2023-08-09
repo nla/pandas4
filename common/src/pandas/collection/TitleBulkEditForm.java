@@ -51,7 +51,7 @@ public class TitleBulkEditForm {
         StringBuilder sb = new StringBuilder();
         sb.append("TitleBulkEditForm[");
         if (isEditMethod()) sb.append(" method=").append(method.getId());
-        if (isEditSchedule()) sb.append(" schedule=").append(method.getId());
+        if (isEditSchedule()) sb.append(" schedule=").append(schedule.getId());
         if (isEditOwner()) sb.append(" owner=").append(owner.getId());
         if (isEditAnbdNumber()) sb.append(" anbdNumber=").append(anbdNumber);
         if (isEditAddNote()) sb.append(" addNote=").append(addNote);
