@@ -19,7 +19,6 @@ import pandas.collection.*;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
 import pandas.gather.InstanceThumbnail;
-import pandas.gather.InstanceThumbnailRepository;
 import pandas.util.DateFormats;
 import pandas.util.TimeFrame;
 
@@ -57,20 +56,17 @@ public class ApiController {
     private final AgencyRepository agencyRepository;
     private final CollectionRepository collectionRepository;
     private final InstanceRepository instanceRepository;
-    private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final SubjectRepository subjectRepository;
     private final TitleRepository titleRepository;
     private final AccessChecker accessChecker;
     private final DeliverySearcher deliverySearcher;
 
     public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository,
-                         InstanceThumbnailRepository instanceThumbnailRepository,
                          AccessChecker accessChecker, SubjectRepository subjectRepository,
                          DeliverySearcher deliverySearcher) {
         this.agencyRepository = agencyRepository;
         this.collectionRepository = collectionRepository;
         this.instanceRepository = instanceRepository;
-        this.instanceThumbnailRepository = instanceThumbnailRepository;
         this.subjectRepository = subjectRepository;
         this.titleRepository = titleRepository;
         this.accessChecker = accessChecker;
@@ -666,7 +662,7 @@ public class ApiController {
             url = link;
             this.name = name;
             thumbnailUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .pathSegment("instance-thumbnail", String.valueOf(instance.getId()))
+                    .pathSegment("api", "instance-thumbnail", String.valueOf(instance.getId()))
                     .build().toUriString();
         }
 
