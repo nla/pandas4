@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.collection.Collection;
 import pandas.collection.*;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
+import pandas.gather.InstanceThumbnail;
+import pandas.gather.InstanceThumbnailRepository;
 import pandas.util.DateFormats;
 import pandas.util.TimeFrame;
 
@@ -54,16 +57,20 @@ public class ApiController {
     private final AgencyRepository agencyRepository;
     private final CollectionRepository collectionRepository;
     private final InstanceRepository instanceRepository;
+    private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final SubjectRepository subjectRepository;
     private final TitleRepository titleRepository;
     private final AccessChecker accessChecker;
     private final DeliverySearcher deliverySearcher;
 
-    public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository, AccessChecker accessChecker, SubjectRepository subjectRepository,
+    public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository,
+                         InstanceThumbnailRepository instanceThumbnailRepository,
+                         AccessChecker accessChecker, SubjectRepository subjectRepository,
                          DeliverySearcher deliverySearcher) {
         this.agencyRepository = agencyRepository;
         this.collectionRepository = collectionRepository;
         this.instanceRepository = instanceRepository;
+        this.instanceThumbnailRepository = instanceThumbnailRepository;
         this.subjectRepository = subjectRepository;
         this.titleRepository = titleRepository;
         this.accessChecker = accessChecker;
@@ -236,6 +243,20 @@ public class ApiController {
                 })
                 .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
                 .body(logo);
+    }
+
+    @GetMapping("/api/instance-thumbnail/{instanceId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> instanceThumbnail(@PathVariable long instanceId) {
+        var instance = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such instance"));
+        InstanceThumbnail thumbnail = instance.getThumbnail();
+        if (thumbnail == null) throw new ResponseStatusException(NOT_FOUND, "No thumbnail");
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
+                .lastModified(thumbnail.getLastModifiedDate())
+                .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
+                .body(thumbnail.getData());
     }
 
     private static Pattern urlPattern = Pattern.compile("http://pandora.nla.gov.au/pan/([0-9]+)/([0-9-]+)/(.*)");
@@ -631,6 +652,7 @@ public class ApiController {
         public final String link;
         public final String url;
         public final String name;
+        public final String thumbnailUrl;
 
         public boolean restricted;
         public String restrictionMessage;
@@ -643,6 +665,9 @@ public class ApiController {
             link = Util.buildLink(gatherMethod, tepUrl, gatheredUrl);
             url = link;
             this.name = name;
+            thumbnailUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .pathSegment("instance-thumbnail", String.valueOf(instance.getId()))
+                    .build().toUriString();
         }
 
         @Override
