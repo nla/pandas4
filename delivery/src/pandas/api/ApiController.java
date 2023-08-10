@@ -1,7 +1,6 @@
 package pandas.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -12,12 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.collection.Collection;
 import pandas.collection.*;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
+import pandas.gather.InstanceThumbnail;
 import pandas.gather.InstanceThumbnailRepository;
 import pandas.util.DateFormats;
 import pandas.util.TimeFrame;
@@ -61,12 +62,11 @@ public class ApiController {
     private final TitleRepository titleRepository;
     private final AccessChecker accessChecker;
     private final DeliverySearcher deliverySearcher;
-    private final String deliveryUrl;
 
     public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository,
                          InstanceThumbnailRepository instanceThumbnailRepository,
                          AccessChecker accessChecker, SubjectRepository subjectRepository,
-                         DeliverySearcher deliverySearcher, @Value("${pandas.delivery-url:https://pandora.nla.gov.au}") String deliveryUrl) {
+                         DeliverySearcher deliverySearcher) {
         this.agencyRepository = agencyRepository;
         this.collectionRepository = collectionRepository;
         this.instanceRepository = instanceRepository;
@@ -75,7 +75,6 @@ public class ApiController {
         this.titleRepository = titleRepository;
         this.accessChecker = accessChecker;
         this.deliverySearcher = deliverySearcher;
-        this.deliveryUrl = deliveryUrl.replaceFirst("/+$", "");
     }
 
     @GetMapping(value = "/api", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -153,7 +152,7 @@ public class ApiController {
         Title title = titleRepository.findByPi(pi).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such title"));
         if (!title.isDeliverable()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
 
-        TitleDetailsJson titleDetailsJson = new TitleDetailsJson(title, deliveryUrl);
+        TitleDetailsJson titleDetailsJson = new TitleDetailsJson(title);
 
         var allInstancesAndIssues = new ArrayList<AccessChecker.Restrictable>();
         allInstancesAndIssues.addAll(titleDetailsJson.instances);
@@ -220,7 +219,7 @@ public class ApiController {
             var subcollections = collection.getChildren().stream()
                     .map(child -> new CollectionJson(child, titleCounts.get(child.getId()))).toList();
             return new CollectionDetailsJson(collection, agencies, snapshots, timeFrame, titleCounts.get(id),
-                    subcollections, deliveryUrl);
+                    subcollections);
         }
     }
 
@@ -244,6 +243,20 @@ public class ApiController {
                 })
                 .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
                 .body(logo);
+    }
+
+    @GetMapping("/api/instance-thumbnail/{instanceId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> instanceThumbnail(@PathVariable long instanceId) {
+        var instance = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such instance"));
+        InstanceThumbnail thumbnail = instance.getThumbnail();
+        if (thumbnail == null) throw new ResponseStatusException(NOT_FOUND, "No thumbnail");
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
+                .lastModified(thumbnail.getLastModifiedDate())
+                .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
+                .body(thumbnail.getData());
     }
 
     private static Pattern urlPattern = Pattern.compile("http://pandora.nla.gov.au/pan/([0-9]+)/([0-9-]+)/(.*)");
@@ -384,7 +397,7 @@ public class ApiController {
         public final List<String> previousNames;
         public final boolean disappeared;
 
-        public TitleDetailsJson(Title title, String deliveryUrl) {
+        public TitleDetailsJson(Title title) {
             super(title);
             agencies = AgencyJson.fromOwnershipHistory(title);
             collections = title.getCollections().stream().map(LegacyCollectionJson::new).toList();
@@ -395,7 +408,7 @@ public class ApiController {
             disappeared = title.isDisappeared();
             instances = title.getInstances().stream()
                     .sorted(Comparator.comparing(Instance::getDate).reversed())
-                    .map(i -> new InstanceJson(i, null, deliveryUrl)).toList();
+                    .map(i -> new InstanceJson(i, null)).toList();
             issueGroups = title.getTep().getIssueGroups().stream().map(IssueGroupJson::new).toList();
             note = title.getTep().getGeneralNote();
             previousNames = title.getPreviousNames().stream().map(TitlePreviousName::getName).toList();
@@ -522,8 +535,7 @@ public class ApiController {
                                      List<Instance> snapshots,
                                      TimeFrame timeFrame,
                                      Long titleCount,
-                                     List<CollectionJson> subcollections,
-                                     String deliveryUrl) {
+                                     List<CollectionJson> subcollections) {
             super(collection, titleCount);
             Instant startDate = timeFrame == null ? null : timeFrame.startDate();
             Instant endDate = timeFrame == null ? null : timeFrame.endDate();
@@ -534,7 +546,7 @@ public class ApiController {
             related = List.of();
             breadcrumbs = buildBreadcrumbList(collection);
             this.agencies = agencies.stream().map(a -> new AgencyJson(a, null)).toList();
-            this.snapshots = snapshots.stream().map(i -> new InstanceJson(i, i.getTitle().getName(), deliveryUrl)).toList();
+            this.snapshots = snapshots.stream().map(i -> new InstanceJson(i, i.getTitle().getName())).toList();
         }
 
         public CollectionDetailsJson(long id, String name, String description, List<Subject> topLevelSubjects) {
@@ -645,7 +657,7 @@ public class ApiController {
         public boolean restricted;
         public String restrictionMessage;
 
-        public InstanceJson(Instance instance, String name, String deliveryUrl) {
+        public InstanceJson(Instance instance, String name) {
             gatheredUrl = instance.getGatheredUrl();
             gatherMethod = instance.getGatherMethodName();
             tepUrl = instance.getTepUrl();
@@ -653,7 +665,9 @@ public class ApiController {
             link = Util.buildLink(gatherMethod, tepUrl, gatheredUrl);
             url = link;
             this.name = name;
-            thumbnailUrl = deliveryUrl + "/instance-thumbnail/" + instance.getId();
+            thumbnailUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .pathSegment("instance-thumbnail", String.valueOf(instance.getId()))
+                    .build().toUriString();
         }
 
         @Override
