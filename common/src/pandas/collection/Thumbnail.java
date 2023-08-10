@@ -1,14 +1,15 @@
 package pandas.collection;
 
+import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import pandas.core.IThumbnail;
 
-import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
 @Table(indexes = {@Index(name = "thubmnail_title_id_index", columnList = "title_id")})
-public class Thumbnail {
+public class Thumbnail implements IThumbnail {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "THUMBNAIL_SEQ")
     @SequenceGenerator(name = "THUMBNAIL_SEQ", sequenceName = "THUMBNAIL_SEQ", allocationSize = 1)

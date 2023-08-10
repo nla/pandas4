@@ -16,9 +16,9 @@ import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.collection.Collection;
 import pandas.collection.*;
+import pandas.core.IThumbnail;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
-import pandas.gather.InstanceThumbnail;
 import pandas.util.DateFormats;
 import pandas.util.TimeFrame;
 
@@ -60,10 +60,12 @@ public class ApiController {
     private final TitleRepository titleRepository;
     private final AccessChecker accessChecker;
     private final DeliverySearcher deliverySearcher;
+    private final ThumbnailRepository thumbnailRepository;
 
     public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository,
                          AccessChecker accessChecker, SubjectRepository subjectRepository,
-                         DeliverySearcher deliverySearcher) {
+                         DeliverySearcher deliverySearcher,
+                         ThumbnailRepository thumbnailRepository) {
         this.agencyRepository = agencyRepository;
         this.collectionRepository = collectionRepository;
         this.instanceRepository = instanceRepository;
@@ -71,6 +73,7 @@ public class ApiController {
         this.titleRepository = titleRepository;
         this.accessChecker = accessChecker;
         this.deliverySearcher = deliverySearcher;
+        this.thumbnailRepository = thumbnailRepository;
     }
 
     @GetMapping(value = "/api", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -246,8 +249,11 @@ public class ApiController {
     public ResponseEntity<byte[]> instanceThumbnail(@PathVariable long instanceId) {
         var instance = instanceRepository.findById(instanceId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such instance"));
-        InstanceThumbnail thumbnail = instance.getThumbnail();
-        if (thumbnail == null) throw new ResponseStatusException(NOT_FOUND, "No thumbnail");
+        IThumbnail thumbnail = instance.getThumbnail();
+        if (thumbnail == null) { // fallback to title thumbnail
+            thumbnail = thumbnailRepository.findFirstByTitleId(instance.getTitle().getId());
+            if (thumbnail == null) throw new ResponseStatusException(NOT_FOUND, "No thumbnail available");
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
                 .lastModified(thumbnail.getLastModifiedDate())

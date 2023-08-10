@@ -1,20 +1,19 @@
 package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import java.sql.Types;
 import java.time.Instant;
 
 @Entity
 @IdClass(InstanceThumbnailId.class)
-public class InstanceThumbnail {
+public class InstanceThumbnail implements pandas.core.IThumbnail {
     @Id
     @Column(name="INSTANCE_ID")
     private Long instanceId;
@@ -53,6 +52,7 @@ public class InstanceThumbnail {
         setInstanceId(instance.getId());
     }
 
+    @Override
     public byte[] getData() {
         return data;
     }
@@ -77,6 +77,7 @@ public class InstanceThumbnail {
         this.createdDate = createdDate;
     }
 
+    @Override
     public Instant getLastModifiedDate() {
         return lastModifiedDate;
     }
@@ -93,6 +94,7 @@ public class InstanceThumbnail {
         this.status = status;
     }
 
+    @Override
     public String getContentType() {
         return contentType;
     }
