@@ -1,9 +1,10 @@
 package pandas.delivery;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.search.engine.search.common.BooleanOperator;
-import org.hibernate.search.engine.search.predicate.dsl.SimpleQueryFlag;
 import org.hibernate.search.mapper.orm.Search;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,11 @@ import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.collection.*;
 import pandas.delivery.util.CountingSet;
+import pandas.gather.InstanceRepository;
+import pandas.gather.InstanceThumbnail;
 import pandas.util.ServletUtils;
 import pandas.util.Strings;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -38,6 +39,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
 @RequestMapping({"/", "/partner/{partner}"})
@@ -50,12 +52,16 @@ public class DeliveryController {
     private final TitleRepository titleRepository;
     private final AgencyRepository agencyRepository;
     private final CollectionRepository collectionRepository;
+    private final InstanceRepository instanceRepository;
 
-    public DeliveryController(SubjectRepository subjectRepository, TitleRepository titleRepository, AgencyRepository agencyRepository, CollectionRepository collectionRepository) {
+    public DeliveryController(SubjectRepository subjectRepository, TitleRepository titleRepository,
+                              AgencyRepository agencyRepository, CollectionRepository collectionRepository,
+                              InstanceRepository instanceRepository) {
         this.subjectRepository = subjectRepository;
         this.titleRepository = titleRepository;
         this.agencyRepository = agencyRepository;
         this.collectionRepository = collectionRepository;
+        this.instanceRepository = instanceRepository;
     }
 
     @ModelAttribute
@@ -175,6 +181,21 @@ public class DeliveryController {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
                 .body(agency.getLogo());
+    }
+
+
+    @GetMapping("/instance-thumbnail/{instanceId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> instanceThumbnail(@PathVariable long instanceId) {
+        var instance = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such instance"));
+        InstanceThumbnail thumbnail = instance.getThumbnail();
+        if (thumbnail == null) throw new ResponseStatusException(NOT_FOUND, "No thumbnail");
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(thumbnail.getContentType()))
+                .lastModified(thumbnail.getLastModifiedDate())
+                .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS))
+                .body(thumbnail.getData());
     }
 
     private String getFrontpageData() {
