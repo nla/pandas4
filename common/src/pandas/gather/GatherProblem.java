@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum GatherProblem {
-    NO_RPOBLEMS("No problems"),
+    NO_PROBLEMS("No problems"),
     SIZE_WARNING("Size warning"),
+    SEED_ERROR("Seed error"),
     ;
     private final String text;
 

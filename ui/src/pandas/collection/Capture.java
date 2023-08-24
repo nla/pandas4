@@ -59,22 +59,6 @@ public class Capture {
         return httpStatus == null ? null : httpStatus.getReasonPhrase();
     }
 
-    public String getStatusClass() {
-        if (status == null || status < 100) {
-            return "status-unknown";
-        } else if (status < 300) {
-            return "status-2xx";
-        } else if (status < 400) {
-            return "status-3xx";
-        } else if (status < 500) {
-            return "status-4xx";
-        } else if (status < 600) {
-            return "status-5xx";
-        } else {
-            return "status-unknown";
-        }
-    }
-
     public String getDigest() {
         return digest;
     }

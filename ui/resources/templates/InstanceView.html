@@ -80,6 +80,28 @@
         table th { text-align: right; }
     </style>
 
+
+    <section th:unless="${instance.seeds.isEmpty()}">
+        <h2 style="clear: left">Seeds</h2>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Seed URL</th>
+                    <th>Redirect</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="seed : ${instance.seeds}">
+                    <td th:text="${seed.status}" th:class="${@format.statusClass(seed.status)}">200</td>
+                    <td><a th:href="${@link.delivery(seed)}" th:text="${seed.url}">URL</a></td>
+                    <td th:text="${seed.redirect}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+
     <h2 id="state-history" style="clear: left">History</h2>
     <table class="history-table">
         <tr th:each="event : ${stateHistory}">

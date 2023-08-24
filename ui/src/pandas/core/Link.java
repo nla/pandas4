@@ -1,5 +1,6 @@
 package pandas.core;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -11,12 +12,11 @@ import pandas.agency.AgencySummary;
 import pandas.agency.User;
 import pandas.collection.*;
 import pandas.gather.Instance;
+import pandas.gather.InstanceSeed;
 import pandas.gather.PreviousGather;
 import pandas.util.DateFormats;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import java.nio.charset.StandardCharsets;
+import java.net.URLEncoder;
 import java.time.Instant;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -55,6 +55,14 @@ public class Link {
             return delivery(instance.getDate(), instance.getTepUrlAbsolute());
         } else {
             return to(instance) + "/process";
+        }
+    }
+
+    public String delivery(InstanceSeed seed) {
+        if (seed.getInstance().getState().isArchived()) {
+            return delivery(seed.getInstance().getDate(), seed.getUrl());
+        } else {
+            return to(seed.getInstance()) + "/process?url=" + URLEncoder.encode(seed.getUrl(), UTF_8);
         }
     }
 

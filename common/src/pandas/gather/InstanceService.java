@@ -11,6 +11,7 @@ import pandas.collection.TitleRepository;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class InstanceService {
@@ -201,5 +202,12 @@ public class InstanceService {
         instance.setGatherCommand(command);
         instanceRepository.save(instance);
         return command;
+    }
+
+    @Transactional
+    public void updateSeedStatuses(long instanceId, List<InstanceSeed> seeds) {
+        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+        instance.setSeeds(seeds);
+        instanceRepository.save(instance);
     }
 }

@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -52,8 +51,9 @@ public class InstanceController {
     private final GathererClient gathererClient;
     @PersistenceContext
     private EntityManager entityManager;
+    private InstanceUrls instanceUrls;
 
-    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository, GathererClient gathererClient) {
+    public InstanceController(Config config, UserService userService, InstanceService instanceService, InstanceRepository instanceRepository, StateHistoryRepository stateHistoryRepository, AgencyRepository agencyRepository, UserRepository userRepository, TitleRepository titleRepository, InstanceThumbnailRepository instanceThumbnailRepository, GathererClient gathererClient, InstanceUrls instanceUrls) {
         this.config = config;
         this.userService = userService;
         this.instanceService = instanceService;
@@ -63,6 +63,7 @@ public class InstanceController {
         this.userRepository = userRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
         this.gathererClient = gathererClient;
+        this.instanceUrls = instanceUrls;
     }
 
     @GetMapping("/instances/{id}")
@@ -76,8 +77,11 @@ public class InstanceController {
     }
 
     @GetMapping("/instances/{id}/process")
-    public String process(@PathVariable("id") Instance instance, @RequestParam(value = "worktray", required = false) String worktray, Model model) {
+    public String process(@PathVariable("id") Instance instance,
+                          @RequestParam(value = "url", required = false) String url,
+                          @RequestParam(value = "worktray", required = false) String worktray, Model model) {
         model.addAttribute("instance", instance);
+        model.addAttribute("qaUrl", instanceUrls.qa(instance, url));
         model.addAttribute("title", instance.getTitle());
         model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);
         model.addAttribute("worktray", worktray);

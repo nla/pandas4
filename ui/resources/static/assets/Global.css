@@ -730,3 +730,12 @@ button.title-flag:active:after, button.title-flag.active:after {
 .statistics-table tbody tr:last-child td {
     border-bottom: 1px solid black;
 }
+
+/**
+ * HTTP status codes
+ */
+.status-unknown { color: dimgray; }
+.status-2xx { color: darkgreen; }
+.status-3xx { color: darkblue; }
+.status-4xx { color: darkorange; }
+.status-5xx { color: darkred; }

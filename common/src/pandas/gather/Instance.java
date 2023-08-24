@@ -1,8 +1,8 @@
 package pandas.gather;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Projectable;
 import org.hibernate.search.engine.backend.types.Sortable;
@@ -12,8 +12,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.collection.Title;
 
-import jakarta.persistence.*;
-
 import java.sql.Types;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -21,6 +19,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Entity
 @Indexed
@@ -143,6 +142,9 @@ public class Instance {
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private Instant lastModifiedDate;
+
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InstanceSeed> seeds = new ArrayList<>();
 
     public State getState() {
         return this.state;
@@ -484,12 +486,16 @@ public class Instance {
         return profile;
     }
 
+    public Set<GatherProblem> getProblemsInternal() {
+        var problems = new HashSet<GatherProblem>();
+        if (getGather().hasSizeWarning()) problems.add(GatherProblem.SIZE_WARNING);
+        if (problems.isEmpty()) problems.add(GatherProblem.NO_PROBLEMS);
+        if (getSeeds().stream().anyMatch(InstanceSeed::isError)) problems.add(GatherProblem.SEED_ERROR);
+        return Collections.unmodifiableSet(problems);
+    }
+
     public Set<String> getProblems() {
-        if (getGather().hasSizeWarning()) {
-            return Set.of("Size warning");
-        } else {
-            return Set.of("No problems");
-        }
+        return getProblemsInternal().stream().map(GatherProblem::text).collect(Collectors.toSet());
     }
 
     @GenericField(aggregable = Aggregable.YES)
@@ -497,14 +503,30 @@ public class Instance {
             @ObjectPath({@PropertyValue(propertyName = "gather"), @PropertyValue(propertyName = "size")}),
     })
     public Set<Long> getProblemIds() {
-        if (getGather().hasSizeWarning()) {
-            return Set.of(GatherProblem.SIZE_WARNING.id());
-        } else {
-            return Set.of(GatherProblem.NO_RPOBLEMS.id());
-        }
+        return getProblemsInternal().stream().map(p -> (long)p.ordinal()).collect(Collectors.toSet());
     }
 
     public Instant getLastModifiedDate() {
         return lastModifiedDate;
+    }
+
+    public boolean isHeritrixMethod() {
+        return GatherMethod.HERITRIX.equals(getGatherMethodName());
+    }
+
+    public void setSeeds(List<InstanceSeed> seeds) {
+        this.seeds.clear();
+        this.seeds.addAll(seeds);
+        for (var seed : seeds) {
+            seed.setInstance(this);
+        }
+    }
+
+    public List<InstanceSeed> getSeeds() {
+        return Collections.unmodifiableList(seeds);
+    }
+
+    public InstanceSeed getSeed(String url) {
+        return getSeeds().stream().filter(seed -> seed.getUrl().equals(url)).findFirst().orElse(null);
     }
 }

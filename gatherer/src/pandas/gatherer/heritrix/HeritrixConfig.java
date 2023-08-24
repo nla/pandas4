@@ -3,6 +3,8 @@ package pandas.gatherer.heritrix;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.file.Path;
+
 @Configuration
 @ConfigurationProperties(prefix = "heritrix")
 public class HeritrixConfig {
@@ -11,6 +13,7 @@ public class HeritrixConfig {
     private String password;
     private int workers = 8;
     private String bindAddress = "0.0.0.0";
+    private Path home;
 
     public String getUrl() {
         return url;
@@ -50,5 +53,14 @@ public class HeritrixConfig {
 
     public void setBindAddress(String bindAddress) {
         this.bindAddress = bindAddress;
+    }
+
+    public Path getHome() {
+        return home;
+    }
+
+    public HeritrixConfig setHome(Path home) {
+        this.home = home;
+        return this;
     }
 }

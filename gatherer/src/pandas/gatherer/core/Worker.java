@@ -149,7 +149,7 @@ class Worker implements Runnable {
 	private void saveGatherStatistics(Instance instance, Instant startTime) {
 		try {
 			instanceService.finishGather(instance.getId(), startTime);
-			if (!instance.getGatherMethodName().equals(GatherMethod.HERITRIX)) {
+			if (!instance.isHeritrixMethod()) {
 				FileStats stats = workingArea.instanceStats(instance.getTitle().getPi(), instance.getDateString(), gatherManager::isShutdown);
 				if (gatherManager.isShutdown()) {
 					return;

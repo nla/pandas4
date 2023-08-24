@@ -20,12 +20,6 @@
         .cdx-results .url {
             color: darkgreen;
         }
-
-        .status-unknown { color: dimgray; }
-        .status-2xx { color: darkgreen; }
-        .status-3xx { color: darkblue; }
-        .status-4xx { color: darkorange; }
-        .status-5xx { color: darkred; }
     </style>
 </head>
 <body>
@@ -56,7 +50,7 @@
         <tr th:each="capture : ${captures}" th:with="crawl = ${crawlsByFilenameMap.get(capture.file)}">
             <td><a th:href="@{/replay(url=${capture.url},date=${capture.date})}">View</a></td>
             <td><a th:href="${capture.replayUrl}" th:text="${dateTimeFormat.format(capture.date)}"></a></td>
-            <td><span th:text="${capture.status}" th:class="${capture.statusClass}"
+            <td><span th:text="${capture.status}" th:class="${@format.statusClass(capture.status)}"
                       th:title="${capture.statusPhrase}"></span>
                 <a th:if="${capture.redirectUrl}" th:href="@{/pages(url=${capture.redirectUrl})}">redirect</a></td>
             <td th:text="${capture.contentType}">text/html</td>

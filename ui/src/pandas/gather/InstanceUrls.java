@@ -40,6 +40,7 @@ public class InstanceUrls {
     }
 
     public String qa(Instance instance, String relative) {
+        if (relative == null) return qa(instance);
         String url = URI.create(instance.getGatheredUrl()).resolve(relative).toASCIIString();
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + url.replaceFirst("^https?://", "/");

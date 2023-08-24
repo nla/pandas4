@@ -2,12 +2,9 @@ package pandas.gatherer.heritrix;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
-import pandas.gather.GatherMethod;
-import pandas.gather.Instance;
-import pandas.gather.InstanceService;
-import pandas.gather.State;
+import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
 import pandas.gatherer.core.*;
 import pandas.gatherer.repository.Repository;
@@ -21,23 +18,37 @@ import java.util.List;
 import static pandas.gatherer.heritrix.HeritrixClient.State.*;
 
 @Component
-@ConditionalOnProperty("heritrix.url")
+@ConditionalOnExpression("'${heritrix.url}' != '' or '${heritrix.home}' != ''")
 public class HeritrixGatherer implements Backend {
     private static final Logger log = LoggerFactory.getLogger(HeritrixGatherer.class);
     private final HeritrixClient heritrix;
+    private final HeritrixProcess process;
     private final WorkingArea workingArea;
     private final InstanceService instanceService;
+    private final InstanceRepository instanceRepository;
     private final HeritrixConfig heritrixConfig;
     private final Repository repository;
     private final PywbService pywbService;
     private final ThumbnailGenerator thumbnailGenerator;
     private boolean shutdown;
 
-    public HeritrixGatherer(HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, Repository repository, PywbService pywbService, ThumbnailGenerator thumbnailGenerator) {
+    public HeritrixGatherer(Config config, HeritrixConfig heritrixConfig, WorkingArea workingArea, InstanceService instanceService, InstanceRepository instanceRepository, Repository repository, PywbService pywbService, ThumbnailGenerator thumbnailGenerator) throws IOException {
         this.workingArea = workingArea;
         this.heritrixConfig = heritrixConfig;
-        heritrix = new HeritrixClient(heritrixConfig.getUrl(), heritrixConfig.getUser(), heritrixConfig.getPassword());
+        if (heritrixConfig.getUrl() != null) {
+            heritrix = new HeritrixClient(heritrixConfig.getUrl(), heritrixConfig.getUser(), heritrixConfig.getPassword());
+            process = null;
+        } else if (heritrixConfig.getHome() != null) {
+            Path heritrixWorking = config.getWorkingDir().resolve("heritrix");
+            Files.createDirectories(heritrixWorking);
+            process = new HeritrixProcess(heritrixConfig.getHome(),
+                    heritrixWorking, 18443, heritrixConfig.getPassword());
+            heritrix = process.getClient();
+        } else {
+            throw new IllegalStateException("No heritrix.url or heritrix.home configured");
+        }
         this.instanceService = instanceService;
+        this.instanceRepository = instanceRepository;
         this.repository = repository;
         this.pywbService = pywbService;
         this.thumbnailGenerator = thumbnailGenerator;
@@ -101,6 +112,12 @@ public class HeritrixGatherer implements Backend {
 
     @Override
     public void postprocess(Instance instance) throws IOException {
+        Path seedsReportPath = jobDir(instance).resolve("latest").resolve("reports").resolve("seeds-report.txt");
+        try (var reader = Files.newBufferedReader(seedsReportPath)) {
+            instanceService.updateSeedStatuses(instance.getId(), InstanceSeed.parseHeritrixSeedReport(reader));
+        } catch (IOException e) {
+            log.warn("Error parsing " + seedsReportPath, e);
+        }
         pywbService.reindex(instance);
         thumbnailGenerator.generateReplayThumbnail(instance, pywbService.replayUrlFor(instance));
     }
