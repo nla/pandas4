@@ -159,7 +159,9 @@
                 <td class="qa-detailed-view" style="text-align: center">
                     <a th:href="@{/instances/{id}/process(id=${instance.id},worktray=${alias})}"><img
                             th:src="${@link.thumbnail(instance, 'REPLAY')}" width=150 height=100></a><br>
-                    <time th:text="${@dateFormats.shortDate(instance.date)}"></time>
+                    <a th:href="${@link.to(instance)}">
+                        <time th:text="${@dateFormats.shortDate(instance.date)}">31 Aug 2023</time>
+                    </a>
                     <br>
                     <a class="gather-stats" th:if="${instance.gather != null}" th:href="${@link.files(instance)}"
                        th:classappend="${instance.gather.hasSizeWarning()}?'gather-stats-warning'"
@@ -174,7 +176,10 @@
                         <a th:href="@{/instances/{id}(id=${previousGather.id})}">
                             <img th:src="${@link.thumbnail(previousGather, 'REPLAY')}" width=150 height=100><br>
                         </a>
-                        <time th:text="${@dateFormats.shortDate(previousGather.date)}"></time><br>
+                        <a th:href="${@link.to(previousGather)}">
+                            <time th:text="${@dateFormats.shortDate(previousGather.date)}">31 Aug 2022</time>
+                        </a>
+                        <br>
                         <span class="gather-stats" th:text="${previousGather.stats}">1,234 files 10 MB</span>
                     </th:block>
                 </td>
