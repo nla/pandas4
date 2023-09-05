@@ -46,7 +46,7 @@ public class State {
         this.name = stateName;
     }
 
-    public boolean isDeleted() {
+    public boolean isDeletedOrDeleting() {
         return getName().equals(DELETED) || getName().equals(DELETING);
     }
 
@@ -56,6 +56,10 @@ public class State {
 
     public boolean isArchived() {
         return getName().equals(ARCHIVED);
+    }
+
+    public boolean isArchivedOrArchiving() {
+        return getName().equals(ARCHIVING) || isArchived();
     }
 
     public boolean canBeRetried() {

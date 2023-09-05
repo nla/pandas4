@@ -113,7 +113,7 @@ public class TitleController {
                 .sorted(Comparator.comparing(Instance::getDate).reversed())
                 .collect(groupingBy(i -> i.getDate().atZone(ZoneId.systemDefault()).getYear(),
                         () -> new TreeMap<>(comparator.reversed()), toList())));
-        model.addAttribute("deletedInstancesCount", title.getInstances().stream().filter(instance -> instance.getState().isDeleted()).count());
+        model.addAttribute("deletedInstancesCount", title.getInstances().stream().filter(instance -> instance.getState().isDeletedOrDeleting()).count());
         model.addAttribute("issueGroups", issueGroupRepository.findByTepTitleOrderByOrder(title));
         return "TitleView";
     }
@@ -664,7 +664,7 @@ public class TitleController {
         chartData.datasets.add(filesDataSet);
         chartData.datasets.add(sizeDataSet);
         for (var instance : tail(title.getInstances(), 25)) {
-            if (instance.getState().isDeleted()) continue;
+            if (instance.getState().isDeletedOrDeleting()) continue;
             if (instance.getGather() == null || instance.getGather().getSize() == null) continue;
             chartData.labels.add(DateFormats.SHORT_DATE.format(instance.getDate()).replace(".", ""));
             filesDataSet.data.add(instance.getGather().getFiles());

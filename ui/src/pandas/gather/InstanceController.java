@@ -107,8 +107,6 @@ public class InstanceController {
     public String delete(@PathVariable("id") Instance instance,
                          @RequestParam(value = "nextInstance", required = false) Long nextInstance,
                          @RequestParam(value = "worktray", required = false) String worktray) {
-        if (!instance.canDelete())
-            throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
         instanceService.delete(instance, userService.getCurrentUser());
         if (nextInstance != null) {
             return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
@@ -201,7 +199,7 @@ public class InstanceController {
                     .cacheControl(maxAge(1, DAYS))
                     .header("Content-Type", thumbnail.get().getContentType())
                     .body(thumbnail.get().getData());
-        } else if (instance.getState().isDeleted()) {
+        } else if (instance.getState().isDeletedOrDeleting()) {
             // icons from material.io/icons
             return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/svg+xml"))
                     .body("<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 0 24 24\" width=\"24px\" fill=\"#999999\"><path d=\"M0 0h24v24H0V0z\" fill=\"none\"/><path d=\"M6 21h12V7H6v14zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z\"/></svg>".getBytes(UTF_8));

@@ -144,7 +144,8 @@ public class InstanceService {
     @Transactional
     public void archive(Instance instance, User user) {
         instance = instanceRepository.findById(instance.getId()).orElseThrow(() -> new IllegalStateException("instance doesn't exist"));
-        if (!instance.canDelete()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
+        if (instance.getState().isArchivedOrArchiving()) return;
+        if (!instance.canArchive()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
         updateState(instance, State.ARCHIVING, user);
 
         // display the new instance immediately unless the title has issues in which case the curator will need to
@@ -183,6 +184,10 @@ public class InstanceService {
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
     public void delete(Instance instance, User currentUser) {
+        if (instance.getState().isDeletedOrDeleting()) return;
+        if (!instance.canDelete()) {
+            throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
+        }
         updateState(instance, State.DELETING, currentUser);
     }
 
