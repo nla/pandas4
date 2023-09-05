@@ -409,6 +409,7 @@ public class ApiController {
             copyrightNote = title.getTep().getCopyrightNote();
             disappeared = title.isDisappeared();
             instances = title.getInstances().stream()
+                    .filter(Instance::shouldDisplayOnTep)
                     .sorted(Comparator.comparing(Instance::getDate).reversed())
                     .map(i -> new InstanceJson(i, null)).toList();
             issueGroups = title.getTep().getIssueGroups().stream().map(IssueGroupJson::new).toList();

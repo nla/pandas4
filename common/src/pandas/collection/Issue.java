@@ -92,7 +92,7 @@ public class Issue {
             return DeliveryUrls.extractDateFromUrl(deliveryUrl);
         }
         var lastInstance = getGroup().getTep().getTitle().getInstances().stream()
-                .filter(instance -> instance.getState().isArchived() && instance.getIsDisplayed())
+                .filter(Instance::shouldDisplayOnTep)
                 .reduce((first, second) -> second)
                 .orElse(null);
         if (lastInstance != null) {

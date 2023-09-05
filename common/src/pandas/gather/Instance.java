@@ -234,6 +234,10 @@ public class Instance {
         this.isDisplayed = isDisplayed;
     }
 
+    public boolean shouldDisplayOnTep() {
+        return isDisplayed != null && isDisplayed && getState().isArchived();
+    }
+
     public String getPrefix() {
         return this.prefix;
     }
