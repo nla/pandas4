@@ -839,17 +839,22 @@ public class Title {
                     @ObjectPath({@PropertyValue(propertyName = "permission"), @PropertyValue(propertyName = "state")}),
                     @ObjectPath(@PropertyValue(propertyName = "legalDeposit"))})
     public boolean isDeliverable() {
+        return getReasonNotDeliverable() == null;
+    }
+
+    public String getReasonNotDeliverable() {
         if (getAgency() != null && getAgency().getId().equals(Agency.PADI_ID))
-            return false;
+            return "Title belongs to PADI agency";
         if (getStatus().getId().equals(Status.NOMINATED_ID) ||
                 getStatus().getId().equals(Status.REJECTED_ID) ||
                 getStatus().getId().equals(Status.MONITORED_ID))
-            return false;
+            return "Title status is " + getStatus().getName();
         if (getLegalDeposit())
-            return true;
+            return null;
         if (getPermission() == null || getPermission().isDenied() || getPermission().isUnknown())
-            return false;
-        return true;
+            return "Title permission state is " +
+                    (getPermission() == null ? "null" : getPermission().getState().getName());
+        return null;
     }
 
     @GenericField

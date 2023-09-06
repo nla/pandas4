@@ -149,7 +149,8 @@ public class ApiController {
     @ResponseBody
     public TitleDetailsJson tep(@PathVariable("pi") long pi) {
         Title title = titleRepository.findByPi(pi).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No such title"));
-        if (!title.isDeliverable()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable");
+        if (!title.isDeliverable()) throw new ResponseStatusException(NOT_FOUND, "Title not deliverable: " +
+                title.getReasonNotDeliverable());
 
         TitleDetailsJson titleDetailsJson = new TitleDetailsJson(title);
 
