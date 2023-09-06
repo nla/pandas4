@@ -853,7 +853,7 @@ public class Title {
             return null;
         if (getPermission() == null || getPermission().isDenied() || getPermission().isUnknown())
             return "Title permission state is " +
-                    ((getPermission() == null || getPermission().getState() == null) ? "null" : getPermission().getState().getName());
+                    (getPermission() == null ? "null permission" : getPermission().getDisplayStateName());
         return null;
     }
 

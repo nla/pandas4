@@ -1,8 +1,8 @@
 package pandas.collection;
 
+import jakarta.persistence.*;
 import pandas.core.Individual;
 
-import jakarta.persistence.*;
 import java.time.Instant;
 
 /**
@@ -212,6 +212,12 @@ public class Permission {
 
     public boolean isUnknown() {
         return hasState(PermissionState.UNKNOWN) || getState() == null;
+    }
+
+    public String getDisplayStateName() {
+        if (stateName != null) return stateName;
+        if (state != null) return state.getName();
+        return null;
     }
 
 }
