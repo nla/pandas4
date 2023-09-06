@@ -54,7 +54,7 @@ public class InstanceThumbnailProcessor {
             }
             log.info("Done");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.warn("Interrupted", e);
         } finally {
             threadPool.shutdown();
         }
@@ -69,7 +69,7 @@ public class InstanceThumbnailProcessor {
                 return thumbnail;
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Interrupted", e);
             throw e;
         }
     }

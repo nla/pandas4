@@ -1,6 +1,8 @@
 package pandas.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -61,6 +63,7 @@ public class ApiController {
     private final AccessChecker accessChecker;
     private final DeliverySearcher deliverySearcher;
     private final ThumbnailRepository thumbnailRepository;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public ApiController(TitleRepository titleRepository, CollectionRepository collectionRepository, AgencyRepository agencyRepository, InstanceRepository instanceRepository,
                          AccessChecker accessChecker, SubjectRepository subjectRepository,
@@ -160,7 +163,7 @@ public class ApiController {
         try {
             accessChecker.checkAccessBulk(allInstancesAndIssues);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Access check failed for title " + pi, e);
         }
 
         return titleDetailsJson;
