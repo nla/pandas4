@@ -211,7 +211,7 @@ public class Permission {
     }
 
     public boolean isUnknown() {
-        return hasState(PermissionState.UNKNOWN) || getState() == null;
+        return hasState(PermissionState.UNKNOWN) || (getState() == null && stateName == null);
     }
 
     public String getDisplayStateName() {
