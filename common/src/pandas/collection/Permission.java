@@ -202,8 +202,7 @@ public class Permission {
     }
 
     private boolean hasState(String stateName) {
-        return stateName.equals(getStateName()) ||
-                (getState() != null && stateName.equals(getState().getName()));
+        return stateName.equals(getStateName());
     }
 
     public boolean isDenied() {
@@ -211,13 +210,6 @@ public class Permission {
     }
 
     public boolean isUnknown() {
-        return hasState(PermissionState.UNKNOWN) || (getState() == null && stateName == null);
+        return hasState(PermissionState.UNKNOWN);
     }
-
-    public String getDisplayStateName() {
-        if (stateName != null) return stateName;
-        if (state != null) return state.getName();
-        return null;
-    }
-
 }
