@@ -19,6 +19,8 @@ services:
       PANDAS_DB_URL: jdbc:mariadb://db:3306/pandas3
     ports:
       - "8082:8082"
+    depends_on:
+      - db
 
   gatherer:
     build:
@@ -27,8 +29,11 @@ services:
       - data:/data
     environment:
       PANDAS_DB_URL: jdbc:mariadb://db:3306/pandas3
+      HERITRIX_URL: http://heritrix:8443
     ports:
       - "8083:8083"
+    depends_on:
+      - db
 
 volumes:
   db:
