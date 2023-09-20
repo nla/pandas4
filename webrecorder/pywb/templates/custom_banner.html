@@ -1,0 +1,62 @@
+<style>
+    #_wb_plain_banner {
+        display: block !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        font-size: 24px !important;
+        text-align: center !important;
+        background: lightyellow;
+        margin: 0 !important;
+        padding: 4px !important;
+        border: none !important;
+        border-radius: 0 !important;
+        font-family: sans-serif !important;
+        line-height: normal !important;
+        z-index: 2147483647 !important;
+        color: black !important;
+    }
+    #_wb_plain_banner a {
+        color: blue !important;
+        text-decoration: underline !important;
+    }
+</style>
+<script>
+    window.addEventListener('load', function() {
+        let div = document.createElement("webrecorder_div");
+        let msg;
+        if (location.pathname.startsWith("/live/")) {
+            msg = "Test only.";
+        } else {
+            msg = "Page recorded.";
+        }
+        div.setAttribute('id', '_wb_plain_banner');
+        div.innerHTML = msg;
+
+        let link1 = document.createElement("a");
+        link1.onclick = function () {
+            window.location.href = '/';
+            return false;
+        };
+        link1.href = 'javscript:';
+        link1.setAttribute("style", "float: left");
+        link1.innerHTML = "Web Recorder";
+        div.appendChild(link1);
+
+        let link = document.createElement("a");
+        link.onmouseenter = function () {
+            link.href = 'https://webarchive.nla.gov.au/awa/' + wbinfo.timestamp + '/' + wbinfo.url;
+        }
+        link.onclick = function () {
+            window.location.href = 'https://webarchive.nla.gov.au/awa/' + wbinfo.timestamp + '/' + wbinfo.url;
+            return false;
+        };
+        link.href = 'javscript:';
+        link.setAttribute("style", "float: right");
+        link.innerHTML = "View in Trove";
+        div.appendChild(link);
+
+        document.body.insertBefore(div, document.body.firstChild);
+    });
+</script>

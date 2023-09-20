@@ -1,0 +1,21 @@
+recorder:
+  source_coll: live
+  source_filter: live
+  filename_template: NLA-WEBRECORDER-{timestamp}-{hostname}-{random}.warc.gz
+
+collections:
+  live: $live
+
+verify_ssl: false
+live-cookie: false
+
+#archive_paths:
+#    - ./recording
+
+# Custom html templates
+#home_html: /etc/webrecorder/html/index.html
+#error_html: /etc/webrecorder/html/error.html
+#banner_html: /etc/webrecorder/html/banner.html
+
+framed_replay: false
+enable_memento: false

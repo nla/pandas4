@@ -1,0 +1,140 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #F4E7DB;
+            margin: 0;
+        }
+
+        .container {
+            width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            padding-left: 32px;
+            padding-right: 32px;
+            padding-bottom: 32px;
+            padding-top: 16px;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        form {
+            display: inline;
+        }
+
+        input[type=url] {
+            width: 400px;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        input[type=radio] {
+            margin-top: 8px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 1em 0;
+        }
+
+        a:hover img {
+            opacity: 1;
+        }
+
+        img {
+            opacity: .8;
+        }
+
+        .coll {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        footer {
+            font-style: italic;
+        }
+    </style>
+    <script>
+
+        /* clear all cookies to freshen up */
+        var cookies = document.cookie.split(";");
+        for (var i = 0; i < cookies.length; i++) {
+            document.cookie = cookies[i].split("=")[0] + "=;expires=Thu, 21 Sep 1979 00:00:01 UTC;";
+        }
+
+        function load_url(form) {
+            if (!form || !form.firstElementChild) {
+                return false;
+            }
+
+            var textbox = form.firstElementChild;
+
+            if (textbox.value) {
+                window.location.href = textbox.id + "/" + textbox.value;
+            }
+
+            return false;
+        }
+    </script>
+    <title>Web Recorder</title>
+</head>
+<body>
+<div class="container">
+    <h1>Web Recorder
+        <script>if (/-devel/.test(document.location.href)) {
+            document.write(" (devel)");
+        }</script>
+    </h1>
+    <script>
+        function updateAction(form) {
+            if (form.mode.value === "test") {
+                window.location.href = "live/" + form.url.value;
+            } else {
+                window.location.href = "wr/record/" + form.url.value;
+            }
+            return false;
+        }
+
+        function viewInAwa() {
+            var form = document.getElementById("form");
+            if (/-devel/.test(document.location.href)) {
+                window.open("/wayback/*/" + form.url.value);
+            } else {
+                window.open("https://webarchive.nla.gov.au/awa/*/" + form.url.value);
+            }
+            return false;
+        }
+    </script>
+    <form onsubmit="return updateAction(this);" id="form">
+        <input type="url" name="url" placeholder="URL" required>
+        <button>Record</button>
+        <button onclick="viewInAwa()" type="button">View in Trove</button>
+
+        <div><label><input type="radio" name="mode" value="test" checked> Test only (archive nothing)</label></div>
+        <div><label><input type="radio" name="mode" value="archive"> Archive page (including images, stylesheets,
+            javascript)</label></div>
+
+    </form>
+
+    <hr>
+    <p>This tool allows you to browse the live web while saving every file the browser loads into the Australian Web
+        Archive.
+        It is useful for instantly capturing a single page as well as "patching" files missed by automated crawling.</p>
+    <p>Under the hood this is implemented using <a href="https://pywb.readthedocs.io/en/latest/">pywb</a> in recording
+        mode.</p>
+
+</div>
+<a href="https://nla.gov.au/nla.obj-144128525">
+    <img src="https://nla.gov.au/nla.obj-144128525/image?hei=600"
+         style="transform: rotate(-5deg); position: fixed; bottom: 50px; left: 50px; z-index: -1;" alt="">
+</a>
+
+</body>
+</html>

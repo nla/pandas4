@@ -1,0 +1,11 @@
+[Unit]
+Description=Web Recorder OAuth2 Proxy
+After=network.target remote-fs.target
+
+[Service]
+User=heritrix
+ExecStart=/opt/webrecorder/bin/oauth2-proxy --config=/opt/webrecorder/etc/oauth2-proxy.cfg
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

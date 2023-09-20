@@ -1,0 +1,9 @@
+[Service]
+WorkingDirectory=/opt/webrecorder/pywb
+User=heritrix
+ExecStart=/opt/webrecorder/uwsgi --ini /opt/webrecorder/etc/pywb-uwsgi.ini
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=journal
+NotifyAccess=all
