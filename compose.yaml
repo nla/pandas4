@@ -9,6 +9,7 @@ services:
       MARIADB_DATABASE: pandas3
       MARIADB_USER: pandas3
       MARIADB_PASSWORD: pandas3
+    command: --lower-case-table-names=1
 
   ui:
     build:
