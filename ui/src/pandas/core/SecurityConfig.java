@@ -109,6 +109,7 @@ public class SecurityConfig {
             //filter.setAuthenticationManager(authenticationManager());
             http.addFilterBefore(filter, AnonymousAuthenticationFilter.class);
         }
+        http.csrf(c -> c.ignoringRequestMatchers("/titles/check"));
         var auth = http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/actuator/health").anonymous()
                 .requestMatchers("/titles/check").permitAll()
