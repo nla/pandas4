@@ -10,11 +10,14 @@ import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
 import org.hibernate.search.engine.search.sort.dsl.SortFinalStep;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IdProjection;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.ProjectionConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
@@ -104,10 +107,22 @@ public class TitleSearcher {
         return result.aggregation(titlesBySchedule);
     }
 
-    public List<Title> urlCheck(String url) {
+    @Transactional
+    public List<UrlCheckResult> urlCheck(String url) {
         return Search.session(entityManager).search(Title.class)
+                .select(UrlCheckResult.class)
                 .where(f -> f.phrase().fields("titleUrl", "seedUrl")
                 .matching(url)).fetch(5).hits();
+    }
+
+    @ProjectionConstructor
+    public record UrlCheckResult(
+            @IdProjection Long id,
+            Long pi,
+            String name,
+            String titleUrl
+
+    ) {
     }
 
     public List<Title> nameCheck(String name) {

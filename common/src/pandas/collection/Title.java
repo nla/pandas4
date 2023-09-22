@@ -85,7 +85,7 @@ public class Title {
      * URL for this resource on the live web.
      */
     @Column(name = "TITLE_URL", length = 1024)
-    @FullTextField(analyzer = "url")
+    @FullTextField(analyzer = "url", projectable = Projectable.YES)
     @JsonView(View.Summary.class)
     private String titleUrl;
 

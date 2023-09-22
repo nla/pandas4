@@ -27,6 +27,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import pandas.agency.*;
+import pandas.collection.TitleSearcher.UrlCheckResult;
 import pandas.core.Config;
 import pandas.core.Link;
 import pandas.core.View;
@@ -606,22 +607,21 @@ public class TitleController {
     @GetMapping(value = "/titles/check", produces = "application/json")
     @CrossOrigin("*")
     @ResponseBody
-    @JsonView(View.Summary.class)
-    public List<Title> checkUrl(@RequestParam("url") String url) {
+    public List<UrlCheckResult> checkUrl(@RequestParam("url") String url) {
         String urlWithoutPath = url.replaceFirst("^(https?://[^/]+/).*$", "$1");
         return titleSearcher.urlCheck(urlWithoutPath);
     }
 
     @PostMapping(value = "/titles/check", produces = "application/json")
     @ResponseBody
-    @JsonView(View.Summary.class)
-    public Map<String, List<Title>> checkUrlBulk(@RequestParam("url") List<String> urls) {
-        Map<String,List<Title>> results = new LinkedHashMap<>();
-        for (String url: urls) {
-            String urlWithoutPath = url.replaceFirst("^(https?://[^/]+/).*$", "$1");
-            results.put(url, titleSearcher.urlCheck(urlWithoutPath));
-        }
-        return results;
+    public List<List<UrlCheckResult>> checkUrlBulk(@RequestParam("url") List<String> urls) {
+        return urls.stream()
+                .parallel()
+                .map(url -> {
+                    String urlWithoutPath = url.replaceFirst("^(https?://[^/]+/).*$", "$1");
+                    return titleSearcher.urlCheck(urlWithoutPath);
+                })
+                .toList();
     }
 
     @GetMapping(value = "/titles/check-name", produces = "application/json")

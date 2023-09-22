@@ -113,6 +113,7 @@ public class SecurityConfig {
         var auth = http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/actuator/health").anonymous()
                 .requestMatchers("/titles/check").permitAll()
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/login/check-session-reply").permitAll()
                 .requestMatchers("/logout").permitAll()
