@@ -612,6 +612,18 @@ public class TitleController {
         return titleSearcher.urlCheck(urlWithoutPath);
     }
 
+    @PostMapping(value = "/titles/check", produces = "application/json")
+    @ResponseBody
+    @JsonView(View.Summary.class)
+    public Map<String, List<Title>> checkUrlBulk(@RequestParam("url") List<String> urls) {
+        Map<String,List<Title>> results = new LinkedHashMap<>();
+        for (String url: urls) {
+            String urlWithoutPath = url.replaceFirst("^(https?://[^/]+/).*$", "$1");
+            results.put(url, titleSearcher.urlCheck(urlWithoutPath));
+        }
+        return results;
+    }
+
     @GetMapping(value = "/titles/check-name", produces = "application/json")
     @CrossOrigin("*")
     @ResponseBody
