@@ -141,6 +141,19 @@
             <div th:if="${title.statusReason != null}" th:text="${title.statusReason.name}" style="color: #777"></div>
             <div th:if="${title.disappeared}" style="color: #f77">No longer online</div>
             <p></p>
+
+            <div id="permissionStatus" th:if="${title.permission != null}">
+                <span th:text="${title.permission.stateName}">granted</span>
+                <time th:if="${title.permission.statusSetDate != null}"
+                      th:text="${@dateFormats.shortDate.format(title.permission.statusSetDate)}"
+                      th:datetime="${title.permission.statusSetDate}">30/8/2003</time>
+                <span th:if="${title.permission.contactPerson != null}">
+                    by <span th:text="${title.permission.contactPerson.fullName}">John Smith</span>
+                </span>
+                <blockquote th:if="${!#strings.isEmpty(title.permission.domain)}"
+                            th:text="${title.permission.domain}"></blockquote>
+            </div>
+
             <details>
                 <summary>Schedule: <span th:text="${title?.gather?.schedule?.name}">Weekly</span> <span
                         th:text="${title?.gather?.method?.name}">Heritrix</span> gather

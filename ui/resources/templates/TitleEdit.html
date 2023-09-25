@@ -196,10 +196,6 @@
                 <input th:field="*{titleUrl}">
             </label>
             <div>
-                <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{legalDeposit}"> Collect under
-                    legal deposit</label>
-            </div>
-            <div>
                 <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{unableToArchive}"> Was unable to
                     be archived</label>
                 <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{disappeared}"> No longer
@@ -233,6 +229,66 @@
                     </label>
                 </fieldset>
             </details>
+        </fieldset>
+
+        <fieldset sec:authorize="hasRole('stduser')">
+            <legend>Permission</legend>
+            <label>
+                Collect under
+                <div style="margin-top: 4px; display: flex; gap: 16px; align-items: end">
+                    <label><input type="radio" th:field="*{permissionType}" value="LEGAL_DEPOSIT"> Legal deposit</label>
+                    <label><input type="radio" th:field="*{permissionType}" value="TITLE"> Title permission</label>
+                    <label><input type="radio" th:field="*{permissionType}" value="PUBLISHER"> Publisher permission</label>
+                </div>
+            </label>
+
+            <fieldset id="titlePermissionFieldset" style="border: 1px solid #ccc; background: #f3f3f3">
+                <div style="gap: 16px">
+                    <div>
+                        Permission status
+                        <div style="margin-top: 4px; display: flex; gap: 16px">
+                            <label style="text-wrap: none"><input type="radio" th:field="*{permissionState}" value="Unknown"> Unknown</label>
+                            <label><input type="radio" th:field="*{permissionState}" value="Granted"> Granted</label>
+                            <label><input type="radio" th:field="*{permissionState}" value="Denied"> Denied</label>
+                            <label><input type="radio" th:field="*{permissionState}" value="Impossible"> Impossible</label>
+                        </div>
+                    </div>
+                    <label>
+                        On date<br>
+                        <input th:field="*{permissionStatusSetDate}" type="date">
+                    </label>
+                    <label style="width: 160px; flex-grow: 1">
+                        Local reference
+                        <input th:field="*{permissionLocalReference}">
+                    </label>
+                    <script>
+                        // set the permission status date to today if it's empty when permissionState is changed
+                        document.querySelectorAll("input[name=permissionState]:not([value=Unknown])").forEach(el =>
+                            el.addEventListener("change", function () {
+                                if (document.getElementById("permissionStatusSetDate").value === "") {
+                                    document.getElementById("permissionStatusSetDate").valueAsDate = new Date();
+                                }
+                            }));
+                    </script>
+                </div>
+
+                <label>
+                    Conditions
+                    <textarea th:field="*{permissionNote}" rows="4"></textarea>
+                </label>
+            </fieldset>
+
+            <fieldset id="publisherPermissionFieldset" class="alert-info">
+                Publisher permissions can currently only be edited via PANDAS 3.
+            </fieldset>
+
+            <script>
+                document.querySelectorAll("input[name=permissionType]").forEach(el => el.addEventListener("change", function() {
+                    document.getElementById("titlePermissionFieldset").style.display = this.value === "TITLE" ? "block" : "none";
+                    document.getElementById("publisherPermissionFieldset").style.display = this.value === "PUBLISHER" ? "block" : "none";
+                }));
+                document.querySelectorAll("input[name=permissionType]:checked").forEach(el => el.dispatchEvent(new Event("change")));
+            </script>
         </fieldset>
 
         <fieldset>

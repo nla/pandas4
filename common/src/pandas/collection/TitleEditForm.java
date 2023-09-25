@@ -6,11 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import pandas.gather.*;
 
 import java.time.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static pandas.util.Strings.emptyToNull;
 
@@ -42,7 +38,6 @@ public class TitleEditForm {
     private String filters;
     private Status status;
     private Reason reason;
-    private boolean legalDeposit = true;
     private boolean unableToArchive;
     private boolean disappeared;
 
@@ -55,6 +50,16 @@ public class TitleEditForm {
     private Title continues;
     private Set<Title> continuesTitles = new TreeSet<>(Title.COMPARE_BY_NAME);
     private Set<Title> continuedByTitles = new TreeSet<>(Title.COMPARE_BY_NAME);
+    private PermissionTypeRadio permissionType;
+    private String permissionState;
+    private String permissionLocalReference;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate permissionStatusSetDate;
+    private String permissionNote;
+
+    enum PermissionTypeRadio {
+        LEGAL_DEPOSIT, TITLE, PUBLISHER
+    }
 
     public TitleEditForm() {}
 
@@ -67,7 +72,6 @@ public class TitleEditForm {
         setDisappeared(title.isDisappeared());
         setFormat(title.getFormat());
         setId(title.getId());
-        setLegalDeposit(title.getLegalDeposit());
         setLocalDatabaseNo(title.getLocalDatabaseNo());
         setLocalReference(title.getLocalReference());
         setName(title.getName());
@@ -104,6 +108,23 @@ public class TitleEditForm {
                 setSeedUrls(getSeedUrls() + "\n" + gather.getAdditionalUrls());
             }
         }
+
+        if (title.getLegalDeposit()) {
+            permissionType = PermissionTypeRadio.LEGAL_DEPOSIT;
+        } else if (Objects.equals(title.getPermission(), title.getDefaultPermission())) {
+            permissionType = PermissionTypeRadio.TITLE;
+        } else {
+            permissionType = PermissionTypeRadio.PUBLISHER;
+        }
+
+        Permission permission = title.getDefaultPermission();
+        if (permission != null) {
+            permissionState = permission.getStateName();
+            permissionLocalReference = permission.getLocalReference();
+            permissionStatusSetDate = permission.getStatusSetDate().atZone(ZoneId.systemDefault()).toLocalDate();
+            permissionNote = permission.getNote();
+        }
+        if (permissionState == null) permissionState = "Unknown";
     }
 
     public Instant getScheduledInstant() {
@@ -253,14 +274,6 @@ public class TitleEditForm {
         this.oneoffDates = oneoffDates;
     }
 
-    public Boolean getLegalDeposit() {
-        return legalDeposit;
-    }
-
-    public void setLegalDeposit(Boolean legalDeposit) {
-        this.legalDeposit = legalDeposit;
-    }
-
     public Publisher getPublisher() {
         return publisher;
     }
@@ -381,5 +394,54 @@ public class TitleEditForm {
     public void setContinuedByTitles(Set<Title> continuedByTitles) {
         this.continuedByTitles.clear();
         this.continuedByTitles.addAll(continuedByTitles);
+    }
+
+    public String getPermissionState() {
+        return permissionState;
+    }
+
+    public TitleEditForm setPermissionState(String permissionState) {
+        this.permissionState = permissionState;
+        return this;
+    }
+
+    public LocalDate getPermissionStatusSetDate() {
+        return permissionStatusSetDate;
+    }
+    public Instant getPermissionStatusSetInstant() {
+        if (permissionStatusSetDate == null) return null;
+        return permissionStatusSetDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+    }
+
+    public TitleEditForm setPermissionStatusSetDate(LocalDate permissionStatusSetDate) {
+        this.permissionStatusSetDate = permissionStatusSetDate;
+        return this;
+    }
+
+    public String getPermissionLocalReference() {
+        return permissionLocalReference;
+    }
+
+    public TitleEditForm setPermissionLocalReference(String permissionLocalReference) {
+        this.permissionLocalReference = permissionLocalReference;
+        return this;
+    }
+
+    public String getPermissionNote() {
+        return permissionNote;
+    }
+
+    public TitleEditForm setPermissionNote(String permissionNote) {
+        this.permissionNote = permissionNote;
+        return this;
+    }
+
+    public PermissionTypeRadio getPermissionType() {
+        return permissionType;
+    }
+
+    public TitleEditForm setPermissionType(PermissionTypeRadio permissionType) {
+        this.permissionType = permissionType;
+        return this;
     }
 }

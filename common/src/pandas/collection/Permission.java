@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import pandas.core.Individual;
 
 import java.time.Instant;
+import java.util.Objects;
 
 /**
  * Information about whether the publisher of a title has granted or denied access to archived versions of that title,
@@ -211,5 +212,20 @@ public class Permission {
 
     public boolean isUnknown() {
         return hasState(PermissionState.UNKNOWN);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Permission that = (Permission) o;
+
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

@@ -87,7 +87,7 @@ public class TitleService {
         form.setScope(scopeRepository.findById(Scope.DEFAULT_ID).orElse(null));
         form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
         form.setSubjects(subjects);
-        form.setLegalDeposit(true);
+        form.setPermissionType(TitleEditForm.PermissionTypeRadio.LEGAL_DEPOSIT);
         form.setCataloguingNotRequired(true);
         return form;
     }
@@ -107,7 +107,7 @@ public class TitleService {
         title.setContinuesTitles(form.getContinuesTitles());
         title.setDisappeared(form.isDisappeared());
         title.setFormat(form.getFormat() == null ? formatRepository.findById(Format.DEFAULT_ID).orElseThrow() : form.getFormat());
-        title.setLegalDeposit(form.getLegalDeposit());
+        title.setLegalDeposit(form.getPermissionType() == TitleEditForm.PermissionTypeRadio.LEGAL_DEPOSIT);
         title.setLocalDatabaseNo(Strings.emptyToNull(form.getLocalDatabaseNo()));
         title.setLocalReference(Strings.emptyToNull(form.getLocalReference()));
         title.setName(form.getName().trim());
@@ -185,6 +185,15 @@ public class TitleService {
             permission.setBlanket(false);
             permission.setDescription("Pandas4 Default Title Permission");
             title.setDefaultPermission(permission);
+            title.setPermission(permission);
+        }
+
+        if (form.getPermissionType() == TitleEditForm.PermissionTypeRadio.TITLE) {
+            Permission permission = title.getDefaultPermission();
+            permission.setStateName(form.getPermissionState());
+            permission.setNote(form.getPermissionNote());
+            permission.setLocalReference(form.getPermissionLocalReference());
+            permission.setStatusSetDate(form.getPermissionStatusSetInstant());
             title.setPermission(permission);
         }
 
