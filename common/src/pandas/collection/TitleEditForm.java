@@ -121,7 +121,7 @@ public class TitleEditForm {
         if (permission != null) {
             permissionState = permission.getStateName();
             permissionLocalReference = permission.getLocalReference();
-            permissionStatusSetDate = permission.getStatusSetDate().atZone(ZoneId.systemDefault()).toLocalDate();
+            permissionStatusSetDate = permission.getStatusSetDate() == null ? null : permission.getStatusSetDate().atZone(ZoneId.systemDefault()).toLocalDate();
             permissionNote = permission.getNote();
         }
         if (permissionState == null) permissionState = "Unknown";
