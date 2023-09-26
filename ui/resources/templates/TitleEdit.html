@@ -262,6 +262,19 @@
                         <input th:field="*{permissionLocalReference}">
                     </label>
                     <script>
+                        // set background colour of titlePermissionFieldset based on permissionState
+                        let permissionStateColours = {
+                            "Granted" : "#e6ffe6",
+                            "Denied" : "#ffe6e6",
+                            "Impossible" : "#ffffe6",
+                            "Unknown" : "#f3f3f3"
+                        }
+                        document.querySelectorAll("input[name=permissionState]").forEach(el =>
+                            el.addEventListener("change", function () {
+                                document.getElementById("titlePermissionFieldset").style.background = permissionStateColours[this.value];
+                            }));
+                        document.querySelectorAll("input[name=permissionState]:checked").forEach(el => el.dispatchEvent(new Event("change")));
+
                         // set the permission status date to today if it's empty when permissionState is changed
                         document.querySelectorAll("input[name=permissionState]:not([value=Unknown])").forEach(el =>
                             el.addEventListener("change", function () {
