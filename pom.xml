@@ -40,7 +40,7 @@
             <dependency>
                 <groupId>org.netpreserve</groupId>
                 <artifactId>jwarc</artifactId>
-                <version>0.26.0</version>
+                <version>0.28.2</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>

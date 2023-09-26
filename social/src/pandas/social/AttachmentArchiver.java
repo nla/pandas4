@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -199,7 +200,7 @@ public class AttachmentArchiver {
         log.info("GET {}", uri);
         var startTimeMillis = System.currentTimeMillis();
         WarcWriter warcWriter = warcWriterSupplier.writer();
-        var result = warcWriter.fetch(uri, httpRequest, null);
+        var result = warcWriter.fetch(uri, httpRequest, (OutputStream)null);
         var metadata = new WarcMetadata.Builder()
                 .date(result.response().date())
                 .targetURI(result.response().target())
