@@ -194,6 +194,7 @@ public class TitleService {
             permission.setNote(form.getPermissionNote());
             permission.setLocalReference(form.getPermissionLocalReference());
             permission.setStatusSetDate(form.getPermissionStatusSetInstant());
+            permission.setContactPerson(form.getPermissionContactPerson());
             title.setPermission(permission);
         }
 

@@ -379,6 +379,8 @@ public class TitleController {
             model.addAttribute("backlink", backlink);
         }
 
+        model.addAttribute("titleContactPeople", title.getContactPeople());
+
         return editForm(model, form);
     }
 
@@ -404,6 +406,10 @@ public class TitleController {
         model.addAttribute("allPublisherTypes", publisherTypeRepository.findAll());
         model.addAttribute("allScopes", scopeRepository.findAll());
         model.addAttribute("allSubjects", classificationService.allSubjects());
+
+        if (!model.containsAttribute("titleContactPeople")) {
+            model.addAttribute("titleContactPeople", List.of());
+        }
 
         var suggestedCollection = collectionRepository.findRecentlyUsed(userService.getCurrentUser(), PageRequest.ofSize(50));
         suggestedCollection = new ArrayList<>(suggestedCollection);

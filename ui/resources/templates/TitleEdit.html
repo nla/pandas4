@@ -289,6 +289,41 @@
                     Conditions
                     <textarea th:field="*{permissionNote}" rows="4"></textarea>
                 </label>
+
+                <label>
+                    Granted by
+                    <select th:field="*{permissionContactPerson}">
+                        <option value=""></option>
+                        <option value="">[New contact]</option>
+                        <option th:each="person: ${titleContactPeople}" th:value="${person.id}" th:text="${person.name}"></option>
+                    </select>
+                </label>
+            </fieldset>
+            <fieldset style="border: 1px solid #ccc; background: #f3f3f3">
+                <div>
+                    <label style="flex-grow: 1">
+                        Contact name
+                        <input>
+                    </label>
+                    <label style="flex-grow: 1">
+                        Position
+                        <input>
+                    </label>
+                </div>
+                <div>
+                    <label style="flex-grow: 1">
+                        Email
+                        <input>
+                    </label>
+                    <label style="flex-grow: 1">
+                        Phone
+                        <input>
+                    </label>
+                    <label style="flex-grow: 1">
+                        Mobile
+                        <input>
+                    </label>
+                </div>
             </fieldset>
 
             <fieldset id="publisherPermissionFieldset" class="alert-info">
@@ -297,7 +332,7 @@
 
             <script>
                 document.querySelectorAll("input[name=permissionType]").forEach(el => el.addEventListener("change", function() {
-                    document.getElementById("titlePermissionFieldset").style.display = this.value === "TITLE" ? "block" : "none";
+                    document.getElementById("titlePermissionFieldset").style.display = this.value === "TITLE" ? "flex" : "none";
                     document.getElementById("publisherPermissionFieldset").style.display = this.value === "PUBLISHER" ? "block" : "none";
                 }));
                 document.querySelectorAll("input[name=permissionType]:checked").forEach(el => el.dispatchEvent(new Event("change")));

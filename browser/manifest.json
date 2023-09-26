@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "PANDAS",
+  "version": "1.0",
+
+  "description": "Browser integration for PANDAS web archiving service.",
+
+  "icons": {
+    "48": "icons/border-48.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://kagi.com/search*"],
+      "js": ["kagi.js"]
+    }
+  ],
+
+  "permissions": [
+    "https://pandas.nla.gov.au/*"
+  ]
+}

@@ -3,6 +3,7 @@ package pandas.collection;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
+import pandas.core.Individual;
 import pandas.gather.*;
 
 import java.time.*;
@@ -56,6 +57,7 @@ public class TitleEditForm {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate permissionStatusSetDate;
     private String permissionNote;
+    private ContactPerson permissionContactPerson;
 
     enum PermissionTypeRadio {
         LEGAL_DEPOSIT, TITLE, PUBLISHER
@@ -123,6 +125,7 @@ public class TitleEditForm {
             permissionLocalReference = permission.getLocalReference();
             permissionStatusSetDate = permission.getStatusSetDate() == null ? null : permission.getStatusSetDate().atZone(ZoneId.systemDefault()).toLocalDate();
             permissionNote = permission.getNote();
+            permissionContactPerson = permission.getContactPerson();
         }
         if (permissionState == null) permissionState = "Unknown";
     }
@@ -442,6 +445,15 @@ public class TitleEditForm {
 
     public TitleEditForm setPermissionType(PermissionTypeRadio permissionType) {
         this.permissionType = permissionType;
+        return this;
+    }
+
+    public ContactPerson getPermissionContactPerson() {
+        return permissionContactPerson;
+    }
+
+    public TitleEditForm setPermissionContactPerson(ContactPerson permissionContactPerson) {
+        this.permissionContactPerson = permissionContactPerson;
         return this;
     }
 }
