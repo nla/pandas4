@@ -194,7 +194,7 @@ public class Permission {
         this.title = title;
     }
 
-    public Individual getContactPerson() {
+    public ContactPerson getContactPerson() {
         return contactPerson;
     }
 
