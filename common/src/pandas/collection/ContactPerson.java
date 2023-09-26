@@ -1,11 +1,15 @@
 package pandas.collection;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import pandas.core.Individual;
+import pandas.core.Organisation;
 import pandas.core.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
+import pandas.core.View;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +44,7 @@ public class ContactPerson extends Individual {
     }
 
     public Publisher getPublisher() {
+        if (getRole().getOrganisation() == null) return null;
         return getRole().getOrganisation().getPublisher();
     }
 
@@ -59,12 +64,18 @@ public class ContactPerson extends Individual {
                 .collect(Collectors.joining(" "));
     }
 
+    @JsonView(View.Summary.class)
     public String getNameAndFunction() {
-        if (function == null) {
-            return getName();
-        } else {
-            return getName() + ", " + function;
+        StringBuilder builder = new StringBuilder();
+        builder.append(getName());
+        if (function != null) {
+            builder.append(", ").append(function);
         }
+        Organisation organisation = getRole().getOrganisation();
+        if (organisation != null) {
+            builder.append(" (").append(organisation.getName()).append(")");
+        }
+        return builder.toString();
     }
 
     public Set<Title> getTitles() {

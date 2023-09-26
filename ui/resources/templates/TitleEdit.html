@@ -292,7 +292,7 @@
 
                 <label>
                     Granted by
-                    <select th:field="*{permissionContactPerson}">
+                    <select id="permissionContactPerson" th:field="*{permissionContactPerson}">
                         <option value=""></option>
                         <option th:each="person: ${titleContactPeople}" th:value="${person.id}"
                                 th:text="${person.nameAndFunction}"></option>
@@ -308,6 +308,7 @@
             </fieldset>
 
             <script>
+                // show/hide permission fieldsets based on permissionType
                 document.querySelectorAll("input[name=permissionType]").forEach(el => el.addEventListener("change", function() {
                     document.getElementById("titlePermissionFieldset").style.display = this.value === "TITLE" ? "flex" : "none";
                     document.getElementById("publisherPermissionFieldset").style.display = this.value === "PUBLISHER" ? "block" : "none";

@@ -1,6 +1,7 @@
 package pandas.core;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.search.engine.backend.types.Aggregable;
@@ -85,6 +86,7 @@ public abstract class Individual {
         this.fax = fax;
     }
 
+    @JsonView(View.Summary.class)
     public Long getId() {
         return this.id;
     }

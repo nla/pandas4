@@ -12,6 +12,8 @@ import pandas.search.SearchResults;
 
 import jakarta.persistence.EntityManager;
 
+import java.util.List;
+
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 
 @Controller
@@ -85,6 +87,13 @@ public class PublisherController {
                 });
         var result = search.fetch((int) pageable.getOffset(), pageable.getPageSize());
         return result.hits();
+    }
+
+    @GetMapping(value = "/publishers/{id}/contact-people.json", produces = "application/json")
+    @ResponseBody
+    @JsonView(View.Summary.class)
+    public List<ContactPerson> contactPeopleJson(@PathVariable("id") Publisher publisher) {
+        return contactPersonRepository.findByOrganisation(publisher.getOrganisation());
     }
 
     @GetMapping("/publishers/reindex")

@@ -1,4 +1,3 @@
-
 for (let id of ['#continuesTitles', '#continuedByTitles']) {
     new SlimSelect({
         select: id,
@@ -68,6 +67,38 @@ function escapeHtml(text) {
 }
 
 let publisherSelect = null;
+
+// fetch the contact people for the selected publisher
+function refreshPublisherContactPeople(publisherId) {
+    console.log("refreshPublisherContactPeople(" + publisherId + ")");
+    let select = document.getElementById("permissionContactPerson");
+
+    // remove existing options with class publisher-contact-person-option
+    let options = select.querySelectorAll(".publisher-contact-person-option");
+    for (let option of options) {
+        option.remove();
+    }
+
+    if (!publisherId || publisherId === "new") return;
+
+    fetch(publishersEndpoint + "/" + publisherId + "/contact-people.json")
+        .then(response => response.json())
+        .then(contactPeople => {
+            // add new options
+            for (let person of contactPeople) {
+                // skip if the person is already in the list (e.g. they're the previously selected contact)
+                if (select.querySelector("option[value='" + person.id + "']")) continue;
+
+                let option = document.createElement("option");
+                option.text = person.nameAndFunction;
+                option.value = person.id;
+                option.classList.add("publisher-contact-person-option");
+                select.add(option);
+            }
+        })
+        .catch(error => console.log("Failed to fetch publisher contact people: ", error));
+}
+
 if (document.getElementById("publisher")) {
     publisherSelect = new SlimSelect({
         select: '#publisher',
@@ -107,10 +138,10 @@ if (document.getElementById("publisher")) {
         // By default slim-select clears the search when the drop-down is closed. This means if the user focuses
         // another field we lose their search or any pre-populated value. So as a workaround stash a copy of the
         // search text before closing and restore it after closing.
-        beforeClose: function() {
+        beforeClose: function () {
             this.pandasSavedSearch = this.slim.search.input.value;
         },
-        afterClose: function() {
+        afterClose: function () {
             this.slim.search.input.value = this.pandasSavedSearch;
             delete this.pandasSavedSearch;
         },
@@ -150,8 +181,10 @@ if (document.getElementById("publisher")) {
                 publisherType.required = false;
                 document.getElementById("newPublisherFields").style.display = "none";
             }
+            refreshPublisherContactPeople(info.value);
         }
     });
+    refreshPublisherContactPeople(document.querySelector('#publisher').value);
 }
 
 // Hide ABN field for personal publisher type
@@ -252,7 +285,7 @@ function normalizeSeedUrls() {
     }
 }
 
-function seedUrlsChanged () {
+function seedUrlsChanged() {
     let fetchAlert = document.getElementById("fetchAlert");
     fetchAlert.innerHTML = '';
     fetchAlert.style.display = 'none'
@@ -285,7 +318,7 @@ function seedUrlsChanged () {
             warningDiv.append(list);
             for (let title of titles) {
                 let item = document.createElement("li");
-                item.appendChild(createLink(title.name,titlesEndpoint + "/" + title.id, "_blank"));
+                item.appendChild(createLink(title.name, titlesEndpoint + "/" + title.id, "_blank"));
                 list.appendChild(item);
             }
 
@@ -303,7 +336,7 @@ function seedUrlsChanged () {
                 return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
             }
 
-            if (info.location && normalize(getPrimarySeedUrl()).localeCompare(normalize(info.location), 'en', { sensitivity: 'base' }) === 0) {
+            if (info.location && normalize(getPrimarySeedUrl()).localeCompare(normalize(info.location), 'en', {sensitivity: 'base'}) === 0) {
                 setPrimarySeedUrl(info.location);
                 seedUrlsChanged();
                 return;
@@ -312,7 +345,7 @@ function seedUrlsChanged () {
             let alertMessage = null;
             if (info.status === -1) {
                 alertMessage = `This website does not exist (DNS lookup failed).`;
-            }else if (info.status === 403) {
+            } else if (info.status === 403) {
                 alertMessage = `This website may be blocking us (${info.status} ${info.reason}).`;
             } else if (info.status === 404) {
                 alertMessage = `This web page does not exist (${info.status} ${info.reason}). Please check the address is correct.`;
@@ -377,11 +410,12 @@ function autoExpandSeedUrlField() {
         document.getElementById('seedUrlsLabelText').innerText += "s";
     }
 }
+
 document.getElementById('seedUrls').addEventListener('input', autoExpandSeedUrlField);
 autoExpandSeedUrlField();
 
 // When the URL field's "+" button is clicked, expand it
-document.getElementById('urlPlusButton').addEventListener('click', function() {
+document.getElementById('urlPlusButton').addEventListener('click', function () {
     let seedUrlsTextArea = document.getElementById("seedUrls");
     if (!seedUrlsTextArea.value.endsWith("\n")) {
         seedUrlsTextArea.value += "\n";
@@ -392,7 +426,7 @@ document.getElementById('urlPlusButton').addEventListener('click', function() {
 
 // Setup event listeners
 
-seedUrlsField.addEventListener("change", function() {
+seedUrlsField.addEventListener("change", function () {
     seedUrlsChanged();
     checkSurts();
 });
@@ -408,7 +442,7 @@ document.getElementById("publisherType").addEventListener("change", handlePublis
 // This ensures the user can't get confused and also try to manually link it.
 let continuesCheckbox = document.getElementById("continuesCheckbox");
 if (continuesCheckbox) {
-    continuesCheckbox.addEventListener("click", function() {
+    continuesCheckbox.addEventListener("click", function () {
         const checked = continuesCheckbox.checked;
         document.getElementById("historyDetails").style.display = checked ? "none" : "block";
     });
