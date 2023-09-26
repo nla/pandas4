@@ -59,6 +59,14 @@ public class ContactPerson extends Individual {
                 .collect(Collectors.joining(" "));
     }
 
+    public String getNameAndFunction() {
+        if (function == null) {
+            return getName();
+        } else {
+            return getName() + ", " + function;
+        }
+    }
+
     public Set<Title> getTitles() {
         return Collections.unmodifiableSet(titles);
     }

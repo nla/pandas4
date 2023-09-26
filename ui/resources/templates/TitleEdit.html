@@ -295,10 +295,10 @@
                     <select th:field="*{permissionContactPerson}">
                         <option value=""></option>
                         <option th:each="person: ${titleContactPeople}" th:value="${person.id}"
-                                th:text="${person.name}"></option>
+                                th:text="${person.nameAndFunction}"></option>
                         <option th:if="${form.permissionContactPerson != null && !titleContactPeople.contains(form.permissionContactPerson)}"
                                 th:value="${form.permissionContactPerson.id}"
-                                th:text="${form.permissionContactPerson.name}"></option>
+                                th:text="${form.permissionContactPerson.nameAndFunction}"></option>
                     </select>
                 </label>
             </fieldset>
