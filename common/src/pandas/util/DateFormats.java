@@ -18,6 +18,7 @@ public class DateFormats {
     public static final DateTimeFormatter DAY_DATE = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("h:mm a").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter TIME_WITH_SECONDS = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault());
+    public static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("d MMMM y").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter SHORT_DATE = DateTimeFormatter.ofPattern("d MMM y").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter SHORT_DATE_TIME = DateTimeFormatter.ofPattern("d MMM y h:mma").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter MONTH_YEAR = DateTimeFormatter.ofPattern("MMMM yyyy").withZone(ZoneId.systemDefault());
@@ -32,6 +33,10 @@ public class DateFormats {
         return DAY_DATE;
     }
 
+    public DateTimeFormatter getDate() {
+        return DATE;
+    }
+
     public DateTimeFormatter getTime() {
         return TIME;
     }
@@ -41,6 +46,7 @@ public class DateFormats {
     }
 
     public String shortDate(TemporalAccessor date) {
+        if (date == null) return null;
         return SHORT_DATE.format(date).replace(".", "");
     }
 

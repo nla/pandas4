@@ -40,6 +40,50 @@
         .contact-person--header :nth-child(0) {
             flex-grow: 1;
         }
+
+        .permission-card {
+            margin: 1em 0;
+            padding: .75em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .permission-card > header, .permission-card > footer {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+        }
+
+        .permission-card > footer > address {
+            font-style: normal;
+        }
+
+        .permission-card > footer > a {
+            align-self: end;
+            text-align: right;
+            flex-grow: 1;
+        }
+
+        .permission-card h1 {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .permission-card h2 {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 0;
+            margin-top: 8px;
+        }
+
+        .permission-card h1 time {
+            font-size: 0.8em;
+            font-weight: normal;
+            display: block;
+            margin-top: 4px;
+            color: #333;
+        }
     </style>
 </head>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Publishers')}"></nav>
@@ -49,10 +93,13 @@
             <a sec:authorize="hasPermission(#vars.publisher, 'edit')"
                th:href="@{/publishers/{id}/edit(id=${publisher.id})}" href="PublisherEdit.html" class="btn btn-primary"
                data-keybind="e"><i class="icon edit"></i> Edit</a>
-            <a sec:authorize="hasAuthority('PRIV_NOMINATE_TITLES')" th:href="@{/titles/new(publisher=${publisher.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary"><i class="icon title"></i> Add a website</a>
+            <a sec:authorize="hasAuthority('PRIV_NOMINATE_TITLES')" th:href="@{/titles/new(publisher=${publisher.id})}" href="TitleEdit.html" data-keybind="t" class="btn btn-secondary"><i class="icon title"></i> Add website</a>
             <a sec:authorize="hasPermission(#vars.publisher, 'edit')"
                th:href="@{/contact-people/new(publisher=${publisher.id})}" href="ContactPersonEdit.html"
-               class="btn btn-secondary"><i class="icon person_add"></i> Add a contact person</a>
+               class="btn btn-secondary"><i class="icon person_add"></i> Add contact person</a>
+            <a sec:authorize="hasPermission(#vars.publisher, 'edit')"
+               th:href="@{/permissions/new(publisher=${publisher.id})}" href="PermissionEdit.html"
+               class="btn btn-secondary"><i class="icon add_task"></i> Add blanket permission</a>
         </nav>
     </header>
 
@@ -80,6 +127,31 @@
         <div th:unless="${#strings.isEmpty(publisher.notes)}">
             <strong>Notes:</strong><br>
             <div th:text="${publisher.notes}"></div>
+        </div>
+    </section>
+
+    <section th:unless="${publisher.permissions.isEmpty()}">
+        <div style="display: flex; flex-wrap: wrap; gap: 16px">
+            <article class="permission-card" th:each="permission : ${publisher.permissions}" th:object="${permission}">
+                <header>
+                    <h1>
+                        Permisison
+                        <th:block th:text="*{stateName}">Granted</th:block>
+                        <time th:if="${permission.statusSetDate != null}" th:text="${@dateFormats.date.format(permission.statusSetDate)}" th:datetime="${permission.statusSetDate}">4/8/2013</time>
+                    </h1>
+                    <a th:href="${@link.to(permission)}" class="btn btn-compact btn-secondary">Edit</a>
+                </header>
+                <p th:if="${permission.localReference != null}" th:text="${permission.localReference}">REF/2004/123</p>
+                <p th:text="*{domain}">All websites on example.org and sample.com</p>
+                <p th:text="*{note}">No conditions</p>
+                <footer>
+                    <address th:if="${permission.contactPerson != null}">
+                        <h2 th:text="*{contactPerson.name}">John Smith</h2>
+                        <div th:text="*{contactPerson.function}">Chief Website Manager</div>
+                    </address>
+                    <a th:href="@{/titles(permission=*{id})}" href="TitleSearch.html"><th:block th:text="*{titleCount}">14</th:block> titles</a>
+                </footer>
+            </article>
         </div>
     </section>
 

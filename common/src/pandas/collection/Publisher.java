@@ -11,9 +11,9 @@ import pandas.core.Role;
 import pandas.core.View;
 
 import jakarta.persistence.*;
+
+import java.util.*;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * An organisation (which may consist of a single person) that holds the copyright to one or more titles.
@@ -54,6 +54,10 @@ public class Publisher {
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     @JsonView(View.Summary.class)
     private PublisherType type;
+
+
+    @OneToMany(mappedBy = "publisher")
+    private List<Permission> permissions = new ArrayList<>();
 
     public String getLocalReference() {
         return localReference;
@@ -116,5 +120,9 @@ public class Publisher {
     public Long getTitleCount() {
         // FIXME: Eagerly load this somehow
         return (long)titles.size();
+    }
+
+    public List<Permission> getPermissions() {
+        return Collections.unmodifiableList(permissions);
     }
 }

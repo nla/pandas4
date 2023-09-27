@@ -3,7 +3,6 @@ package pandas.collection;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
-import pandas.core.Individual;
 import pandas.gather.*;
 
 import java.time.*;
@@ -53,11 +52,16 @@ public class TitleEditForm {
     private Set<Title> continuedByTitles = new TreeSet<>(Title.COMPARE_BY_NAME);
     private PermissionTypeRadio permissionType;
     private String permissionState;
-    private String permissionLocalReference;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate permissionStatusSetDate;
-    private String permissionNote;
-    private ContactPerson permissionContactPerson;
+    private PermissionEditForm titlePermission;
+
+    public PermissionEditForm getTitlePermission() {
+        return titlePermission;
+    }
+
+    public TitleEditForm setTitlePermission(PermissionEditForm titlePermission) {
+        this.titlePermission = titlePermission;
+        return this;
+    }
 
     enum PermissionTypeRadio {
         LEGAL_DEPOSIT, TITLE, PUBLISHER
@@ -121,13 +125,10 @@ public class TitleEditForm {
 
         Permission permission = title.getDefaultPermission();
         if (permission != null) {
-            permissionState = permission.getStateName();
-            permissionLocalReference = permission.getLocalReference();
-            permissionStatusSetDate = permission.getStatusSetDate() == null ? null : permission.getStatusSetDate().atZone(ZoneId.systemDefault()).toLocalDate();
-            permissionNote = permission.getNote();
-            permissionContactPerson = permission.getContactPerson();
+            this.titlePermission = PermissionEditForm.from(permission);
+        } else {
+            titlePermission = new PermissionEditForm();
         }
-        if (permissionState == null) permissionState = "Unknown";
     }
 
     public Instant getScheduledInstant() {
@@ -399,61 +400,12 @@ public class TitleEditForm {
         this.continuedByTitles.addAll(continuedByTitles);
     }
 
-    public String getPermissionState() {
-        return permissionState;
-    }
-
-    public TitleEditForm setPermissionState(String permissionState) {
-        this.permissionState = permissionState;
-        return this;
-    }
-
-    public LocalDate getPermissionStatusSetDate() {
-        return permissionStatusSetDate;
-    }
-    public Instant getPermissionStatusSetInstant() {
-        if (permissionStatusSetDate == null) return null;
-        return permissionStatusSetDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-    }
-
-    public TitleEditForm setPermissionStatusSetDate(LocalDate permissionStatusSetDate) {
-        this.permissionStatusSetDate = permissionStatusSetDate;
-        return this;
-    }
-
-    public String getPermissionLocalReference() {
-        return permissionLocalReference;
-    }
-
-    public TitleEditForm setPermissionLocalReference(String permissionLocalReference) {
-        this.permissionLocalReference = permissionLocalReference;
-        return this;
-    }
-
-    public String getPermissionNote() {
-        return permissionNote;
-    }
-
-    public TitleEditForm setPermissionNote(String permissionNote) {
-        this.permissionNote = permissionNote;
-        return this;
-    }
-
     public PermissionTypeRadio getPermissionType() {
         return permissionType;
     }
 
     public TitleEditForm setPermissionType(PermissionTypeRadio permissionType) {
         this.permissionType = permissionType;
-        return this;
-    }
-
-    public ContactPerson getPermissionContactPerson() {
-        return permissionContactPerson;
-    }
-
-    public TitleEditForm setPermissionContactPerson(ContactPerson permissionContactPerson) {
-        this.permissionContactPerson = permissionContactPerson;
         return this;
     }
 }

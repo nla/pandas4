@@ -71,7 +71,7 @@ let publisherSelect = null;
 // fetch the contact people for the selected publisher
 function refreshPublisherContactPeople(publisherId) {
     console.log("refreshPublisherContactPeople(" + publisherId + ")");
-    let select = document.getElementById("permissionContactPerson");
+    let select = document.getElementById("titlePermission.contactPerson");
 
     // remove existing options with class publisher-contact-person-option
     let options = select.querySelectorAll(".publisher-contact-person-option");

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Permission - PANDAS</title>
+  <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+  <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
+<main>
+  <header>
+    <nav>
+      <button type="submit" class="btn btn-primary" form=form><i class="icon save"></i> Save</button>
+      <a href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i>
+        Cancel</a>
+    </nav>
+    <button th:if="${permissionId != null}" type="submit"
+            th:formaction="@{|/permissions/${permissionId}/delete|}"
+            class="btn btn-danger float-right" form=form><i class="icon delete"></i> Delete
+    </button>
+  </header>
+
+  <nav class="breadcrumb">
+    <ol th:if="${publisher}">
+      <li><a th:href="@{/publishers}" style="font-weight: bold">Publishers</a></li>
+      <li><a th:href="${@link.to(publisher)}" th:text="${publisher.name}">My cool publisher</a></li>
+      <li class="active">Permission</li>
+    </ol>
+    <ol th:if="${title}">
+      <li><a th:href="@{/titles}" style="font-weight: bold">Titles</a></li>
+      <li><a th:href="${@link.to(title)}" th:text="${title.name}">My cool title</a></li>
+      <li class="active">Permission</li>
+    </ol>
+  </nav>
+
+  <form method=post class=form th:object="${form}" th:action="@{''}" id=form>
+
+    <fieldset th:fragment="fieldset" th:id="${id}" style="border: 1px solid #ccc; background: #f3f3f3">
+      <div style="gap: 16px">
+        <div>
+          Permission status
+          <div style="margin-top: 4px; display: flex; gap: 16px">
+            <label style="text-wrap: none"><input type="radio" th:field="*{stateName}" value="Unknown" class="permission-stateName"> Unknown</label>
+            <label><input type="radio" th:field="*{stateName}" value="Granted" class="permission-stateName"> Granted</label>
+            <label><input type="radio" th:field="*{stateName}" value="Denied" class="permission-stateName"> Denied</label>
+            <label><input type="radio" th:field="*{stateName}" value="Impossible" class="permission-stateName"> Impossible</label>
+          </div>
+        </div>
+        <label>
+          On date<br>
+          <input th:field="*{statusSetDate}" type="date" class="permission-statusSetDate">
+        </label>
+        <label style="width: 160px; flex-grow: 1">
+          Local reference
+          <input th:field="*{localReference}">
+        </label>
+      </div>
+
+      <label th:if="${blanket}">
+        Domain
+        <textarea th:field="*{domain}" rows="3"></textarea>
+      </label>
+
+      <label>
+        Conditions
+        <textarea th:field="*{note}" rows="4"></textarea>
+      </label>
+
+      <label>
+        Granted by
+        <select th:field="*{contactPerson}">
+          <option value=""></option>
+          <option th:each="person: ${contactPeople}" th:value="${person.id}"
+                  th:text="${person.nameAndFunction}"></option>
+          <option th:if="${#object.contactPerson != null && !contactPeople.contains(#object.contactPerson)}"
+                  th:value="*{contactPerson.id}"
+                  th:text="*{contactPerson.nameAndFunction}"></option>
+        </select>
+      </label>
+
+      <script>
+        {
+          const colours = {
+            "Granted": "#e6ffe6",
+            "Denied": "#ffe6e6",
+            "Impossible": "#ffffe6",
+            "Unknown": "#f3f3f3"
+          }
+          let fieldset = document.currentScript.parentElement;
+          let statusSetDate = fieldset.querySelector(".permission-statusSetDate");
+          fieldset.querySelectorAll(".permission-stateName").forEach(el =>
+                  el.addEventListener("change", function () {
+                    fieldset.style.background = colours[this.value];
+                  }));
+          fieldset.querySelectorAll(".permission-stateName:checked").forEach(el => el.dispatchEvent(new Event("change")));
+
+          // set the permission status date to today if it's empty when stateName is changed
+          fieldset.querySelectorAll(".permission-stateName:not([value=Unknown])").forEach(el =>
+                  el.addEventListener("change", function () {
+                    if (statusSetDate.value === "") {
+                      statusSetDate.valueAsDate = new Date();
+                    }
+                  }));
+        }
+      </script>
+    </fieldset>
+  </form>
+</main>

@@ -6,6 +6,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "PERMISSION_TYPE")
 public class PermissionType {
+    public static final String TITLE = "Title Permission";
+    public static final String PUBLISHER = "Publisher Permission";
+
     @Id
     @Column(name = "PERMISSION_TYPE_ID", nullable = false, precision = 0)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "PERMISSION_TYPE_SEQ")

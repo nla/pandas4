@@ -1,9 +1,18 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.search.engine.backend.types.Aggregable;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.springframework.cglib.core.Local;
 import pandas.core.Individual;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,6 +25,7 @@ public class Permission {
     @Column(name = "PERMISSION_ID", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "PERMISSION_SEQ")
     @SequenceGenerator(name = "PERMISSION_SEQ", sequenceName = "PERMISSION_SEQ", allocationSize = 1)
+    @GenericField
     private Long id;
 
     /**
@@ -81,6 +91,7 @@ public class Permission {
      */
     @ManyToOne
     @JoinColumn(name = "PERMISSION_STATE_ID")
+    @Deprecated
     private PermissionState state;
 
     /**
@@ -88,7 +99,26 @@ public class Permission {
      */
     @ManyToOne
     @JoinColumn(name = "PERMISSION_TYPE_ID")
+    @Deprecated
     private PermissionType type;
+
+    @OneToMany(mappedBy = "permission")
+    private List<Title> titles = new ArrayList<>();
+
+    public Permission() {
+    }
+
+    public Permission(Publisher publisher) {
+        setPublisher(publisher);
+        setBlanket(true);
+        setStateName(PermissionState.UNKNOWN);
+    }
+
+    public Permission(Title title) {
+        setTitle(title);
+        setBlanket(false);
+        setStateName(PermissionState.UNKNOWN);
+    }
 
     public Long getId() {
         return id;
@@ -112,6 +142,8 @@ public class Permission {
 
     public void setBlanket(Boolean blanket) {
         isBlanket = blanket;
+        description = blanket ? "Pandas3 Publisher Blanket Permission" : "Pandas4 Default Title Permission";
+        typeName = blanket ? PermissionType.PUBLISHER : PermissionType.TITLE;
     }
 
     public String getLocalReference() {
@@ -134,15 +166,14 @@ public class Permission {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getStateName() {
         return stateName;
     }
 
     public void setStateName(String stateName) {
+        if (!PermissionState.ALL_NAMES.contains(stateName)) {
+            throw new IllegalArgumentException("Invalid permission state: " + stateName);
+        }
         this.stateName = stateName;
     }
 
@@ -150,32 +181,37 @@ public class Permission {
         return typeName;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
     public Instant getStatusSetDate() {
         return statusSetDate;
+    }
+
+    public LocalDate getStatusSetLocalDate() {
+        if (statusSetDate == null) return null;
+        return statusSetDate.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public void setStatusSetDate(Instant statusSetDate) {
         this.statusSetDate = statusSetDate;
     }
 
+    public void setStatusSetLocalDate(LocalDate localDate) {
+        this.statusSetDate = localDate == null ? null : localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+    }
+
+    /**
+     * @deprecated Use {@link #getStateName()} instead
+     */
+    @Deprecated
     public PermissionState getState() {
         return state;
     }
 
-    public void setState(PermissionState state) {
-        this.state = state;
-    }
-
+    /**
+     * @deprecated Use {@link #getTypeName()} instead
+     */
+    @Deprecated
     public PermissionType getType() {
         return type;
-    }
-
-    public void setType(PermissionType type) {
-        this.type = type;
     }
 
     public Publisher getPublisher() {
@@ -227,5 +263,13 @@ public class Permission {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public boolean isBlanket() {
+        return getBlanket() != null && getBlanket();
+    }
+
+    public long getTitleCount() {
+        return Hibernate.size(titles);
     }
 }

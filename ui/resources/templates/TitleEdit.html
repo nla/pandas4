@@ -242,66 +242,9 @@
                 </div>
             </label>
 
-            <fieldset id="titlePermissionFieldset" style="border: 1px solid #ccc; background: #f3f3f3">
-                <div style="gap: 16px">
-                    <div>
-                        Permission status
-                        <div style="margin-top: 4px; display: flex; gap: 16px">
-                            <label style="text-wrap: none"><input type="radio" th:field="*{permissionState}" value="Unknown"> Unknown</label>
-                            <label><input type="radio" th:field="*{permissionState}" value="Granted"> Granted</label>
-                            <label><input type="radio" th:field="*{permissionState}" value="Denied"> Denied</label>
-                            <label><input type="radio" th:field="*{permissionState}" value="Impossible"> Impossible</label>
-                        </div>
-                    </div>
-                    <label>
-                        On date<br>
-                        <input th:field="*{permissionStatusSetDate}" type="date">
-                    </label>
-                    <label style="width: 160px; flex-grow: 1">
-                        Local reference
-                        <input th:field="*{permissionLocalReference}">
-                    </label>
-                    <script>
-                        // set background colour of titlePermissionFieldset based on permissionState
-                        let permissionStateColours = {
-                            "Granted" : "#e6ffe6",
-                            "Denied" : "#ffe6e6",
-                            "Impossible" : "#ffffe6",
-                            "Unknown" : "#f3f3f3"
-                        }
-                        document.querySelectorAll("input[name=permissionState]").forEach(el =>
-                            el.addEventListener("change", function () {
-                                document.getElementById("titlePermissionFieldset").style.background = permissionStateColours[this.value];
-                            }));
-                        document.querySelectorAll("input[name=permissionState]:checked").forEach(el => el.dispatchEvent(new Event("change")));
-
-                        // set the permission status date to today if it's empty when permissionState is changed
-                        document.querySelectorAll("input[name=permissionState]:not([value=Unknown])").forEach(el =>
-                            el.addEventListener("change", function () {
-                                if (document.getElementById("permissionStatusSetDate").value === "") {
-                                    document.getElementById("permissionStatusSetDate").valueAsDate = new Date();
-                                }
-                            }));
-                    </script>
-                </div>
-
-                <label>
-                    Conditions
-                    <textarea th:field="*{permissionNote}" rows="4"></textarea>
-                </label>
-
-                <label>
-                    Granted by
-                    <select id="permissionContactPerson" th:field="*{permissionContactPerson}">
-                        <option value=""></option>
-                        <option th:each="person: ${titleContactPeople}" th:value="${person.id}"
-                                th:text="${person.nameAndFunction}"></option>
-                        <option th:if="${form.permissionContactPerson != null && !titleContactPeople.contains(form.permissionContactPerson)}"
-                                th:value="${form.permissionContactPerson.id}"
-                                th:text="${form.permissionContactPerson.nameAndFunction}"></option>
-                    </select>
-                </label>
-            </fieldset>
+            <th:block th:object="${form.titlePermission}"
+                      th:insert="~{PermissionEdit.html :: fieldset (id='titlePermissionFieldset',contactPeople=${titleContactPeople},blanket=false)}">
+            </th:block>
 
             <fieldset id="publisherPermissionFieldset" class="alert-info">
                 Publisher permissions can currently only be edited via PANDAS 3.

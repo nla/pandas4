@@ -2,6 +2,7 @@ package pandas.collection;
 
 import jakarta.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "PERMISSION_STATE")
@@ -10,6 +11,8 @@ public class PermissionState {
     public static final String DENIED = "Denied";
     public static final String IMPOSSIBLE = "Impossible";
     public static final String UNKNOWN = "Unknown";
+
+    public static final Set<String> ALL_NAMES = Set.of(GRANTED, DENIED, IMPOSSIBLE, UNKNOWN);
 
     @Id
     @Column(name = "PERMISSION_STATE_ID", nullable = false, precision = 0)

@@ -179,22 +179,14 @@ public class TitleService {
 
         // create default permission
         if (title.getDefaultPermission() == null) {
-            Permission permission = new Permission();
-            permission.setStateName("Unknown");
-            permission.setTypeName("Title Permission");
-            permission.setBlanket(false);
-            permission.setDescription("Pandas4 Default Title Permission");
+            Permission permission = new Permission(title);
             title.setDefaultPermission(permission);
             title.setPermission(permission);
         }
 
         if (form.getPermissionType() == TitleEditForm.PermissionTypeRadio.TITLE) {
             Permission permission = title.getDefaultPermission();
-            permission.setStateName(form.getPermissionState());
-            permission.setNote(form.getPermissionNote());
-            permission.setLocalReference(form.getPermissionLocalReference());
-            permission.setStatusSetDate(form.getPermissionStatusSetInstant());
-            permission.setContactPerson(form.getPermissionContactPerson());
+            form.getTitlePermission().applyTo(permission);
             title.setPermission(permission);
         }
 

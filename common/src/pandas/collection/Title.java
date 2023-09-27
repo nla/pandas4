@@ -310,6 +310,7 @@ public class Title {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PERMISSION_ID")
+    @IndexedEmbedded(includePaths = {"id"})
     private Permission permission;
 
     /**

@@ -155,6 +155,10 @@ public class Link {
         return link("/instances/" + instanceId);
     }
 
+    public String to(Permission permission) {
+        return link("/permissions/" + permission.getId());
+    }
+
     public String to(PreviousGather previousGather) {
         return link("/instances/" + previousGather.getId());
     }

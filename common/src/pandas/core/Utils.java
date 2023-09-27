@@ -45,4 +45,9 @@ public class Utils {
         }
         return true;
     }
+
+    public static Long parseLong(String s) {
+        if (s == null) return null;
+        return Long.parseLong(s);
+    }
 }
