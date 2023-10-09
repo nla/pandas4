@@ -604,9 +604,11 @@ public class TitleController {
             }
             return target;
         } else if (backlink != null && backlink.startsWith("/")) {
-            return "redirect:" + backlink;
+            return "GoBackAfterSaving";
+            //return "redirect:" + backlink;
         } else {
-            return "redirect:/titles/" + title.getId();
+            return "GoBackAfterSaving";
+            //return "redirect:/titles/" + title.getId();
         }
     }
 

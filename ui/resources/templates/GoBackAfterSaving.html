@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Changes Saved - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+</head>
+<body>
+<nav th:replace="~{_layout.html}"></nav>
+<main>
+    <h1>Changes Saved</h1>
+</main>
+<script>
+    history.go(-2);
+</script>
