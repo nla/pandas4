@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
 </head>
 <body>
-<nav th:replace="~{_layout.html}"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Titles')}"></nav>
 <main>
     <h1>Changes Saved</h1>
 </main>
