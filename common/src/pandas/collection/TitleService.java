@@ -89,6 +89,7 @@ public class TitleService {
         form.setSubjects(subjects);
         form.setPermissionType(TitleEditForm.PermissionTypeRadio.LEGAL_DEPOSIT);
         form.setCataloguingNotRequired(true);
+        form.setTitlePermission(new PermissionEditForm());
         return form;
     }
 
