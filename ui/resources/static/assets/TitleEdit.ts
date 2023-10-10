@@ -1,3 +1,17 @@
+//import SlimSelect from 'slim-select';
+declare const SlimSelect: any;
+
+declare var titleCheckEndpoint: string;
+declare var titleCheckNameEndpoint: string;
+declare var titleCheckSurtsEndpoint: string;
+declare var pageinfoEndpoint: string;
+declare var publisherJsonEndpoint: string;
+declare var publishersEndpoint: string;
+declare var titlesEndpoint: string;
+declare var titlesBasicSearchEndpoint: string;
+declare var collectionsEndpoint: string;
+declare var thisTitleId: number;
+
 for (let id of ['#continuesTitles', '#continuedByTitles']) {
     new SlimSelect({
         select: id,
@@ -8,7 +22,7 @@ for (let id of ['#continuesTitles', '#continuedByTitles']) {
         ajax: function (search, callback) {
             if (!search) return callback(false);
             fetch(titlesBasicSearchEndpoint + "?q=" + encodeURIComponent(search) + "&notTitle=" + thisTitleId)
-                .then(response => response.json())
+                .then(response => response.ok ? response.json() : Promise.reject(response))
                 .then(results => callback(results.map(title => ({
                     value: title.id,
                     text: title.name + " [" + title.humanId + "]",
@@ -36,7 +50,7 @@ new SlimSelect({
     ajax: function (search, callback) {
         if (!search) return callback(false);
         fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-            .then(response => response.json())
+            .then(response => response.ok ? response.json() : Promise.reject(response))
             .then(results => callback(results.map(collection => ({
                 value: collection.id,
                 text: collection.fullName,
@@ -51,14 +65,15 @@ new SlimSelect({
 document.getElementById('collections').addEventListener('change', function (event) {
     // if there's no subjects selected populate the subjects with the ones from the collection
     if (subjectsSlimSelect.selected().length === 0) {
-        let collectionOption = event.target.options[event.target.selectedIndex];
+        let target = event.target as HTMLSelectElement;
+        let collectionOption = target.options[target.selectedIndex];
         if (collectionOption && collectionOption.dataset.subjects) {
             subjectsSlimSelect.set(collectionOption.dataset.subjects.split(","));
         }
     }
 });
 
-let seedUrlsField = document.getElementById("seedUrls");
+let seedUrlsTextArea = document.getElementById("seedUrls") as HTMLTextAreaElement;
 
 function escapeHtml(text) {
     var element = document.createElement('p');
@@ -66,12 +81,12 @@ function escapeHtml(text) {
     return element.innerHTML;
 }
 
-let publisherSelect = null;
+let publisherSlimSelect = null;
 
 // fetch the contact people for the selected publisher
 function refreshPublisherContactPeople(publisherId) {
     console.log("refreshPublisherContactPeople(" + publisherId + ")");
-    let select = document.getElementById("titlePermission.contactPerson");
+    let select = document.getElementById("titlePermission.contactPerson") as HTMLSelectElement;
 
     // remove existing options with class publisher-contact-person-option
     let options = select.querySelectorAll(".publisher-contact-person-option");
@@ -82,7 +97,7 @@ function refreshPublisherContactPeople(publisherId) {
     if (!publisherId || publisherId === "new") return;
 
     fetch(publishersEndpoint + "/" + publisherId + "/contact-people.json")
-        .then(response => response.json())
+        .then(response => response.ok ? response.json() : Promise.reject(response))
         .then(contactPeople => {
             // add new options
             for (let person of contactPeople) {
@@ -100,7 +115,7 @@ function refreshPublisherContactPeople(publisherId) {
 }
 
 if (document.getElementById("publisher")) {
-    publisherSelect = new SlimSelect({
+    publisherSlimSelect = new SlimSelect({
         select: '#publisher',
         allowDeselect: true,
         hideSelectedOption: true,
@@ -119,7 +134,7 @@ if (document.getElementById("publisher")) {
                 return;
             }
             fetch(publisherJsonEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-                .then(response => response.json())
+                .then(response => response.ok ? response.json() : Promise.reject(response))
                 .then(results => {
                     callback(results.map(publisher => {
                         return {
@@ -146,27 +161,30 @@ if (document.getElementById("publisher")) {
             delete this.pandasSavedSearch;
         },
         onChange: function (info) {
-            let publisherType = document.getElementById("publisherType");
+            let publisherTypeSelect = document.getElementById("publisherType") as HTMLSelectElement;
+            let publisherIdInput = document.getElementById("publisherId") as HTMLInputElement;
+            let publisherNameInput = document.getElementById("publisherName") as HTMLInputElement;
+            let newPublisherFieldsDiv = document.getElementById("newPublisherFields") as HTMLDivElement;
             if (info.value === "new") {
-                document.getElementById("publisherId").value = "";
-                document.getElementById("publisherName").value = info.text;
-                publisherType.required = true;
-                document.getElementById("newPublisherFields").style.display = "inherit";
+                publisherIdInput.value = "";
+                publisherNameInput.value = info.text;
+                publisherTypeSelect.required = true;
+                newPublisherFieldsDiv.style.display = "inherit";
 
                 const urlString = getPrimarySeedUrl();
                 if (urlString) {
                     const host = new URL(urlString).host;
-                    const publisherTypeOptions = publisherType.options;
+                    const publisherTypeOptions = publisherTypeSelect.options;
 
                     // try to preselect an appropriate publisher type based on the domain suffix
-                    if (publisherType.selectedIndex === 0) {
+                    if (publisherTypeSelect.selectedIndex === 0) {
                         outer:
                             for (let i = 0; i < publisherTypeOptions.length; i++) {
                                 const option = publisherTypeOptions[i];
                                 if (option.dataset.domainsuffixes) {
                                     for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
                                         if (host.endsWith(suffix)) {
-                                            publisherType.selectedIndex = i;
+                                            publisherTypeSelect.selectedIndex = i;
                                             break outer;
                                         }
                                     }
@@ -175,29 +193,31 @@ if (document.getElementById("publisher")) {
                     }
                 }
             } else {
-                document.getElementById("publisherId").value = info.value === undefined ? "" : info.value;
-                document.getElementById("publisherName").value = "";
-                publisherType.selectedIndex = 0;
-                publisherType.required = false;
-                document.getElementById("newPublisherFields").style.display = "none";
+                publisherIdInput.value = info.value === undefined ? "" : info.value;
+                publisherNameInput.value = "";
+                publisherTypeSelect.selectedIndex = 0;
+                publisherTypeSelect.required = false;
+                newPublisherFieldsDiv.style.display = "none";
             }
             refreshPublisherContactPeople(info.value);
         }
     });
-    refreshPublisherContactPeople(document.querySelector('#publisher').value);
+    let publisherSelectElement = document.querySelector('#publisher') as HTMLSelectElement;
+    refreshPublisherContactPeople(publisherSelectElement.value);
 }
 
 // Hide ABN field for personal publisher type
 function handlePublisherTypeChange() {
     let publisherAbnLabel = document.getElementById("publisherAbn").parentElement;
-    if (document.getElementById("publisherType").selectedOptions[0].text === "Personal") {
+    let publisherTypeSelect = document.getElementById("publisherType") as HTMLSelectElement;
+    if (publisherTypeSelect.selectedOptions[0].text === "Personal") {
         publisherAbnLabel.style.display = "none";
     } else {
         publisherAbnLabel.style.display = "";
     }
 }
 
-function createLink(text, href, target, className) {
+function createLink(text : string, href : string, target : string, className? : string) {
     let link = document.createElement("a");
     link.href = href;
     link.innerText = text;
@@ -206,17 +226,17 @@ function createLink(text, href, target, className) {
     return link;
 }
 
-let nameField = document.getElementById("name");
+let nameInput = document.getElementById("name") as HTMLInputElement;
 
 function nameChanged() {
-    if (publisherSelect && !publisherSelect.selected()) {
-        let name = nameField.value;
+    if (publisherSlimSelect && !publisherSlimSelect.selected()) {
+        let name = nameInput.value;
         name = name.replace(/\s*:.*/, '');
-        publisherSelect.search(name);
+        publisherSlimSelect.search(name);
     }
 
-    fetch(titleCheckNameEndpoint + "?name=" + encodeURIComponent(nameField.value))
-        .then(response => response.json())
+    fetch(titleCheckNameEndpoint + "?name=" + encodeURIComponent(nameInput.value))
+        .then(response => response.ok ? response.json() : Promise.reject(response))
         .then(titles => {
             titles = titles.filter(title => title.id !== thisTitleId);
 
@@ -245,13 +265,13 @@ function nameChanged() {
             }
 
             if (titles.length >= 4) {
-                warningDiv.append(createLink("More...", titlesEndpoint + "?q=" + encodeURIComponent(nameField.value), "_blank"));
+                warningDiv.append(createLink("More...", titlesEndpoint + "?q=" + encodeURIComponent(nameInput.value), "_blank"));
             }
         });
 }
 
 function getSeedUrls() {
-    return document.getElementById("seedUrls").value.split(/\s+/);
+    return seedUrlsTextArea.value.split(/\s+/);
 }
 
 function getPrimarySeedUrl() {
@@ -262,7 +282,7 @@ function setPrimarySeedUrl(url) {
     let urls = getSeedUrls();
     if (url === urls[0]) return;
     urls[0] = url;
-    seedUrlsField.value = urls.join("\n");
+    seedUrlsTextArea.value = urls.join("\n");
 }
 
 function normalizeSeedUrls() {
@@ -281,7 +301,7 @@ function normalizeSeedUrls() {
         }
     }
     if (changedAnything) {
-        seedUrlsField.value = urls.join("\n");
+        seedUrlsTextArea.value = urls.join("\n");
     }
 }
 
@@ -295,17 +315,18 @@ function seedUrlsChanged() {
     normalizeSeedUrls();
 
     /* ensure all pages on this website can't be selected for nitter */
+    let scopeRadios = document.querySelectorAll("input[type=radio][name=scope]") as NodeListOf<HTMLInputElement>;
     if (getPrimarySeedUrl().startsWith("https://nitter.archive.org.au/")) {
-        if (!document.querySelectorAll("input[type=radio][name=scope]")[2].checked) {
-            document.querySelectorAll("input[type=radio][name=scope]")[1].checked = true;
+        if (!scopeRadios[2].checked) {
+            scopeRadios[1].checked = true;
         }
-        document.querySelectorAll("input[type=radio][name=scope]")[0].disabled = true;
+        scopeRadios[0].disabled = true;
     } else {
-        document.querySelectorAll("input[type=radio][name=scope]")[1].disabled = false;
+        scopeRadios[1].disabled = false;
     }
 
     fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()))
-        .then(response => response.json())
+        .then(response => response.ok ? response.json() : Promise.reject(response))
         .then(titles => {
             titles = titles.filter(title => title.id !== thisTitleId);
             if (titles.length === 0) return;
@@ -329,8 +350,8 @@ function seedUrlsChanged() {
         });
 
     fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()))
+        .then(response => response.ok ? response.json() : Promise.reject(response))
         .catch(reason => console.log(reason))
-        .then(response => response.json())
         .then(info => {
             function normalize(url) {
                 return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
@@ -363,7 +384,7 @@ function seedUrlsChanged() {
                 fetchAlert.style.display = 'nonew';
             }
 
-            let nameTextbox = nameField;
+            let nameTextbox = nameInput;
             if (!nameTextbox.value && info.title && info.status < 300) {
                 nameTextbox.value = info.title.replace(/^Home\s*[-:|]\s*/, '');
                 if (document.activeElement === nameTextbox) {
@@ -375,16 +396,19 @@ function seedUrlsChanged() {
 }
 
 function checkSurts() {
-    let seeds = document.getElementById('seedUrls').value;
+    let seedUrlsTextArea = document.getElementById('seedUrls') as HTMLTextAreaElement;
+    let seeds = seedUrlsTextArea.value;
     const surtsHint = document.getElementById('surtsHint');
-    let selectedGatherMethod = document.getElementById('gatherMethod').selectedOptions;
+    let gatherMethodSelect = document.getElementById('gatherMethod') as HTMLSelectElement;
+    let selectedGatherMethod = gatherMethodSelect.selectedOptions;
     if (!seeds || selectedGatherMethod.length === 0 || selectedGatherMethod[0].text !== 'Heritrix') {
         surtsHint.innerHTML = '';
         return;
     }
     surtsHint.innerHTML = '...';
     const formData = new FormData();
-    formData.append('_csrf', document.querySelector("input[name='_csrf']").value);
+    let csrfInput = document.querySelector("input[name='_csrf']") as HTMLInputElement;
+    formData.append('_csrf', csrfInput.value);
     formData.append('seedUrls', seeds);
     fetch(titleCheckSurtsEndpoint, {method: 'POST', body: formData}).then(response => {
         if (!response.ok) {
@@ -397,15 +421,16 @@ function checkSurts() {
 
 // Only show the gather filters field if the HTTrack gather method is selected.
 function showOrHideFilters() {
-    let selectedGatherMethod = document.getElementById('gatherMethod').selectedOptions;
+    let gatherMethodSelect = document.getElementById('gatherMethod') as HTMLSelectElement;
+    let selectedGatherMethod = gatherMethodSelect.selectedOptions;
     let httrackMethodIsSelected = selectedGatherMethod.length !== 0 && selectedGatherMethod[0].text === 'HTTrack';
     document.getElementById('filters').parentElement.style.display = httrackMethodIsSelected ? 'inherit' : 'none';
 }
 
 // When a newline is entered in the URL field, expand it to multiple lines
 function autoExpandSeedUrlField() {
-    if (seedUrlsField.rows === 1 && seedUrlsField.value.includes('\n')) {
-        seedUrlsField.rows = 5;
+    if (seedUrlsTextArea.rows === 1 && seedUrlsTextArea.value.includes('\n')) {
+        seedUrlsTextArea.rows = 5;
         document.getElementById('urlPlusButton').style.display = 'none';
         document.getElementById('seedUrlsLabelText').innerText += "s";
     }
@@ -416,7 +441,6 @@ autoExpandSeedUrlField();
 
 // When the URL field's "+" button is clicked, expand it
 document.getElementById('urlPlusButton').addEventListener('click', function () {
-    let seedUrlsTextArea = document.getElementById("seedUrls");
     if (!seedUrlsTextArea.value.endsWith("\n")) {
         seedUrlsTextArea.value += "\n";
     }
@@ -426,7 +450,7 @@ document.getElementById('urlPlusButton').addEventListener('click', function () {
 
 // Setup event listeners
 
-seedUrlsField.addEventListener("change", function () {
+seedUrlsTextArea.addEventListener("change", function () {
     seedUrlsChanged();
     checkSurts();
 });
@@ -435,12 +459,12 @@ document.getElementById('gatherMethod').addEventListener("change", function () {
     showOrHideFilters();
     checkSurts();
 });
-nameField.addEventListener("change", nameChanged);
+nameInput.addEventListener("change", nameChanged);
 document.getElementById("publisherType").addEventListener("change", handlePublisherTypeChange);
 
 // Hide the history details when the "Link as the next in a series" checkbox is checked
 // This ensures the user can't get confused and also try to manually link it.
-let continuesCheckbox = document.getElementById("continuesCheckbox");
+let continuesCheckbox = document.getElementById("continuesCheckbox") as HTMLInputElement;
 if (continuesCheckbox) {
     continuesCheckbox.addEventListener("click", function () {
         const checked = continuesCheckbox.checked;
@@ -450,14 +474,14 @@ if (continuesCheckbox) {
 
 // Fire initial change events
 
-if (seedUrlsField.value !== "") {
+if (seedUrlsTextArea.value !== "") {
     seedUrlsChanged();
 }
 showOrHideFilters();
 checkSurts();
-if (nameField.value) nameChanged();
+if (nameInput.value) nameChanged();
 handlePublisherTypeChange();
 
-// we keep the form disabled until the page is fully loaded
-// otherwise it could be submitted with partial values which results in data loss
-window.loaded = true;
+// last step: enable the form's submit buttons now that the javascript has loaded
+document.querySelectorAll("button[type=submit][disabled]")
+    .forEach(submitButton => (submitButton as HTMLButtonElement).disabled = false);

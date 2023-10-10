@@ -8,3 +8,5 @@ target
 /.idea
 spring-shell.log
 /delivery/build-ffmpeg/
+/ui/node_modules/
+/ui/node/

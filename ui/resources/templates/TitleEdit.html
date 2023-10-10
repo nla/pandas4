@@ -12,11 +12,10 @@
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Titles')}"></nav>
 <main>
-    <form id="titleEditForm" method=post class=form th:object="${form}" th:action="@{/titles}"
-          onsubmit="return !!window.loaded">
+    <form id="titleEditForm" method=post class=form th:object="${form}" th:action="@{/titles}">
         <header>
             <div th:if="${form.id != null}">
-                <button type="submit" class="btn btn-primary"><i class="icon save"></i>Save</button>
+                <button type="submit" class="btn btn-primary" disabled><i class="icon save"></i>Save</button>
                 <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i
                         class="icon cancel"></i>Cancel
                 </button>
@@ -458,8 +457,8 @@
         </label>
 
         <div th:if="${form.id == null}">
-            <button type="submit" class="btn btn-primary"><i class="icon save"></i>Save</button>
-            <button type="submit" class="btn btn-secondary" name="action" value="saveAndAddAnother">Save and add another</button>
+            <button type="submit" class="btn btn-primary" disabled><i class="icon save"></i>Save</button>
+            <button type="submit" class="btn btn-secondary" name="action" value="saveAndAddAnother" disabled>Save and add another</button>
             <button style="float: right" onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
         </div>
 
