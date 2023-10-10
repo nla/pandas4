@@ -1,0 +1,59 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Install 'Development Tools' package group
+      yum:
+        name: "@Development Tools"
+        state: present
+
+    - name: Create a virtualenv for webrecorder
+      shell:
+        cmd: |
+          python3 -m venv /opt/webrecorder
+          /opt/webrecorder/bin/pip install --upgrade pip
+        creates: /opt/webrecorder
+
+    - name: Install pywb and gunicorn using pip inside the virtualenv
+      pip:
+        name:
+          - pywb==2.7.4
+          - gunicorn
+        virtualenv: /opt/webrecorder
+        virtualenv_python: python3
+
+    - name: Copy pywb configuration filse
+      copy:
+          src: pywb/
+          dest: /opt/webrecorder/pywb/
+
+    - name: Install fapolicyd policy for webrecorder
+      copy:
+        dest: /etc/fapolicyd/rules.d/09-webrecorder.rules
+        content: |
+          allow perm=any uid=39494 : dir=/opt/webrecorder
+          allow perm=any uid=0 : dir=/opt/webrecorder
+      register: fapolicyd
+
+    - name: Restart fapolicyd service
+      service:
+        name: fapolicyd
+        state: restarted
+      when: fapolicyd.changed
+
+    - name: Install webrecorder-pywb systemd service
+      copy:
+        src: systemd/webrecorder-pywb.service
+        dest: /etc/systemd/system/webrecorder-pywb.service
+      register: webrecorder_pywb
+
+    - name: Reload systemd daemon
+      systemd:
+          daemon_reload: yes
+      when: webrecorder_pywb.changed
+
+    - name: Enable webrecorder-pywb systemd service
+      systemd:
+          name: webrecorder-pywb
+          enabled: yes

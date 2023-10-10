@@ -1,5 +1,0 @@
-[Socket]
-ListenStream=/run/webrecorder-pywb.sock
-
-[Install]
-WantedBy=sockets.target
