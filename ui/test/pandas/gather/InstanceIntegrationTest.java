@@ -1,6 +1,7 @@
 package pandas.gather;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import pandas.IntegrationTest;
@@ -8,6 +9,8 @@ import pandas.agency.UserService;
 import pandas.collection.Title;
 import pandas.collection.TitleService;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,6 +22,8 @@ public class InstanceIntegrationTest extends IntegrationTest {
     @Autowired TitleService titleService;
     @Autowired InstanceService instanceService;
     @Autowired UserService userService;
+    @Autowired StateRepository stateRepository;
+    @Autowired InstanceRepository instanceRepository;
 
     @Test
     @WithUserDetails("admin")
@@ -26,6 +31,8 @@ public class InstanceIntegrationTest extends IntegrationTest {
         Title title = createTitle();
         Instance instance1 = instanceService.createInstance(GatherMethod.HERITRIX, title);
         Instance instance2 = instanceService.createInstance(GatherMethod.HERITRIX, title);
+        instanceService.updateState(instance1, State.GATHERED);
+        instanceService.updateState(instance2, State.GATHERED);
 
         mockMvc.perform(post("/instances/archive")
                 .with(csrf())
