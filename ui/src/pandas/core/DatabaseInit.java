@@ -29,7 +29,7 @@ public class DatabaseInit {
     private final StatusRepository statusRepository;
     private final UserRepository userRepository;
 
-    public DatabaseInit(AgencyRepository agencyRepository, FormatRepository formatRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, PublisherTypeRepository publisherTypeRepository, ScopeRepository scopeRepository, StateRepository stateRepository, StatusRepository statusRepository, UserRepository userRepository, FlywayConfig flywayConfig) {
+    public DatabaseInit(AgencyRepository agencyRepository, FormatRepository formatRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, PublisherTypeRepository publisherTypeRepository, ScopeRepository scopeRepository, StateRepository stateRepository, StatusRepository statusRepository, UserRepository userRepository) {
         this.agencyRepository = agencyRepository;
         this.formatRepository = formatRepository;
         this.gatherMethodRepository = gatherMethodRepository;
