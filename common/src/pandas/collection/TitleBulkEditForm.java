@@ -40,9 +40,11 @@ public class TitleBulkEditForm {
     private boolean editAddNote;
     private String addNote;
 
-    private List<Collection> collectionsToAdd = new ArrayList<>();
+    private final List<Collection> collectionsToAdd = new ArrayList<>();
+    private final List<Collection> collectionsToRemove = new ArrayList<>();
 
-    private List<Subject> subjectsToAdd = new ArrayList<>();
+    private final List<Subject> subjectsToAdd = new ArrayList<>();
+    private final List<Subject> subjectsToRemove = new ArrayList<>();
 
     private boolean editProfile;
     private Profile profile;
@@ -172,16 +174,36 @@ public class TitleBulkEditForm {
         return collectionsToAdd;
     }
 
+    public void setCollectionsToAdd(List<Collection> collectionsToAdd) {
+        this.collectionsToAdd.clear();
+        this.collectionsToAdd.addAll(collectionsToAdd);
+    }
+
+    public List<Collection> getCollectionsToRemove() {
+        return collectionsToRemove;
+    }
+
+    public void setCollectionsToRemove(List<Collection> collectionsToRemove) {
+        this.collectionsToRemove.clear();
+        this.collectionsToRemove.addAll(collectionsToRemove);
+    }
+
     public List<Subject> getSubjectsToAdd() {
         return subjectsToAdd;
     }
 
     public void setSubjectsToAdd(List<Subject> subjectsToAdd) {
-        this.subjectsToAdd = subjectsToAdd;
+        this.subjectsToAdd.clear();
+        this.subjectsToAdd.addAll(subjectsToAdd);
     }
 
-    public void setCollectionsToAdd(List<Collection> collectionsToAdd) {
-        this.collectionsToAdd = collectionsToAdd;
+    public List<Subject> getSubjectsToRemove() {
+        return subjectsToRemove;
+    }
+
+    public void setSubjectsToRemove(List<Subject> subjectsToRemove) {
+        this.subjectsToRemove.clear();
+        this.subjectsToRemove.addAll(subjectsToRemove);
     }
 
     public boolean isEditScope() {

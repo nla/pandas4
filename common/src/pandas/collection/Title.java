@@ -439,8 +439,12 @@ public class Title {
         this.subjects.addAll(subjects);
     }
 
-    public void addSubject(Subject subject) {
-        subjects.add(subject);
+    public void addSubjects(java.util.Collection<Subject> subjectsToAdd) {
+        subjects.addAll(subjectsToAdd);
+    }
+
+    public void removeSubjects(java.util.Collection<Subject> subjectsToRemove) {
+        subjects.removeAll(subjectsToRemove);
     }
 
     public Tep getTep() {
@@ -513,8 +517,12 @@ public class Title {
         this.collections.addAll(collections);
     }
 
-    public void addCollection(Collection collection) {
-        collections.add(collection);
+    public void addCollections(java.util.Collection<Collection> collectionsToAdd) {
+        collections.addAll(collectionsToAdd);
+    }
+
+    public void removeCollections(java.util.Collection<Collection> collectionsToRemove) {
+        collections.removeAll(collectionsToRemove);
     }
 
     @OneToMany(mappedBy = "title")

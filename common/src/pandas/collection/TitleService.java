@@ -379,23 +379,10 @@ public class TitleService {
                 recordStatusChange(title, currentUser, Instant.now(), form.getReason());
             }
 
-            if (!form.getCollectionsToAdd().isEmpty()) {
-                Set<Long> existingCollectionIds = title.getCollections().stream().map(Collection::getId).collect(Collectors.toSet());
-                for (Collection collection : form.getCollectionsToAdd()) {
-                    if (!existingCollectionIds.contains(collection.getId())) {
-                        title.addCollection(collection);
-                    }
-                }
-            }
-
-            if (!form.getSubjectsToAdd().isEmpty()) {
-                Set<Long> existingSubjectIds = title.getSubjects().stream().map(Subject::getId).collect(Collectors.toSet());
-                for (Subject subject : form.getSubjectsToAdd()) {
-                    if (!existingSubjectIds.contains(subject.getId())) {
-                        title.addSubject(subject);
-                    }
-                }
-            }
+            title.addCollections(form.getCollectionsToAdd());
+            title.removeCollections(form.getCollectionsToRemove());
+            title.addSubjects(form.getSubjectsToAdd());
+            title.removeSubjects(form.getSubjectsToRemove());
         }
         titleRepository.saveAll(titles);
     }

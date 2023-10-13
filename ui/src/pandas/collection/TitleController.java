@@ -179,6 +179,14 @@ public class TitleController {
                 .filter(title -> permissionEvaluator.hasPermission(authentication, title, "edit"))
                 .collect(Collectors.toList());
 
+        // collate selected collections and subjects
+        Set<Collection> collectionsOnSelectedTitles = new HashSet<>();
+        Set<Subject> subjectsOnSelectedTitles = new HashSet<>();
+        for (Title title : editableTitles) {
+            collectionsOnSelectedTitles.addAll(title.getCollections());
+            subjectsOnSelectedTitles.addAll(title.getSubjects());
+        }
+
         var form = titleService.newBulkEditForm(editableTitles);
         model.addAttribute("form", form);
         model.addAttribute("allUsers", userRepository.findByActiveIsTrueOrderByNameGivenAscNameFamilyAsc());
@@ -187,6 +195,8 @@ public class TitleController {
         model.addAttribute("allScopes", scopeRepository.findAll());
         model.addAttribute("disallowedTitleCount", titles.size() - editableTitles.size());
         model.addAttribute("statusList", titleService.allowedStatusTransitions(editableTitles));
+        model.addAttribute("collectionsOnSelectedTitles", collectionsOnSelectedTitles);
+        model.addAttribute("subjectsOnSelectedTitles", subjectsOnSelectedTitles);
         return "TitleBulkEdit";
     }
 

@@ -127,10 +127,28 @@
                 </select>
 
                 <span></span>
+                <label for=subjectsToRemove>Remove Subjects:</label>
+                <select th:field="*{subjectsToRemove}" id="subjectsToRemove" multiple>
+                    <option th:each="subject: ${subjectsOnSelectedTitles}"
+                            th:value="${subject.id}" th:text="${subject.name}"
+                            th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
+                            th:data-fullname="${subject.fullName}">Arts
+                    </option>
+                </select>
+
+                <span></span>
                 <label for=collectionsToAdd>Add Collections:</label>
                 <select th:field="*{collectionsToAdd}" id="collectionsToAdd" multiple>
                     <option th:each="collection: ${form.collectionsToAdd}" th:value="${collection.id}"
                             th:text="${collection.fullName}" selected>Arts
+                    </option>
+                </select>
+
+                <span></span>
+                <label for=collectionsToRemove>Remove Collections:</label>
+                <select th:field="*{collectionsToRemove}" id="collectionsToRemove" multiple>
+                    <option th:each="collection: ${collectionsOnSelectedTitles}"
+                            th:value="${collection.id}" th:text="${collection.fullName}">Arts
                     </option>
                 </select>
             </th:block>
@@ -152,8 +170,16 @@
         <script th:inline="javascript">
             var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
 
-            const subjectsSlimSelect = new SlimSelect({
+            new SlimSelect({
                 select: '#subjectsToAdd',
+                hideSelectedOption: true,
+                searchFilter: function (option, search) {
+                    return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+                }
+            });
+
+            new SlimSelect({
+                select: '#subjectsToRemove',
                 hideSelectedOption: true,
                 searchFilter: function (option, search) {
                     return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
@@ -173,6 +199,11 @@
                         .then(results => callback(results.map(collection => ({value: collection.id, text: collection.fullName}))))
                         .catch(error => callback(false));
                 },
+            });
+
+            new SlimSelect({
+                select: '#collectionsToRemove',
+                hideSelectedOption: true,
             });
 
             document.querySelectorAll("input[type=checkbox][id^=edit]").forEach(checkbox => {
