@@ -28,7 +28,6 @@ public class DatabaseInit {
     private final StateRepository stateRepository;
     private final StatusRepository statusRepository;
     private final UserRepository userRepository;
-    private final FlywayConfig flywayConfig;
 
     public DatabaseInit(AgencyRepository agencyRepository, FormatRepository formatRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, PublisherTypeRepository publisherTypeRepository, ScopeRepository scopeRepository, StateRepository stateRepository, StatusRepository statusRepository, UserRepository userRepository, FlywayConfig flywayConfig) {
         this.agencyRepository = agencyRepository;
@@ -40,7 +39,6 @@ public class DatabaseInit {
         this.stateRepository = stateRepository;
         this.statusRepository = statusRepository;
         this.userRepository = userRepository;
-        this.flywayConfig = flywayConfig;
     }
 
     @PostConstruct
