@@ -19,6 +19,7 @@
     --gutter: 16px;
 }
 
+/* Dark mode disabled for now as its causing unreadable text in some places
 @media (prefers-color-scheme: dark) {
     :root {
         --color-sidebar-background: #151515;
@@ -33,6 +34,7 @@
         --color-link-hover: #8e98ad;
     }
 }
+ */
 
 html {
     height: 100%;
