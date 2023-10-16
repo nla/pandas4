@@ -663,6 +663,11 @@ ul.subject-list li + li:before {
 .status-rejected { color: darkred; }
 .status-permission-impossible, .status-permission-denied { color: midnightblue; }
 
+.permission-state-Granted    { background-color: #e6ffe6; }
+.permission-state-Denied     { background-color: #ffe6e6; }
+.permission-state-Impossible { background-color: #ffffe6; }
+.permission-state-Unknown    { background-color: #f3f3f3; }
+
 .time-frame {
     color: #666;
 }

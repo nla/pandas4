@@ -16,7 +16,6 @@ import pandas.util.Strings;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TitleService {
@@ -189,6 +188,9 @@ public class TitleService {
             Permission permission = title.getDefaultPermission();
             form.getTitlePermission().applyTo(permission);
             title.setPermission(permission);
+        } else if (form.getPermissionType() == TitleEditForm.PermissionTypeRadio.PUBLISHER &&
+                   form.getPublisherPermission() != null) {
+            title.setPermission(form.getPublisherPermission());
         }
 
         // create or update publisher

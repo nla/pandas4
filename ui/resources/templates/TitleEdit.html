@@ -7,6 +7,19 @@
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
         .publisher-select-item { gap: 4px; }
+
+        #publisherPermissionFieldset th {
+            text-align: left;
+        }
+
+        #publisherPermissionFieldset table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #publisherPermissionFieldset td, #publisherPermissionFieldset th {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
     </style>
 </head>
 <body>
@@ -242,12 +255,53 @@
             </label>
 
             <th:block th:object="${form.titlePermission}"
-                      th:insert="~{PermissionEdit.html :: fieldset (id='titlePermissionFieldset',contactPeople=${titleContactPeople},blanket=false)}">
+                      th:insert="~{PermissionEdit.html :: fieldset (id='titlePermissionFieldset',contactPeople=${titleContactPeople},blanket=false)}"
+                     style="display: none">
             </th:block>
 
-            <fieldset id="publisherPermissionFieldset" class="alert-info">
-                Publisher permissions can currently only be edited via PANDAS 3.
-            </fieldset>
+            <div id="publisherPermissionFieldset" style="display: block; padding: 0; margin: 0">
+                <table>
+                    <thead>
+                        <tr>
+                            <td style="width: 0;"></td>
+                            <td>Status</td>
+                            <td>Granted by</td>
+                            <td>Conditions</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="permission: ${form.publisher.permissions}"
+                        th:classappend="${'permission-state-' + permission.stateName}">
+                        <td>
+                            <input type="radio" th:field="*{publisherPermission}" th:value="${permission.id}">
+                        </td>
+                        <td>
+                            <label th:for="${#ids.prev('publisherPermission')}">
+                                <strong th:text="${permission.stateName}">Granted</strong>
+                                <span th:if="${permission.statusSetDate != null}"
+                                     th:text="${@dateFormats.getShortDate().format(permission.statusSetDate)}">Today
+                                </span>
+                                <div th:text="${permission.localReference}">
+                                    REF/123/1234
+                                </div>
+                            </label>
+                        </td>
+                        <td>
+                            <div th:if="${permission.contactPerson != null}"
+                                 th:text="${permission.contactPerson.name}">John Smith
+                            </div>
+                            <div th:if="${permission.contactPerson != null}"
+                                 th:text="${permission.contactPerson.function}">CEO
+                            </div>
+                        </td>
+                        <td th:text="${permission.domain}">
+                            <div>*.example.com</div>
+                            <div>All pages but no videos.</div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <script>
                 // show/hide permission fieldsets based on permissionType

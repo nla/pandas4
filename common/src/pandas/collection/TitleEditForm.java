@@ -53,6 +53,7 @@ public class TitleEditForm {
     private PermissionTypeRadio permissionType;
     private String permissionState;
     private PermissionEditForm titlePermission;
+    private Permission publisherPermission;
 
     public PermissionEditForm getTitlePermission() {
         return titlePermission;
@@ -60,6 +61,15 @@ public class TitleEditForm {
 
     public TitleEditForm setTitlePermission(PermissionEditForm titlePermission) {
         this.titlePermission = titlePermission;
+        return this;
+    }
+
+    public Permission getPublisherPermission() {
+        return publisherPermission;
+    }
+
+    public TitleEditForm setPublisherPermission(Permission publisherPermission) {
+        this.publisherPermission = publisherPermission;
         return this;
     }
 
@@ -123,11 +133,16 @@ public class TitleEditForm {
             permissionType = PermissionTypeRadio.PUBLISHER;
         }
 
-        Permission permission = title.getDefaultPermission();
-        if (permission != null) {
-            this.titlePermission = PermissionEditForm.from(permission);
+        Permission titlePermission = title.getDefaultPermission();
+        if (titlePermission != null) {
+            this.titlePermission = PermissionEditForm.from(titlePermission);
         } else {
-            titlePermission = new PermissionEditForm();
+            this.titlePermission = new PermissionEditForm();
+        }
+
+        Permission permission = title.getPermission();
+        if (permission != null && permission.isBlanket()) {
+            publisherPermission = permission;
         }
     }
 
