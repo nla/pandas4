@@ -270,7 +270,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="permission: ${form.publisher.permissions}"
+                    <tr th:if="${form.publisher != null}" th:each="permission: ${form.publisher.permissions}"
                         th:classappend="${'permission-state-' + permission.stateName}">
                         <td>
                             <input type="radio" th:field="*{publisherPermission}" th:value="${permission.id}">
