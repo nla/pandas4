@@ -269,8 +269,8 @@
                             <td>Conditions</td>
                         </tr>
                     </thead>
-                    <tbody>
-                    <tr th:if="${form.publisher != null}" th:each="permission: ${form.publisher.permissions}"
+                    <tbody th:if="${form.publisher != null}" >
+                    <tr th:each="permission: ${form.publisher.permissions}"
                         th:classappend="${'permission-state-' + permission.stateName}">
                         <td>
                             <input type="radio" th:field="*{publisherPermission}" th:value="${permission.id}">
