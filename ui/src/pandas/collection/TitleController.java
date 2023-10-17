@@ -540,6 +540,7 @@ public class TitleController {
 
         // Copy basic gather settings to the new form when using "Save and add another"
         if (created != null) {
+            form.setFormat(created.getFormat());
             form.setGatherSchedule(created.getGather().getSchedule());
             form.setGatherMethod(created.getGather().getMethod());
             form.setActiveProfile(created.getGather().getActiveProfile());
