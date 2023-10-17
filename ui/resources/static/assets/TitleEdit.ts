@@ -294,7 +294,6 @@ function normalizeSeedUrls() {
         if (!url.match(/^[a-z]+:\/\//)) {
             url = "http://" + url;
         }
-        url = url.replace(/^https?:\/\/(nitter\.net|nitter\.mstdn\.social|mobile\.twitter\.com|twitter\.com)\//, "https://nitter.archive.org.au/");
         urls.push(url);
         if (url !== originalUrl) {
             changedAnything = true;
@@ -316,14 +315,7 @@ function seedUrlsChanged() {
 
     /* ensure all pages on this website can't be selected for nitter */
     let scopeRadios = document.querySelectorAll("input[type=radio][name=scope]") as NodeListOf<HTMLInputElement>;
-    if (getPrimarySeedUrl().startsWith("https://nitter.archive.org.au/")) {
-        if (!scopeRadios[2].checked) {
-            scopeRadios[1].checked = true;
-        }
-        scopeRadios[0].disabled = true;
-    } else {
-        scopeRadios[1].disabled = false;
-    }
+    scopeRadios[1].disabled = false;
 
     fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()))
         .then(response => response.ok ? response.json() : Promise.reject(response))
