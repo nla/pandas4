@@ -372,7 +372,7 @@ function seedUrlsChanged() {
                 fetchAlert.style.display = 'block';
             } else {
                 fetchAlert.innerText = '';
-                fetchAlert.style.display = 'nonew';
+                fetchAlert.style.display = 'none';
             }
 
             let nameTextbox = nameInput;
