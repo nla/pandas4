@@ -313,7 +313,6 @@ function seedUrlsChanged() {
 
     normalizeSeedUrls();
 
-    /* ensure all pages on this website can't be selected for nitter */
     let scopeRadios = document.querySelectorAll("input[type=radio][name=scope]") as NodeListOf<HTMLInputElement>;
     scopeRadios[1].disabled = false;
 
