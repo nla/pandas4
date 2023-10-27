@@ -65,17 +65,50 @@ public class MastodonClient {
     }
 
     public List<Status> getAccountStatuses(String accountId, String sinceId, String maxId) throws IOException {
-        StringBuilder params = new StringBuilder("exclude_replies=false");
-        if (sinceId != null) params.append("&since_id=").append(URLEncoder.encode(sinceId, UTF_8));
-        if (maxId != null) params.append("&max_id=").append(URLEncoder.encode(maxId, UTF_8));
+        var params = new Params();
+        params.add("exclude_replies", "false");
+        params.add("since_id", sinceId);
+        params.add("max_id", maxId);
         return Arrays.asList(sendRequest("/api/v1/accounts/" + accountId + "/statuses?" + params, Status[].class));
+    }
+
+    public List<Status> getPublicTimeline(Boolean local, Integer limit, String minId) throws IOException {
+        var params = new Params();
+        params.add("local", local);
+        params.add("limit", limit);
+        params.add("max_id", minId);
+        return Arrays.asList(sendRequest("/api/v1/timelines/public?" + params, Status[].class));
+    }
+
+    private static class Params {
+        private StringBuilder queryString = new StringBuilder();
+
+        public void add(String name, String value) {
+            if (value == null) return;
+            if (!queryString.isEmpty()) queryString.append('&');
+            queryString.append(name).append('=').append(URLEncoder.encode(value, UTF_8));
+        }
+
+        public void add(String name, Boolean value) {
+            if (value == null) return;
+            add(name, value.toString());
+        }
+
+        public void add(String name, Number value) {
+            if (value == null) return;
+            add(name, value.toString());
+        }
+
+        public String toString() {
+            return queryString.toString();
+        }
     }
 
     @NotNull
     private <T> T sendRequest(String path, Class<T> returnType) throws IOException {
         HttpResponse httpResponse = failsafe.get(() -> sendRequestInner(path));
         if (httpResponse.status() != 200) {
-            throw new IOException("Unexpected response " + httpResponse.status() + " " + httpResponse.reason()  + " from " + server + path);
+            throw new IOException("Unexpected response " + httpResponse.status() + " " + httpResponse.reason() + " from " + server + path);
         }
         return SocialJson.mapper.readValue(httpResponse.body().stream(), returnType);
     }
@@ -84,11 +117,14 @@ public class MastodonClient {
     private HttpResponse sendRequestInner(String path) throws IOException {
         var uri = URI.create(server + path);
         log.trace("GET {}", uri);
-        var httpRequest = new HttpRequest.Builder("GET", uri.getRawPath() + "?" + uri.getRawQuery())
-                .version(HTTP_1_0)
+        var builder = new HttpRequest.Builder("GET", uri.getRawPath() + "?" + uri.getRawQuery())
+                .version(HTTP_1_0);
+        if (userAgent != null) {
+            builder.addHeader("User-Agent", userAgent);
+        }
+        var httpRequest = builder
                 .addHeader("Connection", "close")
                 .addHeader("Host", uri.getHost())
-                .addHeader("User-Agent", userAgent)
                 .build();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         warcWriter.fetch(uri, httpRequest, buffer);
