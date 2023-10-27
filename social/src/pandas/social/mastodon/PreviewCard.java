@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
+
 // https://docs.joinmastodon.org/entities/PreviewCard/
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record PreviewCard(
@@ -21,8 +23,11 @@ public record PreviewCard(
         @Nullable Long width,
         @Nullable Long height,
         @Nullable String image,
+        @Nullable String imageDescription,
         @Nullable String embedUrl,
-        @Nullable String blurhash
+        @Nullable String blurhash,
+        @Nullable String language,
+        @Nullable Instant publishedAt
 ) {
     // https://docs.joinmastodon.org/entities/PreviewCard/#type
     public enum Type {
