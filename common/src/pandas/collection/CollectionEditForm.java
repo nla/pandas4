@@ -9,11 +9,12 @@ import java.util.List;
 
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
-public record CollectionEditForm(@NotBlank String name, List<Subject> subjects,
-                                 String description, Integer startMonth,
-                                 Integer startYear, Integer endMonth, Integer endYear,
-                                 Collection parent, GatherSchedule gatherSchedule,
-                                 boolean displayed, boolean closed) {
+public record CollectionEditForm(
+        @NotBlank String name, List<Subject> subjects,
+        String description, Integer startMonth,
+        Integer startYear, Integer endMonth, Integer endYear,
+        Collection parent, GatherSchedule gatherSchedule,
+        boolean displayed, boolean closed) {
     public static CollectionEditForm of(Collection collection) {
         Integer startMonth = null, startYear = null;
         if (collection.getStartDate() != null) {

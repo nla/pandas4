@@ -19,6 +19,11 @@
         <fieldset>
             <label>Name <input class="form-control" th:field="*{name}" required></label>
 
+            <label>
+                Public description
+                <textarea th:field="*{description}" rows=3 class="form-control"></textarea>
+            </label>
+
             <label style="flex-grow: 1">Parent collection
                 <select th:field="*{parent}">
                     <option th:if="${form.parent != null}" th:value="${form.parent.id}"
