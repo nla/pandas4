@@ -36,6 +36,7 @@ public class TitleEditForm {
     private String notes;
     private String seedUrls;
     private String filters;
+    private boolean ignoreRobotsTxt;
     private Status status;
     private Reason reason;
     private boolean unableToArchive;
@@ -71,6 +72,14 @@ public class TitleEditForm {
     public TitleEditForm setPublisherPermission(Permission publisherPermission) {
         this.publisherPermission = publisherPermission;
         return this;
+    }
+
+    public boolean getIgnoreRobotsTxt() {
+        return ignoreRobotsTxt;
+    }
+
+    public void setIgnoreRobotsTxt(boolean ignoreRobotsTxt) {
+        this.ignoreRobotsTxt = ignoreRobotsTxt;
     }
 
     enum PermissionTypeRadio {
@@ -118,6 +127,7 @@ public class TitleEditForm {
             setGatherMethod(gather.getMethod());
             setGatherSchedule(gather.getSchedule());
             setOneoffDates(gather.getOneoffDates().stream().map(GatherDate::getDate).toList());
+            setIgnoreRobotsTxt(gather.getIgnoreRobotsTxt());
             setScope(gather.getScope());
             setScheduledInstant(gather.getScheduledDate());
             if (gather.getAdditionalUrls() != null && !gather.getAdditionalUrls().isBlank()) {

@@ -523,6 +523,14 @@ input[type=date] {
     margin-bottom: .25rem;
 }
 
+.hidden-input {
+    position: absolute;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    overflow: hidden;
+}
+
 /**
  * Tables
  */

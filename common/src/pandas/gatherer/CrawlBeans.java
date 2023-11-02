@@ -10,6 +10,7 @@ import org.xml.sax.SAXException;
 import pandas.gather.Instance;
 import pandas.gather.Profile;
 import pandas.gather.Scope;
+import pandas.gather.TitleGather;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -73,7 +74,8 @@ public class CrawlBeans {
 
         StringBuilder overrides = new StringBuilder();
 
-        Scope scope = instance.getTitle().getGather().getScope();
+        TitleGather gather = instance.getTitle().getGather();
+        Scope scope = gather.getScope();
         if (scope != null) {
             if (scope.getDepth() != null) {
                 overrides.append("tooManyHopsDecideRule.maxHops=").append(scope.getDepth()).append("\n");
@@ -83,7 +85,7 @@ public class CrawlBeans {
             }
         }
 
-        Profile profile = instance.getTitle().getGather().getActiveProfile();
+        Profile profile = gather.getActiveProfile();
         if (profile != null) {
             if (profile.getCrawlLimitBytes() != null) {
                 overrides.append("crawlLimiter.maxBytesDownload=").append(profile.getCrawlLimitBytes()).append("\n");
@@ -93,8 +95,13 @@ public class CrawlBeans {
             }
             if (profile.getHeritrixConfig() != null) {
                 overrides.append(profile.getHeritrixConfig());
+                if (!profile.getHeritrixConfig().endsWith("\n")) {
+                    overrides.append("\n");
+                }
             }
         }
+
+        if (gather.getIgnoreRobotsTxt()) overrides.append("metadata.robotsPolicyName=ignore\n");
 
         setBeanPropertyMultiline(doc, "simpleOverrides", "properties", overrides.toString());
         xpath(doc, "/beans:beans/beans:bean[@id='seeds']/beans:property[@name='textSource']/beans:bean/beans:property[@name='value']/beans:value")

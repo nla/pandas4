@@ -29,4 +29,14 @@ class TitleGatherTest {
         gather.calculateNextGatherDate();
         assertEquals(LocalDate.of(2012, 2, 2), gather.getNextGatherDate().atZone(ZoneId.systemDefault()).toLocalDate());
     }
+
+    @Test
+    public void testBuildHttrackCommand() {
+        Title title = new Title();
+        title.setTitleUrl("http://example.com/");
+        TitleGather gather = new TitleGather();
+        gather.setTitle(title);
+        gather.setIgnoreRobotsTxt(true);
+        assertEquals("--robots=0 'http://example.com/'", gather.buildHttrackCommand());
+    }
 }

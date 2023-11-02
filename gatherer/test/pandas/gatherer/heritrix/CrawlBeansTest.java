@@ -22,6 +22,7 @@ public class CrawlBeansTest {
         TitleGather gather = new TitleGather();
         gather.setGatherUrl("http://example.org/");
         gather.setAdditionalUrls("http://example.org/two");
+        gather.setIgnoreRobotsTxt(true);
 
         Title title = new Title();
         title.setPi(12345L);
@@ -39,8 +40,11 @@ public class CrawlBeansTest {
         assertEquals("http://example.org/\nhttp://example.org/two\n",
                 Files.readString(jobDir.resolve("seeds.txt")));
 
+        String config = Files.readString(jobDir.resolve("crawler-beans.cxml"));
+
         // ensure the xmlns attribute isn't clobbered
-        assertTrue(Files.readString(jobDir.resolve("crawler-beans.cxml")).contains("<beans xmlns="));
+        assertTrue(config.contains("<beans xmlns="));
+        assertTrue(config.contains("metadata.robotsPolicyName=ignore\n"));
     }
 
 }

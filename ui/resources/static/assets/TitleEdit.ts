@@ -410,12 +410,22 @@ function checkSurts() {
         .catch(error => console.error("SURT check failed: " + error));
 }
 
+function setInputHidden(id: string, hidden: boolean) {
+    let input = document.getElementById(id) as HTMLInputElement;
+    if (hidden) {
+        input.classList.add('hidden-input');
+    } else {
+        input.classList.remove('hidden-input');
+    }
+}
+
 // Only show the gather filters field if the HTTrack gather method is selected.
 function showOrHideFilters() {
     let gatherMethodSelect = document.getElementById('gatherMethod') as HTMLSelectElement;
     let selectedGatherMethod = gatherMethodSelect.selectedOptions;
-    let httrackMethodIsSelected = selectedGatherMethod.length !== 0 && selectedGatherMethod[0].text === 'HTTrack';
-    document.getElementById('filters').parentElement.style.display = httrackMethodIsSelected ? 'inherit' : 'none';
+    let gatherMethodName = selectedGatherMethod.length === 0 ? '' : selectedGatherMethod[0].text;
+    document.getElementById('filters').parentElement.style.display = gatherMethodName === 'HTTrack' ? 'inherit' : 'none';
+    setInputHidden('ignoreRobotsTxtLabel', !['Heritrix', 'HTTrack'].includes(gatherMethodName));
 }
 
 // When a newline is entered in the URL field, expand it to multiple lines

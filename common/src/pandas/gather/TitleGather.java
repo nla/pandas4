@@ -1,10 +1,11 @@
 package pandas.gather;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SortNatural;
-import org.hibernate.annotations.Type;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
@@ -13,10 +14,6 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmb
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 import pandas.collection.Title;
 
-import jakarta.persistence.*;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
@@ -132,6 +129,9 @@ public class TitleGather {
     @IndexedEmbedded(includePaths = {"id"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
     private Scope scope;
+
+    @ColumnDefault("false")
+    private boolean ignoreRobotsTxt;
 
     public TitleGather() {
     }
@@ -413,6 +413,8 @@ public class TitleGather {
             }
         }
 
+        if (getIgnoreRobotsTxt()) sb.append("--robots=0 ");
+
         String url = getGatherUrl();
         if (getAuthenticateUser() != null && getAuthenticateUser() == 1 && getUsername() != null && getPassword() != null) {
             if (url.startsWith("http://")) {
@@ -440,5 +442,13 @@ public class TitleGather {
 
     public void setScope(Scope scope) {
         this.scope = scope;
+    }
+
+    public boolean getIgnoreRobotsTxt() {
+        return ignoreRobotsTxt;
+    }
+
+    public void setIgnoreRobotsTxt(boolean ignoreRobotsTxt) {
+        this.ignoreRobotsTxt = ignoreRobotsTxt;
     }
 }
