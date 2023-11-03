@@ -76,7 +76,7 @@ public class BrowsertrixGatherer implements Backend {
         if (config.getPodmanOptions() != null) {
             command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
         }
-        command.addAll(List.of("webrecorder/browsertrix-crawler",
+        command.addAll(List.of("webrecorder/browsertrix-crawler:0.12.0",
                 "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
                 "--generatecdx", "--logging", "none", "--limit", String.valueOf(config.getPageLimit()),
                 "--depth", String.valueOf(depth)));
