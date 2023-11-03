@@ -84,12 +84,23 @@ public class BrowsertrixGatherer implements Backend {
         if (scope != null && scope.isIncludeSubdomains()) {
             command.add("--scopeType");
             command.add("domain");
+        } else {
+            command.add("--scopeType");
+            command.add("prefix");
         }
 
         if (!Strings.isNullOrBlank(config.getUserAgentSuffix())) {
             command.add("--userAgentSuffix");
             command.add(config.getUserAgentSuffix());
         }
+
+        // include external pdf files
+        command.add("--include");
+        command.add("^https?://[^?#]+\\.pdf$");
+
+        // include linked google docs
+        command.add("--include");
+        command.add("^https://docs\\.google\\.com/(?:document|spreadsheets|presentation|drawings|form|file)/d/[^/]+/edit$");
 
         for (var seed : instance.getTitle().getAllSeeds()) {
             if (!seed.startsWith("http://") && !seed.startsWith("https://")) {
