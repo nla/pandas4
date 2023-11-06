@@ -408,8 +408,8 @@ public class ApiController {
             agencies = AgencyJson.fromOwnershipHistory(title);
             collections = title.getCollections().stream().map(LegacyCollectionJson::new).toList();
             contentWarning = title.getContentWarning();
-            continuedBy = title.getContinuedBy().stream().map(th -> new TitleHistoryJson(th, title.getName())).toList();
-            continues = title.getContinues().stream().map(th -> new TitleHistoryJson(th, title.getName())).toList();
+            continuedBy = title.getContinuedBy().stream().map(TitleHistoryJson::forContinuedBy).toList();
+            continues = title.getContinues().stream().map(TitleHistoryJson::forContinues).toList();
             copyrightNote = title.getTep().getCopyrightNote();
             disappeared = title.isDisappeared();
             instances = title.getInstances().stream()
@@ -453,12 +453,20 @@ public class ApiController {
         public final long id;
         public final String name;
         @JsonFormat(pattern = JSON_DATE_FORMAT)
-        public final Date dateChanged;
+        public final Instant dateChanged;
 
-        public TitleHistoryJson(TitleHistory titleHistory, String name) {
-            id = titleHistory.getId();
-            dateChanged = Date.from(titleHistory.getDate());
-            this.name = name;
+        private TitleHistoryJson(Title title, Instant dateChanged) {
+            this.id = title.getId();
+            this.name = title.getName();
+            this.dateChanged = dateChanged;
+        }
+
+        public static TitleHistoryJson forContinuedBy(TitleHistory titleHistory) {
+            return new TitleHistoryJson(titleHistory.getContinues(), titleHistory.getDate());
+        }
+
+        public static TitleHistoryJson forContinues(TitleHistory titleHistory) {
+            return new TitleHistoryJson(titleHistory.getCeased(), titleHistory.getDate());
         }
     }
 
