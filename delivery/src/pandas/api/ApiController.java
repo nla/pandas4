@@ -453,12 +453,12 @@ public class ApiController {
         public final long id;
         public final String name;
         @JsonFormat(pattern = JSON_DATE_FORMAT)
-        public final Instant dateChanged;
+        public final Date dateChanged;
 
         private TitleHistoryJson(Title title, Instant dateChanged) {
             this.id = title.getId();
             this.name = title.getName();
-            this.dateChanged = dateChanged;
+            this.dateChanged = Date.from(dateChanged);
         }
 
         public static TitleHistoryJson forContinuedBy(TitleHistory titleHistory) {
