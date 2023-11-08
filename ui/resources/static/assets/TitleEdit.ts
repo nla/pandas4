@@ -1,6 +1,7 @@
-//import SlimSelect from 'slim-select';
-declare const SlimSelect: any;
+export {};
+import type { default as SlimSelect_ } from "slim-select";
 
+declare var SlimSelect: typeof SlimSelect_;
 declare var titleCheckEndpoint: string;
 declare var titleCheckNameEndpoint: string;
 declare var titleCheckSurtsEndpoint: string;
@@ -31,7 +32,6 @@ for (let id of ['#continuesTitles', '#continuedByTitles']) {
         },
     });
 }
-
 
 const subjectsSlimSelect = new SlimSelect({
     select: '#subjects',

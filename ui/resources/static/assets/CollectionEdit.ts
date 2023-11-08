@@ -1,7 +1,7 @@
 export {};
+import type { default as SlimSelect_ } from "slim-select";
 
-///<reference path="../../../target/classes/META-INF/resources/webjars/META-INF/resources/webjars/slim-select/1.24.0/dist/index.d.ts"/>
-
+declare var SlimSelect: typeof SlimSelect_;
 declare var collectionId: number | null;
 declare var collectionsEndpoint: string;
 
