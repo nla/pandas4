@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "COL")
@@ -246,6 +247,11 @@ public class Collection {
             collection = collection.getParent();
         }
         return collection.getSubjects();
+    }
+
+    public String getInheritedSubjectIdString() {
+        return getInheritedSubjects().stream().map(Subject::getId)
+                .map(String::valueOf).collect(Collectors.joining(","));
     }
 
     public void setSubjects(List<Subject> subjects) {

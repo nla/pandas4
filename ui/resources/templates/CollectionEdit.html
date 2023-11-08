@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${collection.id == null ? 'New Collection - PANDAS' : 'Edit Collection - PANDAS'}">Edit Collection - PANDAS</title>
@@ -27,14 +27,16 @@
             <label style="flex-grow: 1">Parent collection
                 <select th:field="*{parent}">
                     <option th:if="${form.parent != null}" th:value="${form.parent.id}"
-                            th:text="${form.parent.fullName}" selected>Arts
+                            th:text="${form.parent.fullName}"
+                            th:data-subjects="${form.parent.inheritedSubjectIdString}" selected>Arts
                     </option>
                 </select>
             </label>
 
 
-            <label style="flex-grow: 1">Subjects
-                <select th:field="*{subjects}" multiple>
+            <label style="flex-grow: 1" for="subjects">Subjects
+                <label><input id="inheritSubjects" type="checkbox"> Inherit from parent collection</label>
+                <select id="subjects" th:field="*{subjects}" multiple>
                     <option th:each="subject: ${allSubjects}" th:value="${subject.id}" th:text="${subject.name}"
                             th:style="'padding-left:' + ${subject.depth * 16 + 10} + 'px'"
                             th:data-fullname="${subject.fullName}">Arts
@@ -47,7 +49,7 @@
                 <div class="hint-text">For collections about events in time such as election campaigns or the Olympics. (Optional) </div>
                 <div>
                     <!-- unfortunately input[type=month] isn't well-supported by browsers -->
-                    <select th:field="*{startMonth}" style="width: auto">
+                    <select id="startMonth" th:field="*{startMonth}" style="width: auto">
                         <option value="" th:selected="${startMonth == null}"></option>
                         <option th:each="month: ${months}" th:text="${month.key}" th:value="${month.value}" th:selected="${startMonth == month.value}">January</option>
                     </select>
@@ -84,30 +86,5 @@
 <script th:inline="javascript">
     var collectionId = /*[[${collection?.id ?: null}]]*/ null;
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
-    new SlimSelect({
-        select: '#parent',
-        hideSelectedOption: true,
-        searchFilter: function (option, search) {
-            return true; // leave filtering to backend
-        },
-        ajax: function (search, callback) {
-            if (!search) return callback(false);
-            fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-                .then(response => response.json())
-                .then(results => callback(results.filter(c => c.id !== collectionId)
-                    .map(collection => ({value: collection.id, text: collection.fullName}))))
-                .catch(error => callback(false));
-        },
-        allowDeselect: true,
-        deselectLabel: "✕"
-    });
-
-    new SlimSelect({
-        select: '#subjects',
-        hideSelectedOption: true,
-        searchFilter: function (option, search) {
-            return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
-        },
-        deselectLabel: "✕"
-    });
 </script>
+<script th:src="@{/assets/CollectionEdit.js}" type="module" src="../static/assets/CollectionEdit.js"></script>
