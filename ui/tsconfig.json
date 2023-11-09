@@ -4,7 +4,7 @@
     "preserveConstEnums": true,
     "baseUrl": ".",
     "paths": {
-      "slim-select": ["target/classes/META-INF/resources/webjars/META-INF/resources/webjars/slim-select/1.24.0/dist/index.d.ts"]
+      "slim-select": ["target/classes/META-INF/resources/webjars/META-INF/resources/webjars/slim-select/2.5.1/dist/index.d.ts"]
     },
     "outDir": "target/classes/static/assets"
   },

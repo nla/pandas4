@@ -183,6 +183,7 @@
                 <input id="publisherId" type="hidden" name="publisher" th:value="*{publisher?.id}">
                 <input id="publisherName" type="hidden" name="publisherName">
                 <select id="publisher">
+                    <option data-placeholder="true"></option>
                     <option selected th:if="${form.publisher != null}" th:text="${form.publisher.name}"
                             th:value="${form.publisher.id}"></option>
                 </select>
@@ -520,8 +521,10 @@
 
     </form>
 </main>
-<link rel=stylesheet th:href="@{/webjars/slim-select/1.24.0/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.css">
-<script th:src="@{/webjars/slim-select/1.24.0/dist/slimselect.js}" src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.24.0/slimselect.js"></script>
+<link rel=stylesheet th:href="@{/webjars/slim-select/2.5.1/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/2.5.1/slimselect.css">
+<script type="importmap" th:inline="javascript">
+    {"imports": { "slim-select": [[@{/webjars/slim-select/2.5.1/dist/slimselect.es.js}]] }}
+</script>
 <script th:inline="javascript">
     var titleCheckEndpoint = /*[[@{/titles/check}]]*/ '../titles/check';
     var titleCheckNameEndpoint = /*[[@{/titles/check-name}]]*/ '../titles/check-name';

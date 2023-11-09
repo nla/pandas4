@@ -1,7 +1,6 @@
 export {};
-import type { default as SlimSelect_ } from "slim-select";
+import SlimSelect from "slim-select";
 
-declare var SlimSelect: typeof SlimSelect_;
 declare var titleCheckEndpoint: string;
 declare var titleCheckNameEndpoint: string;
 declare var titleCheckSurtsEndpoint: string;
@@ -16,59 +15,78 @@ declare var thisTitleId: number;
 for (let id of ['#continuesTitles', '#continuedByTitles']) {
     new SlimSelect({
         select: id,
-        hideSelectedOption: true,
-        searchFilter: function (option, search) {
-            return true; // leave filtering to the backend
+        settings: {
+            hideSelected: true,
+            placeholderText: ''
         },
-        ajax: function (search, callback) {
-            if (!search) return callback(false);
-            fetch(titlesBasicSearchEndpoint + "?q=" + encodeURIComponent(search) + "&notTitle=" + thisTitleId)
-                .then(response => response.ok ? response.json() : Promise.reject(response))
-                .then(results => callback(results.map(title => ({
-                    value: title.id,
-                    text: title.name + " [" + title.humanId + "]",
-                }))))
-                .catch(error => callback(false));
-        },
+        events: {
+            searchFilter: function (option, search) {
+                return true; // leave filtering to the backend
+            },
+            search: function (search, currentData) {
+                return new Promise((resolve, reject) => {
+                    if (!search) return reject('No input')
+                    fetch(titlesBasicSearchEndpoint + "?q=" + encodeURIComponent(search) + "&notTitle=" + thisTitleId)
+                        .then(response => response.ok ? response.json() : Promise.reject(response))
+                        .then(results => resolve(results.map(title => ({
+                            value: title.id,
+                            text: title.name + " [" + title.humanId + "]",
+                        }))))
+                        .catch(reject);
+                });
+            }
+        }
     });
 }
 
 const subjectsSlimSelect = new SlimSelect({
     select: '#subjects',
-    hideSelectedOption: true,
-    searchFilter: function (option, search) {
-        return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+    settings: {
+        hideSelected: true,
+        placeholderText: ''
+    },
+    events: {
+        searchFilter: function (option, search) {
+            return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+        }
     }
 });
 
 new SlimSelect({
     select: '#collections',
-    hideSelectedOption: true,
-    searchFilter: function (option, search) {
-        return true; // leave filtering to the backend
+    settings: {
+        hideSelected: true,
+        placeholderText: ''
     },
-    ajax: function (search, callback) {
-        if (!search) return callback(false);
-        fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-            .then(response => response.ok ? response.json() : Promise.reject(response))
-            .then(results => callback(results.map(collection => ({
-                value: collection.id,
-                text: collection.fullName,
-                data: {
-                    subjects: collection.inheritedSubjects.map(subject => typeof subject === 'number' ? subject : subject.id),
-                }
-            }))))
-            .catch(error => callback(false));
-    },
+    events: {
+        searchFilter: function (option, search) {
+            return true; // leave filtering to the backend
+        },
+        search: function (search, currentData) {
+            return new Promise((resolve, reject) => {
+                if (!search) return reject();
+                fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                    .then(response => response.ok ? response.json() : Promise.reject(response))
+                    .then(results => resolve(results.map(collection => ({
+                        value: collection.id,
+                        text: collection.fullName,
+                        data: {
+                            subjects: collection.inheritedSubjects.map(subject => typeof subject === 'number' ? subject : subject.id),
+                        }
+                    }))))
+                    .catch(reject);
+            });
+        }
+    }
 });
 
 document.getElementById('collections').addEventListener('change', function (event) {
     // if there's no subjects selected populate the subjects with the ones from the collection
-    if (subjectsSlimSelect.selected().length === 0) {
+    if (subjectsSlimSelect.getSelected().length === 0) {
         let target = event.target as HTMLSelectElement;
         let collectionOption = target.options[target.selectedIndex];
         if (collectionOption && collectionOption.dataset.subjects) {
-            subjectsSlimSelect.set(collectionOption.dataset.subjects.split(","));
+            subjectsSlimSelect.setSelected(collectionOption.dataset.subjects.split(","));
         }
     }
 });
@@ -81,7 +99,7 @@ function escapeHtml(text) {
     return element.innerHTML;
 }
 
-let publisherSlimSelect = null;
+let publisherSlimSelect = null as SlimSelect;
 
 // fetch the contact people for the selected publisher
 function refreshPublisherContactPeople(publisherId) {
@@ -115,91 +133,93 @@ function refreshPublisherContactPeople(publisherId) {
 }
 
 if (document.getElementById("publisher")) {
+    let publisherState = {
+        savedSearch: ""
+    };
     publisherSlimSelect = new SlimSelect({
         select: '#publisher',
-        allowDeselect: true,
-        hideSelectedOption: true,
-        addable: function (value) {
-            return {
-                text: value,
-                value: "new" // I'd prefer to use null/empty-string but slim-js then overrides it with the text
-            };
+        settings: {
+            hideSelected: true,
+            allowDeselect: true,
+            placeholderText: ''
         },
-        searchFilter: function (option, search) {
-            return true; // leave filtering to the backend
-        },
-        ajax: function (search, callback) {
-            if (!search) {
-                callback(false);
-                return;
-            }
-            fetch(publisherJsonEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-                .then(response => response.ok ? response.json() : Promise.reject(response))
-                .then(results => {
-                    callback(results.map(publisher => {
-                        return {
-                            value: publisher.id,
-                            text: publisher.name,
-                            innerHTML: ('<span class=publisher-select-item>' + escapeHtml(publisher.name) +
-                                ' <a class=title-count href=' + publishersEndpoint + '/' + publisher.id + ' target=_blank>'
-                                + publisher.titleCount + '</a></span>')
-                        }
-                    }));
-                }).catch(error => {
-                console.log("Publisher search failed: ", error);
-                callback(false)
-            });
-        },
-        // By default slim-select clears the search when the drop-down is closed. This means if the user focuses
-        // another field we lose their search or any pre-populated value. So as a workaround stash a copy of the
-        // search text before closing and restore it after closing.
-        beforeClose: function () {
-            this.pandasSavedSearch = this.slim.search.input.value;
-        },
-        afterClose: function () {
-            this.slim.search.input.value = this.pandasSavedSearch;
-            delete this.pandasSavedSearch;
-        },
-        onChange: function (info) {
-            let publisherTypeSelect = document.getElementById("publisherType") as HTMLSelectElement;
-            let publisherIdInput = document.getElementById("publisherId") as HTMLInputElement;
-            let publisherNameInput = document.getElementById("publisherName") as HTMLInputElement;
-            let newPublisherFieldsDiv = document.getElementById("newPublisherFields") as HTMLDivElement;
-            if (info.value === "new") {
-                publisherIdInput.value = "";
-                publisherNameInput.value = info.text;
-                publisherTypeSelect.required = true;
-                newPublisherFieldsDiv.style.display = "inherit";
+        events: {
+            addable: function (value) {
+                return {
+                    text: value,
+                    value: "new" // I'd prefer to use null/empty-string but slim-js then overrides it with the text
+                };
+            },
+            searchFilter: function (option, search) {
+                return true; // leave filtering to the backend
+            },
+            search: function (search, currentData) {
+                if (search) publisherState.savedSearch = search;
+                return new Promise((resolve, reject) => {
+                    if (!search) return reject('No input');
+                    fetch(publisherJsonEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                        .then(response => response.ok ? response.json() : Promise.reject(response))
+                        .then(results => {
+                            resolve(results.map(publisher => {
+                                return {
+                                    value: publisher.id,
+                                    text: publisher.name,
+                                    innerHTML: ('<span class=publisher-select-item>' + escapeHtml(publisher.name) +
+                                        ' <a class=title-count href=' + publishersEndpoint + '/' + publisher.id + ' target=_blank>'
+                                        + publisher.titleCount + '</a></span>')
+                                }
+                            }));
+                        }).catch(reject);
+                });
+            },
+            // By default, slim-select clears the search when the drop-down is closed. This means if the user focuses
+            // another field we lose their search or any pre-populated value. So as a workaround stash a copy of the
+            // search text before closing and restore it after closing.
+            afterClose: function () {
+                publisherSlimSelect.search(publisherState.savedSearch);
+            },
+            afterChange: function (selectedOptions) {
+                let publisherTypeSelect = document.getElementById("publisherType") as HTMLSelectElement;
+                let publisherIdInput = document.getElementById("publisherId") as HTMLInputElement;
+                let publisherNameInput = document.getElementById("publisherName") as HTMLInputElement;
+                let newPublisherFieldsDiv = document.getElementById("newPublisherFields") as HTMLDivElement;
+                let selectedOption = selectedOptions && selectedOptions[0];
+                if (selectedOption && selectedOption.value === "new") {
+                    publisherIdInput.value = "";
+                    publisherNameInput.value = selectedOption.text;
+                    publisherTypeSelect.required = true;
+                    newPublisherFieldsDiv.style.display = "inherit";
 
-                const urlString = getPrimarySeedUrl();
-                if (urlString) {
-                    const host = new URL(urlString).host;
-                    const publisherTypeOptions = publisherTypeSelect.options;
+                    const urlString = getPrimarySeedUrl();
+                    if (urlString) {
+                        const host = new URL(urlString).host;
+                        const publisherTypeOptions = publisherTypeSelect.options;
 
-                    // try to preselect an appropriate publisher type based on the domain suffix
-                    if (publisherTypeSelect.selectedIndex === 0) {
-                        outer:
-                            for (let i = 0; i < publisherTypeOptions.length; i++) {
-                                const option = publisherTypeOptions[i];
-                                if (option.dataset.domainsuffixes) {
-                                    for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
-                                        if (host.endsWith(suffix)) {
-                                            publisherTypeSelect.selectedIndex = i;
-                                            break outer;
+                        // try to preselect an appropriate publisher type based on the domain suffix
+                        if (publisherTypeSelect.selectedIndex === 0) {
+                            outer:
+                                for (let i = 0; i < publisherTypeOptions.length; i++) {
+                                    const option = publisherTypeOptions[i];
+                                    if (option.dataset.domainsuffixes) {
+                                        for (const suffix of option.dataset.domainsuffixes.split(/ +/)) {
+                                            if (host.endsWith(suffix)) {
+                                                publisherTypeSelect.selectedIndex = i;
+                                                break outer;
+                                            }
                                         }
                                     }
                                 }
-                            }
+                        }
                     }
+                } else {
+                    publisherIdInput.value = !selectedOption || selectedOption.value === undefined ? "" : selectedOption.value;
+                    publisherNameInput.value = "";
+                    publisherTypeSelect.selectedIndex = 0;
+                    publisherTypeSelect.required = false;
+                    newPublisherFieldsDiv.style.display = "none";
                 }
-            } else {
-                publisherIdInput.value = info.value === undefined ? "" : info.value;
-                publisherNameInput.value = "";
-                publisherTypeSelect.selectedIndex = 0;
-                publisherTypeSelect.required = false;
-                newPublisherFieldsDiv.style.display = "none";
+                refreshPublisherContactPeople(selectedOption.value);
             }
-            refreshPublisherContactPeople(info.value);
         }
     });
     let publisherSelectElement = document.querySelector('#publisher') as HTMLSelectElement;
@@ -217,7 +237,7 @@ function handlePublisherTypeChange() {
     }
 }
 
-function createLink(text : string, href : string, target : string, className? : string) {
+function createLink(text: string, href: string, target: string, className?: string) {
     let link = document.createElement("a");
     link.href = href;
     link.innerText = text;
@@ -229,7 +249,8 @@ function createLink(text : string, href : string, target : string, className? : 
 let nameInput = document.getElementById("name") as HTMLInputElement;
 
 function nameChanged() {
-    if (publisherSlimSelect && !publisherSlimSelect.selected()) {
+    let selected = publisherSlimSelect.getSelected();
+    if (publisherSlimSelect && (!selected || !selected[0])) {
         let name = nameInput.value;
         name = name.replace(/\s*:.*/, '');
         publisherSlimSelect.search(name);

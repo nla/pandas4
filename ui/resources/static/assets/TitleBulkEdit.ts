@@ -1,44 +1,66 @@
 export {};
-import type {default as SlimSelect_} from "slim-select";
+import SlimSelect from "slim-select";
 
-declare var SlimSelect: typeof SlimSelect_;
 declare var collectionsEndpoint: string;
 declare var updateReasons: () => void; /* defined inline in TitleEdit.html */
 
 new SlimSelect({
     select: '#subjectsToAdd',
-    hideSelectedOption: true,
-    searchFilter: function (option, search) {
-        return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+    settings: {
+        hideSelected: true,
+        placeholderText: ''
+    },
+    events: {
+        searchFilter: function (option, search) {
+            return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+        }
     }
 });
 
 new SlimSelect({
     select: '#subjectsToRemove',
-    hideSelectedOption: true,
-    searchFilter: function (option, search) {
-        return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+    settings: {
+        hideSelected: true,
+        placeholderText: ''
+    },
+    events: {
+        searchFilter: function (option, search) {
+            return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+        }
     }
 });
 
 new SlimSelect({
     select: '#collectionsToAdd',
-    hideSelectedOption: true,
-    searchFilter: function (option, search) {
-        return true; // leave filtering to the backend
+    settings: {
+        hideSelected: true,
+        placeholderText: ''
     },
-    ajax: function (search, callback) {
-        if (!search) return callback(false);
-        fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-            .then(response => response.json())
-            .then(results => callback(results.map(collection => ({value: collection.id, text: collection.fullName}))))
-            .catch(error => callback(false));
-    },
+    events: {
+        searchFilter: function (option, search) {
+            return true; // leave filtering to the backend
+        },
+        search: function (search, _) {
+            return new Promise((resolve, reject) => {
+                if (!search) return reject('No input');
+                fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                    .then(response => response.json())
+                    .then(results => resolve(results.map(collection => ({
+                        value: collection.id,
+                        text: collection.fullName
+                    }))))
+                    .catch(reject);
+            });
+        },
+    }
 });
 
 new SlimSelect({
     select: '#collectionsToRemove',
-    hideSelectedOption: true,
+    settings: {
+        hideSelected: true,
+        placeholderText: ''
+    }
 });
 
 document.querySelectorAll("input[type=checkbox][id^=edit]").forEach((checkbox : HTMLInputElement) => {

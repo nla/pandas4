@@ -1,7 +1,6 @@
 export {};
-import type { default as SlimSelect_ } from "slim-select";
+import SlimSelect from "slim-select";
 
-declare var SlimSelect: typeof SlimSelect_;
 declare var collectionId: number | null;
 declare var collectionsEndpoint: string;
 
@@ -11,35 +10,45 @@ const subjectsSelect = document.getElementById('subjects') as HTMLSelectElement;
 
 const parentSlimSelect = new SlimSelect({
     select: '#parent',
-    hideSelectedOption: true,
-    searchFilter: function (option, search) {
-        return true; // leave filtering to backend
+    settings: {
+        allowDeselect: true,
+        hideSelected: true,
+        placeholderText: ''
     },
-    ajax: function (search : string, callback) {
-        if (!search) return callback(false);
-        fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
-            .then(response => response.json())
-            .then(results => callback(results.filter(c => c.id !== collectionId)
-                .map(collection => ({
-                    value: collection.id,
-                    text: collection.fullName,
-                    data: {
-                        subjects: collection.inheritedSubjects.map(subject => typeof subject === 'number' ? subject : subject.id),
-                    }
-                }))))
-            .catch(error => callback(false));
-    },
-    allowDeselect: true,
-    deselectLabel: "✕"
+    events: {
+        searchFilter: function (option, search) {
+            return true; // leave filtering to backend
+        },
+        search: function (search: string, _) {
+            return new Promise((resolve, reject) => {
+                if (!search) return reject(false);
+                fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")
+                    .then(response => response.json())
+                    .then(results => resolve(results.filter(c => c.id !== collectionId)
+                        .map(collection => ({
+                            value: collection.id,
+                            text: collection.fullName,
+                            data: {
+                                subjects: collection.inheritedSubjects.map(subject => typeof subject === 'number' ? subject : subject.id),
+                            }
+                        }))))
+                    .catch(reject);
+            });
+        },
+    }
 });
 
 let subjectsSlimSelect = new SlimSelect({
     select: '#subjects',
-    hideSelectedOption: true,
-    searchFilter: function (option, search) {
-        return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+    settings: {
+        hideSelected: true,
+        placeholderText: ''
     },
-    deselectLabel: "✕"
+    events: {
+        searchFilter: function (option, search) {
+            return option.data['fullname'].toLowerCase().indexOf(search.toLowerCase()) !== -1;
+        },
+    }
 });
 
 parentSelect.addEventListener('change', function () {
@@ -64,7 +73,7 @@ inheritSubjectsCheckbox.addEventListener('change', function () {
         if (selectedParentOptions.length > 0) {
             let selectedParentOption = selectedParentOptions[0];
             let parentSubjectIds = selectedParentOption.dataset['subjects'].split(',');
-            subjectsSlimSelect.set(parentSubjectIds);
+            subjectsSlimSelect.setSelected(parentSubjectIds);
         }
     } else {
         subjectsSlimSelect.enable();
