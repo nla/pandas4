@@ -7,7 +7,10 @@
       "slim-select": ["target/classes/META-INF/resources/webjars/META-INF/resources/webjars/slim-select/2.5.1/dist/index.d.ts"]
     },
     "outDir": "target/classes/static/assets",
-    "types": ["node"]
+    "types": ["node"],
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
   "include": [
     "resources/**/*.ts"
