@@ -228,6 +228,12 @@ public class BrowsertrixGatherer implements Backend {
     @Override
     public void delete(Instance instance) throws IOException {
         workingArea.deleteInstance(instance.getTitle().getPi(), instance.getDateString());
+        Path pywbDir = pywbService.directoryFor(instance);
+        if (Files.isSymbolicLink(pywbDir)) {
+            Files.deleteIfExists(pywbDir);
+        } else if (Files.isDirectory(pywbDir)) {
+            workingArea.deleteRecursivelyIfExists(pywbDir);
+        }
     }
 
     @Override
