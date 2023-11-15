@@ -43,7 +43,7 @@ public class PageInfoController {
         try (Response response = httpClient.newCall(new Request.Builder().url(url).build()).execute()) {
             String contentType = response.header("Content-Type", "application/octet-stream");
             MediaType mediaType = MediaType.parseMediaType(contentType);
-            String charsetName = mediaType.getParameter("charset");
+            Charset charset = mediaType.getCharset();
             String title = null;
             String reason = response.message();
             if (reason.isBlank()) {
@@ -56,19 +56,18 @@ public class PageInfoController {
 
                 InputStream stream = body.byteStream();
                 // if there was no charset in the Content-Type header, probe for meta tags near the top of the file
-                if (charsetName == null) {
+                if (charset == null) {
                     BufferedInputStream bis = new BufferedInputStream(stream);
-                    charsetName = HtmlCharset.detect(bis);
-                    stream = bis;
-                }
-
-                Charset charset = StandardCharsets.ISO_8859_1;
-                if (charsetName != null) {
-                    try {
-                        charset = Charset.forName(charsetName);
-                    } catch (UnsupportedCharsetException e) {
-                        log.warn("Unsupported charset {}, defaulting to iso-8859-1", charsetName);
+                    String charsetName = HtmlCharset.detect(bis);
+                    if (charsetName != null) {
+                        try {
+                            charset = Charset.forName(charsetName);
+                        } catch (UnsupportedCharsetException e) {
+                            log.warn("Unsupported charset {}, defaulting to iso-8859-1", charsetName);
+                            charset = StandardCharsets.ISO_8859_1;
+                        }
                     }
+                    stream = bis;
                 }
 
                 try {
@@ -82,7 +81,7 @@ public class PageInfoController {
             if (response.priorResponse() != null) {
                 location = response.request().url().toString();
             }
-            return new PageInfo(response.code(), reason, contentType, charsetName, title, location);
+            return new PageInfo(response.code(), reason, contentType, charset == null ? null : charset.name(), title, location);
         } catch (UnknownHostException e) {
             return new PageInfo(-1, e.getMessage(), null, null, null, null);
         }
