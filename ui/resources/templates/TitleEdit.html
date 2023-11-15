@@ -88,7 +88,7 @@
                 <label style="flex-grow: 1">
                     <span id="seedUrlsLabelText">Seed URL</span>
                     <span style="display: flex; gap: 2px">
-                        <textarea th:field="*{seedUrls}" rows="1"></textarea>
+                        <textarea id="seedUrls" th:field="*{seedUrls}" rows="1"></textarea>
                         <button id="urlPlusButton" type="button" class="btn btn-compact btn-secondary" style="height: 32px">➕</button>
                     </span>
                 </label>
@@ -145,7 +145,7 @@
             <div>
                 <label style="flex-grow: 1">
                     Name
-                    <input th:field="*{name}" required class="form-control"></label>
+                    <input id="name" th:field="*{name}" required class="form-control"></label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Format
                     <select th:field="*{format}">
                         <option th:each="fmt: ${allFormats}" th:text="${fmt.name}" th:value="${fmt.id}"
@@ -200,7 +200,7 @@
                 </label>
                 <label>
                     ABN (optional)
-                    <input th:field="*{publisherAbn}" pattern="[0-9]{11}" title="11-digit Australian Business Number"
+                    <input id="publisherAbn" th:field="*{publisherAbn}" pattern="[0-9]{11}" title="11-digit Australian Business Number"
                            onchange="this.value = this.value.replace(/[ -]/g, '')">
                 </label>
             </div>
@@ -444,7 +444,7 @@
                 </script>
 
                 <label>Method
-                    <select th:field="*{gatherMethod}">
+                    <select id="gatherMethod" th:field="*{gatherMethod}">
                         <option th:each="method: ${allGatherMethods}" th:value="${method.id}" th:text="${method.name}">
                             Heritrix
                         </option>
@@ -490,7 +490,7 @@
 
                 <label>
                     Filters:
-                    <textarea th:field="*{filters}" rows="5"></textarea>
+                    <textarea id="filters" th:field="*{filters}" rows="5"></textarea>
                 </label>
 
                 <label id="ignoreRobotsTxtLabel"><input type="checkbox" th:field="*{ignoreRobotsTxt}"> Ignore robots.txt</label>
@@ -522,9 +522,16 @@
     </form>
 </main>
 <link rel=stylesheet th:href="@{/webjars/slim-select/2.5.1/dist/slimselect.css}" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/2.5.1/slimselect.css">
+
+<!--/*/
 <script type="importmap" th:inline="javascript">
     {"imports": { "slim-select": [[@{/webjars/slim-select/2.5.1/dist/slimselect.es.js}]] }}
 </script>
+/*/-->
+<script type="importmap" th:remove="all">
+    {"imports": { "slim-select": "https://cdnjs.cloudflare.com/ajax/libs/slim-select/2.5.1/slimselect.es.js" }}
+</script>
+
 <script th:inline="javascript">
     var titleCheckEndpoint = /*[[@{/titles/check}]]*/ '../titles/check';
     var titleCheckNameEndpoint = /*[[@{/titles/check-name}]]*/ '../titles/check-name';

@@ -12,6 +12,16 @@ declare var titlesBasicSearchEndpoint: string;
 declare var collectionsEndpoint: string;
 declare var thisTitleId: number;
 
+const sitePresets = [
+    {
+        "urlRegex": "https://www\\.threads\\.net/@.*",
+        "collections": [{id: 21206, name: "Threads accounts"}],
+        "subjects": [323],
+        "scope": 2,
+        "gatherMethod": 21
+    }
+];
+
 for (let id of ['#continuesTitles', '#continuedByTitles']) {
     new SlimSelect({
         select: id,
@@ -52,7 +62,7 @@ const subjectsSlimSelect = new SlimSelect({
     }
 });
 
-new SlimSelect({
+const collectionsSlimSelect = new SlimSelect({
     select: '#collections',
     settings: {
         hideSelected: true,
@@ -105,6 +115,10 @@ let publisherSlimSelect = null as SlimSelect;
 function refreshPublisherContactPeople(publisherId) {
     console.log("refreshPublisherContactPeople(" + publisherId + ")");
     let select = document.getElementById("titlePermission.contactPerson") as HTMLSelectElement;
+    if (!select) {
+        console.warn("Couldn't find titlePermission.contactPerson select");
+        return;
+    }
 
     // remove existing options with class publisher-contact-person-option
     let options = select.querySelectorAll(".publisher-contact-person-option");
@@ -334,10 +348,10 @@ function seedUrlsChanged() {
 
     normalizeSeedUrls();
 
-    let scopeRadios = document.querySelectorAll("input[type=radio][name=scope]") as NodeListOf<HTMLInputElement>;
-    scopeRadios[1].disabled = false;
+    let primarySeedUrl = getPrimarySeedUrl();
+    applySitePresets(primarySeedUrl);
 
-    fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()))
+    fetch(titleCheckEndpoint + "?url=" + encodeURIComponent(primarySeedUrl))
         .then(response => response.ok ? response.json() : Promise.reject(response))
         .then(titles => {
             titles = titles.filter(title => title.id !== thisTitleId);
@@ -357,11 +371,11 @@ function seedUrlsChanged() {
 
             if (titles.length >= 4) {
                 warningDiv.appendChild(createLink("More...", titlesEndpoint + "?q=" +
-                    encodeURIComponent(getPrimarySeedUrl()), "_blank"));
+                    encodeURIComponent(primarySeedUrl), "_blank"));
             }
         });
 
-    fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()))
+    fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(primarySeedUrl))
         .then(response => response.ok ? response.json() : Promise.reject(response))
         .catch(reason => console.log(reason))
         .then(info => {
@@ -369,7 +383,7 @@ function seedUrlsChanged() {
                 return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
             }
 
-            if (info.location && normalize(getPrimarySeedUrl()).localeCompare(normalize(info.location), 'en', {sensitivity: 'base'}) === 0) {
+            if (info.location && normalize(primarySeedUrl).localeCompare(normalize(info.location), 'en', {sensitivity: 'base'}) === 0) {
                 setPrimarySeedUrl(info.location);
                 seedUrlsChanged();
                 return;
@@ -405,6 +419,51 @@ function seedUrlsChanged() {
                 nameChanged();
             }
         });
+}
+
+function selectValues(slimSelect: SlimSelect, valuesToSelect: string[]) {
+    let values = slimSelect.getSelected();
+    for (let value of valuesToSelect) {
+        if (!values.includes(value)) {
+            values.push(value);
+        }
+    }
+    slimSelect.setSelected(values);
+}
+
+function applySitePresets(url : string) {
+    for (let preset of sitePresets) {
+        if (!url.match(preset.urlRegex)) continue;
+        console.log("Applying preset: " + JSON.stringify(preset));
+
+        if (preset.scope) {
+            let scopeRadio = document.querySelector("input[type=radio][name=scope][value='" + preset.scope + "']") as HTMLInputElement;
+            if (scopeRadio) {
+                scopeRadio.checked = true;
+            }
+        }
+
+        if (preset.gatherMethod) {
+            let gatherMethodSelect = document.getElementById('gatherMethod') as HTMLSelectElement;
+            gatherMethodSelect.value = preset.gatherMethod.toString();
+        }
+
+        if (preset.subjects && preset.subjects.length !== 0) {
+            let valuesToSelect = preset.subjects.map(subject => subject.toString());
+            selectValues(subjectsSlimSelect, valuesToSelect);
+        }
+
+        if (preset.collections && preset.collections.length !== 0) {
+            for (let collection of preset.collections) {
+                collectionsSlimSelect.addOption({
+                    text: collection.name,
+                    value: collection.id.toString(),
+                });
+            }
+            let valuesToSelect = preset.collections.map(collection => collection.id.toString());
+            selectValues(collectionsSlimSelect, valuesToSelect);
+        }
+    }
 }
 
 function checkSurts() {
