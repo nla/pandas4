@@ -14,8 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CrawlBeansTest {
 
@@ -56,7 +55,7 @@ public class CrawlBeansTest {
         assertEquals("http://example.com/foo.html", CrawlBeans.generateAltWwwUrl("http://www.example.com/foo.html"));
         assertEquals("https://www.example.com/foo.html", CrawlBeans.generateAltWwwUrl("https://example.com/foo.html"));
         assertEquals("https://example.com/foo.html", CrawlBeans.generateAltWwwUrl("https://www.example.com/foo.html"));
-        assertEquals(null, CrawlBeans.generateAltWwwUrl("ftp://example.com/foo.html"));
+        assertNull(CrawlBeans.generateAltWwwUrl("ftp://example.com/foo.html"));
     }
 
     @Test
@@ -65,8 +64,8 @@ public class CrawlBeansTest {
                 "http://example.com/foo.html",
                 "http://example.com/bar.html",
                 "https://www.baz.com/");
-        assertEquals(Set.of("http://(com,baz,)/",
-                        "http://(com,example,www,)/"),
+        assertEquals(Set.of("+http://(com,baz,)/",
+                        "+http://(com,example,www,)/"),
                 CrawlBeans.generateAltWwwSurts(seeds));
     }
 }
