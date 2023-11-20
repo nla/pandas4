@@ -192,7 +192,7 @@ public class CrawlBeans {
         for (String seed : urls) {
             String altUrl = generateAltWwwUrl(seed);
             if (altUrl != null) {
-                surts.add(SURT.prefixFromPlainForceHttp(altUrl));
+                surts.add("+" + SURT.prefixFromPlainForceHttp(altUrl));
             }
         }
         return surts;
