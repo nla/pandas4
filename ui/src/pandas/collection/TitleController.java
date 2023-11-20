@@ -655,7 +655,8 @@ public class TitleController {
     @ResponseBody
     public String checkSurts(@RequestParam("seedUrls") String seedUrls) {
         Set<String> set = new TreeSet<>();
-        for (String seed: seedUrls.split("\\s+")) {
+        String[] seeds = seedUrls.split("\\s+");
+        for (String seed: seeds) {
             if (Strings.isNullOrBlank(seed)) continue;
             try {
                 set.add(SURT.prefixFromPlainForceHttp(seed));
@@ -663,6 +664,7 @@ public class TitleController {
                 set.add(" Error: " + e + " in seed " + seed);
             }
         }
+        set.addAll(CrawlBeans.generateAltWwwSurts(Arrays.asList(seeds)));
         return String.join("\n", set);
     }
 

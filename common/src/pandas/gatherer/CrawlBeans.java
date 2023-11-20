@@ -11,6 +11,7 @@ import pandas.gather.Instance;
 import pandas.gather.Profile;
 import pandas.gather.Scope;
 import pandas.gather.TitleGather;
+import pandas.util.SURT;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,7 +21,7 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.*;
@@ -107,11 +108,42 @@ public class CrawlBeans {
         xpath(doc, "/beans:beans/beans:bean[@id='seeds']/beans:property[@name='textSource']/beans:bean/beans:property[@name='value']/beans:value")
                 .setTextContent(String.join("\n", instance.getTitle().getAllSeeds()));
 
+        // add surts for alternate www/non-www versions of the seed urls
+        // this ensures if we crawl www.example.com we follow links to bare example.com
+        setAcceptSurts(doc, generateAltWwwSurts(instance.getTitle().getAllSeeds()));
+
         DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
         LSSerializer lsSerializer = domImplementation.createLSSerializer();
+
         LSOutput lsOutput = domImplementation.createLSOutput();
         lsOutput.setCharacterStream(writer);
         lsSerializer.write(doc, lsOutput);
+    }
+
+    /**
+     * Sets the acceptSurts bean's surtsSource property to the given set of SURTs.
+     */
+    private static void setAcceptSurts(Document doc, Set<String> surts) {
+        if (surts.isEmpty()) return;
+        // <property name="surtsSource">
+        Element surtsSource = doc.createElement("property");
+        surtsSource.setAttribute("name", "surtsSource");
+        //   <bean class="org.archive.spring.ConfigString">
+        Element configStringBean = doc.createElement("bean");
+        configStringBean.setAttribute("class", "org.archive.spring.ConfigString");
+        //     <property name="value">
+        Element valueProperty = doc.createElement("property");
+        valueProperty.setAttribute("name", "value");
+        //       <value>{surts}</value>
+        Element value = doc.createElement("value");
+        value.setTextContent(String.join("\n", surts));
+        //     </property>
+        valueProperty.appendChild(value);
+        //   </bean>
+        configStringBean.appendChild(valueProperty);
+        // </property>
+        surtsSource.appendChild(configStringBean);
+        xpath(doc, "/beans:beans/beans:bean[@id='acceptSurts']").appendChild(surtsSource);
     }
 
     private static void writeCrawlXml(Instance instance, Path jobDir, String gathererBindAddress) throws IOException {
@@ -133,5 +165,36 @@ public class CrawlBeans {
     public static void writeConfig(Instance instance, Path jobDir, String gathererBindAddress) throws IOException {
         writeCrawlXml(instance, jobDir, gathererBindAddress);
         writeSeeds(instance.getTitle().getAllSeeds(), jobDir);
+    }
+
+    /**
+     * Generates an alternate URL by adding or removing www. from the hostname.
+     */
+    public static String generateAltWwwUrl(String url) {
+        if (url.startsWith("http://www.")) {
+            return "http://" + url.substring("http://www.".length());
+        } else if (url.startsWith("https://www.")) {
+            return "https://" + url.substring("https://www.".length());
+        } else if (url.startsWith("http://")) {
+            return "http://www." + url.substring("http://".length());
+        } else if (url.startsWith("https://")) {
+            return "https://www." + url.substring("https://".length());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Generates alternate URLS (SURT format) by adding or removing www. from the hostname.
+     */
+    public static Set<String> generateAltWwwSurts(List<String> urls) {
+        var surts = new TreeSet<String>();
+        for (String seed : urls) {
+            String altUrl = generateAltWwwUrl(seed);
+            if (altUrl != null) {
+                surts.add(SURT.prefixFromPlainForceHttp(altUrl));
+            }
+        }
+        return surts;
     }
 }
