@@ -78,7 +78,8 @@ public class BrowsertrixGatherer implements Backend {
         }
         command.addAll(List.of("webrecorder/browsertrix-crawler:0.12.0",
                 "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
-                "--generatecdx", "--logging", "none", "--limit", String.valueOf(config.getPageLimit()),
+                "--generatecdx", "--logging", "none",
+                "--limit", String.valueOf(config.getPageLimit()),
                 "--depth", String.valueOf(depth)));
 
         if (scope != null && scope.isIncludeSubdomains()) {
@@ -87,6 +88,16 @@ public class BrowsertrixGatherer implements Backend {
         } else {
             command.add("--scopeType");
             command.add("prefix");
+        }
+
+        if (profile.getCrawlLimitSeconds() != null) {
+            command.add("--timeLimit");
+            command.add(String.valueOf(profile.getCrawlLimitSeconds()));
+        }
+
+        if (profile.getCrawlLimitBytes() != null) {
+            command.add("--sizeLimit");
+            command.add(String.valueOf(profile.getCrawlLimitBytes()));
         }
 
         if (!Strings.isNullOrBlank(config.getUserAgentSuffix())) {
@@ -113,8 +124,6 @@ public class BrowsertrixGatherer implements Backend {
         Files.writeString(logFile, encodeShellCommandForLogging(command) + "\n", APPEND, CREATE);
         log.info("Executing {}", String.join(" ", command));
 
-        long startTimeMillis = System.currentTimeMillis();
-
         Process process = new ProcessBuilder(command)
                 .redirectOutput(ProcessBuilder.Redirect.appendTo(logFile.toFile()))
                 .redirectErrorStream(true)
@@ -124,8 +133,7 @@ public class BrowsertrixGatherer implements Backend {
         try {
             while (!process.waitFor(1, TimeUnit.SECONDS)) {
                 instance = instanceService.refresh(instance);
-                if (shutdown || !instance.getState().getName().equals(State.GATHERING)
-                        || reachedCrawlLimit(profile, instance, startTimeMillis)) {
+                if (shutdown || !instance.getState().getName().equals(State.GATHERING)) {
                     return;
                 }
             }
@@ -137,38 +145,10 @@ public class BrowsertrixGatherer implements Backend {
             }
         } finally {
             process.destroy();
-            if (!process.waitFor(30, TimeUnit.SECONDS)) {
+            if (!process.waitFor(shutdown ? 30 : 120, TimeUnit.SECONDS)) {
                 process.destroyForcibly();
             }
         }
-    }
-
-    private boolean reachedCrawlLimit(Profile profile, Instance instance, long startTimeMillis) {
-        Long crawlLimitBytes = config.getDefaultCrawlLimitBytes();
-        Long crawlLimitSeconds = config.getDefaultCrawlLimitSeconds();
-
-        if (profile != null) {
-            if (profile.getCrawlLimitBytes() != null) {
-                crawlLimitBytes = profile.getCrawlLimitBytes();
-            }
-            if (profile.getCrawlLimitSeconds() != null) {
-                crawlLimitSeconds = profile.getCrawlLimitSeconds();
-            }
-        }
-
-        Long size = instance.getGather().getSize();
-        if (size != null && crawlLimitBytes != null && size >= crawlLimitBytes) {
-            log.info("Reached crawl size limit ({} >= {} bytes)", size, crawlLimitBytes);
-            return true;
-        }
-
-        long secondsElapsed = (System.currentTimeMillis() - startTimeMillis) / 1000;
-        if (crawlLimitSeconds != null && secondsElapsed >= crawlLimitSeconds) {
-            log.info("Reached crawl time limit ({} >= {} seconds)", secondsElapsed, crawlLimitSeconds);
-            return true;
-        }
-
-        return false;
     }
 
     private static final Pattern SHELL_SPECIAL_CHAR = Pattern.compile("[|&;<>()$`\\\\\"' \t\r\n*?\\[#~=%]");
