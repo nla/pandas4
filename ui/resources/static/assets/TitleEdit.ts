@@ -36,7 +36,9 @@ for (let id of ['#continuesTitles', '#continuedByTitles']) {
             search: function (search, currentData) {
                 return new Promise((resolve, reject) => {
                     if (!search) return reject('No input')
-                    fetch(titlesBasicSearchEndpoint + "?q=" + encodeURIComponent(search) + "&notTitle=" + thisTitleId)
+                    let queryString = "q=" + encodeURIComponent(search);
+                    if (thisTitleId) queryString += "&notTitle=" + thisTitleId;
+                    fetch(titlesBasicSearchEndpoint + "?" + queryString)
                         .then(response => response.ok ? response.json() : Promise.reject(response))
                         .then(results => resolve(results.map(title => ({
                             value: title.id,
