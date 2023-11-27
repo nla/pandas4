@@ -151,7 +151,8 @@ public class TitleController {
 
     @GetMapping(value = "/titles/basicSearch.json", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<BasicSearchResult> basicSearchJson(@RequestParam("q") String q, @RequestParam("notTitle") Long notTitleId) {
+    public List<BasicSearchResult> basicSearchJson(
+            @RequestParam("q") String q, @RequestParam(value = "notTitle", required = false) Long notTitleId) {
         return titleSearcher.basicSearch(q, notTitleId).stream().map(BasicSearchResult::new).collect(toList());
     }
 
