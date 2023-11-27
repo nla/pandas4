@@ -69,8 +69,6 @@ public class BrowsertrixGatherer implements Backend {
             depth = scope.getDepth();
         }
 
-        Profile profile = instance.getTitle().getGather().getActiveProfile();
-
         var command = new ArrayList<String>();
         command.addAll(List.of("podman", "run", "--rm", "-v", workingDir + ":/crawls/"));
         if (config.getPodmanOptions() != null) {
@@ -90,14 +88,17 @@ public class BrowsertrixGatherer implements Backend {
             command.add("prefix");
         }
 
-        if (profile.getCrawlLimitSeconds() != null) {
-            command.add("--timeLimit");
-            command.add(String.valueOf(profile.getCrawlLimitSeconds()));
-        }
+        Profile profile = instance.getTitle().getGather().getActiveProfile();
+        if (profile != null) {
+            if (profile.getCrawlLimitSeconds() != null) {
+                command.add("--timeLimit");
+                command.add(String.valueOf(profile.getCrawlLimitSeconds()));
+            }
 
-        if (profile.getCrawlLimitBytes() != null) {
-            command.add("--sizeLimit");
-            command.add(String.valueOf(profile.getCrawlLimitBytes()));
+            if (profile.getCrawlLimitBytes() != null) {
+                command.add("--sizeLimit");
+                command.add(String.valueOf(profile.getCrawlLimitBytes()));
+            }
         }
 
         if (!Strings.isNullOrBlank(config.getUserAgentSuffix())) {
