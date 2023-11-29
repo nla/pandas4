@@ -17,7 +17,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class CaptureIndex {
     private String baseUrl = "http://winch.nla.gov.au:9901/trove";
 
-    public List<Capture> query(String q) {
+    public List<Capture> query(String q, boolean excludeErrors) {
         List<String> urls = new ArrayList<>();
         Set<String> digests = new HashSet<>();
         for (String word : q.split(" ")) {
@@ -31,6 +31,7 @@ public class CaptureIndex {
         List<Capture> captures = new ArrayList<>();
         for (String url : urls) {
             String qUrl = baseUrl + "?url=" + URLEncoder.encode(url.toString(), UTF_8);
+            if (excludeErrors) qUrl += "&filter=!status:[45]..";
             try (var reader = new BufferedReader(new InputStreamReader(new URL(qUrl).openStream(), UTF_8))) {
                 while (true) {
                     String line = reader.readLine();
@@ -45,8 +46,41 @@ public class CaptureIndex {
                 throw new UncheckedIOException(e);
             }
         }
+        return captures;
+    }
+
+    public List<Capture> queryDateDesc(String q) {
+        var captures = query(q, false);
         captures.sort(Comparator.comparing(Capture::getUrl)
                 .thenComparing(Comparator.comparing(Capture::getDate).reversed()));
         return captures;
+    }
+
+    public List<CaptureGroup> queryGrouped(String q) {
+        List<CaptureGroup> groups = new ArrayList<>();
+        Capture firstInGroup = null;
+        Capture prev = null;
+        int groupCount = 0;
+        int uniqueCount = 0;
+        for (Capture capture : query(q, true)) {
+            if (firstInGroup == null || !capture.getUrl().equals(firstInGroup.getUrl())) {
+                if (firstInGroup != null) {
+                    groups.add(new CaptureGroup(firstInGroup, prev, groupCount, uniqueCount));
+                }
+                firstInGroup = capture;
+                prev = null;
+                groupCount = 0;
+                uniqueCount = 0;
+            }
+            groupCount++;
+            if (prev == null || !capture.getDigest().equals(prev.getDigest())) {
+                uniqueCount++;
+            }
+            prev = capture;
+        }
+        if (firstInGroup != null) {
+            groups.add(new CaptureGroup(firstInGroup, prev, groupCount, uniqueCount));
+        }
+        return groups;
     }
 }

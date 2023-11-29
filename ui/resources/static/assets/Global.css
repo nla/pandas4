@@ -748,6 +748,24 @@ button.title-flag:active:after, button.title-flag.active:after {
 }
 
 /**
+ * CDX Results Table
+ */
+.cdx-results {
+    white-space: nowrap;
+}
+
+.cdx-results thead td {
+    font-weight: bold;
+}
+.cdx-results td {
+    margin-right: 16px;
+}
+
+.cdx-results .url {
+    color: darkgreen;
+}
+
+/**
  * HTTP status codes
  */
 .status-unknown { color: dimgray; }

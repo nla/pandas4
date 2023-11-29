@@ -42,7 +42,8 @@ public class PagesController {
 
     @GetMapping("/pages")
     public String search(@RequestParam(value = "url", required = false) String url, Model model) {
-        List<Capture> captures = url == null || url.isBlank() ? List.of() : captureIndex.query(url);
+        if (url != null && url.endsWith("*")) return searchGrouped(url, model);
+        List<Capture> captures = url == null || url.isBlank() ? List.of() : captureIndex.queryDateDesc(url);
         String queryString = captures.stream()
                 .map(Capture::getFile)
                 .distinct()
@@ -68,6 +69,13 @@ public class PagesController {
         model.addAttribute("url", url);
         model.addAttribute("dateTimeFormat", DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").withZone(ZoneId.systemDefault()));
         return "PageSearch";
+    }
+
+    private String searchGrouped(String url, Model model) {
+        model.addAttribute("groups", captureIndex.queryGrouped(url));
+        model.addAttribute("url", url);
+        model.addAttribute("dateTimeFormat", DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault()));
+        return "PageSearchGrouped";
     }
 
     record CrawlsByFilename(long warcId, String filename, long crawlId, String crawlName, Long pandasInstanceId) {

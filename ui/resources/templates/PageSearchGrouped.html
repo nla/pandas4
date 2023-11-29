@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pages - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Pages')}"></nav>
+<main class="search">
+    <form id="sf" th:action="@{/pages}">
+    </form>
+
+    <header>
+        <nav></nav>
+        <input type=search name="url" th:value="${url}" placeholder="URL" data-keybind="f" form=sf style="width: 100%">
+    </header>
+
+    <table class="cdx-results">
+        <thead>
+        <tr>
+            <td>From</td>
+            <td>To</td>
+            <td>Status</td>
+            <td>Type</td>
+            <td><abbr title="Unique snapshots (by content digest)">Unq</abbr></td>
+            <td><abbr title="Total snapshots">Tot</abbr></td>
+            <td>URL</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="group : ${groups}" th:with="capture = ${group.last()}">
+            <td><a th:href="@{/replay(url=${group.first.url},date=${group.first.date})}"
+                   th:text="${dateTimeFormat.format(group.first.date)}">First</a></td>
+            <td><a th:href="@{/replay(url=${group.last.url},date=${group.last.date})}"
+                   th:text="${dateTimeFormat.format(group.last.date)}">Last</a></td>
+            <td><span th:text="${capture.status}" th:class="${@format.statusClass(capture.status)}"
+                      th:title="${capture.statusPhrase}"></span>
+                <a th:if="${capture.redirectUrl}" th:href="@{/pages(url=${capture.redirectUrl})}">redirect</a></td>
+            <td th:text="${capture.contentType}">text/html</td>
+            <td th:text="${group.uniqueCount()}"></td>
+            <td th:text="${group.count()}"></td>
+            <td><a th:href="@{/pages(url=${capture.url})}" th:text="${capture.url}"></a></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
