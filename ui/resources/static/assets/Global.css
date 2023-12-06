@@ -672,6 +672,7 @@ ul.subject-list li + li:before {
 .status-selected, .status-permission-granted { color: #1c7430; }
 .status-rejected { color: darkred; }
 .status-permission-impossible, .status-permission-denied { color: midnightblue; }
+.status-ceased { color: red; }
 
 .permission-state-Granted    { background-color: #e6ffe6; }
 .permission-state-Denied     { background-color: #ffe6e6; }
