@@ -33,6 +33,8 @@ public class BrowsertrixGatherer implements Backend {
     private final Repository repository;
     private final ThumbnailGenerator thumbnailGenerator;
     private volatile boolean shutdown;
+    private final static int EXIT_OK = 0;
+    private final static int EXIT_INTERRUPTED = 11;
 
     public BrowsertrixGatherer(BrowsertrixConfig config, InstanceService instanceService, PywbService pywbService, WorkingArea workingArea, Repository repository, ThumbnailGenerator thumbnailGenerator) {
         this.config = config;
@@ -139,10 +141,11 @@ public class BrowsertrixGatherer implements Backend {
                 }
             }
 
-            log.info(getGatherMethod() + " {} returned {}", instance.getHumanId(), process.exitValue());
-            if (process.exitValue() != 0) {
+            int exitValue = process.exitValue();
+            log.info(getGatherMethod() + " {} returned {}", instance.getHumanId(), exitValue);
+            if (exitValue != EXIT_OK && exitValue != EXIT_INTERRUPTED) {
                 System.err.println(Files.readString(logFile));
-                throw new GatherException("Browsertrix exited with status " + process.exitValue());
+                throw new GatherException("Browsertrix exited with status " + exitValue);
             }
         } finally {
             process.destroy();
