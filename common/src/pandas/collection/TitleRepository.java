@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -205,4 +206,34 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             order by t.name
             """)
     List<TitleListItem> listBySubject(Subject subject);
+
+    @Query("""
+            select s.id as id,
+                s.name as name,
+                count(t) as count
+            from Subject s
+            join s.titles t
+            where t.regDate >= :start and t.regDate <= :end
+            group by s.id, s.name
+            order by count(t) desc
+            """)
+    List<SubjectCount> countBySubject(@Param("start") Instant start, @Param("end") Instant end);
+
+    interface SubjectCount {
+        Long getId();
+        String getName();
+        long getCount();
+
+        default List<Object> values() {
+            return List.of(getCount());
+        }
+
+        default String key() {
+            return getName();
+        }
+
+        default String link() {
+            return "../../subjects/" + getId();
+        }
+    }
 }

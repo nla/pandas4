@@ -54,6 +54,10 @@
 
     <h3>PANDAS Metadata</h3>
 
+    <ul>
+        <li><a th:href="@{/statistics/new-titles-by-subject}">New Titles by Subject (by Year)</a>
+    </ul>
+
     <table class="statistics-table">
         <tr><td>Titles</td><td th:text="${@format.comma(@titleRepository.count())}"></td></tr>
         <tr><td>Instances:</td></tr>

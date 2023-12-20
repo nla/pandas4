@@ -8,8 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriUtils;
+import pandas.collection.TitleRepository.SubjectCount;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -17,9 +18,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Controller
 public class StatisticsController {
     private final JdbcTemplate db;
+    private final TitleRepository titleRepository;
 
-    public StatisticsController(JdbcTemplate db) {
+    public StatisticsController(JdbcTemplate db, TitleRepository titleRepository) {
         this.db = db;
+        this.titleRepository = titleRepository;
     }
 
     @GetMapping("/statistics")
@@ -101,8 +104,9 @@ public class StatisticsController {
         model.addAttribute("title", title);
         model.addAttribute("columns", List.of("Content Type", "URL Snapshots", "Storage"));
         model.addAttribute("rows", rows);
-        model.addAttribute("totalSnapshots", format(rows.stream().mapToLong(row -> row.snapshots()).sum()));
-        model.addAttribute("totalStorage", FileUtils.byteCountToDisplaySize(rows.stream().mapToLong(row -> row.storage()).sum()));
+        model.addAttribute("totals", List.of(
+                format(rows.stream().mapToLong(row -> row.snapshots()).sum()),
+                FileUtils.byteCountToDisplaySize(rows.stream().mapToLong(row -> row.storage()).sum())));
         return "StatisticsView";
     }
 
@@ -154,9 +158,9 @@ public class StatisticsController {
         model.addAttribute("chartLabels", rows.stream().map(YearResult::year).toList());
         model.addAttribute("chartData", rows.stream().map(YearResult::snapshots).toList());
         model.addAttribute("chartData2", rows.stream().map(row -> row.storage() / (1024.0 * 1024.0 * 1024.0)).toList());
-
-        model.addAttribute("totalSnapshots", format(rows.stream().mapToLong(YearResult::snapshots).sum()));
-        model.addAttribute("totalStorage", FileUtils.byteCountToDisplaySize(rows.stream().mapToLong(YearResult::storage).sum()));
+        model.addAttribute("totals",
+                List.of(format(rows.stream().mapToLong(YearResult::snapshots).sum()),
+                FileUtils.byteCountToDisplaySize(rows.stream().mapToLong(YearResult::storage).sum())));
         return "StatisticsView";
     }
 
@@ -178,5 +182,21 @@ public class StatisticsController {
             return "url-snapshots-by-content-type?year=" + year;
         }
     }
+
+    @GetMapping("/statistics/new-titles-by-subject")
+    public String newTitlesBySubject(Model model, @RequestParam(required = false) Integer year) {
+        if (year == null) year = LocalDate.now().getYear();
+        Instant start = LocalDateTime.of(year, 1, 1, 0, 0).atZone(ZoneId.systemDefault()).toInstant();
+        Instant end = LocalDateTime.of(year, 12, 31, 23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
+        model.addAttribute("year", year);
+        String title = "New titles by subject (" + year + ")";
+        model.addAttribute("title", title);
+        model.addAttribute("columns", List.of("Subject", "Titles"));
+        List<SubjectCount> rows = titleRepository.countBySubject(start, end);
+        model.addAttribute("rows", rows);
+        model.addAttribute("totals", List.of(rows.stream().mapToLong(SubjectCount::getCount).sum()));
+        return "StatisticsView";
+    }
+
 
 }

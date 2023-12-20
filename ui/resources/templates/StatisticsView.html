@@ -34,8 +34,7 @@
             <tfoot>
                 <tr>
                     <td></td>
-                    <td th:text="${totalSnapshots}"></td>
-                    <td th:text="${totalStorage}"></td>
+                    <td th:each="total : ${totals}" th:text="${total}"></td>
                 </tr>
             </tfoot>
         </table>
