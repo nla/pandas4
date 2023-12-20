@@ -86,7 +86,12 @@
         <a style="color: var(--color-black)" th:href="@{|https://nla.gov.au/nla.arc-${title.pi}|}">nla.arc-<span
                 th:text="${title.pi}"></span></a><br>
         <br>
-        <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green" target="_blank"></a><br><br>
+        <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green" target="_blank"></a><br>
+        <th:block th:each="url : ${title.secondaryUrls}">
+            <a th:text="${url}" th:href="${url}" target="_blank"></a><br>
+        </th:block>
+
+        <br>
 
         <div th:if="${!title.subjects.isEmpty()}">
             Subjects:

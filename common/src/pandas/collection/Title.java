@@ -360,6 +360,18 @@ public class Title {
         return seeds;
     }
 
+    /**
+     * Returns all seed URLs for this title except the title url.
+     */
+    public Set<String> getSecondaryUrls() {
+        var seeds = new TreeSet<>(getAllSeeds());
+        String titleUrl = getTitleUrl();
+        if (titleUrl != null) {
+            seeds.remove(titleUrl);
+        }
+        return seeds;
+    }
+
     public String getPrimarySeedUrl() {
         if (getGather() != null && getGather().getGatherUrl() != null) {
             return getGather().getGatherUrl();
