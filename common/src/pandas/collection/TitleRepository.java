@@ -219,6 +219,8 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             """)
     List<SubjectCount> countBySubject(@Param("start") Instant start, @Param("end") Instant end);
 
+    long countByRegDateBetween(Instant start, Instant end);
+
     interface SubjectCount {
         Long getId();
         String getName();

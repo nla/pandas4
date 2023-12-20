@@ -192,9 +192,8 @@ public class StatisticsController {
         String title = "New titles by subject (" + year + ")";
         model.addAttribute("title", title);
         model.addAttribute("columns", List.of("Subject", "Titles"));
-        List<SubjectCount> rows = titleRepository.countBySubject(start, end);
-        model.addAttribute("rows", rows);
-        model.addAttribute("totals", List.of(rows.stream().mapToLong(SubjectCount::getCount).sum()));
+        model.addAttribute("rows", titleRepository.countBySubject(start, end));
+        model.addAttribute("totals", List.of(titleRepository.countByRegDateBetween(start, end)));
         return "StatisticsView";
     }
 
