@@ -233,7 +233,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
         }
 
         default String link() {
-            return "../../subjects/" + getId();
+            return "../subjects/" + getId();
         }
     }
 }
