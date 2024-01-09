@@ -866,6 +866,8 @@ public class Title {
     public String getReasonNotDeliverable() {
         if (getAgency() != null && getAgency().getId().equals(Agency.PADI_ID))
             return "Title belongs to PADI agency";
+        if (getStatus() == null)
+            return "Title status is null";
         if (getStatus().getId().equals(Status.NOMINATED_ID) ||
                 getStatus().getId().equals(Status.REJECTED_ID) ||
                 getStatus().getId().equals(Status.MONITORED_ID))
