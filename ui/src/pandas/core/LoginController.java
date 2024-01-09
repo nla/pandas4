@@ -1,5 +1,6 @@
 package pandas.core;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -14,6 +15,7 @@ import java.util.Comparator;
 
 @Controller
 @ConditionalOnProperty("OIDC_URL")
+@ConditionalOnBean(InMemoryClientRegistrationRepository.class)
 public class LoginController {
     private final InMemoryClientRegistrationRepository clientRegistrationRepository;
 
