@@ -1,0 +1,8 @@
+# NLA extra fuzzy matching rules
+# The contents of this file (rules-extra.yaml) are inserted by nla-deploy.sh after the line "rules:" in the stock pywb rules.yaml
+
+- url_prefix: 'com,wixstatic,static)/media/'
+
+  fuzzy_lookup:
+    match: '/v1/.*'
+    replace: '/v1/'

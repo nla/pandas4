@@ -1,6 +1,8 @@
 package pandas.discovery;
 
 import info.freelibrary.util.StringUtils;
+import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.search.mapper.orm.Search;
 import org.netpreserve.urlcanon.Canonicalizer;
 import org.netpreserve.urlcanon.ParsedUrl;
@@ -16,9 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.collection.Title;
 import pandas.search.SearchResults;
 
-import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 
@@ -26,11 +27,26 @@ import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 public class DiscoveryController {
     private final DiscoveryRepository discoveryRepository;
     private final EntityManager entityManager;
+    private final DomainSearcher domainSearcher;
 
-    public DiscoveryController(DiscoveryRepository discoveryRepository, EntityManager entityManager) {
+    public DiscoveryController(DiscoveryRepository discoveryRepository, EntityManager entityManager,
+                               DomainSearcher domainSearcher) {
         this.discoveryRepository = discoveryRepository;
         this.entityManager = entityManager;
+        this.domainSearcher = domainSearcher;
     }
+
+    @GetMapping("/unearth/domains")
+    public String unearth(@RequestParam(required = false) String q,
+                          Model model) throws IOException {
+        model.addAttribute("q", q);
+        model.addAttribute("domains", List.of());
+        if (q != null) {
+            model.addAttribute("domains", domainSearcher.searchDomains(q, 500));
+        }
+        return "discovery/UnearthDomains";
+    }
+
 
     @GetMapping("/discoveries")
     public String index(@PageableDefault(size = 100) Pageable pageable,

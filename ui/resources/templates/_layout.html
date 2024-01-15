@@ -65,9 +65,9 @@
                                                    href=PageSearch.html>
             <i class="icon http"></i>
             Pages</a></li>
-        <li sec:authorize="hasRole('panadmin')"><a th:href="@{/discoveries}" href=discovery/DiscoverySearch.html
-                                                   th:classappend="${activeItem == 'Discover'}? 'active'">
-            <i class="icon discovery"></i> Discover</a></li>
+        <li sec:authorize="hasRole('stduser')"><a th:href="@{/unearth/domains}" href=discovery/UnearthDomains.html
+                                                   th:classappend="${activeItem == 'Unearth'}? 'active'">
+            <i class="icon discovery"></i> Unearth</a></li>
         <li sec:authorize="hasRole('panadmin')"><a th:href="@{/social}" href=discovery/SocialTargetList.html
                                                    th:classappend="${activeItem == 'Social'}? 'active'">
             <i class="icon forum"></i> Social</a></li>

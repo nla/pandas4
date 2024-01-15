@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Unearth Domains - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Discover')}"></nav>
+<main class="search">
+    <form id="sf" th:action="@{/unearth/domains}">
+        <!-- hidden default submit button (otherwise the export buttons will be the default!) -->
+        <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+    </form>
+    <header>
+        <input type=search name="q" th:value="${q}" placeholder="Search Domains" data-keybind="f" form=sf>
+    </header>
+
+    <div class="alert-error" th:if="${error}">
+        <p th:text="${error}"></p>
+    </div>
+
+    <p th:if="${q == null}">
+        This tool searches domain names from the <a href="https://commoncrawl.org/web-graphs">Common Crawl dataset</a> to
+        identify new websites for archiving. e.g. <a th:href="@{/unearth/domains(q=ulverston)}">ulverstone</a>
+    </p>
+
+    <table>
+        <tr th:each="domain : ${domains}">
+            <td><a th:text="${domain}" th:href="${'http://' + domain}" rel="nofollow"></a></td>
+        </tr>
+    </table>
+</main>
