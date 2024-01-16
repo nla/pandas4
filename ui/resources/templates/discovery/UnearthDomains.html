@@ -21,10 +21,13 @@
         <p th:text="${error}"></p>
     </div>
 
-    <p th:if="${q == null}">
-        This tool searches domain names from the <a href="https://commoncrawl.org/web-graphs">Common Crawl dataset</a> to
-        identify new websites for archiving. e.g. <a th:href="@{/unearth/domains(q=ulverston)}">ulverstone</a>
-    </p>
+    <div th:if="${q == null}">
+        <p>Search domain names from the <a href="https://commoncrawl.org/web-graphs">Common Crawl dataset</a> to
+            identify new websites for archiving. e.g. <a th:href="@{/unearth/domains(q=ulverston)}">ulverstone</a></p>
+        <p>If multiple search terms are given domains that match any of them will be returned. Prefix search terms with
+            + for a mandatory match and - for negative match. e.g.
+            <a th:href="@{/unearth/domains(q='canberra +.org -.au')}">canberra +.org -.au</a> </p>
+    </div>
 
     <table>
         <tr th:each="domain : ${domains}">

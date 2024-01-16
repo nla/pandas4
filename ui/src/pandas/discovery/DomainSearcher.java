@@ -95,22 +95,33 @@ public class DomainSearcher {
         }
     }
 
-    public List<String> searchDomains(String pattern, int limit) throws IOException {
+    public List<String> searchDomains(List<String> patterns, int limit) throws IOException {
+        if (patterns.isEmpty()) return Collections.emptyList();
         ensureReady();
         if (!noGrep) {
             try {
-                return searchDomainsGrep(pattern, limit);
+                return searchDomainsGrep(patterns, limit);
             } catch (IOException e) {
                 log.warn("grep failed, falling back to Java", e);
                 noGrep = true;
             }
         }
-        return searchDomainsJava(pattern, limit);
+        return searchDomainsJava(patterns, limit);
     }
 
-    private ArrayList<String> searchDomainsGrep(String pattern, int limit) throws IOException {
+    private ArrayList<String> searchDomainsGrep(List<String> patterns, int limit) throws IOException {
         var domains = new ArrayList<String>();
-        var grep = new ProcessBuilder("grep", "-F", "-m", String.valueOf(limit), "-e", pattern, domainsListFile.toString())
+        var args = new ArrayList<String>();
+        args.add("grep");
+        args.add("-F");
+        args.add("-m");
+        args.add(String.valueOf(limit));
+        for (String pattern : patterns) {
+            args.add("-e");
+            args.add(pattern);
+        }
+        args.add(domainsListFile.toString());
+        var grep = new ProcessBuilder(args)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .start();
         try (var reader = new BufferedReader(new InputStreamReader(grep.getInputStream(), US_ASCII))) {
@@ -127,13 +138,16 @@ public class DomainSearcher {
         return domains;
     }
 
-    private ArrayList<String> searchDomainsJava(String pattern, int limit) throws IOException {
+    private ArrayList<String> searchDomainsJava(List<String> patterns, int limit) throws IOException {
         var domains = new ArrayList<String>();
         try (var reader = Files.newBufferedReader(domainsListFile, US_ASCII)) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                if (line.contains(pattern)) {
-                    domains.add(line);
-                    if (domains.size() >= limit) break;
+                for (var pattern: patterns) {
+                    if (line.contains(pattern)) {
+                        domains.add(line);
+                        if (domains.size() >= limit) return domains;
+                        break;
+                    }
                 }
             }
         }
@@ -147,7 +161,7 @@ public class DomainSearcher {
 //        du.loadDomainRanksCSV("/tmp/x");
         long start = System.currentTimeMillis();
         searcher.downloadAndLoadDomainRanks();
-        System.out.println(searcher.searchDomains("canberra", 50));
+        System.out.println(searcher.searchDomains(List.of("canberra"), 50));
         System.out.println("Took " + (System.currentTimeMillis() - start) + "ms");
     }
 
@@ -168,7 +182,7 @@ public class DomainSearcher {
                     log.error("Failed to download and load domain ranks", e);
                     failed = true;
                 }
-            }, "DomainSearcher.downloadAndLoadDomainRanks()");
+            }, "DomainSearcher download");
             downloadThread.setDaemon(true);
             downloadThread.start();
         }

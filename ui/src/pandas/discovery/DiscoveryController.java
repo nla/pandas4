@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pandas.collection.Title;
+import pandas.collection.TitleSearcher;
 import pandas.search.SearchResults;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
@@ -28,12 +30,14 @@ public class DiscoveryController {
     private final DiscoveryRepository discoveryRepository;
     private final EntityManager entityManager;
     private final DomainSearcher domainSearcher;
+    private final TitleSearcher titleSearcher;
 
     public DiscoveryController(DiscoveryRepository discoveryRepository, EntityManager entityManager,
-                               DomainSearcher domainSearcher) {
+                               DomainSearcher domainSearcher, TitleSearcher titleSearcher) {
         this.discoveryRepository = discoveryRepository;
         this.entityManager = entityManager;
         this.domainSearcher = domainSearcher;
+        this.titleSearcher = titleSearcher;
     }
 
     @GetMapping("/unearth/domains")
@@ -42,7 +46,38 @@ public class DiscoveryController {
         model.addAttribute("q", q);
         model.addAttribute("domains", List.of());
         if (q != null) {
-            model.addAttribute("domains", domainSearcher.searchDomains(q, 500));
+            var negativeTerms = new ArrayList<String>();
+            var normalTerms = new ArrayList<String>();
+            var mandatoryTerms = new ArrayList<String>();
+            for (String term : q.split("\\s+")) {
+                if (term.startsWith("-")) {
+                    negativeTerms.add(term.substring(1));
+                } else if (term.startsWith("+")) {
+                    mandatoryTerms.add(term.substring(1));
+                } else {
+                    normalTerms.add(term);
+                }
+            }
+
+            // we need at least one normal term for the initial search
+            if (normalTerms.isEmpty() && !mandatoryTerms.isEmpty()) {
+                normalTerms.add(mandatoryTerms.get(0));
+                mandatoryTerms.remove(0);
+            }
+
+            List<String> domains = domainSearcher.searchDomains(normalTerms, 500);
+            domains = domains.stream().parallel()
+                    .filter(domain -> {
+                        for (String term : negativeTerms) {
+                            if (domain.contains(term)) return false;
+                        }
+                        for (String term : mandatoryTerms) {
+                            if (!domain.contains(term)) return false;
+                        }
+                        return titleSearcher.urlCheck(domain).isEmpty();
+                    }).toList();
+
+            model.addAttribute("domains", domains);
         }
         return "discovery/UnearthDomains";
     }
