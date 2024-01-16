@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
-        .add-title-button {
+        .mini-add-website-button {
             height: auto;
             min-width: 32px;
             padding: 0;
@@ -46,8 +46,8 @@
         <tr th:each="domain : ${domains}">
             <td>
                 <a th:href="@{/titles/new(url=${domain})}"
-                   title="Add new title"
-                   class="btn add-title-button">+</a>
+                   title="Add website"
+                   class="btn mini-add-website-button">+</a>
             </td>
             <td><a th:text="${domain}" th:href="${'http://' + domain}" target="_blank" rel="external nofollow"></a></td>
         </tr>
