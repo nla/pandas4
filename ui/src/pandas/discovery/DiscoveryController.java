@@ -42,9 +42,11 @@ public class DiscoveryController {
 
     @GetMapping("/unearth/domains")
     public String unearth(@RequestParam(required = false) String q,
+                          @RequestParam(defaultValue = "false") boolean includeExisting,
                           Model model) throws IOException {
         model.addAttribute("q", q);
         model.addAttribute("domains", List.of());
+        model.addAttribute("includeExisting", includeExisting);
         if (q != null) {
             var negativeTerms = new ArrayList<String>();
             var normalTerms = new ArrayList<String>();
@@ -65,18 +67,21 @@ public class DiscoveryController {
                 mandatoryTerms.remove(0);
             }
 
-            List<String> domains = domainSearcher.searchDomains(normalTerms, 500);
-            domains = domains.stream().parallel()
-                    .filter(domain -> {
-                        for (String term : negativeTerms) {
-                            if (domain.contains(term)) return false;
-                        }
-                        for (String term : mandatoryTerms) {
-                            if (!domain.contains(term)) return false;
-                        }
-                        return titleSearcher.urlCheck(domain).isEmpty();
-                    }).toList();
-
+            List<String> domains = domainSearcher.searchDomains(normalTerms, domain -> {
+                for (String term : negativeTerms) {
+                    if (domain.contains(term)) return false;
+                }
+                for (String term : mandatoryTerms) {
+                    if (!domain.contains(term)) return false;
+                }
+                return true;
+            }, 500);
+            if (!includeExisting) {
+                domains = domains.stream().parallel()
+                        .filter(domain -> titleSearcher.urlCheck(domain).isEmpty())
+                        .limit(500)
+                        .toList();
+            }
             model.addAttribute("domains", domains);
         }
         return "discovery/UnearthDomains";

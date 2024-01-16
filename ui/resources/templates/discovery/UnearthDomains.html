@@ -21,6 +21,11 @@
         <p th:text="${error}"></p>
     </div>
 
+    <div style="margin-bottom: 8px">
+        <label><input type="checkbox" name="includeExisting" th:checked="${includeExisting}" form="sf"
+                      onclick="this.form.submit()"> Include existing titles</label>
+    </div>
+
     <div th:if="${q == null}">
         <p>Search domain names from the <a href="https://commoncrawl.org/web-graphs">Common Crawl dataset</a> to
             identify new websites for archiving. e.g. <a th:href="@{/unearth/domains(q=ulverston)}">ulverstone</a></p>

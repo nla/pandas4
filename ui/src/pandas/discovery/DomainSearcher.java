@@ -8,6 +8,7 @@ import pandas.core.Config;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -95,27 +97,25 @@ public class DomainSearcher {
         }
     }
 
-    public List<String> searchDomains(List<String> patterns, int limit) throws IOException {
+    public List<String> searchDomains(List<String> patterns, Predicate<String> filter, int limit) throws IOException {
         if (patterns.isEmpty()) return Collections.emptyList();
         ensureReady();
         if (!noGrep) {
             try {
-                return searchDomainsGrep(patterns, limit);
+                return searchDomainsGrep(patterns, filter, limit);
             } catch (IOException e) {
                 log.warn("grep failed, falling back to Java", e);
                 noGrep = true;
             }
         }
-        return searchDomainsJava(patterns, limit);
+        return searchDomainsJava(patterns, filter, limit);
     }
 
-    private ArrayList<String> searchDomainsGrep(List<String> patterns, int limit) throws IOException {
+    private ArrayList<String> searchDomainsGrep(List<String> patterns, Predicate<String> filter, int limit) throws IOException {
         var domains = new ArrayList<String>();
         var args = new ArrayList<String>();
         args.add("grep");
         args.add("-F");
-        args.add("-m");
-        args.add(String.valueOf(limit));
         for (String pattern : patterns) {
             args.add("-e");
             args.add(pattern);
@@ -124,8 +124,19 @@ public class DomainSearcher {
         var grep = new ProcessBuilder(args)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .start();
-        try (var reader = new BufferedReader(new InputStreamReader(grep.getInputStream(), US_ASCII))) {
-            reader.lines().forEach(domains::add);
+        try (InputStream stream = grep.getInputStream();
+                var reader = new BufferedReader(new InputStreamReader(stream, US_ASCII), 128)) {
+            while (true) {
+                String domain = reader.readLine();
+                if (domain == null) break;
+                if (filter.test(domain)) {
+                    domains.add(domain);
+                    if (domains.size() >= limit) {
+                        reader.close();
+                        return domains;
+                    }
+                }
+            }
             int exitValue = grep.waitFor();
             if (exitValue > 1) {
                 throw new IOException("grep failed with exit code " + exitValue);
@@ -138,12 +149,12 @@ public class DomainSearcher {
         return domains;
     }
 
-    private ArrayList<String> searchDomainsJava(List<String> patterns, int limit) throws IOException {
+    private ArrayList<String> searchDomainsJava(List<String> patterns, Predicate<String> filter, int limit) throws IOException {
         var domains = new ArrayList<String>();
         try (var reader = Files.newBufferedReader(domainsListFile, US_ASCII)) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 for (var pattern: patterns) {
-                    if (line.contains(pattern)) {
+                    if (line.contains(pattern) && filter.test(line)) {
                         domains.add(line);
                         if (domains.size() >= limit) return domains;
                         break;
@@ -161,7 +172,7 @@ public class DomainSearcher {
 //        du.loadDomainRanksCSV("/tmp/x");
         long start = System.currentTimeMillis();
         searcher.downloadAndLoadDomainRanks();
-        System.out.println(searcher.searchDomains(List.of("canberra"), 50));
+        System.out.println(searcher.searchDomains(List.of("canberra"), domain -> true, 50));
         System.out.println("Took " + (System.currentTimeMillis() - start) + "ms");
     }
 
