@@ -5,6 +5,14 @@
     <title>Unearth Domains - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .add-title-button {
+            height: auto;
+            min-width: 32px;
+            padding: 0;
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Unearth')}"></nav>
@@ -28,15 +36,20 @@
 
     <div th:if="${q == null}">
         <p>Search domain names from the <a href="https://commoncrawl.org/web-graphs">Common Crawl dataset</a> to
-            identify new websites for archiving. e.g. <a th:href="@{/unearth/domains(q=ulverston)}">ulverstone</a></p>
+            identify new websites for archiving. e.g. <a th:href="@{/unearth/domains(q=ulverstone)}">ulverstone</a></p>
         <p>If multiple search terms are given domains that match any of them will be returned. Prefix search terms with
             + for a mandatory match and - for negative match. e.g.
-            <a th:href="@{/unearth/domains(q='canberra +.org -.au')}">canberra +.org -.au</a> </p>
+            <a th:href="@{/unearth/domains(q='canberra +.org -.au')}">canberra +.org -.au</a></p>
     </div>
 
     <table>
         <tr th:each="domain : ${domains}">
-            <td><a th:text="${domain}" th:href="${'http://' + domain}" rel="external nofollow"></a></td>
+            <td>
+                <a th:href="@{/titles/new(url=${domain})}"
+                   title="Add new title"
+                   class="btn add-title-button">+</a>
+            </td>
+            <td><a th:text="${domain}" th:href="${'http://' + domain}" target="_blank" rel="external nofollow"></a></td>
         </tr>
     </table>
 </main>
