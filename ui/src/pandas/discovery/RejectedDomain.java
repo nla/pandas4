@@ -29,16 +29,16 @@ public class RejectedDomain {
     private String domain;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reason_id", nullable = false)
+    @JoinColumn(name = "REASON_ID", nullable = false)
     @NotNull
     private Reason reason;
 
     @CreatedDate
-    private Instant date;
+    private Instant createdDate;
 
     @CreatedBy
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
     /**
@@ -46,7 +46,7 @@ public class RejectedDomain {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @Nullable
-    @JoinColumn(name = "agency_id")
+    @JoinColumn(name = "AGENCY_ID")
     private Agency agency;
 
 
@@ -84,8 +84,8 @@ public class RejectedDomain {
         return id;
     }
 
-    public Instant getDate() {
-        return date;
+    public Instant getCreatedDate() {
+        return createdDate;
     }
 
     public User getUser() {
