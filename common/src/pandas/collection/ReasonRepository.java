@@ -7,5 +7,6 @@ import java.util.List;
 
 @Repository
 public interface ReasonRepository extends CrudRepository<Reason, Long> {
+    Reason findByName(String name);
     List<Reason> findAllByOrderByName();
 }

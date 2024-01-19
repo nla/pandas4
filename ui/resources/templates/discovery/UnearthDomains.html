@@ -6,11 +6,22 @@
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
-        .mini-add-website-button {
-            height: auto;
+        .btn-mini {
+            height: 24px;
             min-width: 32px;
             padding: 0;
-            margin-right: 8px;
+        }
+
+        .rejected a[rel~=external] {
+            text-decoration: line-through;
+        }
+
+        .cross-out {
+            position: relative;
+            width: 0;
+            font-size: 80%;
+            top: 1px;
+            left: 1px;
         }
     </style>
 </head>
@@ -32,6 +43,8 @@
     <div style="margin-bottom: 8px">
         <label><input type="checkbox" name="includeExisting" th:checked="${includeExisting}" form="sf"
                       onclick="this.form.submit()"> Include existing titles</label>
+        <label><input type="checkbox" name="includeRejected" th:checked="${includeRejected}" form="sf"
+                      onclick="this.form.submit()"> Include rejected</label>
     </div>
 
     <div th:if="${q == null}">
@@ -43,13 +56,76 @@
     </div>
 
     <table>
-        <tr th:each="domain : ${domains}">
+        <tr th:each="domain : ${domains}" th:classappend="${rejectedDomains.containsKey(domain)}? 'rejected'">
             <td>
                 <a th:href="@{/titles/new(url=${domain})}"
                    title="Add website"
-                   class="btn mini-add-website-button">+</a>
+                   class="btn btn-mini">+</a>
+            </td>
+            <td style="margin-right: 8px;">
+                <button onclick="rejectDomain(this, 6)"
+                        title="Reject: not Australian"
+                        class="btn btn-secondary btn-mini"
+                        th:classappend="${rejectedDomains.containsEntry(domain, 6)}? 'btn-pressed'">
+                    <span class="cross-out">❌</span>🇦🇺‍
+                </button>
+                <button onclick="rejectDomain(this, 12)"
+                        title="Reject: out of scope for agency"
+                        class="btn btn-secondary btn-mini"
+                        th:classappend="${rejectedDomains.containsEntry(domain, 12)}? 'btn-pressed'">🎯</button>
+                <button onclick="rejectDomain(this, 8)"
+                        title="Reject: spam/broken/other"
+                        class="btn btn-secondary btn-mini"
+                        th:classappend="${rejectedDomains.containsEntry(domain, 8)}? 'btn-pressed'">🚫</button>
             </td>
             <td><a th:text="${domain}" th:href="${'http://' + domain}" target="_blank" rel="external nofollow"></a></td>
         </tr>
     </table>
+
+    <script th:inline="javascript">
+        let rejectDomainEndpoint = /*[[@{/unearth/domains/reject}]]*/ '/unearth/domains/reject';
+        let csrfToken = /*[[${_csrf.token}]]*/ 'token';
+        let csrfHeader = /*[[${_csrf.headerName}]]*/ 'csrf';
+
+        function rejectDomain(button, reason) {
+            let tr = button.closest('tr');
+            let domain = button.closest('tr').querySelector('a[rel~=external]').innerText;
+            let unpressing = button.classList.contains('btn-pressed');
+            console.log('Rejecting ' + domain + ' as ' + reason);
+
+            // unpress all buttons
+            tr.querySelectorAll('button.btn-pressed').forEach(function (button) {
+                button.classList.remove('btn-pressed');
+            });
+
+            let requestData = {
+                domain: domain,
+            };
+
+            if (unpressing) {
+                tr.classList.remove('rejected');
+            } else {
+                tr.classList.add('rejected');
+                button.classList.add('btn-pressed');
+                requestData.reason = reason;
+            }
+
+            let headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            };
+            headers[csrfHeader] = csrfToken;
+            fetch(rejectDomainEndpoint, {
+                method: 'POST',
+                headers: headers,
+                body: new URLSearchParams(requestData)
+            }).then(response => {
+                if (response.ok) {
+                } else {
+                    alert('Error: ' + response.statusText);
+                }
+            }).catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+    </script>
 </main>
