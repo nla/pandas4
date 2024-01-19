@@ -57,12 +57,16 @@ public class RequestLogger {
             if (request.getRequestURI().contains("/assets/")) return; // don't both logging static files
             long elapsed = System.currentTimeMillis() - startTime;
             Principal principal = request.getUserPrincipal();
+            String requestUrl = request.getRequestURI();
+            if (request.getQueryString() != null) {
+                requestUrl += "?" + request.getQueryString();
+            }
             System.out.println("time=" + elapsed + "ms" +
                     " dbtime=" + dbTimeNanos / 1000000 + "ms" +
                     " queries=" + queries +
                     " rows=" + rows +
                     " user=" + (principal == null ? "" : principal.getName()) +
-                    " " + request.getMethod() + " " + request.getRequestURI() + extraLines.toString());
+                    " " + request.getMethod() + " " + requestUrl + extraLines.toString());
         }
 
         public void afterSqlExecute(Supplier<String> sql, Supplier<String> hql, long timeElapsedNanos, long rows) {
