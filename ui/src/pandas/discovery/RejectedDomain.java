@@ -15,10 +15,11 @@ import java.time.Instant;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(indexes = {
-        @Index(name = "rejected_domain_agency_domain_index", columnList = "agency_id, domain"),
+        @Index(name = "rejected_domain_agency_domain_idx", columnList = "agency_id, domain", unique = true),
 })
 public class RejectedDomain {
     @Id
+    @Column(name = "ID", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "REJECTED_DOMAIN_SEQ")
     @SequenceGenerator(name = "REJECTED_DOMAIN_SEQ", sequenceName = "REJECTED_DOMAIN_SEQ", allocationSize = 1)
     private Long id;
