@@ -63,7 +63,7 @@
         <tr th:each="domain : ${domains}" th:classappend="${rejectedDomains.containsKey(domain)}? 'rejected'">
             <td>
                 <a th:href="@{/titles/new(url=${domain})}"
-                   title="Add website"
+                   title="Add website" target="_blank"
                    class="btn btn-mini">+</a>
             </td>
             <td style="margin-right: 8px; white-space: nowrap">
