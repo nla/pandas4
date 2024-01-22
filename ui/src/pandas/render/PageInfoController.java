@@ -1,11 +1,15 @@
 package pandas.render;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.attoparser.MarkupParser;
 import org.attoparser.ParseException;
 import org.attoparser.config.ParseConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,21 +20,34 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class PageInfoController {
     private static final Logger log = LoggerFactory.getLogger(PageInfo.class);
 
     private final OkHttpClient httpClient;
+    private final LoadingCache<String, PageInfo> cache;
 
     public PageInfoController(OkHttpClient httpClient) {
         this.httpClient = httpClient.newBuilder().followRedirects(true).followSslRedirects(true).build();
+        this.cache = CacheBuilder.newBuilder()
+                .expireAfterWrite(1, TimeUnit.DAYS)
+                .weigher((String url, PageInfo pageInfo) -> 32 + url.length() + pageInfo.weight())
+                .maximumWeight(20000000) // roughly 20 MB
+                .build(new CacheLoader<>() {
+                    @Override
+                    public PageInfo load(String url) throws IOException {
+                        return fetchPageInfo(url);
+                    }
+                });
     }
 
     @GetMapping(value = "/pageinfo", produces = "application/json")
@@ -39,7 +56,11 @@ public class PageInfoController {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             throw new IllegalArgumentException("bad url");
         }
+        return cache.get(url);
+    }
 
+    @NotNull
+    private PageInfo fetchPageInfo(String url) throws IOException {
         try (Response response = httpClient.newCall(new Request.Builder().url(url).build()).execute()) {
             String contentType = response.header("Content-Type", "application/octet-stream");
             MediaType mediaType = MediaType.parseMediaType(contentType);
@@ -76,6 +97,9 @@ public class PageInfoController {
                     log.warn("Exception parsing " + url, e);
                 }
                 title = handler.title.replaceAll("\\s\\s+", " ").trim();
+                if (title.length() > 1000) {
+                    title = title.substring(0, 1000) + "...";
+                }
             }
             String location = null;
             if (response.priorResponse() != null) {

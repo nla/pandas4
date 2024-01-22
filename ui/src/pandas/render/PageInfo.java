@@ -22,6 +22,16 @@ public class PageInfo {
         this.location = location;
     }
 
+    public int weight() {
+        int weight = 20;
+        if (reason != null) weight += reason.length();
+        if (contentType != null) weight += contentType.length();
+        if (charset != null) weight += charset.length();
+        if (title != null) weight += title.length();
+        if (location != null) weight += location.length();
+        return weight;
+    }
+
     public String getLocation() {
         return location;
     }
