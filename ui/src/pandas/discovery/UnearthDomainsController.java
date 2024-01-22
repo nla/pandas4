@@ -88,6 +88,10 @@ public class UnearthDomainsController {
                 domains = domains.stream().filter(domain -> !rejectedDomains.containsKey(domain)).toList();
             }
 
+            if (domains.size() > 100) {
+                domains = domains.subList(0, 100);
+            }
+
             model.addAttribute("rejectedDomains", rejectedDomains);
             model.addAttribute("domains", domains);
         }

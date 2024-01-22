@@ -23,6 +23,10 @@
             top: 1px;
             left: 1px;
         }
+
+        .domain-title.error {
+            color: darkred;
+        }
     </style>
 </head>
 <body>
@@ -55,14 +59,14 @@
             <a th:href="@{/unearth/domains(q='canberra +.org -.au')}">canberra +.org -.au</a></p>
     </div>
 
-    <table>
+    <table class="domains-table">
         <tr th:each="domain : ${domains}" th:classappend="${rejectedDomains.containsKey(domain)}? 'rejected'">
             <td>
                 <a th:href="@{/titles/new(url=${domain})}"
                    title="Add website"
                    class="btn btn-mini">+</a>
             </td>
-            <td style="margin-right: 8px;">
+            <td style="margin-right: 8px; white-space: nowrap">
                 <button onclick="rejectDomain(this, 6)"
                         title="Reject: not Australian"
                         class="btn btn-secondary btn-mini"
@@ -79,10 +83,12 @@
                         th:classappend="${rejectedDomains.containsEntry(domain, 8)}? 'btn-pressed'">🚫</button>
             </td>
             <td><a th:text="${domain}" th:href="${'http://' + domain}" target="_blank" rel="external nofollow"></a></td>
+            <td class="domain-title"></td>
         </tr>
     </table>
 
     <script th:inline="javascript">
+        var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
         let rejectDomainEndpoint = /*[[@{/unearth/domains/reject}]]*/ '/unearth/domains/reject';
         let csrfToken = /*[[${_csrf.token}]]*/ 'token';
         let csrfHeader = /*[[${_csrf.headerName}]]*/ 'csrf';
@@ -127,5 +133,43 @@
                 alert('Error: ' + error);
             });
         }
+
+        function loadPageInfo() {
+            document.querySelectorAll('.domains-table a[rel~=external]').forEach(function (a) {
+                let tr = a.closest('tr');
+                let domain = a.innerText;
+                fetch(pageinfoEndpoint + "?url=" + encodeURIComponent('http://' + domain))
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.location) {
+                            let oldLocation = a.href;
+                            a.href = data.location;
+
+                            // if differs by more than http/https or www. then flag as redirected
+                            if (oldLocation.replace(/^https?:\/\//, '').replace(/^www\./, '') !==
+                                data.location.replace(/^https?:\/\//, '').replace(/^www\./, '')) {
+                                a.innerText += " [R]";
+                            }
+                        }
+                        let title = "";
+                        if (data.title) {
+                            title = data.title;
+                        }
+                        if (data.status !== 200) {
+                            if (data.status < 0) {
+                                title = "[connect error]";
+                                tr.querySelector(".domain-title").classList.add("error");
+                            } else if (data.status > 400) {
+                                tr.querySelector(".domain-title").classList.add("error");
+                                title = "[" + data.status + " " + (data.reason ? data.reason : "error") + "] " + title;
+                            } else {
+                                title = "[" + data.status + "] " + title;
+                            }
+                        }
+                        tr.querySelector(".domain-title").textContent = title;
+                    });
+            });
+        }
+        loadPageInfo();
     </script>
 </main>
