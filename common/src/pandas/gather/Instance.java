@@ -395,7 +395,7 @@ public class Instance {
     }
 
     public boolean canEdit() {
-        return getState().isArchived();
+        return getState().isArchivedOrArchiving() || getState().isGathered();
     }
 
     public List<PandasExceptionLog> getExceptions() {
