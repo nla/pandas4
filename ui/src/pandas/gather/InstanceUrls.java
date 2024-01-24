@@ -36,7 +36,7 @@ public class InstanceUrls {
             return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9]+/[0-9-]+/", "/");
         }
         return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/mp_/" +
-                instance.getGatheredUrl();
+                instance.getTepUrlAbsolute();
     }
 
     public String qa(Instance instance, String relative) {
