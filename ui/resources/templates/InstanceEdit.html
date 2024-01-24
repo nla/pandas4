@@ -34,7 +34,7 @@
     <form method=post class=form th:object="${form}" th:action="@{''}" enctype=multipart/form-data id=form>
         <fieldset>
             <label><input th:field="*{isDisplayed}" type="checkbox"> Display on TEP page</label>
-            <label>TEP URL <input th:field="*{tepUrl}" required></label>
+            <label>Entrypoint URL <input th:field="*{tepUrl}" required></label>
         </fieldset>
     </form>
 
