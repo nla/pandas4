@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface ProfileRepository extends CrudRepository<Profile, Long> {
     List<Profile> findAllByOrderByName();
+
+    Profile findFirstByIsDefaultIsTrue();
 }

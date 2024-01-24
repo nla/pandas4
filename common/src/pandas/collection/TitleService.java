@@ -29,6 +29,7 @@ public class TitleService {
     private final OwnerHistoryRepository ownerHistoryRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
+    private final ProfileRepository profileRepository;
     private final PublisherRepository publisherRepository;
     private final ScopeRepository scopeRepository;
     private final OptionRepository optionRepository;
@@ -37,7 +38,7 @@ public class TitleService {
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
                         StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
-                        GatherScheduleRepository gatherScheduleRepository, PublisherRepository publisherRepository,
+                        GatherScheduleRepository gatherScheduleRepository, ProfileRepository profileRepository, PublisherRepository publisherRepository,
                         ScopeRepository scopeRepository, OptionRepository optionRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
@@ -47,6 +48,7 @@ public class TitleService {
         this.ownerHistoryRepository = ownerHistoryRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
+        this.profileRepository = profileRepository;
         this.publisherRepository = publisherRepository;
         this.scopeRepository = scopeRepository;
         this.optionRepository = optionRepository;
@@ -89,6 +91,7 @@ public class TitleService {
         form.setPermissionType(TitleEditForm.PermissionTypeRadio.LEGAL_DEPOSIT);
         form.setCataloguingNotRequired(true);
         form.setTitlePermission(new PermissionEditForm());
+        form.setActiveProfile(profileRepository.findFirstByIsDefaultIsTrue());
         return form;
     }
 
