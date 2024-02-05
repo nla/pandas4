@@ -74,7 +74,7 @@ public class HttrackGatherer implements Backend {
 			// Add 15 minutes to the crawl time limit to allow HTTrack to clean up after itself.
 			// HTTrack sometimes hangs after hitting its own time limit.
 			long deadline = System.currentTimeMillis() + instance.getTitle().getGather().getCrawlTimeLimitSeconds() * 1000L +
-							15 * 60;
+							15 * 60000L;
 			try {
 				while (!httrack.process.waitFor(1, TimeUnit.SECONDS)) {
 					instance = instanceService.refresh(instance);
