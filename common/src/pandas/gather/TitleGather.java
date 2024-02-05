@@ -451,4 +451,11 @@ public class TitleGather {
     public void setIgnoreRobotsTxt(boolean ignoreRobotsTxt) {
         this.ignoreRobotsTxt = ignoreRobotsTxt;
     }
+
+    public long getCrawlTimeLimitSeconds() {
+        if (activeProfile != null && activeProfile.getCrawlLimitSeconds() != null) {
+            return activeProfile.getCrawlLimitSeconds();
+        }
+        return 48 * 60 * 60; // 48 hours
+    }
 }

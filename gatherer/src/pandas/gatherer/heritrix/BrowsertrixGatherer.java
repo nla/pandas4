@@ -66,7 +66,8 @@ public class BrowsertrixGatherer implements Backend {
 
         int depth = -1;
 
-        Scope scope = instance.getTitle().getGather().getScope();
+        TitleGather titleGather = instance.getTitle().getGather();
+        Scope scope = titleGather.getScope();
         if (scope != null && scope.getDepth() != null) {
             depth = scope.getDepth();
         }
@@ -90,11 +91,12 @@ public class BrowsertrixGatherer implements Backend {
             command.add("prefix");
         }
 
-        Profile profile = instance.getTitle().getGather().getActiveProfile();
+        command.add("--timeLimit");
+        command.add(String.valueOf(titleGather.getCrawlTimeLimitSeconds()));
+
+        Profile profile = titleGather.getActiveProfile();
         if (profile != null) {
             if (profile.getCrawlLimitSeconds() != null) {
-                command.add("--timeLimit");
-                command.add(String.valueOf(profile.getCrawlLimitSeconds()));
             }
 
             if (profile.getCrawlLimitBytes() != null) {

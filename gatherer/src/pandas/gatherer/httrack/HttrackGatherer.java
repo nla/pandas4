@@ -69,12 +69,19 @@ public class HttrackGatherer implements Backend {
 		try {
 			HTTrackProcess httrack = new HTTrackProcess(instance, instanceDir, command, logFile);
 			running.add(httrack);
+
+			// Set a deadline for the crawl to complete. If it doesn't complete by then, kill it.
+			// Add 15 minutes to the crawl time limit to allow HTTrack to clean up after itself.
+			// HTTrack sometimes hangs after hitting its own time limit.
+			long deadline = System.currentTimeMillis() + instance.getTitle().getGather().getCrawlTimeLimitSeconds() * 1000L +
+							15 * 60;
 			try {
 				while (!httrack.process.waitFor(1, TimeUnit.SECONDS)) {
 					instance = instanceService.refresh(instance);
-					if (shutdown || !instance.getState().getName().equals(State.GATHERING)) {
+					if (shutdown || !instance.getState().getName().equals(State.GATHERING)
+						|| System.currentTimeMillis() > deadline) {
 						httrack.stop();
-						httrack.waitKill(30);
+						httrack.waitKill(60);
 						return;
 					}
 				}
