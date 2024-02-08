@@ -79,7 +79,9 @@ public class BrowsertrixGatherer implements Backend {
         }
         command.addAll(List.of("webrecorder/browsertrix-crawler:0.12.0",
                 "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
-                "--generatecdx", "--logging", "none",
+                "--generatecdx",
+                "--logging", "none",
+                "--saveState", "always",
                 "--limit", String.valueOf(config.getPageLimit()),
                 "--depth", String.valueOf(depth)));
 
