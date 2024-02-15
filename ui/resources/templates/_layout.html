@@ -73,7 +73,7 @@
             <i class="icon forum"></i> Social</a></li>
     </ul>
 
-    <ul>
+    <ul class="hide-when-sidebar-collapsed">
         <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${activeItem == 'Gather Queue'}? 'active'">Gather Queue</a>
         <li><a th:href="@{/statistics}">Statistics</a>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies</a>
@@ -81,10 +81,10 @@
     </ul>
 
     <!-- Gather option administration -->
-    <ul sec:authorize="hasRole('stduser')">
+    <ul sec:authorize="hasRole('stduser')" class="hide-when-sidebar-collapsed">
         <li><a th:href="@{/settings}">System Settings</a>
     </ul>
-    <ul>
+    <ul class="hide-when-sidebar-collapsed">
         <li><a class="disabled">User: <th:block sec:authentication="name">jsmith</th:block></a></li>
         <li sec:authorize="hasAuthority('IS_MASQUERADING')" style="padding-left: 1rem; color: #999">
             Acting as: <span th:text="${@userService.effectiveRole}"></span>

@@ -104,12 +104,13 @@ body > nav {
     background-color: var(--color-sidebar-background);
     padding: 0;
     border-right: 1px solid var(--color-light-grey);
+    white-space: nowrap;
 }
 
 /* brand link */
 body > nav > header a { 
     background-color: #011f85;
-    width: 179px;
+    width: calc(var(--sidebar-width) - 1px);
     border-right: 1px solid darkblue;
     height: 40px;
     display: block;
@@ -164,6 +165,36 @@ body > nav ul > li > a > .icon {
 }
 
 /*
+ * Collapse sidebar and only show icons when window is narrow
+ */
+@media (max-width: 700px) {
+    body > nav {
+        width: 32px !important;
+        transition: width 0.3s;
+    }
+    body > nav .icon {
+        flex-shrink: 0;
+    }
+
+    body > nav ul > li > a {
+        padding-left: 4px !important;
+    }
+
+    body > nav .hide-when-sidebar-collapsed {
+        display: none;
+    }
+
+    body > nav ul > li > a {
+        overflow: clip;
+    }
+
+    body > main {
+        padding-left: calc(32px + var(--margin-width)) !important;
+        transition: padding-left 0.3s;
+    }
+}
+
+/*
  * Main
  */
 
@@ -198,7 +229,7 @@ body > main > header, main > form > header {
     
     height: var(--header-height);
     padding: 0 15px;
-    margin-left: 180px;
+    margin-left: var(--sidebar-width);
     box-sizing: border-box;
 }
 
