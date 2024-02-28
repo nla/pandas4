@@ -10,10 +10,11 @@ import pandas.gatherer.core.*;
 import pandas.gatherer.repository.Repository;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static pandas.gatherer.heritrix.HeritrixClient.State.*;
 
@@ -127,26 +128,55 @@ public class HeritrixGatherer implements Backend {
         Path jobDir = jobDir(instance);
         List<Path> warcs = new ArrayList<>();
         List<Artifact> artifacts = new ArrayList<>();
-        for (Path file : Files.walk(jobDir).toList()) {
-            Path relpath = jobDir.relativize(file);
-            if (Files.isDirectory(file)) continue;
-            if (Files.isSymbolicLink(file)) continue;
-
-            String filename = relpath.getFileName().toString();
-            if (filename.endsWith(".lck")) continue;
-
-            String dirname = file.getParent().getFileName().toString();
-            if (dirname.equals("scratch") || dirname.equals("state") || dirname.equals("action") || dirname.equals("actions-done")) {
-                continue;
+        var directoriesToIgnore = Set.of("scratch", "state", "action", "actions-done");
+        Files.walkFileTree(jobDir, new FileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path path,
+                                                     BasicFileAttributes basicFileAttributes) throws IOException {
+                if (directoriesToIgnore.contains(path.getFileName().toString())) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                return FileVisitResult.CONTINUE;
             }
 
-            log.debug("Artifact {}", filename);
-            if (filename.endsWith(".warc.gz")) {
-                warcs.add(file);
-            } else {
-                artifacts.add(new Artifact(relpath.toString(), file));
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes basicFileAttributes) throws IOException {
+                Path relpath = jobDir.relativize(file);
+                if (Files.isSymbolicLink(file)) return FileVisitResult.CONTINUE;
+
+                String filename = relpath.getFileName().toString();
+                if (filename.endsWith(".lck")) return FileVisitResult.CONTINUE;
+
+                log.debug("Artifact {}", filename);
+                if (filename.endsWith(".warc.gz")) {
+                    warcs.add(file);
+                } else {
+                    artifacts.add(new Artifact(relpath.toString(), file));
+                }
+                return FileVisitResult.CONTINUE;
             }
-        }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path path, IOException e) throws IOException {
+                if (e instanceof NoSuchFileException) {
+                    log.warn("File not found while walking tree archiving {}", path);
+                    return FileVisitResult.CONTINUE;
+                }
+                throw e;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path path, IOException e) throws IOException {
+                if (e != null) {
+                    if (e instanceof NoSuchFileException) {
+                        log.warn("File not found while walking tree archiving {}", path);
+                        return FileVisitResult.CONTINUE;
+                    }
+                    throw e;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
 
         repository.storeWarcs(instance, warcs);
         repository.storeArtifacts(instance, artifacts);

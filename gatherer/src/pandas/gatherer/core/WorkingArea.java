@@ -225,6 +225,12 @@ public class WorkingArea {
                 Files.deleteIfExists(dir);
                 return FileVisitResult.CONTINUE;
             }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                log.warn("Error visiting {}", file, exc);
+                return FileVisitResult.CONTINUE;
+            }
         });
     }
 
