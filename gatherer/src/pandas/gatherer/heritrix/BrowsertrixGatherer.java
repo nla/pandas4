@@ -77,7 +77,7 @@ public class BrowsertrixGatherer implements Backend {
         if (config.getPodmanOptions() != null) {
             command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
         }
-        command.addAll(List.of("webrecorder/browsertrix-crawler:0.12.0",
+        command.addAll(List.of(config.getImage(),
                 "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
                 "--generatecdx",
                 "--logging", "none",
@@ -226,7 +226,7 @@ public class BrowsertrixGatherer implements Backend {
 
     @Override
     public String version() throws IOException {
-        Process process = new ProcessBuilder("podman", "run", "--rm", "webrecorder/browsertrix-crawler", "crawl", "--version")
+        Process process = new ProcessBuilder("podman", "run", "--rm", config.getImage(), "crawl", "--version")
                 .inheritIO()
                 .redirectOutput(ProcessBuilder.Redirect.PIPE)
                 .start();

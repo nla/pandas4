@@ -14,6 +14,7 @@ public class BrowsertrixConfig {
     private Long defaultCrawlLimitBytes = 2L * 1024L * 1024L * 1024L;
 
     private Long defaultCrawlLimitSeconds = 12L * 60 * 60;
+    private String version = "webrecorder/browsertrix-crawler:0.12.4";
 
     public String getPodmanOptions() {
         return podmanOptions;
@@ -61,5 +62,13 @@ public class BrowsertrixConfig {
 
     public void setDefaultCrawlLimitSeconds(Long defaultCrawlLimitSeconds) {
         this.defaultCrawlLimitSeconds = defaultCrawlLimitSeconds;
+    }
+
+    public String getImage() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }
