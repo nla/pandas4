@@ -37,7 +37,7 @@ fi
 # Build libopus
 OPUS_VERSION=1.5.1
 if [ ! -e lib/libopus.a ]; then
-  wget -nc https://archive.mozilla.org/pub/opus/opus-$OPUS_VERSION.tar.gz
+  wget -nc https://downloads.xiph.org/releases/opus/opus-$OPUS_VERSION.tar.gz
   tar xzvf opus-$OPUS_VERSION.tar.gz
   cd opus-$OPUS_VERSION
   ./configure --prefix="$BUILDROOT"
