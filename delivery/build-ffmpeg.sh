@@ -57,11 +57,12 @@ if [ ! -e lib/libvpx.a ]; then
 fi
 
 # Build ffmpeg
+FFMPEG_VERSION=n5.1.4
 #wget -nc https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
 #tar -jxf ffmpeg-snapshot.tar.bz2
-wget -nc https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n5.0.1.tar.gz
-tar -zxf n5.0.1.tar.gz
-mv FFmpeg-n5.0.1 ffmpeg
+wget -nc https://github.com/FFmpeg/FFmpeg/archive/refs/tags/${FFMPEG_VERSION}.tar.gz
+tar -zxf ${FFMPEG_VERSION}.tar.gz
+mv FFmpeg-{$FFMPEG_VERSION} ffmpeg
 cd ffmpeg
 ./configure --prefix="$BUILDROOT" \
             --pkg-config-flags=--static \
