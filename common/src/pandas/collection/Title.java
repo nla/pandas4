@@ -872,12 +872,24 @@ public class Title {
                 getStatus().getId().equals(Status.REJECTED_ID) ||
                 getStatus().getId().equals(Status.MONITORED_ID))
             return "Title status is " + getStatus().getName();
+        if (hasAnyArchivedInstances()) {
+            return "Title has no archived instances";
+        }
         if (getLegalDeposit())
             return null;
         if (getPermission() == null || getPermission().isDenied() || getPermission().isUnknown())
             return "Title permission state is " +
                     (getPermission() == null ? "null permission" : getPermission().getStateName());
         return null;
+    }
+
+    private boolean hasAnyArchivedInstances() {
+        for (var instance : getInstances()) {
+            if (instance.getState().isArchived()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @GenericField
