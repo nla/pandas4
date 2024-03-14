@@ -1,5 +1,6 @@
 package pandas.delivery;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,7 +17,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Service
 public class CdxClient {
-    private final WebClient webClient = WebClient.create("http://winch.nla.gov.au:9901/trove/ap/public");
+    public CdxClient(@Value("${CDX_URL}") String cdxUrl) {
+        webClient = WebClient.create(cdxUrl);
+    }
+
+    private final WebClient webClient;
 
     public Map<Instance,Decision> checkInstanceRestrictions(List<Instance> instances) {
         var map = new HashMap<Instance,Decision>();

@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -15,7 +16,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
 public class CaptureIndex {
-    private String baseUrl = "http://winch.nla.gov.au:9901/trove";
+    public CaptureIndex(@Value("${CDX_URL:}") String cdxUrl) {
+        this.baseUrl = cdxUrl;
+    }
+
+    private String baseUrl;
 
     public List<Capture> query(String q, boolean excludeErrors) {
         List<String> urls = new ArrayList<>();
