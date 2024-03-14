@@ -62,7 +62,7 @@ FFMPEG_VERSION=n5.1.4
 #tar -jxf ffmpeg-snapshot.tar.bz2
 wget -nc https://github.com/FFmpeg/FFmpeg/archive/refs/tags/${FFMPEG_VERSION}.tar.gz
 tar -zxf ${FFMPEG_VERSION}.tar.gz
-mv FFmpeg-{$FFMPEG_VERSION} ffmpeg
+mv FFmpeg-${FFMPEG_VERSION} ffmpeg
 cd ffmpeg
 ./configure --prefix="$BUILDROOT" \
             --pkg-config-flags=--static \
