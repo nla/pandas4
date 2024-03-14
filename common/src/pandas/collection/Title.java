@@ -872,7 +872,7 @@ public class Title {
                 getStatus().getId().equals(Status.REJECTED_ID) ||
                 getStatus().getId().equals(Status.MONITORED_ID))
             return "Title status is " + getStatus().getName();
-        if (hasAnyArchivedInstances()) {
+        if (!hasAnyArchivedInstances()) {
             return "Title has no archived instances";
         }
         if (getLegalDeposit())
