@@ -35,7 +35,7 @@ if [ ! -e bin/yasm ]; then
 fi
 
 # Build libopus
-OPUS_VERSION=1.3.1
+OPUS_VERSION=1.5.1
 if [ ! -e lib/libopus.a ]; then
   wget -nc https://archive.mozilla.org/pub/opus/opus-$OPUS_VERSION.tar.gz
   tar xzvf opus-$OPUS_VERSION.tar.gz
