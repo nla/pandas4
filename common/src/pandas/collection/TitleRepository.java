@@ -39,9 +39,12 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "(t.gather.lastGatherDate is null or t.gather.lastGatherDate < ?3)")
     List<Title> fetchNewGathers(String gatherMethod, Instant now, Instant startOfThisMinute);
 
-    String PUBLISH_CONDITIONS = "t.agency.id <> 3\n" +
-            "and t.status.name not in ('nominated', 'monitored', 'rejected')\n" +
-            "and (t.legalDeposit = true or t.permission.stateName not in ('Denied', 'Unknown'))\n";
+    String PUBLISH_CONDITIONS = """
+            t.agency.id <> 3
+            and t.status.name not in ('nominated', 'monitored', 'rejected')
+            and (t.legalDeposit = true or t.permission.stateName not in ('Denied', 'Unknown'))
+            and exists (select 1 from t.instances i where i.state.name = 'archived')
+            """;
 
     String SUBJECT_CONDITIONS = PUBLISH_CONDITIONS + "AND t.tep.doSubject = true\n";
 
