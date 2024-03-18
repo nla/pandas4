@@ -36,6 +36,7 @@ public class CaptureIndex {
         List<Capture> captures = new ArrayList<>();
         for (String url : urls) {
             String qUrl = baseUrl + "?url=" + URLEncoder.encode(url.toString(), UTF_8);
+            qUrl += "&omitSelfRedirects=false";
             if (excludeErrors) qUrl += "&filter=!status:[45]..";
             try (var reader = new BufferedReader(new InputStreamReader(new URL(qUrl).openStream(), UTF_8))) {
                 while (true) {
