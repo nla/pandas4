@@ -148,12 +148,9 @@ public class InstanceService {
         if (!instance.canArchive()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
         updateState(instance, State.ARCHIVING, user);
 
-        // display the new instance immediately unless the title has issues in which case the curator will need to
-        // set them up through the publish worktray
+        // display the new instance immediately
         Title title = instance.getTitle();
-        if (titleRepository.countIssues(title) == 0) {
-            instance.setIsDisplayed(true);
-        }
+        instance.setIsDisplayed(true);
 
         instanceRepository.save(instance);
 
