@@ -65,7 +65,7 @@ public class Browser implements Closeable {
             }
             break;
         }
-        if (process == null) throw new IOException("Couldn't execute any of: " + executables);
+        if (process == null) throw new BrowserMissingException("Couldn't execute any of: " + executables);
         allProcesses.add(process);
         this.process = process;
         String url = readDevtoolsUrlFromStderr();
