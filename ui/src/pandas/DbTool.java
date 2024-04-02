@@ -15,8 +15,11 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class DbTool {
+    private static Pattern SANE_TABLE_NAME = Pattern.compile("[a-zA-Z0-9_]+");
+
     public static void main(String args[]) throws SQLException, IOException, JsonParserException {
         String dbUrl = System.getenv("PANDAS_DB_URL");
         if (args.length < 2 || dbUrl == null) {
@@ -80,6 +83,7 @@ public class DbTool {
                             }
                             break;
                         case "rows":
+                            sanityCheckTableName(table);
                             String columnsWithCommas = String.join(", ", columns);
                             String placeholders = String.join(",", Collections.nCopies(columns.size(), "?"));
                             String sql = "INSERT INTO " + table + " (" + columnsWithCommas + ") VALUES (" + placeholders + ")";
@@ -233,6 +237,7 @@ public class DbTool {
                 System.err.println("Skipping " + tableName);
                 continue;
             }
+            sanityCheckTableName(tableName);
             System.err.println("Dumping " + tableName);
             json.object();
             json.value("table", tableName);
@@ -264,5 +269,11 @@ public class DbTool {
             json.end();
         }
         json.end().done();
+    }
+
+    private static void sanityCheckTableName(String tableName) throws SQLException {
+        if (!SANE_TABLE_NAME.matcher(tableName).matches()) {
+            throw new SQLException("Bogus table name: " + tableName);
+        }
     }
 }
