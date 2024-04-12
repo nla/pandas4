@@ -41,12 +41,8 @@ public class BrowserPool extends GenericObjectPool<Browser> {
         }
 
         @Override
-        public Browser create() {
-            try {
-                return new Browser();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+        public Browser create() throws IOException {
+            return new Browser();
         }
 
         @Override
