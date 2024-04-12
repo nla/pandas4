@@ -1,0 +1,3 @@
+FROM nla-registry-quay-quay.apps.dev-containers.nla.gov.au/nla/ubi8-openjdk-17
+COPY target/pandas-admin.jar pandas-admin.jar
+ENTRYPOINT ["bash", "-c", "exec java ${JAVA_OPTS} -jar pandas-admin.jar"]
