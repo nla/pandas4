@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class PywbService implements DisposableBean {
     private final Logger log = LoggerFactory.getLogger(PywbService.class);
-    private final Process process;
+    private Process process;
     private final Config config;
     private final PywbConfig pywbConfig;
     private boolean started;
@@ -32,16 +32,20 @@ public class PywbService implements DisposableBean {
         Files.writeString(working.resolve("config.yaml"), "collections_root: ../collections\nframed_replay: false\n");
         Files.write(working.resolve("templates").resolve("banner.html"), new byte[0]);
 
-        process = new ProcessBuilder("pywb", "-b", pywbConfig.getBindAddress(),
-                "-p", String.valueOf(pywbConfig.getPort()), "--record")
-                .directory(working.toFile())
-                .inheritIO()
-                .start();
+        try {
+            process = new ProcessBuilder("pywb", "-b", pywbConfig.getBindAddress(),
+                    "-p", String.valueOf(pywbConfig.getPort()), "--record")
+                    .directory(working.toFile())
+                    .inheritIO()
+                    .start();
+        } catch (IOException e) {
+            log.error("Failed to start pywb", e);
+        }
     }
 
     @SuppressWarnings("BusyWait")
     private synchronized void waitUntilStarted() {
-        if (started) return;
+        if (started || process == null) return;
         for (int tries = 0; ; tries++) {
             if (!process.isAlive()) {
                 throw new RuntimeException("Pywb exited with status " + process.exitValue());
@@ -92,14 +96,21 @@ public class PywbService implements DisposableBean {
                     .waitFor();
         } catch (InterruptedException e) {
             log.warn("Interrupted indexing", e);
+        } catch (IOException e) {
+            log.error("Failed to index " + instance.getHumanId(), e);
         }
     }
 
     @Override
     public void destroy() throws Exception {
+        if (process == null) return;
         process.destroy();
         if (!process.waitFor(2, TimeUnit.SECONDS)) {
             process.destroyForcibly();
         }
+    }
+
+    public boolean isAvailable() {
+        return process != null;
     }
 }

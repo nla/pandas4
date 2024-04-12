@@ -30,6 +30,7 @@ class PywbServiceTest {
             Assumptions.assumeTrue(false, "Unable to start pywb");
             return;
         }
+        Assumptions.assumeTrue(pywbService.isAvailable(), "pywb not available");
         try {
             Title title = new Title();
             title.setPi(123L);

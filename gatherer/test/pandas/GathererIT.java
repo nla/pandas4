@@ -1,5 +1,7 @@
 package pandas;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -204,7 +207,15 @@ public class GathererIT {
 
     @Test
 //    @Timeout(value = 10)
-    public void testBrowsertrixCrawl() throws InterruptedException {
+    public void testBrowsertrixCrawl() throws InterruptedException, IOException {
+        try {
+            Process process = new ProcessBuilder("podman", "version").inheritIO().start();
+            Assumptions.assumeTrue(process.waitFor() == 0, "'podman version' exited with non-zero status");
+        } catch (IOException e) {
+            Assumptions.assumeTrue(false, "Error starting podman");
+        }
+        Assumptions.assumeTrue(Files.exists(Path.of("/usr/bin/podman")), "podman not installed");
+
         mockServer.when(request().withMethod("GET").withPath("/target/")).respond(response().withBody("test page"));
         mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
         mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
