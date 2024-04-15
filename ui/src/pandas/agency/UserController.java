@@ -1,5 +1,6 @@
 package pandas.agency;
 
+import jakarta.validation.Valid;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -14,7 +15,6 @@ import pandas.core.NotFoundException;
 import pandas.core.Privileges;
 import pandas.core.Role;
 
-import jakarta.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -66,7 +66,9 @@ public class UserController {
         model.addAttribute("user", user);
         model.addAttribute("form", UserEditForm.of(user));
         model.addAttribute("allowedRoles", getRoleNamesAllowedForCurrentUser());
-        model.addAttribute("editingSelf", user.equals(userService.getCurrentUser()));
+        boolean editingSelf = user.equals(userService.getCurrentUser());
+        model.addAttribute("editingSelf", editingSelf);
+        model.addAttribute("changePasswordViaOpenid", editingSelf && userService.loggedInViaOpenid());
         return "UserEdit";
     }
 

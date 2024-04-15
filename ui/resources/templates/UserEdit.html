@@ -13,7 +13,7 @@
             <button type="submit" class="btn btn-primary" form=editForm><i class="icon save"></i>Save</button>
             <button onclick="history.back(); return false" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i> Cancel</button>
         </nav>
-        <button th:if="${user != null}" type="submit" th:formaction="@{|/users/${user.userid}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
+        <button th:if="${user != null && !editingSelf}" type="submit" th:formaction="@{|/users/${user.userid}/delete|}" class="btn btn-danger float-right" form="editForm"><i class="icon delete"></i>Delete</button>
     </header>
     <form method=post class=form th:object="${form}" id=editForm th:action="@{''}">
         <fieldset>
@@ -37,7 +37,13 @@
             </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset th:if="${changePasswordViaOpenid}">
+            <div>
+                <a th:href="@{/update-password}" class="btn">Change password</a>
+            </div>
+        </fieldset>
+
+        <fieldset th:unless="${changePasswordViaOpenid}">
             <label>New password <input type=password name=newPassword autocomplete=new-password
                                        th:required="${user == null}"></label>
             <label>Confirm password

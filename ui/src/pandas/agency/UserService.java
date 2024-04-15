@@ -4,6 +4,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import pandas.core.PandasUserDetails;
 
@@ -25,6 +26,10 @@ public class UserService implements AuditorAware<User> {
         }
         Long individualId = ((PandasUserDetails) authentication.getPrincipal()).getIndividualId();
         return userRepository.findById(individualId).orElseThrow();
+    }
+
+    public boolean loggedInViaOpenid() {
+        return SecurityContextHolder.getContext().getAuthentication() instanceof OAuth2AuthenticationToken;
     }
 
     @Override
