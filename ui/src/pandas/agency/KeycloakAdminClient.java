@@ -59,10 +59,13 @@ public class KeycloakAdminClient {
     }
 
     private User getUserByUsername(String username) {
-        var users = restClient.get().uri("/users?username={username}&exact=true&max=2", username)
+        // The username= query param seems to be broken in our current version of Keycloak (or with federated accounts)
+        // so we have to do a general search= instead and then filter the results for username matches.
+        var users = restClient.get().uri("/users?search={username}&exact=true&briefRepresentation=true", username)
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<User>>() {
                 });
+        users.removeIf(user -> !user.username().equals(username));
         if (users == null) throw new RuntimeException("Missing response body");
         if (users.isEmpty()) return null;
         if (users.size() > 1) throw new RuntimeException("Duplicate users for username: " + username);
