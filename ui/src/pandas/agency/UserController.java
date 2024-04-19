@@ -1,6 +1,7 @@
 package pandas.agency;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,11 +25,14 @@ public class UserController {
     private final UserRepository userRepository;
     private final TitleRepository titleRepository;
     private final UserService userService;
+    private final KeycloakAdminClient keycloakAdminClient;
 
-    public UserController(UserRepository userRepository, TitleRepository titleRepository, UserService userService) {
+    public UserController(UserRepository userRepository, TitleRepository titleRepository, UserService userService,
+                          @Autowired(required = false) KeycloakAdminClient keycloakAdminClient) {
         this.userRepository = userRepository;
         this.titleRepository = titleRepository;
         this.userService = userService;
+        this.keycloakAdminClient = keycloakAdminClient;
     }
 
     @GetMapping("/users/{userid}")
@@ -97,6 +101,12 @@ public class UserController {
         }
         boolean editingSelf = user.equals(userService.getCurrentUser());
         form.applyTo(user, editingSelf);
+
+        if (keycloakAdminClient != null && user.getPassword() != null) {
+            keycloakAdminClient.resetPasswordForUsername(user.getUserid(), user.getPassword());
+            user.setPassword(null); // password is stored in Keycloak so don't save it to PANDAS DB
+        }
+
         userRepository.save(user);
         return "redirect:/users/" + user.getUserid();
     }

@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.stereotype.Controller;
@@ -36,7 +37,12 @@ public class LoginController {
                                                " is not iterable");
         }
         var iterable = (Iterable<ClientRegistration>) clientRegistrationRepository;
-        iterable.forEach(registrations::add);
+        for (ClientRegistration clientRegistration : iterable) {
+            if (clientRegistration.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
+                continue; // skip client registrations used for server-server communication
+            }
+            registrations.add(clientRegistration);
+        }
         Collections.sort(registrations, Comparator.comparing(ClientRegistration::getRegistrationId));
         model.addAttribute("registrations", registrations);
         return "Login";

@@ -25,7 +25,15 @@ public class Pandas {
         if (System.getProperty("spring.security.oauth2.client.provider.oidc.issuer-uri") != null) {
             System.setProperty("spring.security.oauth2.client.registration.oidc.scope", "openid");
             System.setProperty("spring.security.oauth2.client.provider.oidc.user-name-attribute", "preferred_username");
+
+            // this second client registration is for the Keycloak admin API. It uses the same credentials
+            // but we have to add it separately because we need to change the authorization-grant-type
+            copyEnvToProperty("OIDC_URL", "spring.security.oauth2.client.provider.kcadmin.issuer-uri");
+            copyEnvToProperty("OIDC_CLIENT_ID", "spring.security.oauth2.client.registration.kcadmin.client-id");
+            copyEnvToProperty("OIDC_CLIENT_SECRET", "spring.security.oauth2.client.registration.kcadmin.client-secret");
+            System.setProperty("spring.security.oauth2.client.registration.kcadmin.authorization-grant-type", "client_credentials");
         }
+
         SpringApplication.run(Pandas.class, args);
     }
 

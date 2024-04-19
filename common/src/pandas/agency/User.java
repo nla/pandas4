@@ -1,15 +1,18 @@
 package pandas.agency;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import pandas.collection.Title;
 import pandas.core.Individual;
 import pandas.core.LinkedAccount;
 
-import jakarta.persistence.*;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 public class User extends Individual {
@@ -89,8 +92,8 @@ public class User extends Individual {
     }
 
     public void setPassword(String password) {
-        setPwdigest(BCrypt.hashpw(password, BCrypt.gensalt()));
         this.password = password;
+        setPwdigest(password == null ? null : BCrypt.hashpw(password, BCrypt.gensalt()));
     }
 
     public String getUserid() {
