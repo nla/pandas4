@@ -44,4 +44,6 @@ public class Privileges {
                     EDIT_SUBJECTS, ADMIN_GATHER_OPTIONS, SUDO, EDIT_DISCOVERY_SOURCES, EDIT_ALL_AGENCIES,
                     VIEW_ALL_AGENCY_WORKTRAYS, CONTROL_GATHERER),
             "sysadmin", Set.of(SYSADMIN));
+
+    public static final Set<String> ROLE_NAMES = byRole.keySet();
 }

@@ -102,8 +102,8 @@ public class UserController {
         boolean editingSelf = user.equals(userService.getCurrentUser());
         form.applyTo(user, editingSelf);
 
-        if (keycloakAdminClient != null && user.getPassword() != null) {
-            keycloakAdminClient.resetPasswordForUsername(user.getUserid(), user.getPassword());
+        if (keycloakAdminClient != null) {
+            keycloakAdminClient.saveUser(user);
             user.setPassword(null); // password is stored in Keycloak so don't save it to PANDAS DB
         }
 
