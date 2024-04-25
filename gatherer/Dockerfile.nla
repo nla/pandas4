@@ -1,0 +1,4 @@
+FROM nla-registry-quay-quay.apps.dev-containers.nla.gov.au/nla/ubi8-openjdk-17
+ARG JAR_FILE=target/pandas4-gatherer.jar
+COPY ${JAR_FILE} pandas4-gatherer.jar
+ENTRYPOINT ["bash", "-c", "exec java ${JAVA_OPTS} -jar pandas4-gatherer.jar"]
