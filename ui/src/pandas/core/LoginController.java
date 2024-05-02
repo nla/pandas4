@@ -1,5 +1,6 @@
 package pandas.core;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -24,7 +25,7 @@ import java.util.Comparator;
 public class LoginController {
     private final ClientRegistrationRepository clientRegistrationRepository;
 
-    public LoginController(ClientRegistrationRepository clientRegistrationRepository) {
+    public LoginController(@Autowired(required = false) ClientRegistrationRepository clientRegistrationRepository) {
         this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
