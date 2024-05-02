@@ -103,6 +103,14 @@ public class UserController {
         form.applyTo(user, editingSelf);
 
         if (keycloakAdminClient != null) {
+            // If this is a new user, and we aren't creating users via the Keycloak API, we need to first save the user
+            // to the database so the Keycloak plugin can see it. Otherwise, Keycloak will complain the user doesn't
+            // exist when we try to set the password for the first time.
+            // This can be removed when we stop using the PANDAS keycloak plugin.
+            if (!keycloakAdminClient.isSavingUsersToKeycloak() && user.getId() == null) {
+                userRepository.save(user);
+            }
+
             keycloakAdminClient.saveUser(user);
             user.setPassword(null); // password is stored in Keycloak so don't save it to PANDAS DB
         }

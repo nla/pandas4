@@ -239,4 +239,8 @@ public class KeycloakAdminClient {
                 .retrieve()
                 .toBodilessEntity());
     }
+
+    public boolean isSavingUsersToKeycloak() {
+        return saveUsersToKeycloak;
+    }
 }
