@@ -325,7 +325,7 @@ a.btn-secondary:hover, button.btn-secondary:hover:enabled, .btn-secondary.btn-pr
     color: white;
 }
 
-button.btn-danger:hover, a.btn-danger:hover {
+button.btn-danger:hover:enabled, a.btn-danger:hover {
     background: linear-gradient(#c55, #c55);
     color: white;
 }

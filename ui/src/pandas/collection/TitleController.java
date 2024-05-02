@@ -10,6 +10,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.hibernate.search.engine.search.query.SearchScroll;
 import org.hibernate.search.mapper.orm.Search;
+import org.jetbrains.annotations.Nullable;
 import org.marc4j.MarcStreamWriter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -390,9 +391,10 @@ public class TitleController {
             model.addAttribute("backlink", backlink);
         }
 
+        model.addAttribute("title", title);
         model.addAttribute("titleContactPeople", title.getContactPeople());
 
-        return editForm(model, form);
+        return editForm(model, form, title);
     }
 
     @GetMapping("/titles/{id}/clone")
@@ -401,15 +403,16 @@ public class TitleController {
         TitleEditForm form = titleService.editForm(title);
         form.setId(null);
         model.addAttribute("clonedFrom", title);
-        return editForm(model, form);
+        return editForm(model, form, null);
     }
 
-    private String editForm(Model model, TitleEditForm form) {
+    private String editForm(Model model, TitleEditForm form, @Nullable Title title) {
         if (!model.containsAttribute("created")) {
             model.addAttribute("created", null);
         }
 
         model.addAttribute("form", form);
+        model.addAttribute("title", title);
         model.addAttribute("allFormats", formatRepository.findAllByOrderByName());
         model.addAttribute("allGatherMethods", gatherMethodRepository.findAll());
         model.addAttribute("allGatherSchedules", gatherService.allGatherSchedules());
@@ -444,6 +447,10 @@ public class TitleController {
     @PostMapping("/titles/{id}/delete")
     @PreAuthorize("hasPermission(#title, 'edit')")
     public String delete(@PathVariable("id") Title title) {
+        if (!title.isDeletable()) {
+            throw new IllegalStateException("Title is not deletable: " + title.getHumanId() + ": " +
+                                            title.getReasonNotDeletable());
+        }
         titleRepository.delete(title);
         return "redirect:/titles";
     }
@@ -572,7 +579,7 @@ public class TitleController {
         }
         model.addAttribute("backlink", backlink);
 
-        return editForm(model, form);
+        return editForm(model, form, null);
     }
 
     @GetMapping("/titles/bulkadd")

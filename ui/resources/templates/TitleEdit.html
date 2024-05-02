@@ -34,6 +34,7 @@
                 </button>
             </div>
             <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
+                    th:disabled="${!title.deletable}" th:title="${title.reasonNotDeletable}"
                     class="btn btn-danger float-right"><i class="icon delete"></i>Delete
             </button>
         </header>

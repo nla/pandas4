@@ -826,6 +826,17 @@ public class Title {
         return continues;
     }
 
+    public String getReasonNotDeletable() {
+        if (!getInstances().isEmpty()) {
+            return "Title has instances";
+        }
+        return null;
+    }
+
+    public boolean isDeletable() {
+        return getReasonNotDeletable() == null;
+    }
+
     public boolean isScheduled() {
         if (getGather() == null) return false;
         if (getGather().getSchedule() == null) return false;
