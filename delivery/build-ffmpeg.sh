@@ -78,7 +78,8 @@ cd ffmpeg
             --enable-filter=aresample,scale \
             --enable-protocol=pipe \
             --enable-libvpx \
-            --enable-libopus
+            --enable-libopus \
+            --enable-zlib
 make -j$(nproc)
 make install
 cd ..
