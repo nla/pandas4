@@ -71,8 +71,8 @@ cd ffmpeg
             --disable-ffprobe \
             --disable-ffplay \
             --disable-doc \
-            --enable-decoder='aac*,ac3*,flv,h264,mp3,opus,vorbis' \
-            --enable-demuxer=mov,m4v,matroska,flv \
+            --enable-decoder='aac*,ac3*,flv,h264,mp3,opus,vorbis,qcelp,atrac*,rv*' \
+            --enable-demuxer=mov,m4v,matroska,flv,rm \
             --enable-muxer=webm \
             --enable-encoder=libvpx_vp8,libopus \
             --enable-filter=aresample \
