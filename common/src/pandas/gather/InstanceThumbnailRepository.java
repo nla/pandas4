@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface InstanceThumbnailRepository extends CrudRepository<InstanceThumbnail, Long> {
+public interface InstanceThumbnailRepository extends CrudRepository<InstanceThumbnail, InstanceThumbnailId> {
 
     @Query("select it from InstanceThumbnail it where it.instance.title.id = :titleId\n" +
             "and it.status >= 200 and it.status <= 299\n" +
