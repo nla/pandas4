@@ -1,15 +1,16 @@
 package pandas.delivery;
 
+import jakarta.servlet.ServletResponse;
+import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.servlet.ServletResponse;
-import jakarta.validation.constraints.Pattern;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +22,11 @@ import java.util.concurrent.TimeUnit;
 @Controller
 public class TranscodeController {
     private static final Logger log = LoggerFactory.getLogger(TranscodeController.class);
+    private final String ffmpegExecutable;
+
+    public TranscodeController(@Value("${FFMPEG_EXECUTABLE:ffmpeg}") String ffmpegExecutable) {
+        this.ffmpegExecutable = ffmpegExecutable;
+    }
 
     @GetMapping("/transcode")
     public void transcode(@RequestParam("date") @Pattern(regexp = "[0-9]+") String date,
@@ -33,7 +39,8 @@ public class TranscodeController {
         connection.setInstanceFollowRedirects(true);
         log.info("-> " + connection.getResponseCode() + " " + connection.getContentType());
         try (InputStream sourceStream = connection.getInputStream()) {
-            Process process = new ProcessBuilder("ffmpeg", "-i", "-", "-f", "webm", "-c:v", "libvpx",
+            Process process = new ProcessBuilder(ffmpegExecutable, "-i", "-",
+                    "-f", "webm", "-c:v", "libvpx",
                     "-c:a", "libopus", "-hide_banner", "-loglevel", "error", "-")
                     .redirectInput(ProcessBuilder.Redirect.PIPE)
                     .redirectOutput(ProcessBuilder.Redirect.PIPE)
