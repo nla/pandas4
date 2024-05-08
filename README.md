@@ -89,9 +89,11 @@ Configure Keycloak in this way:
 1. Create a new realm called 'pandas'.
 2. Create a new client for each application (e.g. pandas-ui, pandas-gatherer, pandas-delivery, bamboo etc).
    - **Access type:** confidential
+   - **Standard Flow Enabled:** on
    - **Implicit Flow Enabled:** off
-   - **Direct Access Grants Enabled:** on
+   - **Direct Access Grants Enabled:** off
    - **Service Accounts Enabled:** on
+   - **Valid Redirect URIs:** user-facing URL of the application followed by `/*`
    
    Press save.
 4. Go to the Credentials tab and copy the client secret. In each app's own configuration set 
