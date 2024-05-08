@@ -92,6 +92,7 @@ Configure Keycloak in this way:
    - **Implicit Flow Enabled:** off
    - **Direct Access Grants Enabled:** on
    - **Service Accounts Enabled:** on
+   
    Press save.
 4. Go to the Credentials tab and copy the client secret. In each app's own configuration set 
    OIDC_URL to the realm URL (e.g. `https://localhost:8443/auth/realms/pandas` 
@@ -101,6 +102,7 @@ Configure Keycloak in this way:
    - panadmin
    - agadmin
    - stduser
+   - infouser
 5. For each role set:
    - **Composite Roles:** on
    - **Realm Roles - Associated Roles:** the next lower access level (e.g. panadmin -> agadmin, agadmin -> stduser)
