@@ -72,4 +72,37 @@ Set the following environment variables:
 #BROWSERTRIX_WORKERS=4
 #BROWSERTRIX_PAGE_LIMIT=1000
 #BROWSERTRIX_USER_AGENT_SUFFIX=
-```~~~~
+```
+
+### Keycloak integration
+
+PANDAS can use Keycloak for single sign on. It may be possible to adapt it other OpenID Connect auth servers although
+account editing and access roles currently make use of Keycloak-specific features.
+
+Versions known to work:
+
+* Red Hat Single Sign-On 7.4 
+* Keycloak 14
+
+Configure Keycloak in this way:
+
+1. Create a new realm called 'pandas'.
+2. Create a new client for each application (e.g. pandas-ui, pandas-gatherer, pandas-delivery, bamboo etc).
+   - **Access type:** confidential
+   - **Implicit Flow Enabled:** off
+   - **Direct Access Grants Enabled:** on
+   - **Service Accounts Enabled:** on
+   Press save.
+4. Go to the Credentials tab and copy the client secret. In each app's own configuration set 
+   OIDC_URL to the realm URL (e.g. `https://localhost:8443/auth/realms/pandas` 
+   and OIDC_CLIENT_ID and OIDC_CLIENT_SECRET so they match the values in Keycloak.
+4. Create the following realm-level roles:
+   - sysadmin
+   - panadmin
+   - agadmin
+   - stduser
+5. For each role set:
+   - **Composite Roles:** on
+   - **Realm Roles - Associated Roles:** the next lower access level (e.g. panadmin -> agadmin, agadmin -> stduser)
+
+To have pandas-ui to create and edit user using the Keycloak REST API configure it with SAVE_USERS_TO_KEYCLOAK=true
