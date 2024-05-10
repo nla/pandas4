@@ -144,8 +144,9 @@ public class TitleController {
                          Model model, HttpServletRequest request) {
     	
     	// if called without parameters, redirect to the last saved sticky parameters
-    	if (params.isEmpty()) {
-			Object attribute = request.getSession().getAttribute("titleFilterStickyParams");
+    	if (params.isEmpty())
+    	{
+    		Object attribute = request.getSession().getAttribute("titleFilterStickyParams");
 			
     	    if(attribute!=null)
     	    {

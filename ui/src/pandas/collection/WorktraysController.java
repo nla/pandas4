@@ -183,8 +183,9 @@ public class WorktraysController {
                            @PageableDefault(size = 100) Pageable pageable, Model model, HttpServletRequest request) {
     	
     	// if called without parameters, redirect to the last saved sticky parameters
-    	if (params.isEmpty()) {
-			Object attribute = request.getSession().getAttribute("qaFilterStickyParams");
+    	if (params.isEmpty())
+    	{
+    		Object attribute = request.getSession().getAttribute("qaFilterStickyParams");
 			
     	    if(attribute!=null)
     	    {
