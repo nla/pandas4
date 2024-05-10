@@ -148,10 +148,10 @@ public class TitleController {
     	{
     		Object attribute = request.getSession().getAttribute("titleFilterStickyParams");
 			
-    	    if(attribute!=null)
-    	    {
-    	        return "redirect:/titles?"+attribute.toString();
-    	    }
+    		if(attribute!=null)
+    		{
+    			return "redirect:/titles?"+attribute.toString();
+    		}
     	}
 
     	// save the parameters that we want to be sticky

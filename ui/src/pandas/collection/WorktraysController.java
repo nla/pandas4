@@ -187,10 +187,10 @@ public class WorktraysController {
     	{
     		Object attribute = request.getSession().getAttribute("qaFilterStickyParams");
 			
-    	    if(attribute!=null)
-    	    {
-    	        return "redirect:/worktrays/gathered?"+attribute.toString();
-    	    }
+    		if(attribute!=null)
+    		{
+    			return "redirect:/worktrays/gathered?"+attribute.toString();
+    		}
     	}
     	
     	// save the parameters that we want to be sticky
