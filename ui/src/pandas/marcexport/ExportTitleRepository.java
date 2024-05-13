@@ -1,12 +1,12 @@
 package pandas.marcexport;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import java.util.Date;
 import java.util.List;
 
@@ -30,8 +30,8 @@ public interface ExportTitleRepository extends JpaRepository<ExportTitleReposito
             "PUBLISHER.PUBLISHER_TYPE_ID publisherTypeId " +
             "from TITLE " +
             "left join PUBLISHER on PUBLISHER.PUBLISHER_ID = TITLE.PUBLISHER_ID " +
-            "left join ORGANISATION on ORGANISATION.PUBLISHER_ID = TITLE.PUBLISHER_ID " +
-            "where TITLE.PUBLISHER_ID = ORGANISATION.PUBLISHER_ID and TITLE.PI = :pi", nativeQuery=true)
+            "left join ORGANISATION on ORGANISATION.ORGANISATION_ID = PUBLISHER.ORGANISATION_ID " +
+            "where TITLE.PI = :pi", nativeQuery=true)
     Title findTitle(@Param("pi") long pi);
 
     @Query(value = "SELECT \n" +
