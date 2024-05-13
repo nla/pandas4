@@ -24,9 +24,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
+
 import pandas.agency.*;
 import pandas.collection.TitleSearcher.UrlCheckResult;
 import pandas.core.Config;
@@ -137,7 +141,25 @@ public class TitleController {
     @GetMapping("/titles")
     public String search(@RequestParam MultiValueMap<String, String> params,
                          @PageableDefault(20) Pageable pageable,
-                         Model model) {
+                         Model model, HttpServletRequest request) {
+    	
+        // if called without parameters, redirect to the last saved sticky parameters
+        if (params.isEmpty()) {
+            Object attribute = request.getSession().getAttribute("titleFilterStickyParams");
+
+            if (attribute != null) {
+                return "redirect:/titles?" + attribute.toString();
+            }
+        }
+
+        // save the parameters that we want to be sticky
+        LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
+        stickyParams.remove("q");
+        stickyParams.remove("page");
+        stickyParams.remove("sort");
+        request.getSession().setAttribute("titleFilterStickyParams",
+                UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
+
         var results = titleSearcher.search(params, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", params.getFirst("q"));

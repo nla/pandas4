@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -7,11 +8,14 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import pandas.agency.*;
 import pandas.core.NotFoundException;
 import pandas.core.Privileges;
@@ -96,7 +100,7 @@ public class WorktraysController {
 
     @GetMapping(value = {"/worktrays", "/worktrays/{alias}"})
     public String all(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
-                      @RequestParam MultiValueMap<String, String> params, Model model) {
+                      @RequestParam MultiValueMap<String, String> params, Model model, HttpServletRequest request) {
         Pageable pageable = PageRequest.of(0, 5);
         // Selection
         nominated(agencyId, ownerId, pageable, model);
@@ -110,7 +114,7 @@ public class WorktraysController {
         gathering(agencyId, ownerId, pageable, model);
         // Preserve
         upload(agencyId, ownerId, pageable, model);
-        gathered(agencyId, ownerId, params, pageable, model);
+        gathered(agencyId, ownerId, params, pageable, model, request);
         // Publish
         archived(agencyId, ownerId, pageable, model);
         // Catalogue
@@ -176,7 +180,25 @@ public class WorktraysController {
     @GetMapping({"/worktrays/gathered", "/worktrays/{alias}/gathered"})
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
                            @RequestParam MultiValueMap<String, String> params,
-                           @PageableDefault(size = 100) Pageable pageable, Model model) {
+                           @PageableDefault(size = 100) Pageable pageable, Model model, HttpServletRequest request) {
+    	
+        // if called without parameters, redirect to the last saved sticky parameters
+        if (params.isEmpty()) {
+            Object attribute = request.getSession().getAttribute("qaFilterStickyParams");
+
+            if (attribute != null) {
+                return "redirect:/worktrays/gathered?" + attribute.toString();
+            }
+        }
+
+        // save the parameters that we want to be sticky
+        LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
+        stickyParams.remove("q");
+        stickyParams.remove("page");
+        stickyParams.remove("sort");
+        request.getSession().setAttribute("qaFilterStickyParams",
+                UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
+    	
         State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
 
         var instances = instanceSearcher.search(gatheredState.getId(), agencyId, ownerId, params, pageable);
