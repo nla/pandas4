@@ -88,15 +88,17 @@ public class MarcMappings {
                 "a", title.getName() + ".");
 
         // 264 - Production, Publication, Distribution, Manufacture, and Copyright Notice
-        if (title.getFormat() == MONO) {
-            marc.addField("264", ' ', '1',
-                    "a", "[Australia]:",
-                    "b", title.getPublisherName() + ",",
-                    "c", ".");
-        } else {
-            marc.addField("264", ' ', '1',
-                    "a", "[Australia]:",
-                    "b", title.getPublisherName());
+        if (title.getPublisherName() != null) {
+            if (title.getFormat() == MONO) {
+                marc.addField("264", ' ', '1',
+                        "a", "[Australia]:",
+                        "b", title.getPublisherName() + ",",
+                        "c", ".");
+            } else {
+                marc.addField("264", ' ', '1',
+                        "a", "[Australia]:",
+                        "b", title.getPublisherName());
+            }
         }
 
         // 300 - Physical Description
@@ -156,29 +158,31 @@ public class MarcMappings {
                 "a", "Australian");
 
         // 710 - Added Entry-Corporate Name
-        switch (title.getPublisherType()) {
-            case OTHER:
-            case ORGANISATION:
-            case COMMERCIAL:
-                marc.addField("710", '2', ' ',
-                        "a", title.getPublisherName() + ",",
-                        "e", "issuing body.");
-                break;
-
-            case GOVERNMENT:
-            case EDUCATION: {
-                String[] parts = title.getPublisherName().split("\\. *", 2);
-                if (parts.length == 1) {
+        if (title.getPublisherType() != null) {
+            switch (title.getPublisherType()) {
+                case OTHER:
+                case ORGANISATION:
+                case COMMERCIAL:
                     marc.addField("710", '2', ' ',
-                            "a", parts[0] + ",",
+                            "a", title.getPublisherName() + ",",
                             "e", "issuing body.");
-                } else {
-                    marc.addField("710", '1', ' ',
-                            "a", parts[0] + ".",
-                            "b", parts[1] +",",
-                            "e", "issuing body.");
+                    break;
+
+                case GOVERNMENT:
+                case EDUCATION: {
+                    String[] parts = title.getPublisherName().split("\\. *", 2);
+                    if (parts.length == 1) {
+                        marc.addField("710", '2', ' ',
+                                "a", parts[0] + ",",
+                                "e", "issuing body.");
+                    } else {
+                        marc.addField("710", '1', ' ',
+                                "a", parts[0] + ".",
+                                "b", parts[1] + ",",
+                                "e", "issuing body.");
+                    }
+                    break;
                 }
-                break;
             }
         }
 
