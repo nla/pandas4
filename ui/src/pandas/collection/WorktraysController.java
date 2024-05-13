@@ -193,6 +193,7 @@ public class WorktraysController {
 
         // save the parameters that we want to be sticky
         LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
+        stickyParams.remove("filter");
         stickyParams.remove("q");
         stickyParams.remove("page");
         stickyParams.remove("sort");
