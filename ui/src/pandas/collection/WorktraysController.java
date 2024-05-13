@@ -182,23 +182,22 @@ public class WorktraysController {
                            @RequestParam MultiValueMap<String, String> params,
                            @PageableDefault(size = 100) Pageable pageable, Model model, HttpServletRequest request) {
     	
-    	// if called without parameters, redirect to the last saved sticky parameters
-    	if (params.isEmpty())
-    	{
-    		Object attribute = request.getSession().getAttribute("qaFilterStickyParams");
-			
-    		if(attribute!=null)
-    		{
-    			return "redirect:/worktrays/gathered?"+attribute.toString();
-    		}
-    	}
-    	
-    	// save the parameters that we want to be sticky
-    	LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
-    	stickyParams.remove("q");
-    	stickyParams.remove("page");
-    	stickyParams.remove("sort");
-    	request.getSession().setAttribute("qaFilterStickyParams", UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
+        // if called without parameters, redirect to the last saved sticky parameters
+        if (params.isEmpty()) {
+            Object attribute = request.getSession().getAttribute("qaFilterStickyParams");
+
+            if (attribute != null) {
+                return "redirect:/worktrays/gathered?" + attribute.toString();
+            }
+        }
+
+        // save the parameters that we want to be sticky
+        LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
+        stickyParams.remove("q");
+        stickyParams.remove("page");
+        stickyParams.remove("sort");
+        request.getSession().setAttribute("qaFilterStickyParams",
+                UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
     	
         State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
 

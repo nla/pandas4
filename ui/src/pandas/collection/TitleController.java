@@ -143,24 +143,23 @@ public class TitleController {
                          @PageableDefault(20) Pageable pageable,
                          Model model, HttpServletRequest request) {
     	
-    	// if called without parameters, redirect to the last saved sticky parameters
-    	if (params.isEmpty())
-    	{
-    		Object attribute = request.getSession().getAttribute("titleFilterStickyParams");
-			
-    		if(attribute!=null)
-    		{
-    			return "redirect:/titles?"+attribute.toString();
-    		}
-    	}
+        // if called without parameters, redirect to the last saved sticky parameters
+        if (params.isEmpty()) {
+            Object attribute = request.getSession().getAttribute("titleFilterStickyParams");
 
-    	// save the parameters that we want to be sticky
-    	LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
-    	stickyParams.remove("q");
-    	stickyParams.remove("page");
-    	stickyParams.remove("sort");
-    	request.getSession().setAttribute("titleFilterStickyParams", UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
-    	
+            if (attribute != null) {
+                return "redirect:/titles?" + attribute.toString();
+            }
+        }
+
+        // save the parameters that we want to be sticky
+        LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
+        stickyParams.remove("q");
+        stickyParams.remove("page");
+        stickyParams.remove("sort");
+        request.getSession().setAttribute("titleFilterStickyParams",
+                UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
+
         var results = titleSearcher.search(params, pageable);
         model.addAttribute("results", results);
         model.addAttribute("q", params.getFirst("q"));
