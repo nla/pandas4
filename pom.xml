@@ -56,6 +56,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <modules>
         <module>ui</module>
         <module>common</module>
@@ -64,4 +65,20 @@
         <module>delivery</module>
         <module>social</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>jenkins</id>
+            <distributionManagement>
+                <repository>
+                    <id>nla-public-releases</id>
+                    <url>https://dev.nla.gov.au/nexus/content/repositories/nla-public/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>nla-public-snapshots</id>
+                    <url>https://dev.nla.gov.au/nexus/content/repositories/nla-public-snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>
