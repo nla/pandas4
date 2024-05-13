@@ -219,4 +219,11 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>jenkins</id>
+            <properties><skipITs>true</skipITs></properties>
+        </profile>
+    </profiles>
+
 </project>
