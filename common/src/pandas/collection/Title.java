@@ -111,7 +111,7 @@ public class Title {
     @ManyToOne
     @JoinColumn(name = "FORMAT_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     private Format format;
 
     /**
@@ -130,7 +130,7 @@ public class Title {
     @ManyToOne
     @JoinColumn(name = "AGENCY_ID", referencedColumnName = "AGENCY_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     private Agency agency;
 
     /**
@@ -154,7 +154,7 @@ public class Title {
     @ManyToOne
     @JoinColumn(name = "CURRENT_OWNER_ID")
     @IndexedEmbedded(includePaths = {"id", "nameGiven", "nameFamily", "userid"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     private User owner;
 
     @OneToMany(mappedBy = "title", orphanRemoval = true, cascade = CascadeType.ALL)
@@ -168,7 +168,7 @@ public class Title {
     @ManyToOne
     @JoinColumn(name = "CURRENT_STATUS_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     @NotNull
     private Status status;
 

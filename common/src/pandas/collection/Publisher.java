@@ -1,19 +1,18 @@
 package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import org.hibernate.annotations.Formula;
+import jakarta.persistence.*;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.core.Organisation;
-import pandas.core.Role;
 import pandas.core.View;
 
-import jakarta.persistence.*;
-
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An organisation (which may consist of a single person) that holds the copyright to one or more titles.
@@ -51,7 +50,7 @@ public class Publisher {
     @ManyToOne
     @JoinColumn(name = "PUBLISHER_TYPE_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     @JsonView(View.Summary.class)
     private PublisherType type;
 

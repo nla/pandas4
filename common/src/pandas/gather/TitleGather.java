@@ -36,7 +36,7 @@ public class TitleGather {
     @ManyToOne
     @JoinColumn(name = "ACTIVE_PROFILE_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     private Profile activeProfile;
 
     @Column(name = "ADDITIONAL_URLS", length = 4000)
@@ -58,13 +58,13 @@ public class TitleGather {
     @ManyToOne
     @JoinColumn(name = "GATHER_METHOD_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     private GatherMethod method;
 
     @ManyToOne
     @JoinColumn(name = "GATHER_SCHEDULE_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     private GatherSchedule schedule;
 
     @Column(name = "GATHER_URL", length = 1024)
@@ -127,7 +127,7 @@ public class TitleGather {
     @ManyToOne
     @JoinColumn(name = "SCOPE_ID")
     @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     private Scope scope;
 
     @ColumnDefault("false")
