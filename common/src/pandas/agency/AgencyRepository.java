@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.collection.Collection;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -48,4 +49,29 @@ public interface AgencyRepository extends CrudRepository<Agency, Long>, PagingAn
         }
         return ids.stream().map(map::get).toList();
     }
+
+    interface ArchivingStats {
+        Long getId();
+        String getName();
+        Long getTitles();
+        Long getInstances();
+        Long getFiles();
+        Long getSize();
+    }
+
+    @Query("""
+            select
+              i.title.agency.id as id,
+              i.title.agency.organisation.name as name,
+              count(distinct i.title.id) as titles,
+              count(*) as instances,
+              sum(i.gather.files) as files,
+              sum(i.gather.size) as size
+            from Instance i
+            where i.state.id = 1
+              and (i.date >= :startDate or cast(:startDate as date) is null)
+              and (i.date <= :endDate or cast(:endDate as date) is null)
+            group by id, name
+            """)
+    List<ArchivingStats> archivingStats(@Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 }

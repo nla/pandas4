@@ -7,10 +7,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriUtils;
-import pandas.collection.TitleRepository.SubjectCount;
+import pandas.agency.AgencyRepository;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -18,10 +22,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Controller
 public class StatisticsController {
     private final JdbcTemplate db;
+    private final AgencyRepository agencyRepository;
     private final TitleRepository titleRepository;
 
-    public StatisticsController(JdbcTemplate db, TitleRepository titleRepository) {
+    public StatisticsController(JdbcTemplate db, AgencyRepository agencyRepository, TitleRepository titleRepository) {
         this.db = db;
+        this.agencyRepository = agencyRepository;
         this.titleRepository = titleRepository;
     }
 
@@ -197,5 +203,11 @@ public class StatisticsController {
         return "StatisticsView";
     }
 
-
+    @GetMapping("/statistics/agency-archiving")
+    @ResponseBody
+    public List<AgencyRepository.ArchivingStats> agencyArchiving(
+            @RequestParam(required = false) Instant startDate,
+            @RequestParam(required = false) Instant endDate) {
+        return agencyRepository.archivingStats(startDate, endDate);
+    }
 }

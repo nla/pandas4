@@ -13,6 +13,8 @@ public class State {
             GATHER_PROCESS = "gatherProcess", GATHER_STOP = "gatherStop", GATHERED = "gathered",
             PUBLISHED = "published", FAILED = "failed";
 
+    public static final long ARCHIVED_ID = 1L;
+
     @Id
     @Column(name = "STATE_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STATE_SEQ")
