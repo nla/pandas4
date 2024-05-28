@@ -117,8 +117,6 @@ class Worker implements Runnable {
 					instanceService.updateState(instance, nextState);
 				}
 			} catch (Exception e) {
-				System.err.println("Printing stack trace for exception: " + e);
-				e.printStackTrace();
 				log.error("{} {}", instance.getState().getName(), instance.getHumanId(), e);
 				// we try try hard not to crash as the worker will be permanently dead if we do
 				// there might be an intermittent problem with the database so these
