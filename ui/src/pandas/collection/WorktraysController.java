@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import pandas.agency.*;
 import pandas.core.NotFoundException;
 import pandas.core.Privileges;
@@ -181,9 +180,10 @@ public class WorktraysController {
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
                            @RequestParam MultiValueMap<String, String> params,
                            @PageableDefault(size = 100) Pageable pageable, Model model, HttpServletRequest request) {
-    	
+    	User user = userService.getCurrentUser();
+
         // if called without parameters, redirect to the last saved sticky parameters
-        if (params.isEmpty()) {
+        if (params.isEmpty() && user.getPrefersStickyFilters()) {
             Object attribute = request.getSession().getAttribute("qaFilterStickyParams");
 
             if (attribute != null) {

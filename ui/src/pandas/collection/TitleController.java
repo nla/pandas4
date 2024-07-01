@@ -29,8 +29,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
-
 import pandas.agency.*;
 import pandas.collection.TitleSearcher.UrlCheckResult;
 import pandas.core.Config;
@@ -142,9 +140,10 @@ public class TitleController {
     public String search(@RequestParam MultiValueMap<String, String> params,
                          @PageableDefault(20) Pageable pageable,
                          Model model, HttpServletRequest request) {
-    	
+        User user = userService.getCurrentUser();
+
         // if called without parameters, redirect to the last saved sticky parameters
-        if (params.isEmpty()) {
+        if (params.isEmpty() && user.getPrefersStickyFilters()) {
             Object attribute = request.getSession().getAttribute("titleFilterStickyParams");
 
             if (attribute != null) {

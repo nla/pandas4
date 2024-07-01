@@ -68,5 +68,15 @@
                 </select>
             </label>
         </fieldset>
+
+        <fieldset>
+            <legend>Preferences</legend>
+            <label>
+                <input type="checkbox" th:field="*{prefersStickyFilters}">
+                <abbr title="When enabled, your previous search filters will automatically be applied to new searches.">
+                    Sticky search filters
+                </abbr>
+            </label>
+        </fieldset>
     </form>
 </main>

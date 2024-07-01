@@ -53,6 +53,8 @@ public class User extends Individual {
             inverseJoinColumns = {@JoinColumn(name = "TITLE_ID")})
     private Set<Title> flaggedTitles = new HashSet<>();
 
+    private Boolean prefersStickyFilters = true;
+
     public User() {
     }
 
@@ -155,5 +157,16 @@ public class User extends Individual {
 
     public void unflagTitle(Title title) {
         flaggedTitles.remove(title);
+    }
+
+    /**
+     * Whether search filters should persist when the user starts a fresh search.
+     */
+    public boolean getPrefersStickyFilters() {
+        return prefersStickyFilters == null || prefersStickyFilters;
+    }
+
+    public void setPrefersStickyFilters(boolean stickyFilters) {
+        this.prefersStickyFilters = stickyFilters;
     }
 }

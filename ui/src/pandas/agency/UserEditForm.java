@@ -1,8 +1,7 @@
 package pandas.agency;
 
-import pandas.core.Role;
-
 import jakarta.validation.constraints.NotBlank;
+import pandas.core.Role;
 
 import static info.freelibrary.util.StringUtils.trimToNull;
 
@@ -17,12 +16,14 @@ public record UserEditForm(
         Agency agency,
         String roleType,
         String newPassword,
-        String confirmPassword) {
+        String confirmPassword,
+        boolean prefersStickyFilters) {
 
     public static UserEditForm of(User user) {
         return new UserEditForm(user.getUserid(), !user.isActive(), user.getNameGiven(), user.getNameFamily(), user.getEmail(),
                 user.getPhone(), user.getMobilePhone(), user.getAgency(),
-                user.getRole() == null ? null : user.getRole().getType(), null, null);
+                user.getRole() == null ? null : user.getRole().getType(), null, null,
+                user.getPrefersStickyFilters());
     }
 
     public void applyTo(User user, boolean editingSelf) {
@@ -37,6 +38,7 @@ public record UserEditForm(
         if (newPassword != null && !newPassword.isEmpty() && newPassword.equals(confirmPassword)) {
             user.setPassword(newPassword);
         }
+        user.setPrefersStickyFilters(prefersStickyFilters);
 
         if (agency != null || roleType != null) {
             Role role = user.getRole();
