@@ -3,9 +3,6 @@ package pandas.render;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.attoparser.MarkupParser;
 import org.attoparser.ParseException;
 import org.attoparser.config.ParseConfiguration;
@@ -23,7 +20,11 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
@@ -33,18 +34,20 @@ import java.util.concurrent.TimeUnit;
 public class PageInfoController {
     private static final Logger log = LoggerFactory.getLogger(PageInfo.class);
 
-    private final OkHttpClient httpClient;
+    private final HttpClient httpClient;
     private final LoadingCache<String, PageInfo> cache;
 
-    public PageInfoController(OkHttpClient httpClient) {
-        this.httpClient = httpClient.newBuilder().followRedirects(true).followSslRedirects(true).build();
+    public PageInfoController() {
+        this.httpClient = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .build();
         this.cache = CacheBuilder.newBuilder()
                 .expireAfterWrite(1, TimeUnit.DAYS)
                 .weigher((String url, PageInfo pageInfo) -> 32 + url.length() + pageInfo.weight())
                 .maximumWeight(20000000) // roughly 20 MB
                 .build(new CacheLoader<>() {
                     @Override
-                    public PageInfo load(String url) throws IOException {
+                    public PageInfo load(String url) throws IOException, InterruptedException {
                         return fetchPageInfo(url);
                     }
                 });
@@ -60,24 +63,22 @@ public class PageInfoController {
     }
 
     @NotNull
-    private PageInfo fetchPageInfo(String url) throws IOException {
-        try (Response response = httpClient.newCall(new Request.Builder().url(url)
+    private PageInfo fetchPageInfo(String url) throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(url))
                 .header("User-Agent", "nla.gov.au_bot (National Library of Australia Legal Deposit Request; +https://www.nla.gov.au/legal-deposit/request)")
-                .build()).execute()) {
-            String contentType = response.header("Content-Type", "application/octet-stream");
+                .build();
+        var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        try (InputStream body = response.body()) {
+            String contentType = response.headers().firstValue("Content-Type").orElse("application/octet-stream");
             MediaType mediaType = MediaType.parseMediaType(contentType);
             Charset charset = mediaType.getCharset();
             String title = null;
-            String reason = response.message();
-            if (reason.isBlank()) {
-                HttpStatus status = HttpStatus.resolve(response.code());
-                reason = status == null ? null : status.getReasonPhrase();
-            }
-            okhttp3.ResponseBody body = response.body();
+            HttpStatus status = HttpStatus.resolve(response.statusCode());
+            String reason = status == null ? null : status.getReasonPhrase();
             if (mediaType.equalsTypeAndSubtype(MediaType.TEXT_HTML) && body != null) {
                 PageInfo.TitleHandler handler = new PageInfo.TitleHandler();
 
-                InputStream stream = body.byteStream();
+                InputStream stream = body;
                 // if there was no charset in the Content-Type header, probe for meta tags near the top of the file
                 if (charset == null) {
                     BufferedInputStream bis = new BufferedInputStream(stream);
@@ -104,10 +105,10 @@ public class PageInfoController {
                 }
             }
             String location = null;
-            if (response.priorResponse() != null) {
-                location = response.request().url().toString();
+            if (response.previousResponse().isPresent()) {
+                location = response.uri().toString();
             }
-            return new PageInfo(response.code(), reason, contentType, charset == null ? null : charset.name(), title, location);
+            return new PageInfo(response.statusCode(), reason, contentType, charset == null ? null : charset.name(), title, location);
         } catch (UnknownHostException e) {
             return new PageInfo(-1, e.getMessage(), null, null, null, null);
         }
