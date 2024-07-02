@@ -61,7 +61,9 @@ public class PageInfoController {
 
     @NotNull
     private PageInfo fetchPageInfo(String url) throws IOException {
-        try (Response response = httpClient.newCall(new Request.Builder().url(url).build()).execute()) {
+        try (Response response = httpClient.newCall(new Request.Builder().url(url)
+                .header("User-Agent", "nla.gov.au_bot (National Library of Australia Legal Deposit Request; +https://www.nla.gov.au/legal-deposit/request)")
+                .build()).execute()) {
             String contentType = response.header("Content-Type", "application/octet-stream");
             MediaType mediaType = MediaType.parseMediaType(contentType);
             Charset charset = mediaType.getCharset();
