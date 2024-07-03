@@ -137,10 +137,10 @@
 
     <section>
         <h2>Failed</h2>
-        <form th:action="@{/queue/retry-all}" method="post">
+        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:action="@{/queue/retry-all}" method="post">
             <button type="submit" class="btn-danger">Retry all</button>
         </form>
-        <form th:action="@{/queue/delete-all-failed}" method="post">
+        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:action="@{/queue/delete-all-failed}" method="post">
             <button type="submit" class="btn-danger">Delete all</button>
         </form>
 

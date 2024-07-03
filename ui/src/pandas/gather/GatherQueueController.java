@@ -62,6 +62,7 @@ public class GatherQueueController {
     }
 
     @PostMapping("/queue/retry")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
     @Transactional
     public String retry(@RequestParam("instance") Instance instance) {
         instanceService.retryAfterFailure(instance, userService.getCurrentUser());
@@ -69,6 +70,7 @@ public class GatherQueueController {
     }
 
     @PostMapping("/queue/retry-all")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
     @Transactional
     public String retryAll() {
         for (Instance instance : listFailedInstances()) {
