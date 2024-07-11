@@ -121,7 +121,7 @@ public class GatherManager implements AutoCloseable {
                 }
 				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
 					!currentlyGatheringHosts.containsKey(primarySeedHost) &&
-					(ipAddress == null || currentlyGatheringHosts.containsKey(ipAddress))) {
+					(ipAddress == null || !currentlyGatheringHosts.containsKey(ipAddress))) {
 					currentlyGatheringTitles.put(title.getId(), threadName);
 					currentlyGatheringHosts.put(primarySeedHost, threadName);
 					if (ipAddress != null) currentlyGatheringHosts.put(ipAddress, threadName);
