@@ -10,6 +10,8 @@ import pandas.gather.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -105,14 +107,24 @@ public class GatherManager implements AutoCloseable {
 			Instant startOfThisMinute = LocalDateTime.now().withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
 			for (Title title : titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
 				String primarySeedHost = title.getPrimarySeedHost();
+				String ipAddress = null;
 				if (primarySeedHost == null) {
 					log.warn("Title.getPrimarySeedHost() returned null for title {}", title.getHumanId());
 					primarySeedHost = "unknown";
-				}
+				} else {
+                    try {
+                        var address = InetAddress.getByName(primarySeedHost);
+						ipAddress = address.getHostAddress();
+                    } catch (UnknownHostException e) {
+                        // oh well
+                    }
+                }
 				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
-					!currentlyGatheringHosts.containsKey(primarySeedHost)) {
+					!currentlyGatheringHosts.containsKey(primarySeedHost) &&
+					(ipAddress == null || currentlyGatheringHosts.containsKey(ipAddress))) {
 					currentlyGatheringTitles.put(title.getId(), threadName);
 					currentlyGatheringHosts.put(primarySeedHost, threadName);
+					if (ipAddress != null) currentlyGatheringHosts.put(ipAddress, threadName);
 					return instanceService.createInstance(gatherMethod, title);
 				}
 			}
