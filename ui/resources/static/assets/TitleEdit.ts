@@ -322,20 +322,35 @@ function setPrimarySeedUrl(url) {
     seedUrlsTextArea.value = urls.join("\n");
 }
 
+function isValidUrl(string) {
+    try {
+        if (!string.match(/^https?:\/\//)) return false;
+        new URL(string);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
 function normalizeSeedUrls() {
     let urls = [];
     let changedAnything = false;
+    seedUrlsTextArea.setCustomValidity("");
     for (let url of getSeedUrls()) {
         let originalUrl = url;
         if (url === "") continue;
         if (!url.match(/^[a-z]+:\/\//)) {
             url = "http://" + url;
         }
+        if (!isValidUrl(url)) {
+            seedUrlsTextArea.setCustomValidity("Invalid URL: " + url);
+        }
         urls.push(url);
         if (url !== originalUrl) {
             changedAnything = true;
         }
     }
+    seedUrlsTextArea.reportValidity();
     if (changedAnything) {
         seedUrlsTextArea.value = urls.join("\n");
     }
