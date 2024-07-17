@@ -11,6 +11,7 @@ import pandas.collection.TitleRepository;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -197,11 +198,18 @@ public class InstanceService {
     }
 
     @Transactional
-    public String buildAndSaveHttrackCommand(long instanceId, String executable, Path instanceDir) {
+    public List<String> buildAndSaveHttrackCommand(long instanceId, String executable, Path instanceDir) {
         Instance instance = instanceRepository.findById(instanceId).orElseThrow();
-        String command = executable + " -qi -%H -O \"" + instanceDir + "/\" " +
-                instance.getTitle().getGather().buildHttrackCommand();
-        instance.setGatherCommand(command);
+        List<String> command = new ArrayList<>();
+        command.add(executable);
+        command.add("-qi");
+        command.add("-%H");
+        command.add("-O");
+        command.add(instanceDir.toString());
+
+        command.addAll(instance.getTitle().getGather().buildHttrackCommand());
+
+        instance.setGatherCommand(TitleGather.shellEncode(command));
         instanceRepository.save(instance);
         return command;
     }

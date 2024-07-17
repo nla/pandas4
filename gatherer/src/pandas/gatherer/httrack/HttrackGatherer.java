@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -60,10 +61,10 @@ public class HttrackGatherer implements Backend {
 	@Override
 	public void gather(Instance instance) throws Exception {
 		Path instanceDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
-		String command = instanceService.buildAndSaveHttrackCommand(instance.getId(),
+		List<String> command = instanceService.buildAndSaveHttrackCommand(instance.getId(),
 				httrackConfig.getExecutable().toString(),
 				instanceDir);
-		log.info("Executing {}", command);
+		log.info("Executing {}", TitleGather.shellEncode(command));
 		if (!Files.exists(instanceDir)) Files.createDirectories(instanceDir);
 		File logFile = File.createTempFile("pandas-gatherer-" + instance.getHumanId(), ".log");
 		try {
@@ -176,9 +177,9 @@ public class HttrackGatherer implements Backend {
 		final Instance instance;
 		final Process process;
 
-		HTTrackProcess(Instance instance, Path instanceDir, String command, File logFile) throws IOException {
+		HTTrackProcess(Instance instance, Path instanceDir, List<String> command, File logFile) throws IOException {
 			this.instance = instance;
-			process = new ProcessBuilder("/bin/sh", "-c", "exec " + command)
+			process = new ProcessBuilder(command)
 					.directory(instanceDir.toFile())
 					.redirectErrorStream(true)
 					.redirectOutput(logFile)

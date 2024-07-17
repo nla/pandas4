@@ -1,6 +1,7 @@
 package pandas.gather;
 
 import jakarta.persistence.*;
+
 import java.util.Objects;
 
 @Entity
@@ -70,26 +71,24 @@ public class OptionArgument {
         this.option = option;
     }
 
-    public void toCommandLine(StringBuilder sb) {
-        if (option == null) return;
+    public String toCommandLine() {
+        if (option == null) return null;
 
         boolean showArgument = option.getHideArgument() == null || option.getHideArgument() != 1;
         boolean hideNonZeroArgument = option.getHideArgument() != null && option.getHideArgument() == 2;
         boolean showOption = option.getHideOption() == null || option.getHideOption() == 0;
-        boolean quoteArgument = option.getIsArgumentQuoted() != null && option.getIsArgumentQuoted() > 0;
-        boolean innerQuoteArgument = option.getIsArgumentQuoted() != null && option.getIsArgumentQuoted() == 2;
 
         String argValue = getArgument();
         if (argValue != null) {
             if (argValue.equals(BLANK_ARGUMENT)) {
-                return; // argument has been intentionally set to be blank by user, overriding any defaults
+                return argValue;
             } else if (argValue.equals("0") && option.getUiElement() != null && option.getUiElement().equals("checkbox") && !showArgument) {
                 // We need to check to see if a checkbox option should be shown.
                 // If the option is a checkbox and the hideArgument flag is 1 and the argument is 0 (ie. FALSE or OFF)
                 // then we should not show the option (or the arg obviously)
                 // This is the only option/uielement that behaves in this way
                 // eg. OFF: <blank> ON: -j
-                return;
+                return argValue;
             } else if(showArgument && hideNonZeroArgument && !argValue.equals("0")) {
                 // This setting had to be added to deal with really inconsistent gather options like -%P that
                 // expect "-%P0" when disabled but just "-%P" not "-%P1" when enabled. So this setting hides the
@@ -99,9 +98,10 @@ public class OptionArgument {
             }
         } else if (showArgument) {
             // The argument should be shown, but it is null, so skip this option.
-            return;
+            return argValue;
         }
 
+        StringBuilder sb = new StringBuilder();
         // write out the option prefix (minus-sign). eg. '-'
         if (option.getOptionPrefix() != null) {
             sb.append(option.getOptionPrefix());
@@ -112,18 +112,11 @@ public class OptionArgument {
             sb.append(option.getShortOption());
         }
 
-        // write out the argument, if there is one and quote if necessary. eg. '-f"hello"'
+        // write out the argument, if there is one
         if (argValue != null && showArgument) {
-            if (quoteArgument) sb.append('"');
-            if (innerQuoteArgument) {
-                sb.append(argValue.replaceAll(" ","\" \""));
-            } else {
-                sb.append(argValue);
-            }
-            if (quoteArgument) sb.append('"');
+            sb.append(argValue);
         }
 
-        // write out a space seperator.
-        sb.append(" ");
+        return sb.toString();
     }
 }

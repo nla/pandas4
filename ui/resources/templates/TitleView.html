@@ -166,7 +166,7 @@
                 <div th:if="${title?.gather?.nextGatherDate != null}">Next gather date:
                     <time th:text="${dateFormat.format(title.gather.nextGatherDate)}"></time>
                 </div>
-                <div>Command: <span th:text="${title?.gather?.buildHttrackCommand()}"></span></div>
+                <div>Command: <span th:text="${title?.gather?.buildHttrackCommandString()}"></span></div>
             </details>
             <p style="font-style: italic" th:each="collection: ${title.collections}"
                th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || title.status.isCeased()}">

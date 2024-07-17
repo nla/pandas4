@@ -260,7 +260,7 @@ public class TitleService {
         titleGather.replaceOneoffDates(form.getOneoffDates());
 
         titleGather.calculateNextGatherDate();
-        titleGather.setGatherCommand(titleGather.buildHttrackCommand());
+        titleGather.setGatherCommand(titleGather.buildHttrackCommandString());
 
         String filters = form.getFilters() == null ? null : form.getFilters().replace('\n', ' ');
         var filtersArgument = titleGather.getFiltersOptionArgument();

@@ -17,6 +17,7 @@ import pandas.collection.Title;
 import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
@@ -390,31 +391,50 @@ public class TitleGather {
         return argument == null ? null : argument.getArgument();
     }
 
+    public static String shellEncode(List<String> command) {
+        return command.stream().map(s -> s.matches("[a-zA-Z0-9_.=@/:-]*") ?
+                        s : "'" + s.replace("'", "'\\''") + "'")
+                .collect(Collectors.joining(" "));
+    }
+
+    public String buildHttrackCommandString() {
+        return shellEncode(buildHttrackCommand());
+    }
 
     /**
      * Constructs the HTTrack gather command line.
      */
-    public String buildHttrackCommand() {
-        StringBuilder sb = new StringBuilder();
+    public List<String> buildHttrackCommand() {
+        List<String> command = new ArrayList<>();
+
         for (OptionArgument argument : getOptionArguments()) {
-            argument.toCommandLine(sb);
+            String arg = argument.toCommandLine();
+            if (arg == null) continue;
+            command.add(arg);
         }
 
         if (getScope() != null && getScope().getDepth() != null) {
-            sb.append("--depth=").append(getScope().getDepth() + 1).append(" ");
+            command.add("--depth=" + (getScope().getDepth() + 1));
         }
         Profile profile = getActiveProfile();
         if (profile != null) {
             if (profile.getCrawlLimitBytes() != null) {
-                sb.append("--max-size=").append(profile.getCrawlLimitBytes()).append(" ");
+                command.add("--max-size=" + profile.getCrawlLimitBytes());
             }
             if (profile.getCrawlLimitSeconds() != null) {
-                sb.append("--max-time=").append(profile.getCrawlLimitSeconds()).append(" ");
+                command.add("--max-time=" + profile.getCrawlLimitSeconds());
             }
         }
 
-        if (getIgnoreRobotsTxt()) sb.append("--robots=0 ");
+        if (getIgnoreRobotsTxt()) command.add("--robots=0");
 
+        command.add(getGatherUrlWithAuthentication());
+        command.addAll(getAdditionalUrlList());
+
+        return command;
+    }
+
+    private String getGatherUrlWithAuthentication() {
         String url = getGatherUrl();
         if (getAuthenticateUser() != null && getAuthenticateUser() == 1 && getUsername() != null && getPassword() != null) {
             if (url.startsWith("http://")) {
@@ -426,14 +446,7 @@ public class TitleGather {
 
         if (url == null) url = getTitle().getSeedUrl();
         if (url == null) url = getTitle().getTitleUrl();
-
-        sb.append("'").append(url.replace("'", "'\"'\"'")).append("'");
-
-        for (String extra: getAdditionalUrlList()) {
-            sb.append(" '").append(extra.replace("'", "'\"'\"'")).append("'");
-        }
-
-        return sb.toString();
+        return url;
     }
 
     public Scope getScope() {

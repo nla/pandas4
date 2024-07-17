@@ -33,10 +33,10 @@ class TitleGatherTest {
     @Test
     public void testBuildHttrackCommand() {
         Title title = new Title();
-        title.setTitleUrl("http://example.com/");
+        title.setTitleUrl("http://example.com/?");
         TitleGather gather = new TitleGather();
         gather.setTitle(title);
         gather.setIgnoreRobotsTxt(true);
-        assertEquals("--robots=0 'http://example.com/'", gather.buildHttrackCommand());
+        assertEquals("--robots=0 'http://example.com/?'", gather.buildHttrackCommandString());
     }
 }
