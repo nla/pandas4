@@ -46,9 +46,11 @@ public class PageInfoController {
     private final LoadingCache<String, PageInfo> pageInfoCache;
     private final LoadingCache<String, List<String>> subjectsCache;
     private final LLMClient llm;
+    private final SubjectRepository subjectRepository;
 
     public PageInfoController(@Autowired(required = false) LLMClient llm, SubjectRepository subjectRepository) {
         this.llm = llm;
+        this.subjectRepository = subjectRepository;
         this.httpClient = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.ALWAYS)
                 .build();
@@ -70,7 +72,7 @@ public class PageInfoController {
                     public List<String> load(String url) throws Exception {
                         List<String> subjects = subjectRepository.findAllSubjectNames();
                         //subjects = subjectRepository.findAllSubjectNamesNested();
-                        return suggestSubjects(subjects, subjectRepository.findAllSubjectNamesNested(), url, pageInfoCache.get(url));
+                        return suggestSubjects(subjects, subjects, url, pageInfoCache.get(url), null);
                     }
                 });
     }
@@ -86,9 +88,23 @@ public class PageInfoController {
 
     @GetMapping(value = "/subjects/suggest", produces = "application/json")
     @ResponseBody
-    public List<String> getSubjectSuggestions(@RequestParam(name = "url") String url) throws Exception {
+    public List<String> getSubjectSuggestions(@RequestParam(name = "url") String url,
+                                              @RequestParam(name = "nested", defaultValue = "false") boolean nested,
+                                              @RequestParam(name = "cache", defaultValue = "true") boolean cache,
+                                              @RequestParam(name = "prompt", required = false) String prompt) throws Exception {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             throw new IllegalArgumentException("bad url");
+        }
+
+        if (nested) {
+            List<String> subjects = subjectRepository.findAllSubjectNames();
+            List<String> nestedSubjects = subjectRepository.findAllSubjectNamesNested();
+            return suggestSubjects(subjects, nestedSubjects, url, pageInfoCache.get(url), prompt);
+        }
+
+        if (!cache) {
+            List<String> subjects = subjectRepository.findAllSubjectNames();
+            return suggestSubjects(subjects, subjects, url, pageInfoCache.get(url), prompt);
         }
         return subjectsCache.get(url);
     }
@@ -150,11 +166,14 @@ public class PageInfoController {
         }
     }
 
-    List<String> suggestSubjects(List<String> subjects, List<String> subjectsIndented, String url, PageInfo pageInfo) {
+    List<String> suggestSubjects(List<String> subjects, List<String> subjectsIndented, String url, PageInfo pageInfo, String instructions) {
         if (llm == null) return List.of();
         StringBuilder prompt = new StringBuilder();
 //        prompt.append("Please categorise the website below into three of the following categories. Output only the categories as a JSON array of strings and no other text.\n\n<categories>\n");
-        prompt.append("Please classify the website below into at most three of the following subject categories, making sure to select the most specific subcategory where applicable. Output the classification as a JSON array.\n\n\n<categories>\n");
+        if (instructions == null) {
+            instructions = "Please classify the website below into at most three of the following subject categories, making sure to select the most specific subcategory where applicable. Output the classification as a JSON array.";
+        }
+        prompt.append(instructions).append("\n\n\n<categories>\n");
         for (var subject: subjectsIndented) {
             prompt.append(subject).append('\n');
         }
@@ -337,6 +356,6 @@ public class PageInfoController {
                 Water
                 Women
                 Youth""".split("\n"));
-        System.out.println(controller.suggestSubjects(subjects, subjects, args[0], pageInfo));
+        System.out.println(controller.suggestSubjects(subjects, subjects, args[0], pageInfo, null));
     }
 }
