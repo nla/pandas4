@@ -34,13 +34,21 @@ public class LLMClient {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonNaming(SnakeCaseStrategy.class)
-    record Request(String model,
-                   List<Message> messages,
-                   Object jsonSchema,
-                   float temperature) {
+    public static class Request {
+        public String model;
+        public List<Message> messages;
+        public Object jsonSchema;
+        public double temperature;
+        public Integer maxTokens;
         public Request(String model, String message, Object jsonSchema) {
-            this(model, List.of(new Message("user", message)), jsonSchema, 0);
+            this.model = model;
+            this.messages = List.of(new Message("user", message));
+            this.jsonSchema = jsonSchema;
         }
+    }
+
+    public Request newRequest(String message) {
+        return new Request(config.model(), message, null);
     }
 
     record Message(String role, String content) {
@@ -48,6 +56,10 @@ public class LLMClient {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record Response(List<Choice> choices, Usage usage) {
+        public String message() {
+            if (choices.isEmpty()) return null;
+            return choices.get(0).message().content();
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

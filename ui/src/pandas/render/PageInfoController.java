@@ -163,8 +163,11 @@ public class PageInfoController {
         prompt.append(pageInfo.getText());
         prompt.append("\n</website>");
         try {
-            String chat = llm.chat(prompt.toString(), Map.of("type", "array",
-                    "items", Map.of("enum", subjects)));
+            var request = llm.newRequest(prompt.toString());
+            request.jsonSchema = Map.of("type", "array", "items", Map.of("enum", subjects));
+            request.temperature = 0.01;
+            request.maxTokens = 100;
+            String chat = llm.chat(request).message();
             LinkedHashSet<String> suggestions = new ObjectMapper().readValue(chat, new TypeReference<>() {
             });
             return new ArrayList<>(suggestions);
