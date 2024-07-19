@@ -7,6 +7,7 @@ declare var titleCheckSurtsEndpoint: string;
 declare var pageinfoEndpoint: string;
 declare var publisherJsonEndpoint: string;
 declare var publishersEndpoint: string;
+declare var subjectsSuggestEndpoint: string;
 declare var titlesEndpoint: string;
 declare var titlesBasicSearchEndpoint: string;
 declare var collectionsEndpoint: string;
@@ -361,7 +362,8 @@ function seedUrlsChanged() {
     fetchAlert.innerHTML = '';
     fetchAlert.style.display = 'none'
     document.getElementById("duplicateAlert").innerHTML = '';
-    document.getElementById("duplicateAlert").style.display = 'none'
+    document.getElementById("duplicateAlert").style.display = 'none';
+    document.getElementById("suggestedSubjects").parentElement.style.display = 'none';
 
     normalizeSeedUrls();
 
@@ -390,6 +392,36 @@ function seedUrlsChanged() {
                 warningDiv.appendChild(createLink("More...", titlesEndpoint + "?q=" +
                     encodeURIComponent(primarySeedUrl), "_blank"));
             }
+        });
+
+    fetch(subjectsSuggestEndpoint + "?url=" + encodeURIComponent(primarySeedUrl))
+        .then(response => response.ok ? response.json() : Promise.reject(response))
+        .catch(reason => console.log(reason))
+        .then(subjectNames => {
+            let span = document.getElementById("suggestedSubjects");
+            span.innerHTML = '';
+
+            for (const subject of subjectNames) {
+                if (span.childElementCount > 0) {
+                    span.append(", ");
+                }
+                let a = document.createElement("a");
+                a.innerText = subject;
+                a.onclick = function() {
+                    for (const option of subjectsSlimSelect.getData()) {
+                        if (option['text'] === subject) {
+                            const selected = subjectsSlimSelect.getSelected();
+                            selected.push(option.value);
+                            subjectsSlimSelect.setSelected(selected);
+                            return false;
+                        }
+                    }
+                    return false;
+                };
+                span.append(a);
+            }
+
+            span.parentElement.style.display = 'inherit';
         });
 
     fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(primarySeedUrl))

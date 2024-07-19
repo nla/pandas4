@@ -5,6 +5,7 @@ import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,6 +18,7 @@ import pandas.core.PandasPermissionEvaluator;
 @EnableScheduling
 @EnableJpaAuditing(auditorAwareRef = "userService")
 @EnableMethodSecurity
+@ConfigurationPropertiesScan("pandas")
 public class Pandas {
     public static void main(String[] args) {
         var application = new SpringApplication(Pandas.class);

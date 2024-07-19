@@ -13,6 +13,9 @@ public interface SubjectRepository extends CrudRepository<Subject, Long> {
 
     List<Subject> findAllByOrderByName();
 
+    @Query("select s.name from Subject s order by s.name")
+    List<String> findAllSubjectNames();
+
     List<Subject> findByParentIsNullOrderByName();
 
     record SubjectListItem(long id, Long parentId, String name, boolean hasIcon,

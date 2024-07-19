@@ -167,6 +167,12 @@
                             th:data-fullname="${subject.fullName}">Arts
                     </option>
                 </select>
+                <div class="hint-text" style="display: none">
+                    Suggested subjects: <span id="suggestedSubjects">
+                        <a href="#">Arts</a>,
+                        <a href="#">Dancing</a>
+                    </span>
+                </div>
             </label>
             <label>
                 Collections (optional)
@@ -540,6 +546,7 @@
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
     var publisherJsonEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
     var publishersEndpoint = /*[[@{/publishers}]]*/ '../publishers';
+    var subjectsSuggestEndpoint = /*[[@{/subjects/suggest}]]*/ '../subjects/suggestions';
     var titlesEndpoint = /*[[@{/titles}]]*/ '../titles';
     var titlesBasicSearchEndpoint = /*[[@{/titles/basicSearch.json}]]*/ '../titles/basicSearch.json';
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
