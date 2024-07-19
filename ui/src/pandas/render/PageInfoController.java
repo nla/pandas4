@@ -152,7 +152,7 @@ public class PageInfoController {
     List<String> suggestSubjects(List<String> subjects, String url, PageInfo pageInfo) {
         if (llm == null) return List.of();
         StringBuilder prompt = new StringBuilder();
-        prompt.append("Please categorise the website below into one to three of the following categories. Output only the categories and no other text.\n\n<categories>\n");
+        prompt.append("Please categorise the website below into three of the following categories. Output only the categories as a JSON array of strings and no other text.\n\n<categories>\n");
         for (var subject: subjects) {
             prompt.append(subject).append('\n');
         }
