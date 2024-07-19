@@ -70,7 +70,7 @@ public class PageInfoController {
                     public List<String> load(String url) throws Exception {
                         List<String> subjects = subjectRepository.findAllSubjectNames();
                         //subjects = subjectRepository.findAllSubjectNamesNested();
-                        return suggestSubjects(subjects, subjects, url, pageInfoCache.get(url));
+                        return suggestSubjects(subjects, subjectRepository.findAllSubjectNamesNested(), url, pageInfoCache.get(url));
                     }
                 });
     }
