@@ -357,6 +357,11 @@ function normalizeSeedUrls() {
     }
 }
 
+interface SubjectSelectData {
+    value: string;
+    text: string;
+}
+
 function seedUrlsChanged() {
     let fetchAlert = document.getElementById("fetchAlert");
     fetchAlert.innerHTML = '';
@@ -408,8 +413,9 @@ function seedUrlsChanged() {
                 let a = document.createElement("a");
                 a.innerText = subject;
                 a.onclick = function() {
-                    for (const option of subjectsSlimSelect.getData()) {
-                        if (option['text'] === subject) {
+                    for (const rawOption of subjectsSlimSelect.getData()) {
+                        const option = rawOption as SubjectSelectData;
+                        if (option.text === subject) {
                             const selected = subjectsSlimSelect.getSelected();
                             selected.push(option.value);
                             subjectsSlimSelect.setSelected(selected);
