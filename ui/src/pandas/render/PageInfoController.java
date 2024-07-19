@@ -35,6 +35,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +70,8 @@ public class PageInfoController {
                 .build(new CacheLoader<>() {
                     @Override
                     public List<String> load(String url) throws Exception {
-                        return suggestSubjects(subjectRepository.findAllSubjectNames(), url, pageInfoCache.get(url));
+                        return suggestSubjects(subjectRepository.findAllSubjectNames(),
+                                subjectRepository.findAllSubjectNamesNested(), url, pageInfoCache.get(url));
                     }
                 });
     }
@@ -149,11 +151,12 @@ public class PageInfoController {
         }
     }
 
-    List<String> suggestSubjects(List<String> subjects, String url, PageInfo pageInfo) {
+    List<String> suggestSubjects(List<String> subjects, List<String> subjectsIndented, String url, PageInfo pageInfo) {
         if (llm == null) return List.of();
         StringBuilder prompt = new StringBuilder();
-        prompt.append("Please categorise the website below into three of the following categories. Output only the categories as a JSON array of strings and no other text.\n\n<categories>\n");
-        for (var subject: subjects) {
+//        prompt.append("Please categorise the website below into three of the following categories. Output only the categories as a JSON array of strings and no other text.\n\n<categories>\n");
+        prompt.append("Please classify the website below into one of the following subject categories, making sure to select the most specific subcategory where applicable. Output the classification as a JSON array.\n\n\n<categories>\n");
+        for (var subject: subjectsIndented) {
             prompt.append(subject).append('\n');
         }
         prompt.append("</categories>\n\n<website>\n");
@@ -181,18 +184,156 @@ public class PageInfoController {
         new ObjectMapper()
                 .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET)
                 .writerWithDefaultPrettyPrinter().writeValue(System.out, pageInfo);
-        var subjects = List.of("Arts",
-                "Business & Economy",
-                "Computers & Internet",
-                "Cultural Institutions",
-                "Education",
-                "Housing",
-                "Media",
-                "Medicine",
-                "News",
-                "Libraries",
-                "Literature",
-                "Sciences");
-        System.out.println(controller.suggestSubjects(subjects, args[0], pageInfo));
+        var subjects = Arrays.asList("""
+                Aged People
+                Agriculture
+                Air Force
+                Alternative & Complementary Health Care
+                Animals
+                Anthropology
+                Aquaculture & Fisheries
+                Archaeology
+                Architecture
+                Army
+                Arts
+                Astronomy
+                Australian Republic Debate
+                Banking & Finance
+                Biology
+                Biotechnology
+                Blogs
+                Business & Economy
+                Centenary of Federation
+                Charities and not-for-profits
+                Chemistry
+                Children
+                Climate Change
+                Comics & Zines
+                Commerce
+                Commonwealth Games
+                Commonwealth Government
+                Community Issues & Volunteering
+                Computer Science
+                Computers & Internet
+                Conferences
+                Constitution & Referenda
+                Construction
+                Crime & Justice
+                Cultural Heritage Management
+                Dance
+                Decorative Arts
+                Defence
+                Design & Fashion
+                Drug & Alcohol Issues
+                Economics
+                Education
+                Election Campaigns
+                Employment & Industrial Relations
+                Energy
+                Entertainment
+                Environment
+                Environmental Protection
+                Ethnic Communities & Heritage
+                Families
+                Family History & Genealogy
+                Family Violence
+                Festivals & Events (Arts)
+                Festivals & Events (Cultural)
+                Film & Cinema
+                Fine Arts
+                Food & Drink
+                Foreign Affairs & Trade
+                Forestry
+                Games & Hobbies
+                Geography and Mapping
+                Geology
+                Government & Law
+                Government Indigenous Policy
+                Health
+                Health Research
+                History
+                Housing
+                Humanities
+                Immigration & Emigration
+                Indigenous Art
+                Indigenous Australians
+                Indigenous Business & Commerce
+                Indigenous Culture
+                Indigenous Education
+                Indigenous Employment
+                Indigenous Health
+                Indigenous History
+                Indigenous Land Rights
+                Indigenous Languages
+                Indigenous Native Title
+                Indigenous Tourism
+                Industrial & Manufacturing
+                Industry & Technology
+                Law & Regulation
+                Lesbian, Gay, Bisexual, Trans and Intersex
+                Libraries & Cultural Institutions
+                Linguistics
+                Literature
+                Local Government
+                Local History
+                Management
+                Mathematics
+                Media
+                Medical & Hospital Care
+                Medical Conditions & Diseases
+                Men
+                Mental Health
+                Military History
+                Mining
+                Multi-Media and Digital Arts
+                Music
+                Natural Disasters
+                Navy
+                Newspapers
+                Olympic & Paralympic Games
+                People & Culture
+                People with Disabilities
+                Performing Arts
+                Pharmaceuticals
+                Philosophy
+                Photography
+                Physics
+                Plants
+                Poetry
+                Political Action
+                Political Humour & Satire
+                Political Parties and Politicians
+                Politics
+                Psychology
+                Public Health
+                Radio
+                Religion
+                Schooling
+                Sciences
+                Sites for Children
+                Social Institutions
+                Social Media
+                Social Problems and Action
+                Social Welfare
+                Society & Social Issues
+                Sociology
+                Sporting Events
+                Sporting Organisations
+                Sporting Personalities
+                Sports & Recreation
+                State & Territory Government
+                Taxation
+                Telecommunications
+                Television
+                Tertiary Education
+                Tourism & Travel
+                Transportation
+                Unit Associations
+                Veterans
+                Vocational Education
+                Water
+                Women
+                Youth""".split("\n"));
+        System.out.println(controller.suggestSubjects(subjects, subjects, args[0], pageInfo));
     }
 }

@@ -5,6 +5,8 @@ import org.attoparser.ParseException;
 import org.attoparser.util.TextUtil;
 import org.jsoup.parser.Parser;
 
+import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class PageInfo {
@@ -47,6 +49,14 @@ public class PageInfo {
 
     static class TitleHandler extends AbstractMarkupHandler {
         private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+        private static final Set BLOCK_TAGS = Set.of(
+                "html", "head", "body", "frameset", "style", "meta", "link", "title", "frame",
+                "noframes", "section", "nav", "aside", "hgroup", "header", "footer", "p", "h1", "h2", "h3", "h4", "h5", "h6",
+                "ul", "ol", "pre", "div", "blockquote", "hr", "address", "figure", "figcaption", "form", "fieldset", "ins",
+                "del", "dl", "dt", "dd", "li", "table", "caption", "thead", "tfoot", "tbody", "colgroup", "col", "tr", "th",
+                "td", "video", "audio", "canvas", "details", "menu", "plaintext", "template", "article", "main",
+                "svg", "math", "center", "dir", "applet", "marquee", "listing");
+
         final char[] TITLE = "title".toCharArray();
         final int maxTitleLen = 1000;
         final int maxTextLen = 3000;
@@ -57,11 +67,22 @@ public class PageInfo {
         @Override
         public void handleCloseElementStart(char[] buffer, int nameOffset, int nameLen, int line, int col) throws ParseException {
             withinTitle = false;
+            addSpaceIfBlockTag(buffer, nameOffset, nameLen);
         }
 
         @Override
         public void handleOpenElementEnd(char[] buffer, int nameOffset, int nameLen, int line, int col) throws ParseException {
             withinTitle = TextUtil.equals(false, buffer, nameOffset, nameLen, TITLE, 0, TITLE.length);
+            addSpaceIfBlockTag(buffer, nameOffset, nameLen);
+        }
+
+        private void addSpaceIfBlockTag(char[] buffer, int nameOffset, int nameLen) {
+            String tag = new String(buffer, nameOffset, nameLen).toLowerCase(Locale.ROOT);
+            if (BLOCK_TAGS.contains(tag)) {
+                if (!endsWithWhitespace(textBuffer)) {
+                    textBuffer.append(" ");
+                }
+            }
         }
 
         @Override

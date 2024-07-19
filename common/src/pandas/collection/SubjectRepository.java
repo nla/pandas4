@@ -16,6 +16,17 @@ public interface SubjectRepository extends CrudRepository<Subject, Long> {
     @Query("select s.name from Subject s order by s.name")
     List<String> findAllSubjectNames();
 
+    @Query("""
+            select case when p.id is null
+              then s.name
+              else '- ' || s.name end
+            from Subject s
+            left join s.parent p
+            order by case when p.id is null
+                then s.name
+                else p.name || '/' || s.name end""")
+    List<String> findAllSubjectNamesNested();
+
     List<Subject> findByParentIsNullOrderByName();
 
     record SubjectListItem(long id, Long parentId, String name, boolean hasIcon,
