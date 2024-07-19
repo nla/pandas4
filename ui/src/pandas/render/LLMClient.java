@@ -14,6 +14,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
@@ -23,7 +24,8 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.*;
 public class LLMClient {
     private static final Logger log = LoggerFactory.getLogger(LLMClient.class);
     final ObjectMapper objectMapper = new ObjectMapper();
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .build();
     private final LLMConfig config;
 
     public LLMClient(LLMConfig config) {
@@ -72,7 +74,8 @@ public class LLMClient {
         var requestBody = objectMapper.writeValueAsString(request);
         log.info("LLM request: {}", requestBody);
         var httpRequestBuilder = HttpRequest.newBuilder(config.url().resolve("v1/chat/completions"))
-                .POST(BodyPublishers.ofString(requestBody));
+                .POST(BodyPublishers.ofString(requestBody))
+                .timeout(Duration.ofSeconds(30));
         if (config.apiKey() != null) {
             httpRequestBuilder.header("Authorization", "Bearer " + config.apiKey());
         }
