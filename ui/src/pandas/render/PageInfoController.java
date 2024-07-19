@@ -68,8 +68,9 @@ public class PageInfoController {
                 .build(new CacheLoader<>() {
                     @Override
                     public List<String> load(String url) throws Exception {
-                        return suggestSubjects(subjectRepository.findAllSubjectNames(),
-                                subjectRepository.findAllSubjectNamesNested(), url, pageInfoCache.get(url));
+                        List<String> subjects = subjectRepository.findAllSubjectNames();
+                        //subjects = subjectRepository.findAllSubjectNamesNested();
+                        return suggestSubjects(subjects, subjects, url, pageInfoCache.get(url));
                     }
                 });
     }
