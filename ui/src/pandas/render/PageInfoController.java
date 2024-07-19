@@ -35,9 +35,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Controller
@@ -167,8 +165,9 @@ public class PageInfoController {
         try {
             String chat = llm.chat(prompt.toString(), Map.of("type", "array",
                     "items", Map.of("enum", subjects)));
-            return new ObjectMapper().readValue(chat, new TypeReference<List<String>>() {
+            LinkedHashSet<String> suggestions = new ObjectMapper().readValue(chat, new TypeReference<>() {
             });
+            return new ArrayList<>(suggestions);
         } catch (IOException e) {
             log.error("LLM returned an error", e);
             return List.of();
