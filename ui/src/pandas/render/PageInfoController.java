@@ -154,7 +154,7 @@ public class PageInfoController {
         if (llm == null) return List.of();
         StringBuilder prompt = new StringBuilder();
 //        prompt.append("Please categorise the website below into three of the following categories. Output only the categories as a JSON array of strings and no other text.\n\n<categories>\n");
-        prompt.append("Please classify the website below into one of the following subject categories, making sure to select the most specific subcategory where applicable. Output the classification as a JSON array.\n\n\n<categories>\n");
+        prompt.append("Please classify the website below into at most three of the following subject categories, making sure to select the most specific subcategory where applicable. Output the classification as a JSON array.\n\n\n<categories>\n");
         for (var subject: subjectsIndented) {
             prompt.append(subject).append('\n');
         }
@@ -166,7 +166,7 @@ public class PageInfoController {
         try {
             var request = llm.newRequest(prompt.toString());
             request.jsonSchema = Map.of("type", "array", "items", Map.of("enum", subjects));
-            request.temperature = 0.01;
+            request.temperature = 0.0;
             request.maxTokens = 100;
             String chat = llm.chat(request).message();
             LinkedHashSet<String> suggestions = new ObjectMapper().readValue(chat, new TypeReference<>() {

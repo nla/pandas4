@@ -87,6 +87,7 @@ public class LLMClient {
         log.info("LLM request: {}", requestBody);
         var httpRequestBuilder = HttpRequest.newBuilder(config.url().resolve("v1/chat/completions"))
                 .POST(BodyPublishers.ofString(requestBody))
+                .version(HttpClient.Version.HTTP_1_1)
                 .timeout(Duration.ofSeconds(30));
         if (config.apiKey() != null) {
             httpRequestBuilder.header("Authorization", "Bearer " + config.apiKey());
