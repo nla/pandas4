@@ -24,7 +24,10 @@ import static java.util.stream.Collectors.toMap;
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsIsEmpty();
 
-    @Query("SELECT c FROM Collection c WHERE EXISTS (SELECT 1 FROM c.subjects s WHERE s IN :subjects)")
+    @Query("SELECT c FROM Collection c " +
+           "WHERE EXISTS (SELECT 1 FROM c.subjects s WHERE s IN :subjects) " +
+           "OR EXISTS (SELECT 1 FROM c.parent.subjects s WHERE s IN :subjects) " +
+           "OR EXISTS (SELECT 1 FROM c.parent.parent.subjects s WHERE s IN :subjects)")
     List<Collection> findByAnyOfSubjects(@Param("subjects") List<Subject> subject);
 
     @Query("select c from Collection c\n" +
