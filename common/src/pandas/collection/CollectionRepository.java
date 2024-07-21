@@ -24,11 +24,8 @@ import static java.util.stream.Collectors.toMap;
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsIsEmpty();
 
-    @Query("select distinct c from Collection c join c.subjects s where s in (:subjects) order by c.name")
+    @Query("SELECT c FROM Collection c WHERE EXISTS (SELECT 1 FROM c.subjects s WHERE s IN :subjects)")
     List<Collection> findByAnyOfSubjects(@Param("subjects") List<Subject> subject);
-
-    @Query("select distinct c from Collection c join c.subjects s where s.id in (:subjects) order by c.name")
-    List<Collection> findByAnyOfSubjectIds(@Param("subjects") List<Long> subjectIds);
 
     @Query("select c from Collection c\n" +
             "where upper(c.name) like :pattern\n" +
