@@ -51,6 +51,7 @@ public class LLMClient {
         return new Request(config.model(), message, null);
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     record Message(String role, String content) {
     }
 
@@ -68,6 +69,7 @@ public class LLMClient {
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     record Usage(int promptTokens, int completionTokens, int totalTokens) {
     }
 
