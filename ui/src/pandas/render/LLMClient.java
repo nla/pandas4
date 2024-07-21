@@ -37,13 +37,13 @@ public class LLMClient {
     public static class Request {
         public String model;
         public List<Message> messages;
-        public Object jsonSchema;
+        public Object guidedJson;
         public double temperature;
         public Integer maxTokens;
-        public Request(String model, String message, Object jsonSchema) {
+        public Request(String model, String message, Object guidedJson) {
             this.model = model;
             this.messages = List.of(new Message("user", message));
-            this.jsonSchema = jsonSchema;
+            this.guidedJson = guidedJson;
         }
     }
 

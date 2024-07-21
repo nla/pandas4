@@ -184,7 +184,7 @@ public class PageInfoController {
         prompt.append("\n</website>");
         try {
             var request = llm.newRequest(prompt.toString());
-            request.jsonSchema = Map.of("type", "array", "items", Map.of("enum", subjects));
+            request.guidedJson = Map.of("type", "array", "items", Map.of("enum", subjects));
             request.temperature = 0.0;
             request.maxTokens = 100;
             String chat = llm.chat(request).message();
