@@ -27,6 +27,9 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
     @Query("select distinct c from Collection c join c.subjects s where s in (:subjects) order by c.name")
     List<Collection> findByAnyOfSubjects(@Param("subjects") List<Subject> subject);
 
+    @Query("select distinct c from Collection c join c.subjects s where s.id in (:subjects) order by c.name")
+    List<Collection> findByAnyOfSubjectIds(@Param("subjects") List<Long> subjectIds);
+
     @Query("select c from Collection c\n" +
             "where upper(c.name) like :pattern\n" +
             "and c.isDisplayed = true\n" +

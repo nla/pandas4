@@ -11,6 +11,7 @@ declare var subjectsSuggestEndpoint: string;
 declare var titlesEndpoint: string;
 declare var titlesBasicSearchEndpoint: string;
 declare var collectionsEndpoint: string;
+declare var collectionsSuggestEndpoint: string;
 declare var thisTitleId: number;
 
 const sitePresets = [
@@ -362,6 +363,65 @@ interface SubjectSelectData {
     text: string;
 }
 
+function getSuggestedSubjectIds() {
+    const ids = [];
+    var subjectIdsByName = {}
+    for (const option of subjectsSlimSelect.selectEl.options) {
+        subjectIdsByName[option.innerText] = option.value;
+    }
+    for (const a of document.getElementById("suggestedSubjects").querySelectorAll('a')) {
+        const id = subjectIdsByName[a.innerText];
+        if (id) {
+            ids.push(id);
+        }
+    }
+    return ids;
+}
+
+function refreshSuggestedCollections() {
+    document.getElementById("suggestedCollections").parentElement.style.display = 'none';
+    let subjectParams = "";
+    let selectedSubjectIds = subjectsSlimSelect.getSelected();
+    if (selectedSubjectIds.length === 0) {
+        selectedSubjectIds = getSuggestedSubjectIds();
+    }
+    for (var subjectId of selectedSubjectIds) {
+        subjectParams += "&subject=" + subjectId;
+    }
+    if (subjectParams.length == 0) return;
+    fetch(collectionsSuggestEndpoint + "?url=" + encodeURIComponent(getPrimarySeedUrl()) + subjectParams)
+        .then(response => response.ok ? response.json() : Promise.reject(response))
+        .catch(reason => console.log(reason))
+        .then(collections => {
+            if (collections.length === 0) return;
+            let span = document.getElementById("suggestedCollections");
+            span.innerHTML = '';
+
+            for (const collection of collections) {
+                if (span.childElementCount > 0) {
+                    span.append(", ");
+                }
+                let a = document.createElement("a");
+                a.innerText = collection.fullName;
+                a.onclick = function() {
+                    const selected = collectionsSlimSelect.getSelected();
+                    collectionsSlimSelect.addOption({
+                        value: String(collection.id),
+                        text: collection.fullName
+                    });
+                    selected.push(String(collection.id));
+                    collectionsSlimSelect.setSelected(selected);
+                    return false;
+                };
+                span.append(a);
+            }
+
+            span.parentElement.style.display = 'inherit';
+        });
+}
+
+document.getElementById('subjects').addEventListener('change', refreshSuggestedCollections);
+
 function seedUrlsChanged() {
     let fetchAlert = document.getElementById("fetchAlert");
     fetchAlert.innerHTML = '';
@@ -403,6 +463,7 @@ function seedUrlsChanged() {
         .then(response => response.ok ? response.json() : Promise.reject(response))
         .catch(reason => console.log(reason))
         .then(subjectNames => {
+            if (subjectNames.length === 0) return;
             let span = document.getElementById("suggestedSubjects");
             span.innerHTML = '';
 
@@ -428,6 +489,9 @@ function seedUrlsChanged() {
             }
 
             span.parentElement.style.display = 'inherit';
+            if (subjectsSlimSelect.getSelected().length === 0) {
+                refreshSuggestedCollections();
+            }
         });
 
     fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(primarySeedUrl))

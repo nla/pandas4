@@ -21,6 +21,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pandas.collection.Collection;
+import pandas.collection.CollectionRepository;
+import pandas.collection.Subject;
 import pandas.collection.SubjectRepository;
 
 import java.io.BufferedInputStream;
@@ -37,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Controller
 public class PageInfoController {
@@ -46,10 +50,15 @@ public class PageInfoController {
     private final LoadingCache<String, PageInfo> pageInfoCache;
     private final LoadingCache<String, List<String>> subjectsCache;
     private final LLMClient llm;
+    private final CollectionRepository collectionRepository;
     private final SubjectRepository subjectRepository;
 
-    public PageInfoController(@Autowired(required = false) LLMClient llm, SubjectRepository subjectRepository) {
+    record CollectionCacheKey(String url, List<Long> subjectIds) {
+    }
+
+    public PageInfoController(@Autowired(required = false) LLMClient llm, CollectionRepository collectionRepository, SubjectRepository subjectRepository) {
         this.llm = llm;
+        this.collectionRepository = collectionRepository;
         this.subjectRepository = subjectRepository;
         this.httpClient = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.ALWAYS)
@@ -72,7 +81,7 @@ public class PageInfoController {
                     public List<String> load(String url) throws Exception {
                         List<String> subjects = subjectRepository.findAllSubjectNames();
                         //subjects = subjectRepository.findAllSubjectNamesNested();
-                        return suggestSubjects(subjects, subjects, url, pageInfoCache.get(url), null);
+                        return suggestSubjects(subjects, url, pageInfoCache.get(url), null);
                     }
                 });
     }
@@ -99,14 +108,37 @@ public class PageInfoController {
         if (nested) {
             List<String> subjects = subjectRepository.findAllSubjectNames();
             List<String> nestedSubjects = subjectRepository.findAllSubjectNamesNested();
-            return suggestSubjects(subjects, nestedSubjects, url, pageInfoCache.get(url), prompt);
+            return suggestSubjects(subjects, url, pageInfoCache.get(url), prompt);
         }
 
         if (!cache) {
             List<String> subjects = subjectRepository.findAllSubjectNames();
-            return suggestSubjects(subjects, subjects, url, pageInfoCache.get(url), prompt);
+            return suggestSubjects(subjects, url, pageInfoCache.get(url), prompt);
         }
         return subjectsCache.get(url);
+    }
+
+    @GetMapping(value = "/collections/suggest", produces = "application/json")
+    @ResponseBody
+    public List<SuggestedCollection> getCollectionSuggestions(@RequestParam(name = "url") String url,
+                                                              @RequestParam(name = "subject") List<Subject> subjects) throws Exception {
+        var collections = collectionRepository.findByAnyOfSubjects(subjects);
+        var byName = collections.stream().collect(Collectors.toMap(Collection::getFullName, SuggestedCollection::new, (prev, next) -> next, TreeMap::new));
+        byName.put("Other", null);
+        //subjects = subjectRepository.findAllSubjectNamesNested();
+        var suggestions = suggestSubjects(byName.keySet().stream().toList(), url, pageInfoCache.get(url),
+                "Please classify the website below into zero, one, two or three of the following subject categories if they are relevant, making sure to select the most specific subcategory where applicable. " +
+                "Output the classification as a JSON array.");
+        return suggestions.stream()
+                .map(byName::get)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public record SuggestedCollection(long id, String fullName) {
+        public SuggestedCollection(Collection c) {
+            this(c.getId(), c.getFullName());
+        }
     }
 
     @NotNull
@@ -166,15 +198,18 @@ public class PageInfoController {
         }
     }
 
-    List<String> suggestSubjects(List<String> subjects, List<String> subjectsIndented, String url, PageInfo pageInfo, String instructions) {
+    List<String> suggestSubjects(List<String> subjects, String url, PageInfo pageInfo, String instructions) {
         if (llm == null) return List.of();
+        if (subjects.size() > 200) {
+            subjects = subjects.subList(0, 200);
+        }
         StringBuilder prompt = new StringBuilder();
 //        prompt.append("Please categorise the website below into three of the following categories. Output only the categories as a JSON array of strings and no other text.\n\n<categories>\n");
         if (instructions == null) {
             instructions = "Please classify the website below into at most three of the following subject categories, making sure to select the most specific subcategory where applicable. Output the classification as a JSON array.";
         }
         prompt.append(instructions).append("\n\n\n<categories>\n");
-        for (var subject: subjectsIndented) {
+        for (var subject: subjects) {
             prompt.append(subject).append('\n');
         }
         prompt.append("</categories>\n\n<website>\n");
@@ -201,7 +236,7 @@ public class PageInfoController {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         var llm = new LLMClient(LLMConfig.fromEnv());
-        var controller = new PageInfoController(llm, null);
+        var controller = new PageInfoController(llm, null, null);
         var pageInfo = controller.fetchPageInfo(args[0]);
         new ObjectMapper()
                 .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET)
@@ -356,6 +391,6 @@ public class PageInfoController {
                 Water
                 Women
                 Youth""".split("\n"));
-        System.out.println(controller.suggestSubjects(subjects, subjects, args[0], pageInfo, null));
+        System.out.println(controller.suggestSubjects(subjects, args[0], pageInfo, null));
     }
 }

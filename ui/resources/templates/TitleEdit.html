@@ -184,6 +184,12 @@
                             th:text="${collection.fullName}"
                             th:data-subjects="${#strings.listJoin(collection.subjects.![id], ',')}"></option>
                 </select>
+                <div class="hint-text" style="display: none">
+                    Suggested collections: <span id="suggestedCollections">
+                        <a href="#">Authors</a>,
+                        <a href="#">Illustrators</a>
+                    </span>
+                </div>
             </label>
             <label sec:authorize="hasRole('stduser')">
                 Publisher
@@ -546,10 +552,11 @@
     var pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
     var publisherJsonEndpoint = /*[[@{/publishers.json}]]*/ '../publishers.json';
     var publishersEndpoint = /*[[@{/publishers}]]*/ '../publishers';
-    var subjectsSuggestEndpoint = /*[[@{/subjects/suggest}]]*/ '../subjects/suggestions';
+    var subjectsSuggestEndpoint = /*[[@{/subjects/suggest}]]*/ '../subjects/suggest';
     var titlesEndpoint = /*[[@{/titles}]]*/ '../titles';
     var titlesBasicSearchEndpoint = /*[[@{/titles/basicSearch.json}]]*/ '../titles/basicSearch.json';
     var collectionsEndpoint = /*[[@{/collections.json}]]*/ '../collections.json';
+    var collectionsSuggestEndpoint = /*[[@{/collections/suggest}]]*/ '../collections/suggest';
     const thisTitleId = /*[[${form.id ?: null}]]*/ null;
 </script>
 <script th:src="@{/assets/TitleEdit.js}" type="module" src="../../target/classes/static/assets/TitleEdit.js"></script>
