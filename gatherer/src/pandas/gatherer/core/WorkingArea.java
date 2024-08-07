@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -23,6 +20,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class WorkingArea {
     private static final Logger log = LoggerFactory.getLogger(WorkingArea.class);
     private final Path workingdir;
+    private final Path toDeleteDir;
 
     private final static Set<PosixFilePermission> DIR_PERMS = new HashSet<>(Arrays.asList(
             PosixFilePermission.OWNER_EXECUTE,
@@ -41,6 +39,8 @@ public class WorkingArea {
         this.config = config;
         this.workingdir = config.getWorkingDir();
         this.repository = repository;
+        toDeleteDir = workingdir.resolve("todelete");
+        cleanupToDelete();
     }
 
     private Path instancePath(long pi, String date) {
@@ -203,6 +203,10 @@ public class WorkingArea {
     }
 
     public void deleteRecursivelyIfExists(Path path) throws IOException {
+        deleteRecursivelyIfExists(path, true);
+    }
+
+    private void deleteRecursivelyIfExists(Path path, boolean moveIfCantDelete) throws IOException {
         if (!Files.exists(path)) {
             return;
         }
@@ -216,13 +220,25 @@ public class WorkingArea {
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.deleteIfExists(file);
+                if (!file.getFileName().startsWith(".nfs")) {
+                    Files.deleteIfExists(file);
+                }
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.deleteIfExists(dir);
+                try {
+                    Files.deleteIfExists(dir);
+                } catch (DirectoryNotEmptyException e) {
+                    if (moveIfCantDelete) {
+                        // This can happen when a file is open by another process and an undeletable .nfs file exists
+                        // Since we can't delete it now, let's just move the directory out of the way and try to delete
+                        // it later.
+                        Files.createDirectories(toDeleteDir);
+                        Files.move(dir, toDeleteDir.resolve(UUID.randomUUID().toString()));
+                    }
+                }
                 return FileVisitResult.CONTINUE;
             }
 
@@ -232,6 +248,13 @@ public class WorkingArea {
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    public void cleanupToDelete() {
+        try {
+            deleteRecursivelyIfExists(toDeleteDir, false);
+        } catch (IOException ignore) {
+        }
     }
 
     public Path getInstanceDir(long pi, String dateString) {
