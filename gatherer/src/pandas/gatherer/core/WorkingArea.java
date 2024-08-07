@@ -39,7 +39,11 @@ public class WorkingArea {
         this.config = config;
         this.workingdir = config.getWorkingDir();
         this.repository = repository;
-        toDeleteDir = workingdir.resolve("todelete");
+        if (workingdir == null) {
+            toDeleteDir = null;
+        } else {
+            toDeleteDir = workingdir.resolve("todelete");
+        }
         cleanupToDelete();
     }
 
