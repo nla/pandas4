@@ -55,6 +55,7 @@ public class Browser implements Closeable {
                 cmd.add("--headless");
                 cmd.add("--remote-debugging-port=0");
                 cmd.add("--disable-crash-reporter"); // prevents ownership conflicts over /tmp/Crashpad
+                cmd.add("--disable-blink-features=AutomationControlled"); // makes navigator.webdriver == false
                 if (System.getenv("BROWSER_LOGGING") != null) cmd.addAll(List.of("--enable-logging=stderr", "--v=1"));
                 process = new ProcessBuilder(cmd)
                         .inheritIO()
