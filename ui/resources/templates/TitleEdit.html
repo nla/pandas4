@@ -167,8 +167,8 @@
                             th:data-fullname="${subject.fullName}">Arts
                     </option>
                 </select>
-                <div class="hint-text" style="display: none">
-                    Suggested subjects: <span id="suggestedSubjects">
+                <div class="hint-text" style="">
+                    <abbr title="Suggestions are automatically generated based on limited page text and may be inappropriate or incomplete. Take care when accepting them.">Suggestedⓘ</abbr> subjects: <span id="suggestedSubjects">
                         <a href="#">Arts</a>,
                         <a href="#">Dancing</a>
                     </span>
@@ -185,7 +185,7 @@
                             th:data-subjects="${#strings.listJoin(collection.subjects.![id], ',')}"></option>
                 </select>
                 <div class="hint-text" style="display: none">
-                    Suggested collections: <span id="suggestedCollections">
+                    <abbr title="Suggestions are automatically generated based on limited page text and may be inappropriate or incomplete. Take care when accepting them.">Suggestedⓘ</abbr> collections: <span id="suggestedCollections">
                         <a href="#">Authors</a>,
                         <a href="#">Illustrators</a>
                     </span>
