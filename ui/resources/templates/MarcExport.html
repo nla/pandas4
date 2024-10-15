@@ -11,13 +11,11 @@
     <header>
     </header>
 
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.5.0/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/datatables/1.10.21/css/dataTables.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/datatables/1.10.21/css/dataTables.dataTables.css}">
 <script th:src="@{/webjars/jquery/1.11.1/jquery.min.js}" defer></script>
-<script th:src="@{/webjars/bootstrap/4.5.0/js/bootstrap.min.js}" defer></script>
 <script th:src="@{/webjars/webshim/1.15.8/dev/polyfiller.js}" defer></script>
-<script th:src="@{/webjars/datatables/1.10.21/js/jquery.dataTables.min.js}" defer></script>
-<script th:src="@{/webjars/datatables/1.10.21/js/dataTables.bootstrap4.min.js}" defer></script>
+<script th:src="@{/webjars/datatables/1.10.21/js/jquery.dataTables.js}" defer></script>
+<script th:src="@{/webjars/datatables/1.10.21/js/dataTables.dataTables.js}" defer></script>
 <script th:src="@{/assets/MarcExport.js}" defer></script>
 
 <style>
@@ -49,6 +47,7 @@
 
 <div class="tab-content">
     <div class="tab-pane show active" id="tab-date-range">
+        <h3>Date Range</h3>
         <div class="table-filters">
             <div>
                 First archived between <input type="date" name="startDate"
@@ -94,6 +93,7 @@
         </div>
     </div>
     <div class="tab-pane" id="tab-individual-titles">
+        <h3>Individual Titles</h3>
         <form method="post" th:action="@{''}">
             <div>
                 <p><label for="ids">List of PANDAS title ids (PIs) to export:</label></p>
