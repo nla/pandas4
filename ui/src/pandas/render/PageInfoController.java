@@ -181,10 +181,7 @@ public class PageInfoController {
                 } catch (ParseException e) {
                     log.warn("Exception parsing " + url, e);
                 }
-                title = handler.title.replaceAll("\\s\\s+", " ").trim();
-                if (title.length() > 1000) {
-                    title = title.substring(0, 1000) + "...";
-                }
+                title = handler.getCleanTitle();
                 text = handler.textBuffer.toString();
             }
             String location = null;

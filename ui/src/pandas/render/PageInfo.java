@@ -115,6 +115,14 @@ public class PageInfo {
             text = WHITESPACE.matcher(text).replaceAll(" ");
             return text;
         }
+
+        public String getCleanTitle() {
+            String title = this.title.replaceAll("\\s\\s+", " ").trim();
+            if (title.length() > maxTitleLen) {
+                title = title.substring(0, maxTitleLen) + "...";
+            }
+            return title;
+        }
     }
 
     public int getStatus() {
