@@ -33,8 +33,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y httrack ghostscript
-      - name: Install pywb 2.7.4
-        run: sudo pip install --break-system-packages pywb==2.7.4
+      - name: Install pywb 2.8.3
+        run: sudo pip install --break-system-packages pywb==2.8.3
       - name: Build with Maven
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
