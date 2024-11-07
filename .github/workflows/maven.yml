@@ -36,7 +36,7 @@ jobs:
       - name: Install httrack and ghostscript
         run: |
           sudo apt-get update
-          sudo apt-get install -y httrack ghostscript chromium
+          sudo apt-get install -y httrack ghostscript chromium-browser
       - name: Install pywb 2.8.3
         run: |
           python -m pip install --upgrade pip
