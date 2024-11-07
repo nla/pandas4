@@ -283,14 +283,6 @@
     </bean>
     <bean id="extractorHttp" class="org.archive.modules.extractor.ExtractorHTTP">
     </bean>
-    <bean id="extractorChromeTooManyHopsDecideRule" class="org.archive.modules.deciderules.TooManyHopsDecideRule">
-    </bean>
-    <bean id="extractorChrome" class="org.archive.modules.extractor.ExtractorChrome">
-        <property name="enabled" value="false" />
-        <property name="shouldProcessRule">
-            <ref bean="extractorChromeTooManyHopsDecideRule" />
-        </property>
-    </bean>
     <bean id="extractorRobotsTxt" class="org.archive.modules.extractor.ExtractorRobotsTxt">
     </bean>
     <bean id="extractorSitemap" class="org.archive.modules.extractor.ExtractorSitemap">
@@ -331,8 +323,6 @@
                 <ref bean="fetchHttp"/>
                 <!-- ...extract outlinks from HTTP headers... -->
                 <ref bean="extractorHttp"/>
-                <!-- NLA: load in headless browser -->
-                <ref bean="extractorChrome"/>
                 <!-- ...extract sitemap urls from robots.txt... -->
                 <ref bean="extractorRobotsTxt"/>
                 <!-- ...extract links from sitemaps... -->
