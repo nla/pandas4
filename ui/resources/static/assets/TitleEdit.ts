@@ -21,6 +21,13 @@ const sitePresets = [
         "subjects": [323],
         "scope": 2,
         "gatherMethod": 21
+    },
+    {
+        "urlRegex": "https://bsky.app/profile/.*",
+        "collections": [{id: 22268, name: "Bluesky accounts"}],
+        "subjects": [323],
+        "scope": 2,
+        "gatherMethod": 21
     }
 ];
 
