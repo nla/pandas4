@@ -92,19 +92,26 @@ public class BrowsertrixGatherer implements Backend {
             command.add("prefix");
         }
 
-        command.add("--timeLimit");
-        command.add(String.valueOf(titleGather.getCrawlTimeLimitSeconds()));
+        long timeLimit = titleGather.getCrawlTimeLimitSeconds();
+        long sizeLimit = config.getDefaultCrawlLimitBytes();
 
         Profile profile = titleGather.getActiveProfile();
         if (profile != null) {
             if (profile.getCrawlLimitSeconds() != null) {
+                timeLimit = profile.getCrawlLimitSeconds();
             }
 
             if (profile.getCrawlLimitBytes() != null) {
-                command.add("--sizeLimit");
-                command.add(String.valueOf(profile.getCrawlLimitBytes()));
+                sizeLimit = profile.getCrawlLimitBytes();
             }
         }
+
+        command.add("--timeLimit");
+        command.add(String.valueOf(timeLimit));
+
+        command.add("--sizeLimit");
+        command.add(String.valueOf(sizeLimit));
+
 
         if (!Strings.isNullOrBlank(config.getUserAgentSuffix())) {
             command.add("--userAgentSuffix");
