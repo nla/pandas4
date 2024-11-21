@@ -82,7 +82,6 @@ public class BrowsertrixGatherer implements Backend {
                 "--generatecdx",
                 "--logging", "none",
                 "--saveState", "always",
-                "--limit", String.valueOf(config.getPageLimit()),
                 "--depth", String.valueOf(depth)));
 
         if (scope != null && scope.isIncludeSubdomains()) {
