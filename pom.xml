@@ -14,7 +14,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <hibernate.search.version>7.0.1.Final</hibernate.search.version>
+        <hibernate.search.version>7.2.2.Final</hibernate.search.version>
         <spring.version>3.4.0</spring.version>
         <sonar.organization>nla</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
