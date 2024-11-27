@@ -6,12 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.attoparser.MarkupParser;
-import org.attoparser.ParseException;
-import org.attoparser.config.ParseConfiguration;
-import org.attoparser.discard.DiscardMarkupHandler;
-import org.attoparser.select.BlockSelectorMarkupHandler;
+import org.apache.commons.io.input.BoundedInputStream;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +23,14 @@ import pandas.collection.CollectionRepository;
 import pandas.collection.Subject;
 import pandas.collection.SubjectRepository;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -155,34 +148,12 @@ public class PageInfoController {
             String text = null;
             HttpStatus status = HttpStatus.resolve(response.statusCode());
             String reason = status == null ? null : status.getReasonPhrase();
+
             if (mediaType.equalsTypeAndSubtype(MediaType.TEXT_HTML) && body != null) {
-                PageInfo.TitleHandler handler = new PageInfo.TitleHandler();
-
-                InputStream stream = body;
-                // if there was no charset in the Content-Type header, probe for meta tags near the top of the file
-                if (charset == null) {
-                    BufferedInputStream bis = new BufferedInputStream(stream);
-                    String charsetName = HtmlCharset.detect(bis);
-                    if (charsetName != null) {
-                        try {
-                            charset = Charset.forName(charsetName);
-                        } catch (UnsupportedCharsetException e) {
-                            log.warn("Unsupported charset {}, defaulting to iso-8859-1", charsetName);
-                            charset = StandardCharsets.ISO_8859_1;
-                        }
-                    }
-                    stream = bis;
-                }
-
-                try {
-                    new MarkupParser(ParseConfiguration.htmlConfiguration()).parse(new InputStreamReader(stream, charset),
-                            new BlockSelectorMarkupHandler(new DiscardMarkupHandler(), handler,
-                                    new String[]{"script", "noscript", "style"}));
-                } catch (ParseException e) {
-                    log.warn("Exception parsing " + url, e);
-                }
-                title = handler.getCleanTitle();
-                text = handler.textBuffer.toString();
+                String charsetName = mediaType.getParameter("charset");
+                var boundedStream = new BoundedInputStream(body, 10 * 1024 * 1024);
+                var document = Jsoup.parse(boundedStream, charsetName, url);
+                return new PageInfo(response.statusCode(), reason, contentType, document);
             }
             String location = null;
             if (response.previousResponse().isPresent()) {
