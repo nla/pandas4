@@ -4,6 +4,7 @@ import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
@@ -18,18 +19,17 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Component
-public class GatherManager implements AutoCloseable, Lifecycle {
+public class GatherManager implements AutoCloseable, SmartLifecycle {
 	private static final Logger log = LoggerFactory.getLogger(GatherManager.class);
 	private final Map<Long, String> currentlyGatheringTitles = new ConcurrentHashMap<>(); // pi -> thread name
 	private final Map<Long, String> currentInstances = new ConcurrentHashMap<>(); // instance id -> thread name
 	private final Map<String, String> currentlyGatheringHosts = new ConcurrentHashMap<>(); // site -> thread name
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private final List<Backend> enabledBackends;
+	private final Config config;
 	private volatile boolean systemShutDown;
 	private final List<Backend> backends = new ArrayList<>();
 	private final List<Thread> workerThreads = new ArrayList<>();
@@ -43,6 +43,7 @@ public class GatherManager implements AutoCloseable, Lifecycle {
 	private String version;
 	private volatile boolean paused;
 	private boolean running;
+	private ScheduledFuture<?> updateGatherStatsTask;
 
 	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
 						 TitleRepository titleRepository, InstanceService instanceService,
@@ -53,13 +54,15 @@ public class GatherManager implements AutoCloseable, Lifecycle {
 		this.instanceService = instanceService;
 		this.instanceGatherRepository = instanceGatherRepository;
 		this.thumbnailGenerator = thumbnailGenerator;
-		scheduler.scheduleWithFixedDelay(this::updateGatherStats, 10, config.getGatherStatsPollSeconds(), TimeUnit.SECONDS);
+		this.enabledBackends = backends;
+		this.config = config;
 	}
 
 	@Override
 	public synchronized void start() {
 		running = true;
-		for (Backend backend : backends) {
+		this.updateGatherStatsTask = scheduler.scheduleWithFixedDelay(this::updateGatherStats, 10, config.getGatherStatsPollSeconds(), TimeUnit.SECONDS);
+		for (Backend backend : enabledBackends) {
 			startWorkers(backend, backend.getWorkerCount());
 		}
 	}
@@ -67,6 +70,9 @@ public class GatherManager implements AutoCloseable, Lifecycle {
 	@Override
 	public synchronized void stop() {
 		close();
+		if (updateGatherStatsTask != null) {
+			updateGatherStatsTask.cancel(true);
+		}
 		running = false;
 	}
 
@@ -273,7 +279,6 @@ public class GatherManager implements AutoCloseable, Lifecycle {
 	public Set<String> getCurrentHosts() {
 		return Collections.unmodifiableSet(currentlyGatheringHosts.keySet());
 	}
-
 
 	public Set<Long> getCurrentInstances() {
 		return Collections.unmodifiableSet(currentInstances.keySet());
