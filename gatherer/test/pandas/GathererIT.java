@@ -86,7 +86,7 @@ public class GathererIT {
         Path heritrixWorking = Files.createDirectories(tempDir.resolve("heritrix"));
         String password = "password";
         Path heritrixStdio = null;
-        Path heritrixHome = Paths.get("target/dependency/heritrix-contrib-3.4.0-20220727");
+        Path heritrixHome = Paths.get("target/dependency/heritrix-3.5.0");
         assumeTrue(Files.exists(heritrixHome), "Heritrix not found in " + heritrixHome);
         try (HeritrixProcess heritrixProcess = new HeritrixProcess(heritrixHome, heritrixWorking, heritrixPort, password)) {
             heritrixStdio = heritrixProcess.getStdio();

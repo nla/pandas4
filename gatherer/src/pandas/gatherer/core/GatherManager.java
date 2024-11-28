@@ -3,6 +3,7 @@ package pandas.gatherer.core;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
@@ -23,7 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class GatherManager implements AutoCloseable {
+public class GatherManager implements AutoCloseable, Lifecycle {
 	private static final Logger log = LoggerFactory.getLogger(GatherManager.class);
 	private final Map<Long, String> currentlyGatheringTitles = new ConcurrentHashMap<>(); // pi -> thread name
 	private final Map<Long, String> currentInstances = new ConcurrentHashMap<>(); // instance id -> thread name
@@ -41,6 +42,7 @@ public class GatherManager implements AutoCloseable {
 	private final Object pollingLock = new Object();
 	private String version;
 	private volatile boolean paused;
+	private boolean running;
 
 	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
 						 TitleRepository titleRepository, InstanceService instanceService,
@@ -52,10 +54,25 @@ public class GatherManager implements AutoCloseable {
 		this.instanceGatherRepository = instanceGatherRepository;
 		this.thumbnailGenerator = thumbnailGenerator;
 		scheduler.scheduleWithFixedDelay(this::updateGatherStats, 10, config.getGatherStatsPollSeconds(), TimeUnit.SECONDS);
+	}
 
+	@Override
+	public synchronized void start() {
+		running = true;
 		for (Backend backend : backends) {
 			startWorkers(backend, backend.getWorkerCount());
 		}
+	}
+
+	@Override
+	public synchronized void stop() {
+		close();
+		running = false;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return running;
 	}
 
 	public void startWorkers(Backend backend, int count) {
