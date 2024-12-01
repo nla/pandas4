@@ -572,9 +572,10 @@
     <!-- CHECKPOINTSERVICE: checkpointing assistance -->
     <bean id="checkpointService"
           class="org.archive.crawler.framework.CheckpointService">
-        <!-- <property name="checkpointIntervalMinutes" value="-1"/> -->
+        <property name="checkpointIntervalMinutes" value="15"/>
+        <property name="checkpointOnShutdown" value="true"/>
         <!-- <property name="checkpointsDir" value="checkpoints"/> -->
-        <!-- <property name="forgetAllButLatest" value="true"/> -->
+        <property name="forgetAllButLatest" value="true"/>
     </bean>
 
     <!--
