@@ -10,6 +10,7 @@ import pandas.gatherer.core.*;
 import pandas.gatherer.repository.Repository;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -70,38 +71,81 @@ public class HeritrixGatherer implements Backend {
         createSymbolicLinkIfNotExists(collDir.resolve("archive"), jobDir(instance));
         createSymbolicLinkIfNotExists(collDir.resolve("indexes"), indexDir);
 
-        heritrix.addJobDir(jobDir);
-
-        HeritrixClient.Job job = null;
+        String jobName = instance.getHumanId();
         try {
-            HeritrixClient.State currentState = heritrix.getJob(instance.getHumanId()).crawlControllerState;
-            if (currentState == RUNNING || currentState == FINISHED) {
-                log.info("job {} already " + currentState + ", assuming gatherer was restarted and resuming monitoring.", instance.getHumanId());
-            } else {
-                heritrix.buildJob(instance.getHumanId());
-                heritrix.launchJob(instance.getHumanId());
-                heritrix.waitForStateTransition(instance.getHumanId(), PREPARING, PAUSED);
-                heritrix.unpauseJob(instance.getHumanId());
-            }
-
-            while (true) {
-                job = heritrix.getJob(instance.getHumanId());
-                instance = instanceService.refresh(instance);
-                instanceService.updateGatherStats(instance.getId(), job.fileStats().fileCount(), job.fileStats().size());
-                if (job.crawlControllerState != RUNNING ||
-                        !instance.getState().getName().equals(State.GATHERING) ||
-                        shutdown) {
-                    break;
+            while (!shutdown) {
+                try {
+                    launchJob(jobName, jobDir);
+                    monitorJob(jobName, instance);
+                    return;
+                } catch (SocketException e) {
+                    log.warn("Heritrix is down ({}), job {} is waiting for it to come back", e.getMessage(), jobName);
+                    while (!shutdown) {
+                        if (!instanceService.refresh(instance).getState().isGathering()) break;
+                        Thread.sleep(1000);
+                        try {
+                            heritrix.getEngine();
+                        } catch (IOException e2) {
+                            continue;
+                        }
+                        break;
+                    }
+                    log.warn("Heritrix is up again, trying to relaunch job {}", jobName);
                 }
-
-                Thread.sleep(1000);
             }
         } finally {
-            if (shutdown && job != null && job.crawlControllerState == RUNNING) {
-                log.info("Letting Heritrix crawl {} continue running after shutdown", instance.getHumanId());
+            if (shutdown) {
+                log.info("Letting Heritrix crawl {} continue running after shutdown", jobName);
             } else {
-                heritrix.teardownJob(instance.getHumanId());
+                try {
+                    heritrix.teardownJob(jobName);
+                } catch (IOException e) {
+                    log.error("Error tearing down Heritrix job {}", jobName, e);
+                }
             }
+        }
+    }
+
+    /**
+     * Launches and unpauses a Heritrix job. If the job already exists and has any checkpoints attempts to resume the
+     * latest one. If the job is already running or finished no action is taken.
+     */
+    private void launchJob(String jobName, Path jobDir) throws IOException, InterruptedException {
+        heritrix.addJobDir(jobDir);
+
+        HeritrixClient.State currentState = heritrix.getJob(jobName).crawlControllerState;
+        if (currentState == RUNNING || currentState == FINISHED) {
+            log.info("job {} already {}, assuming gatherer was restarted and resuming monitoring.", jobName, currentState);
+            return;
+        }
+
+        heritrix.buildJob(jobName);
+        var job = heritrix.getJob(jobName);
+        String checkpoint = job.checkpointFiles.isEmpty() ? null : job.checkpointFiles.get(0);
+        heritrix.launchJob(jobName, checkpoint);
+        heritrix.waitForStateTransition(jobName, PREPARING, PAUSED);
+        heritrix.unpauseJob(jobName);
+    }
+
+    /**
+     * Continuously checks the status of a Heritrix job and the related instance,
+     * stopping when the job finishes or the instance status changes (e.g. user cancels via UI).
+     */
+    private void monitorJob(String jobName, Instance instance) throws IOException, InterruptedException {
+        while (!shutdown) {
+            HeritrixClient.Job job = heritrix.getJob(jobName);
+            instance = instanceService.refresh(instance);
+            instanceService.updateGatherStats(instance.getId(), job.fileStats().fileCount(), job.fileStats().size());
+            if (job.crawlControllerState != RUNNING) {
+                log.info("job {} finished with state {}", jobName, job.crawlControllerState);
+                return;
+            }
+            if (!instance.getState().isGathering()) {
+                log.info("job {} unfinished but instance {} is {} so cancelling", jobName, instance.getId(),
+                        instance.getState().getName());
+                return;
+            }
+            Thread.sleep(1000);
         }
     }
 

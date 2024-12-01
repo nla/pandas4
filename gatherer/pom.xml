@@ -120,7 +120,7 @@
                                 <artifactItem>
                                     <groupId>org.archive.heritrix</groupId>
                                     <artifactId>heritrix</artifactId>
-                                    <version>3.5.0</version>
+                                    <version>3.6.0</version>
                                     <classifier>dist</classifier>
                                     <type>tar.gz</type>
                                 </artifactItem>

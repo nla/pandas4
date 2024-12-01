@@ -78,4 +78,8 @@ public class State {
     public boolean isGathered() {
         return getName().equals(GATHERED);
     }
+
+    public boolean isGathering() {
+        return getName().equals(GATHERING);
+    }
 }

@@ -17,6 +17,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -132,18 +134,22 @@ public class HeritrixClient {
         callEngine("action", "add", "addpath", addpath.toString());
     }
 
-    void buildJob(String jobName) throws IOException {
+    public void buildJob(String jobName) throws IOException {
         log.info("HeritrixClient.buildJob(\"{}\")", jobName);
         callJob(jobName, "action", "build");
     }
 
     @SuppressWarnings("BusyWait")
-    void launchJob(String jobName) throws IOException {
-        log.info("HeritrixClient.launchJob(\"{}\")", jobName);
+    public void launchJob(String jobName, String checkpoint) throws IOException {
+        log.info("HeritrixClient.launchJob(\"{}\", \"{}\")", jobName, checkpoint);
         int tries = 0;
         while (true) {
             try {
-                callJob(jobName, "action", "launch");
+                if (checkpoint != null) {
+                    callJob(jobName, "action", "launch", "checkpoint", checkpoint);
+                } else {
+                    callJob(jobName, "action", "launch");
+                }
                 break;
             } catch (JsonParseException e) {
                 if (tries >= 3) {
@@ -218,7 +224,7 @@ public class HeritrixClient {
         }
     }
 
-    Job getJob(String jobName) throws IOException {
+    public Job getJob(String jobName) throws IOException {
         return sendGet(uri.resolve("job/" + jobName), Job.class);
     }
 
@@ -267,6 +273,7 @@ public class HeritrixClient {
         public State crawlControllerState;
         public UriTotalsReport uriTotalsReport;
         public SizeTotalsReport sizeTotalsReport;
+        public List<String> checkpointFiles = new ArrayList<>();
 
         public FileStats fileStats() {
             return new FileStats(uriTotalsReport.downloadedUriCount, sizeTotalsReport.total);
