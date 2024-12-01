@@ -1,23 +1,27 @@
 package pandas.search;
 
-import org.hibernate.engine.spi.SessionFactoryImplementor;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.hibernate.search.mapper.orm.work.SearchIndexingPlan;
+import org.hibernate.search.util.common.SearchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileSystemUtils;
 import pandas.collection.Collection;
 import pandas.collection.Title;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import pandas.gather.Instance;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 
@@ -28,13 +32,37 @@ public class SearchScheduler {
     private static final Logger log = LoggerFactory.getLogger(SearchScheduler.class);
 
     private final EntityManagerFactory entityManagerFactory;
+    private final Path rootDir;
     private long lastTitleId = -1;
     private Instant lastIndexedTitleDate;
     private Long lastCollectionId = null;
     InstanceIndexer instanceIndexer = new InstanceIndexer();
 
-    public SearchScheduler(EntityManagerFactory entityManagerFactory) {
+    public SearchScheduler(EntityManagerFactory entityManagerFactory, @Value("${spring.jpa.properties.hibernate.search.backend.directory.root}") Path rootDir) {
         this.entityManagerFactory = entityManagerFactory;
+        this.rootDir = rootDir;
+    }
+
+    @PostConstruct
+    void reindexIfLuceneUpgraded() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        SearchSession session = Search.session(entityManager);
+        try {
+            // do a test search
+            session.search(Title.class)
+                    .where(SearchPredicateFactory::matchAll)
+                    .fetch(1);
+        } catch (SearchException e) {
+            if (e.getMessage().contains("Could not load codec")) {
+                log.warn("Failed to load codec, Lucene has probably been upgraded, recreating indexes");
+                try {
+                    FileSystemUtils.deleteRecursively(rootDir);
+                } catch (IOException ex) {
+                    log.error("Failed to delete search index directory", ex);
+                }
+                session.massIndexer().start();
+            }
+        }
     }
 
     // do a full reindex once a day at 3 AM
