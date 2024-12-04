@@ -111,8 +111,9 @@ public class TitleEditForm {
         }
 
         // if the title url is the same as the first seed url, leave it blank on the form
-        if (Objects.equals(title.getSeedUrl(), title.getTitleUrl()) ||
-                title.getSeedUrl().startsWith(title.getTitleUrl() + "\n")) {
+        if (title.getSeedUrl() != null &&
+            (title.getSeedUrl().equals(title.getTitleUrl()) ||
+                title.getSeedUrl().startsWith(title.getTitleUrl() + "\n"))) {
             setTitleUrl(null);
         } else {
             setTitleUrl(title.getTitleUrl());
