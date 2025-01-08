@@ -154,6 +154,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "where exists (select i.id from Instance i where i.title = t and i.state.name <> 'deleted')\n" +
             "and t.anbdNumber is null\n" +
             "and t.awaitingConfirmation = false\n" +
+            "and t.status.name not in ('monitored', 'rejected', 'nominated')\n" +
             "and (t.legalDeposit = true or t.status.name not in ('permission impossible', 'permission denied'))\n" +
             "and t.cataloguingNotRequired <> true\n" +
             "and (:agencyId is null or t.agency.id = :agencyId)\n" +
