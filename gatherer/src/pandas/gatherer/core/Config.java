@@ -40,6 +40,9 @@ public class Config {
     private String oidcClientSecret;
     private Path legacyScripts;
 
+    // Browsertrix stops at 10%, so let's ensure there's a little more than that
+    private double minFreeSpacePercent = 11.0;
+
     public Config() {
     }
 
@@ -283,5 +286,13 @@ public class Config {
 
     public void setLegacyScripts(Path legacyScripts) {
         this.legacyScripts = legacyScripts;
+    }
+
+    public double getMinFreeSpacePercent() {
+        return minFreeSpacePercent;
+    }
+
+    public void setMinFreeSpacePercent(double minFreeSpacePercent) {
+        this.minFreeSpacePercent = minFreeSpacePercent;
     }
 }

@@ -7,6 +7,7 @@ import pandas.gather.Instance;
 import pandas.gatherer.httrack.Pandora2Warc;
 import pandas.gatherer.repository.Repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -263,5 +264,22 @@ public class WorkingArea {
 
     public Path getInstanceDir(long pi, String dateString) {
         return workingdir.resolve(String.valueOf(pi)).resolve(dateString).toAbsolutePath();
+    }
+
+    public double getFreeSpacePercent() {
+        File file = workingdir.toFile();
+        long totalSpace = file.getTotalSpace();
+        long freeSpace = file.getFreeSpace();
+    
+        if (totalSpace == 0) {
+            log.warn("Unable to calculate free space percentage. Total space is 0.");
+            return 50.0;
+        }
+    
+        return ((double) freeSpace / totalSpace) * 100;
+    }
+
+    public Path getPath() {
+        return workingdir;
     }
 }

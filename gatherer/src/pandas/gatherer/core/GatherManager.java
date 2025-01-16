@@ -3,7 +3,6 @@ package pandas.gatherer.core;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.Lifecycle;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 import pandas.collection.Title;
@@ -44,6 +43,7 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 	private volatile boolean paused;
 	private boolean running;
 	private ScheduledFuture<?> updateGatherStatsTask;
+	private long lastSpaceWarningTime = 0;
 
 	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
 						 TitleRepository titleRepository, InstanceService instanceService,
@@ -121,6 +121,19 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 
 				currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
 				return instance;
+			}
+
+			// Ensure there's enough free space in working area to allow starting of new gathers.
+			double freeSpacePercent = workingArea.getFreeSpacePercent();
+			if (freeSpacePercent < config.getMinFreeSpacePercent()) {
+				long now = System.currentTimeMillis();
+				if (lastSpaceWarningTime + 1000 * 60 < now) {
+					lastSpaceWarningTime = now;
+					log.warn("Preventing new gathers because free space percentage for {} is below the minimum " +
+							 "threshold ({}%). Current: {}%",
+							workingArea.getPath(), config.getMinFreeSpacePercent(), freeSpacePercent);
+				}
+				return null;
 			}
 
 			// now look for titles scheduled for a new gather
