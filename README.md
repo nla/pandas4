@@ -109,4 +109,20 @@ Configure Keycloak in this way:
    - **Composite Roles:** on
    - **Realm Roles - Associated Roles:** the next lower access level (e.g. panadmin -> agadmin, agadmin -> stduser)
 
-To have pandas-ui to create and edit user using the Keycloak REST API configure it with SAVE_USERS_TO_KEYCLOAK=true
+### Keycloak user management
+
+If you want to be able to manage Keycloak users from within PANDAS, you'll need to grant it the manage-users permission.
+
+1. Open the pandas client in the Keycloak realm settings.
+2. Go to Settings tab.
+3. Ensure 'Service Accounts Enabled' is ON.
+4. Click Save.
+5. Go to the Service Account Roles tab.
+6. Under 'Client roles' select 'realm-management'.
+7. Under 'Available roles' select 'manage-users'.
+8. Click 'Add selected'.
+
+Then set OIDC_ADMIN_URL to the save value as OIDC_URL in the PANDAS UI environment:
+
+    OIDC_ADMIN_URL=http://keycloak.example/auth/realms/pandas
+    SAVE_USER_TO_KEYCLOAK=true
