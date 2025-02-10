@@ -21,7 +21,6 @@ import pandas.core.Privileges;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Client for the Keycloak Admin REST API.
@@ -58,26 +57,6 @@ public class KeycloakAdminClient {
         return authorizedClient.getAccessToken().getTokenValue();
     }
 
-    private record KeycloakUser(
-            String id,
-            String username,
-            String firstName,
-            String lastName,
-            String email,
-            Map<String, String> attributes
-            ) {
-        public static KeycloakUser from(User user) {
-            Map<String, String> attributes = Map.of("agencyId", Long.toString(user.getAgency().getId()),
-                    "accessLevel", user.getRole().getType());
-            return new KeycloakUser(null,
-                    user.getUserid(),
-                    user.getNameGiven(),
-                    user.getNameFamily(),
-                    user.getEmail(),
-                    attributes);
-        }
-    }
-
     private KeycloakUser getUserByUsername(String username) {
         // The username= query param seems to be broken in our current version of Keycloak (or with federated accounts)
         // so we have to do a general search= instead and then filter the results for username matches.
@@ -101,15 +80,16 @@ public class KeycloakAdminClient {
     private void resetPasswordForUserId(String userId, String password) {
         restClient.put().uri("/users/{user-id}/reset-password", userId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new Credential("password", password, false))
+                .body(new KeycloakCredential("password", password, false))
                 .retrieve()
                 .toBodilessEntity();
     }
 
-    private record Credential(String type, String value, Boolean temporary) {
+    public void saveUser(User user) {
+        saveUser(user, null);
     }
 
-    public void saveUser(User user) {
+    public void saveUser(User user, List<KeycloakCredential> credentials) {
         if (!saveUsersToKeycloak) {
             // legacy: reset password only until we unlink the pandas keycloak plugin
             if (user.getPassword() != null) {
@@ -118,7 +98,7 @@ public class KeycloakAdminClient {
             return;
         }
 
-        var updatedUser = KeycloakUser.from(user);
+        var updatedUser = KeycloakUser.from(user, credentials);
         var existingUser = getUserByUsername(user.getUserid());
         String userId;
         if (existingUser == null) {
