@@ -9,6 +9,7 @@ record KeycloakUser(
         String firstName,
         String lastName,
         String email,
+        Boolean enabled,
         Map<String, String> attributes,
         List<KeycloakCredential> credentials
 ) {
@@ -20,6 +21,7 @@ record KeycloakUser(
                 user.getNameGiven(),
                 user.getNameFamily(),
                 user.getEmail(),
+                user.isActive(),
                 attributes,
                 credentials);
     }
