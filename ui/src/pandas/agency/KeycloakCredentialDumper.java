@@ -1,6 +1,7 @@
 package pandas.agency;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,7 @@ public class KeycloakCredentialDumper {
                         count++;
                     }
                     var objectMapper = new ObjectMapper();
+                    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
                     objectMapper.writeValue(System.out, credentials);
                     log.info("Dumped {} credentials for {} users", count, credentials.size());
                 }
