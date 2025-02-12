@@ -210,7 +210,7 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-misc</artifactId>
-            <version>8.7.0</version>
+            <version>${lucene.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.search</groupId>
