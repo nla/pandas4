@@ -100,6 +100,10 @@
         }
     </style>
 
+    <aside class="alert-info" th:if="${worktrayOwnerName != null}">Showing titles owned by
+        <strong th:text="${worktrayOwnerName}">National Library of Australia</strong>
+    </aside>
+
     <form id=sf method=get th:action="@{''}">
         <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
     </form>

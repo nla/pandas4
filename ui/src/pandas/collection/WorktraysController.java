@@ -65,18 +65,23 @@ public class WorktraysController {
             session.setAttribute(LAST_ALIAS, alias);
         }
 
+        String worktrayOwnerName;
         User currentUser = userService.getCurrentUser();
         Long agencyId = null;
         Long ownerId = null;
         if (alias == null || alias.isBlank()) {
             alias = currentUser.getUserid();
             ownerId = currentUser.getId();
+            worktrayOwnerName = null;
         } else {
             Optional<Agency> agency = agencyRepository.findByAlias(alias);
             if (agency.isPresent()) {
                 agencyId = agency.get().getId();
+                worktrayOwnerName = agency.get().getName();
             } else {
-                ownerId = userRepository.findByUserid(alias).orElseThrow(NotFoundException::new).getId();
+                User user = userRepository.findByUserid(alias).orElseThrow(NotFoundException::new);
+                ownerId = user.getId();
+                worktrayOwnerName = currentUser.equals(user) ? null : user.getName();
             }
         }
         if (agencyId == null && ownerId == null) {
@@ -89,6 +94,7 @@ public class WorktraysController {
             model.addAttribute("worktrayAgencies", List.of(currentUser.getAgency()));
         }
 
+        model.addAttribute("worktrayOwnerName", worktrayOwnerName);
         model.addAttribute("alias", alias);
         model.addAttribute("agencyId", agencyId);
         model.addAttribute("currentUser", currentUser);
