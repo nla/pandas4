@@ -198,9 +198,14 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>info.freelibrary</groupId>
-            <artifactId>freelib-marc4j</artifactId>
-            <version>2.6.12</version>
+            <groupId>org.marc4j</groupId>
+            <artifactId>marc4j</artifactId>
+            <version>2.9.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.4.0-jre</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.search</groupId>

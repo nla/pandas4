@@ -1,6 +1,5 @@
 package pandas.discovery;
 
-import info.freelibrary.util.StringUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.search.mapper.orm.Search;
@@ -21,6 +20,7 @@ import pandas.search.SearchResults;
 import java.io.IOException;
 
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
+import static pandas.core.Utils.trimToNull;
 
 @Controller
 public class DiscoveryController {
@@ -38,7 +38,7 @@ public class DiscoveryController {
                         @RequestParam(defaultValue = "false") boolean showDotAu,
                         @RequestParam(defaultValue = "false") boolean showAlreadySelected,
                         Model model) {
-        String cleanQ = StringUtils.trimToNull(q);
+        String cleanQ = trimToNull(q);
         var search = Search.session(entityManager).search(Discovery.class)
                 .where((f, root) -> {
                     if (!showDotAu) root.add(f.match().field("dotAu").matching(false));

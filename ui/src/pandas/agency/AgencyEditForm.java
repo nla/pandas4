@@ -6,7 +6,7 @@ import pandas.core.Organisation;
 import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 
-import static info.freelibrary.util.StringUtils.trimToNull;
+import static pandas.core.Utils.trimToNull;
 
 public record AgencyEditForm(@NotBlank String name,
                              @NotBlank String alias,

@@ -1,5 +1,6 @@
 package pandas.core;
 
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,6 @@ import pandas.collection.*;
 import pandas.collection.Format;
 import pandas.gather.*;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Stream;
 

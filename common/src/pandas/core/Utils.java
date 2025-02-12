@@ -50,4 +50,9 @@ public class Utils {
         if (s == null) return null;
         return Long.parseLong(s);
     }
+
+    public static String trimToNull(String str) {
+        str = str.trim();
+        return str.isEmpty() ? null : str;
+    }
 }

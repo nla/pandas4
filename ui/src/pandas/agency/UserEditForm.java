@@ -3,7 +3,7 @@ package pandas.agency;
 import jakarta.validation.constraints.NotBlank;
 import pandas.core.Role;
 
-import static info.freelibrary.util.StringUtils.trimToNull;
+import static pandas.core.Utils.trimToNull;
 
 public record UserEditForm(
         @NotBlank String userid,

@@ -2,7 +2,7 @@ package pandas.discovery;
 
 import jakarta.validation.constraints.NotBlank;
 
-import static info.freelibrary.util.StringUtils.trimToNull;
+import static pandas.core.Utils.trimToNull;
 
 public class DiscoverySourceForm {
     @NotBlank
