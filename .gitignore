@@ -11,3 +11,4 @@ spring-shell.log
 /ui/node_modules/
 /ui/node/
 /webrecorder/venv/
+pom.xml.versionsBackup
