@@ -36,6 +36,15 @@
             font-weight: bold;
             font-size: 110%;
         }
+
+        #issueTable {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        #issueTable th {
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -94,7 +103,7 @@
                 <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
             </tr>
         </template>
-        <table id="issueTable" style="table-layout:fixed; width: 100%">
+        <table id="issueTable">
             <colgroup>
                 <col style="width: 24px">
                 <col style="width: 24px">
@@ -103,6 +112,13 @@
                 <col style="width: 170px">
                 <col style="width: 48px">
             </colgroup>
+            <tr>
+                <td></td>
+                <td></td>
+                <th>Name</th>
+                <th>URL</th>
+                <th>Instance</th>
+            </tr>
             <tr>
                 <td colspan=4>
                     <button type=button class="add-issue-button btn btn-secondary btn-compact"><i class="icon add"></i> Add issue</button>
