@@ -80,7 +80,7 @@
                 <td>
                     <select name="instance">
                         <option></option>
-                        <option th:each="instance: ${instances}" th:value="${instance.id}"
+                        <option th:each="instance, iterStat : ${instances}" th:value="${instance.id}"
                                 th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"
                                 th:selected="${iterStat.index == 0}" selected>15 Nov 2022 11:26am</option>
                     </select>
