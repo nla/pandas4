@@ -1,5 +1,13 @@
 # PANDAS Changelog
 
+## 4.2.1
+
+### Bug fixes
+- **Edit issues:** The issues table now has column titles and the 'Add issue' button pre-selects the most recent instance. 
+
+### Dependency updates
+- **spring-boot:** 3.4.2 → 3.4.3
+
 ## 4.2.0
 
 ### New features
