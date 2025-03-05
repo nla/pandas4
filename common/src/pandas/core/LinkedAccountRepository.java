@@ -11,4 +11,6 @@ public interface LinkedAccountRepository extends CrudRepository<LinkedAccount, L
     Optional<LinkedAccount> findByProviderAndExternalId(String provider, String externalId);
 
     boolean existsByUserAndProvider(User user, String provider);
+
+    LinkedAccount findByUserAndProvider(User user, String provider);
 }

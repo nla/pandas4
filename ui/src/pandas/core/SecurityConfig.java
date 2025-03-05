@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInit
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -180,8 +181,11 @@ public class SecurityConfig {
                 throw new OAuth2AuthenticationException("Account auto-linking only enabled for 'oidc' and 'shire' providers");
             }
             User user = userRepository.findByUserid(userid).orElse(null);
-            if (linkedAccountRepository.existsByUserAndProvider(user, provider)) {
-                throw new OAuth2AuthenticationException("Username already linked to a different account");
+            LinkedAccount existing = linkedAccountRepository.findByUserAndProvider(user, provider);
+            if (existing != null) {
+                throw new OAuth2AuthenticationException(new OAuth2Error("username_linked_to_different_account"),
+                        "Username '" + userid + "' already linked to a different account: " + existing.getProvider() + " "
+                        + existing.getExternalId());
             }
 
             if (user == null) {
