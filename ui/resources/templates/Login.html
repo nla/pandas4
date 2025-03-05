@@ -61,6 +61,10 @@
 
 <h1>Australian Web Archive</h1>
 
+<div class="alert alert-info" role="alert" th:if="${error != null}">
+    <strong>Error:</strong> <span th:text="${error}"></span>
+</div>
+
 <a th:each="registration: ${registrations}" class="login-button"
    th:href="@{/oauth2/authorization/{id}(id=${registration.registrationId})}" href="#"
    th:switch="${registration.registrationId}">
@@ -80,7 +84,7 @@
     </th:block>
 </a>
 
-<th:block th:each="registration: ${registrations}">
+<th:block th:each="registration: ${registrations}" th:if="${error == null}">
     <iframe th:if="${registration.providerDetails.configurationMetadata.containsKey('check_session_iframe')}"
             th:src="${registration.providerDetails.getAuthorizationUri() + '?response_type=none&prompt=none' +
                 '&client_id=' + registration.getClientId() + '&redirect_uri='} + ${@link.checkSessionReply()}"
