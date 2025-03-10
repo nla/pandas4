@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -140,7 +141,7 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 			// XXX: we ignore any titles that were last gathered within the current minute
 			//      this is to ensure that we don't generate an instance with the same datestring
 			//      as a previous one.
-			Instant startOfThisMinute = LocalDateTime.now().withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
+			Instant startOfThisMinute = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).atZone(ZoneId.systemDefault()).toInstant();
 			for (Title title : titleRepository.fetchNewGathers(gatherMethod, Instant.now(), startOfThisMinute)) {
 				String primarySeedHost = title.getPrimarySeedHost();
 				String ipAddress = null;
