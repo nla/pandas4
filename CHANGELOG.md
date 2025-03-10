@@ -3,12 +3,11 @@
 ## 4.2.2
 
 ### Bug fixes
-- **Login error messages:** If an OpenID Connect login attempt throws an exception the message is now shown to the
-  user and the backtrace logged. Previously the error was just hidden and the user hit a redirect loop.
-- **Duplicate date instances:** PANDAS prevents two instances of the same title to created within the same minute 
-  because the instance date (with minute accuracy) is used folder working area paths and persistent identifiers. This
-  wasn't working correctly as calculating the start of the current minute wasn't clearing the milliseconds part of the
-  time.
+- **Login error messages:**  If an OpenID Connect login attempt throws an exception the message is now shown to the user
+  and the backtrace logged. Previously the error was just hidden and the user hit a redirect loop.
+- **Duplicate date instances:** PANDAS prevents two instances of the same title to be created within the same minute
+  because the instance date (with minute accuracy) is used for the working folder area paths and persistent identifiers.
+  This wasn't working correctly as calculating the start of the current minute wasn't clearing the milliseconds part of the time.
 
 ## 4.2.1
 
