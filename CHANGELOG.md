@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.2.3
+
+### Bug fixes
+- **QA CDX indexes for Browsertrix crawls** are now generated with pywb instead browsertrix's --generatecdx option. It
+  seems the Browsertrix indexes are slightly different and pywb is sometimes unable to find pages in them.
+
 ## 4.2.2
 
 ### Bug fixes
