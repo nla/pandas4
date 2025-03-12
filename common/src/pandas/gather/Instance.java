@@ -210,6 +210,10 @@ public class Instance {
         return "nla.arc-" + getTitle().getPi() + "-" + getDateString();
     }
 
+    public String getBrowsertrixCollectionName() {
+        return getHumanId().replace('.', '-');
+    }
+
     public Long getInstanceStateId() {
         return this.instanceStateId;
     }
