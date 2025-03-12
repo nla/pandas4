@@ -59,7 +59,7 @@ public class BrowsertrixGatherer implements Backend {
             if (Files.isDirectory(pywbDir)) PathUtils.deleteDirectory(pywbDir);
             Files.deleteIfExists(pywbDir);
             Files.createDirectories(pywbDir.getParent());
-            Files.createSymbolicLink(pywbDir, workingDir.resolve("collections").resolve(collectionName(instance)).toAbsolutePath());
+            Files.createSymbolicLink(pywbDir, workingDir.resolve("collections").resolve(instance.getBrowsertrixCollectionName()).toAbsolutePath());
         }
 
         Path logFile = workingDir.resolve("stdio.log");
@@ -78,8 +78,7 @@ public class BrowsertrixGatherer implements Backend {
             command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
         }
         command.addAll(List.of(config.getImage(),
-                "crawl", "--id", instance.getHumanId(), "-c", collectionName(instance), "--combinewarc",
-                "--generatecdx",
+                "crawl", "--id", instance.getHumanId(), "-c", instance.getBrowsertrixCollectionName(), "--combinewarc",
                 "--logging", "none",
                 "--saveState", "always",
                 "--depth", String.valueOf(depth)));
@@ -176,19 +175,16 @@ public class BrowsertrixGatherer implements Backend {
         return builder.toString();
     }
 
-    private String collectionName(Instance instance) {
-        return instance.getHumanId().replace('.', '-');
-    }
-
     @Override
     public void postprocess(Instance instance) throws IOException, InterruptedException {
+        pywbService.reindex(instance);
         thumbnailGenerator.generateReplayThumbnail(instance, pywbService.replayUrlFor(instance));
     }
 
     @Override
     public void archive(Instance instance) throws IOException, InterruptedException {
         Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
-        Path collectionDir = workingDir.resolve("collections").resolve(collectionName(instance));
+        Path collectionDir = workingDir.resolve("collections").resolve(instance.getBrowsertrixCollectionName());
         var warcs = Files.list(collectionDir)
                 .filter(f -> f.getFileName().toString().endsWith(".warc.gz"))
                 .map(this::renameWarcIfNecessary)
