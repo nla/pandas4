@@ -89,6 +89,9 @@ public class PywbService implements DisposableBean {
 
     public void reindex(Instance instance) throws IOException {
         try {
+            // Browsertrix doesn't pre-create the indexes directory so do it now
+            Files.createDirectories(directoryFor(instance).resolve("indexes"));
+
             new ProcessBuilder("wb-manager", "reindex", collectionFor(instance))
                     .directory(config.getPywbDataDir().toFile())
                     .inheritIO()
