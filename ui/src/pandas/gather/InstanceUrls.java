@@ -39,6 +39,14 @@ public class InstanceUrls {
                 instance.getTepUrlAbsolute();
     }
 
+    public String qaExperimental(Instance instance) {
+        if (instance.isFlatFiles()) {
+            return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9]+/[0-9-]+/", "/");
+        }
+        return config.getQaReplayUrl() + "/wabac/" + instance.getPi() + "-" + instance.getDateString() + "/2/mp_/" +
+               instance.getTepUrlAbsolute();
+    }
+
     public String qa(Instance instance, String relative) {
         if (relative == null) return qa(instance);
         String url = URI.create(instance.getTepUrlAbsolute()).resolve(relative).toASCIIString();

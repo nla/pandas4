@@ -111,6 +111,8 @@
         <nav class="btn-group">
             <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance)}" target=replay-frame
                title="Homepage (H)" data-keybind="h"><i class="icon home"></i></a>
+            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qaExperimental(instance)}" target=replay-frame
+               title="Experimental Replay (X) &mdash; replays the website using pywb's new client-side replay mode" data-keybind="h"><i class="icon experiment"></i></a>
             <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.crawlLog(instance)}" target=replay-frame
                title="Crawl Log (L)" data-keybind="l"><i class="icon log"></i></a>
             <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.reports(instance)}" target=replay-frame
