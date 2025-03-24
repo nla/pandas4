@@ -14,6 +14,7 @@ public class Config {
     private String autologin;
     private String workingAreaUrl = "https://pandas.nla.gov.au/view/";
     private String qaReplayUrl = "https://pwb.archive.org.au/";
+    private String experimentalQaReplayUrl;
     private Path dataPath;
     private Path working;
     private int bulkChangeLimit = 1000;
@@ -107,5 +108,13 @@ public class Config {
 
     public void setSocialUrl(String socialUrl) {
         this.socialUrl = socialUrl;
+    }
+
+    public String getExperimentalQaReplayUrl() {
+        return experimentalQaReplayUrl;
+    }
+
+    public void setExperimentalQaReplayUrl(String experimentalQaReplayUrl) {
+        this.experimentalQaReplayUrl = experimentalQaReplayUrl;
     }
 }

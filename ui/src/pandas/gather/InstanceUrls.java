@@ -43,7 +43,7 @@ public class InstanceUrls {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9]+/[0-9-]+/", "/");
         }
-        return config.getQaReplayUrl() + "wabac/" + instance.getPi() + "-" + instance.getDateString() + "/2/" +
+        return config.getExperimentalQaReplayUrl() + "wabac/" + instance.getPi() + "-" + instance.getDateString() + "/2/" +
                instance.getTepUrlAbsolute();
     }
 
