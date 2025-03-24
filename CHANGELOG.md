@@ -1,5 +1,22 @@
 # PANDAS Changelog
 
+## 4.3.0
+
+### New features
+
+- **Experimental QA replay:** Added a preview of the pywb client-side replay mode to the QA screen.
+
+### Dependency updates
+
+- **agrona:** 2.0.1 → 2.1.0
+- **browsertrix-crawler:** 1.4.1 → 1.5.8
+- **commons-csv:** 1.13.0 → 1.14.0
+- **guava:** 33.4.0-jre → 33.4.5-jre
+- **hibernate-search:** 7.2.2 → 7.2.3
+- **jsoup:** 1.18.3 → 1.19.1
+- **okhttp:** removed
+- **spring-boot:** 3.4.3 → 3.4.4
+
 ## 4.2.3
 
 ### Bug fixes
