@@ -1,7 +1,5 @@
 package pandas.gather;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +12,10 @@ import org.springframework.web.util.UriUtils;
 import pandas.browser.Browser;
 import pandas.browser.BrowserPool;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -27,13 +29,14 @@ import static java.time.ZoneOffset.UTC;
 public class InstanceThumbnailProcessor {
     public static final DateTimeFormatter ARC_DATE = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.US).withZone(UTC);
     private static final Logger log = LoggerFactory.getLogger(InstanceThumbnailProcessor.class);
-    private static final OkHttpClient httpClient = new OkHttpClient.Builder().followRedirects(true).build();
+    private final HttpClient httpClient;
     private final InstanceRepository instanceRepository;
     private final BrowserPool browserPool;
     private final TransactionTemplate transactionTemplate;
     private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public InstanceThumbnailProcessor(InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository, TransactionTemplate transactionTemplate) {
+    public InstanceThumbnailProcessor(HttpClient httpClient, InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository, TransactionTemplate transactionTemplate) {
+        this.httpClient = httpClient;
         this.instanceRepository = instanceRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
         this.transactionTemplate = transactionTemplate;
@@ -109,12 +112,11 @@ public class InstanceThumbnailProcessor {
         int cropHeight = 600;
         double scale = ((double) width) / cropWidth;
 
-        var request = new Request.Builder().head().url(sourceUrl).build();
-        try (var response = httpClient.newCall(request).execute()) {
-            thumbnail.setStatus(response.code());
-            if ("application/pdf".equalsIgnoreCase(response.header("Content-Type"))) {
-                sourceUrl = "https://web.archive.org.au/webjars/pdf-js/web/viewer.html?file=" + UriUtils.encodeQueryParam(sourceUrl, StandardCharsets.UTF_8);
-            }
+        var request = HttpRequest.newBuilder().method("HEAD", HttpRequest.BodyPublishers.noBody()).uri(URI.create(sourceUrl)).build();
+        var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+        thumbnail.setStatus(response.statusCode());
+        if ("application/pdf".equalsIgnoreCase(response.headers().firstValue("Content-Type").orElse(null))) {
+            sourceUrl = "https://web.archive.org.au/webjars/pdf-js/web/viewer.html?file=" + UriUtils.encodeQueryParam(sourceUrl, StandardCharsets.UTF_8);
         }
 
         var browser = browserPool.borrowObject();

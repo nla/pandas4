@@ -1,6 +1,5 @@
 package pandas;
 
-import okhttp3.OkHttpClient;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +12,8 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import pandas.core.PandasPermissionEvaluator;
+
+import java.net.http.HttpClient;
 
 @SpringBootApplication
 @EnableScheduling
@@ -33,9 +34,11 @@ public class Pandas {
         return Sanitizers.FORMATTING.and(Sanitizers.BLOCKS).and(Sanitizers.LINKS).and(Sanitizers.TABLES);
     }
 
-    @Bean(name = "httpClient")
-    public OkHttpClient httpClient() {
-        return new OkHttpClient.Builder().build();
+    @Bean
+    public HttpClient httpClient() {
+        return HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
     }
 
     @Bean

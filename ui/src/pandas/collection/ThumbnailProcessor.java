@@ -1,7 +1,5 @@
 package pandas.collection;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +12,10 @@ import pandas.browser.Browser;
 import pandas.browser.BrowserPool;
 import pandas.util.DateFormats;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
@@ -22,12 +24,13 @@ import java.util.concurrent.*;
 @Service
 public class ThumbnailProcessor {
     private static final Logger log = LoggerFactory.getLogger(ThumbnailProcessor.class);
-    private static final OkHttpClient httpClient = new OkHttpClient.Builder().followRedirects(true).build();
+    private final HttpClient httpClient;
     private final TitleRepository titleRepository;
     private final ThumbnailRepository thumbnailRepository;
     private final BrowserPool browserPool;
 
-    public ThumbnailProcessor(TitleRepository titleRepository, ThumbnailRepository thumbnailRepository) {
+    public ThumbnailProcessor(HttpClient httpClient, TitleRepository titleRepository, ThumbnailRepository thumbnailRepository) {
+        this.httpClient = httpClient;
         this.titleRepository = titleRepository;
         this.thumbnailRepository = thumbnailRepository;
         this.browserPool = new BrowserPool();
@@ -104,14 +107,14 @@ public class ThumbnailProcessor {
         double scale = ((double) thumbnail.getWidth()) / thumbnail.getCropWidth();
         thumbnail.setHeight((int)(thumbnail.getCropHeight() * scale));
 
-        var request = new Request.Builder().head().url(sourceUrl).build();
-        try (var response = httpClient.newCall(request).execute()) {
-            thumbnail.setStatus(response.code());
-            thumbnail.setSourceType(response.header("Content-Type"));
-            if ("application/pdf".equalsIgnoreCase(thumbnail.getSourceType())) {
-                sourceUrl = "https://web.archive.org.au/webjars/pdf-js/web/viewer.html?file=" + UriUtils.encodeQueryParam(sourceUrl, StandardCharsets.UTF_8);
-            }
+        var request = HttpRequest.newBuilder().method("HEAD", HttpRequest.BodyPublishers.noBody()).uri(URI.create(sourceUrl)).build();
+        var response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+        thumbnail.setStatus(response.statusCode());
+        thumbnail.setSourceType(response.headers().firstValue("Content-Type").orElse(null));
+        if ("application/pdf".equalsIgnoreCase(thumbnail.getSourceType())) {
+            sourceUrl = "https://web.archive.org.au/webjars/pdf-js/web/viewer.html?file=" + UriUtils.encodeQueryParam(sourceUrl, StandardCharsets.UTF_8);
         }
+
 
         var browser = browserPool.borrowObject();
         try (Browser.Tab tab = browser.createTab(thumbnail.getCropWidth(), thumbnail.getCropHeight())) {
