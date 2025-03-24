@@ -44,7 +44,7 @@ PANDAS runs the browsertrix-crawler container using podman in rootless mode. Thi
 
 Architecture
 ------------
-~~~~There are separate backends for each of the [HTTrack](src/pandas/gatherer/httrack),
+There are separate backends for each of the [HTTrack](src/pandas/gatherer/httrack),
 [Heritrix](src/pandas/gatherer/heritrix) and [upload](src/pandas/gatherer/httrack/UploadGatherer.java) crawl methods
 plus a specialised ["scripter"](src/pandas/gatherer/scripter) module for other tasks like find and replace. Each
 backend has an associated thread pool. Worker threads poll the database for new jobs to do. The 
@@ -61,4 +61,15 @@ History
 -------
 The PANDAS 4 gatherer is based on the PANDAS 3 codebase which used a different data access layer (EnterpriseObjects in
 2007, later ported to JDBI in 2018). The P3 gatherer called a suite of Perl scripts for any operations involving
-manipulating files, these were translated to Java as part of importing the project into the PANDAS 4 repository in 2021. 
+manipulating files, these were translated to Java as part of importing the project into the PANDAS 4 repository in 2021.
+
+Troubleshooting
+---------------
+
+### Browsertrix fails with "Error: cannot re-exec process to join the existing user namespace"
+
+Try this:
+
+```
+rm /tmp/podman-run-${UID}/libpod/tmp/pause.pid
+```
