@@ -19,7 +19,7 @@ public record Account(
         @NotNull String username,
         @NotNull String acct,
         @NotNull String url,
-        @NotNull String uri,
+        String uri,
         @NotNull String displayName,
         @NotNull String note,
         @NotNull String avatar,
