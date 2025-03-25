@@ -1,5 +1,13 @@
 # PANDAS Changelog
 
+## 4.4.0
+
+## New features
+
+- **Agency transfer contacts:** You can now designate one user per agency as the transfer contact on the Edit Agency 
+  screen. When initiating a title transfer, selecting an agency will automatically pre‑select that agency’s transfer
+  contact.
+
 ## 4.3.0
 
 ### New features
