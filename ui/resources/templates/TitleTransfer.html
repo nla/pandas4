@@ -48,7 +48,8 @@
             </label>
             <label>New owner
                 <select id=newOwner name=newOwner>
-                    <option th:each="user : ${agencyUsers}" th:text="${user.name}" th:value="${user.id}"
+                    <option th:each="user : ${agencyUsers}" th:text="${user.nameAndRole +
+                    (user == newAgency?.transferContact ? ' [agency transfer contact]' : '')}" th:value="${user.id}"
                             th:selected="${newOwner != null && user.id == newOwner.id}"></option>
                 </select>
             </label>

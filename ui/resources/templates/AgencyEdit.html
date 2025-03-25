@@ -57,6 +57,12 @@
             <legend>Communication</legend>
             <label>URL <input th:field="*{url}"> </label>
             <label>Public contact email <input th:field="*{externalEmail}"></label>
+            <label>Designated contact for transfer requests
+                <select th:field="*{transferContact}">
+                    <option value=""></option>
+                    <option th:each="user : ${activeUsers}" th:value="${user.id}" th:text="${user.nameAndRole}"></option>
+                </select>
+            </label>
         </fieldset>
 
         <fieldset>

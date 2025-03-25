@@ -486,7 +486,7 @@ public class TitleController {
             newOwner = userRepository.findByUserid(principal.getName()).orElse(title.getOwner());
             newAgency = newOwner.getAgency();
         } else {
-            newOwner = null;
+            newOwner = newAgency.getTransferContact();
         }
         model.addAttribute("title", title);
         model.addAttribute("allAgencies", agencyRepository.findAllOrdered());

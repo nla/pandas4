@@ -2,11 +2,11 @@ package pandas.agency;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.*;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import pandas.core.Organisation;
 
-import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -64,6 +64,10 @@ public class Agency {
     @Column(name = "LOGO")
     @Basic(fetch = FetchType.LAZY)
     private byte[] logo;
+
+    @ManyToOne
+    @JoinColumn(name = "TRANSFER_CONTACT_ID")
+    private User transferContact;
 
     public String getName() {
         return getOrganisation().getName();
@@ -153,5 +157,13 @@ public class Agency {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public User getTransferContact() {
+        return transferContact;
+    }
+
+    public void setTransferContact(User transferContact) {
+        this.transferContact = transferContact;
     }
 }

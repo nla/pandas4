@@ -1,5 +1,6 @@
 package pandas.agency;
 
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import pandas.collection.TitleRepository;
 
-import jakarta.validation.Valid;
 import java.io.IOException;
 
 @Controller
@@ -67,6 +67,7 @@ public class AgencyController {
     public String edit(@PathVariable("agencyId") Agency agency, Model model) {
         model.addAttribute("agency", agency);
         model.addAttribute("form", AgencyEditForm.of(agency));
+        model.addAttribute("activeUsers", userRepository.findActiveUsersByAgency(agency));
         return "AgencyEdit";
     }
 

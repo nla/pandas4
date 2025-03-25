@@ -1,9 +1,9 @@
 package pandas.agency;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
 import pandas.core.Organisation;
 
-import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 
 import static pandas.core.Utils.trimToNull;
@@ -15,7 +15,8 @@ public record AgencyEditForm(@NotBlank String name,
                              String localReferencePrefix,
                              String localDatabasePrefix,
                              MultipartFile logo,
-                             boolean removeLogo) {
+                             boolean removeLogo,
+                             User transferContact) {
 
     public static AgencyEditForm of(Agency agency) {
         Organisation organisation = agency.getOrganisation();
@@ -25,7 +26,7 @@ public record AgencyEditForm(@NotBlank String name,
                 agency.getExternalEmail(),
                 agency.getLocalReferencePrefix(),
                 agency.getLocalDatabasePrefix(),
-                null, false);
+                null, false, agency.getTransferContact());
     }
 
     public void applyTo(Agency agency) throws IOException {
@@ -41,5 +42,6 @@ public record AgencyEditForm(@NotBlank String name,
         } else if (removeLogo) {
             agency.setLogo(null);
         }
+        agency.setTransferContact(transferContact);
     }
 }

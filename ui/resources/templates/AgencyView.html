@@ -33,6 +33,7 @@
             <tr><th th:if="${agency.externalEmail != null}">Email:</th><td th:text="${agency.externalEmail}"></td></tr>
             <tr><th>Address:</th><td th:text="${agency.organisation.address}"></td></tr>
             <tr><th>Titles:</th><td><a th:href="@{/titles(agency=${agency.id},sort='Newest',page=1)}" th:text="${#numbers.formatInteger(titleCount, 0, 'COMMA')}"></a></td></tr>
+            <tr th:if="${agency.transferContact != null}"><th>Transfer contact:</th><td><a th:href="${@link.to(agency.transferContact)}" th:text="${agency.transferContact.name}"></a></td></tr>
         </table>
     </div>
 
