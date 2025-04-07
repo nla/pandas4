@@ -1,6 +1,8 @@
 package pandas.gather;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pandas.core.Config;
 
@@ -8,6 +10,7 @@ import java.net.URI;
 
 @Service
 public class InstanceUrls {
+    private static final Logger log = LoggerFactory.getLogger(InstanceUrls.class);
     private final Config config;
 
     public InstanceUrls(Config config) {
@@ -25,10 +28,13 @@ public class InstanceUrls {
     }
 
     public String crawlLog(Instance instance) {
-        if (instance.isFlatFiles()) {
+        if (instance.isBrowsertrixMethod()) {
+            return workingAreaBase(instance) + "/stdio.log";
+        } else if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + "/hts-cache/new.txt";
+        } else {
+            return jobDir(instance) + "/logs/crawl.log";
         }
-        return jobDir(instance) + "/logs/crawl.log";
     }
 
     public String qa(Instance instance) {
