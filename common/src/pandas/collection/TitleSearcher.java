@@ -27,6 +27,7 @@ import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.search.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -120,8 +121,8 @@ public class TitleSearcher {
             @IdProjection Long id,
             Long pi,
             String name,
-            String titleUrl
-
+            String titleUrl,
+            Instant lastArchivedDate
     ) {
     }
 
