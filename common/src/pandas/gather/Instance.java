@@ -522,6 +522,10 @@ public class Instance {
         return GatherMethod.HERITRIX.equals(getGatherMethodName());
     }
 
+    public boolean isBrowsertrixMethod() {
+        return GatherMethod.BROWSERTRIX.equals(getGatherMethodName());
+    }
+
     public void setSeeds(List<InstanceSeed> seeds) {
         this.seeds.clear();
         this.seeds.addAll(seeds);
