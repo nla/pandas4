@@ -27,7 +27,7 @@ public interface PublisherRepository extends CrudRepository<Publisher, Long>, Pa
     List<PublisherTitleCount> findArchivedPublisherTitleCountsByCollection(@Param("collection") Collection collection);
 
     @Query(value = """
-            WITH RECURSIVE descendents(COL_ID, ROOT_COL_ID) AS (
+            with recursive descendents(COL_ID, ROOT_COL_ID) AS (
                 SELECT COL_ID, COL_ID
                 FROM col
                 WHERE COL_ID = :collectionId
