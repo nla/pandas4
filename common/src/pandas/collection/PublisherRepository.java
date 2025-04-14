@@ -53,7 +53,7 @@ public interface PublisherRepository extends CrudRepository<Publisher, Long>, Pa
             JOIN publisher p ON p.PUBLISHER_ID = t.PUBLISHER_ID
             JOIN organisation o ON o.ORGANISATION_ID = p.ORGANISATION_ID
             JOIN publisher_type pt ON pt.PUBLISHER_TYPE_ID = p.PUBLISHER_TYPE_ID
-            GROUP BY publisherId, publisherName, publisherType
+            GROUP BY t.PUBLISHER_ID, o.NAME, pt.PUBLISHER_TYPE
             ORDER BY titleCount DESC
             """, nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
     List<PublisherTitleCount> findArchivedPublisherTitleCountsByCollectionRecursive(@Param("collectionId") long collectionId);
