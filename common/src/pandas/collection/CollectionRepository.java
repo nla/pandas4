@@ -186,10 +186,12 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
     interface CollectionStats {
         long getTitleCount();
         long getInstanceCount();
+        long getPublisherCount();
         long getGatheredBytes();
         long getGatheredFiles();
         Instant getStartDate();
         Instant getEndDate();
+        long getPublishers();
 
         default String line1() {
             return String.format("%,d titles, %,d instances", getTitleCount(), getInstanceCount());
@@ -218,13 +220,15 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
                        and (d.END_DATE is null or i.INSTANCE_DATE <= d.END_DATE))
                 select coalesce(count(distinct i.TITLE_ID), 0) as titleCount,
                        coalesce(count(*), 0) as instanceCount,
+                       coalesce(count(distinct t.PUBLISHER_ID), 0) as publisherCount,         
                        coalesce(sum(ig.GATHER_SIZE), 0) as gatheredBytes,
                        coalesce(sum(ig.GATHER_FILES), 0) as gatheredFiles,
                        min(i.INSTANCE_DATE) as startDate,
                        max(i.INSTANCE_DATE) as endDate
                 from instanceIds i2
                 join instance i on i.INSTANCE_ID = i2.INSTANCE_ID
-                join ins_gather ig on i.INSTANCE_ID = ig.INSTANCE_ID""",
+                join ins_gather ig on i.INSTANCE_ID = ig.INSTANCE_ID
+                left join title t on t.TITLE_ID = i.TITLE_ID""",
             nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
     CollectionStats calculateCollectionStats(long collectionId);
 }

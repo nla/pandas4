@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|Publishers - ${collection.fullName} - PANDAS|">Television shows (Collection) - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='Collections')}"></nav>
+<main>
+    <header>
+    </header>
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/collections}"
+                                                                   href="CollectionSearch.html">Collections</a></li>
+            <li th:each="breadcrumb: ${collection.collectionBreadcrumbs}">
+                <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}" href="CollectionView.html">Australian
+                    Broadcasting Corporation (ABC)</a>
+                <strong th:if="${breadcrumb.closed}">(Closed)</strong>
+            </li>
+            <li><a th:href="${@link.to(collection)}" th:text="${collection.name}">Television shows</a>
+                <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
+                <strong th:if="${collection.closed}">(Closed)</strong>
+            </li>
+            <li class="active">Publishers (archived titles only)</li>
+        </ol>
+    </nav>
+
+    <table>
+        <tr>
+            <th style="text-align: left">Publisher</th>
+            <th style="text-align: left">Type</th>
+            <th style="text-align: right">Titles</th>
+        </tr>
+        <tr th:each="row : ${publisherTitleCounts}">
+            <td><a th:href="${@link.toPublisher(row.publisherId)}" th:text="${row.publisherName}"></a></td>
+            <td th:text="${row.publisherType ?: ''}"></td>
+            <td style="text-align: right"><a th:href="@{/titles(collection=${collection.id},publisher=${row.publisherId})}"
+                                             th:text="${row.titleCount}"></a></td>
+        </tr>
+    </table>
+</main>

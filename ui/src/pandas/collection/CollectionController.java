@@ -26,7 +26,6 @@ import java.util.Locale;
 import static org.hibernate.search.engine.search.common.BooleanOperator.AND;
 import static pandas.core.Utils.sortBy;
 import static pandas.search.SearchUtils.matchAny;
-import static pandas.search.SearchUtils.mustMatchAny;
 
 @Controller
 public class CollectionController {
@@ -35,13 +34,15 @@ public class CollectionController {
     private final SubjectRepository subjectRepository;
     private final GatherService gatherService;
     private final GatherScheduleRepository gatherScheduleRepository;
+    private final PublisherRepository publisherRepository;
 
-    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository, GatherService gatherService, GatherScheduleRepository gatherScheduleRepository) {
+    public CollectionController(CollectionRepository collectionRepository, EntityManager entityManager, SubjectRepository subjectRepository, GatherService gatherService, GatherScheduleRepository gatherScheduleRepository, PublisherRepository publisherRepository) {
         this.collectionRepository = collectionRepository;
         this.entityManager = entityManager;
         this.subjectRepository = subjectRepository;
         this.gatherService = gatherService;
         this.gatherScheduleRepository = gatherScheduleRepository;
+        this.publisherRepository = publisherRepository;
     }
 
     @GetMapping("/collections")
@@ -120,6 +121,13 @@ public class CollectionController {
     public String delete(@PathVariable("id") Collection collection) {
         collectionRepository.delete(collection);
         return "redirect:/collections";
+    }
+
+    @GetMapping("/collections/{id}/publishers")
+    public String publishers(@PathVariable("id") Collection collection, Model model) {
+        model.addAttribute("collection", collection);
+        model.addAttribute("publisherTitleCounts", publisherRepository.findArchivedPublisherTitleCountsByCollectionRecursive(collection.getId()));
+        return "CollectionPublishers";
     }
 
     @PostMapping("/collections/new")

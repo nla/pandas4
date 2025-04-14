@@ -63,6 +63,7 @@
             <td>
                 <span th:text="${stats.line1()}"></span><br>
                 <span th:text="${stats.line2()}"></span><br>
+                <a th:href="${@link.publishers(collection)}" th:text="${stats.publisherCount + ' publishers'}"></a><br>
                 <span th:if="${stats.startDate != null && stats.endDate != null}">
                     <time th:text="${@dateFormats.shortDate.format(stats.startDate)}"></time> to
                     <time th:text="${@dateFormats.shortDate.format(stats.endDate)}"></time>

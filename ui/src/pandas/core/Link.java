@@ -115,6 +115,10 @@ public class Link {
         return to(agency) + "/logo";
     }
 
+    public String publishers(Collection collection) {
+        return to(collection) + "/publishers";
+    }
+
     public String thumbnail(Instance instance) {
         return to(instance) + "/thumbnail";
     }
@@ -165,6 +169,10 @@ public class Link {
 
     public String to(Publisher publisher) {
         return link("/publishers/" + publisher.getId());
+    }
+
+    public String toPublisher(long publisherId) {
+        return link("/publishers/" + publisherId);
     }
 
     public String to(Subject subject) {
