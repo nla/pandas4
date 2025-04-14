@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toMap;
-
 @Repository
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsIsEmpty();
@@ -190,6 +188,8 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
         long getInstanceCount();
         long getGatheredBytes();
         long getGatheredFiles();
+        Instant getStartDate();
+        Instant getEndDate();
 
         default String line1() {
             return String.format("%,d titles, %,d instances", getTitleCount(), getInstanceCount());
@@ -219,7 +219,9 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
                 select coalesce(count(distinct i.TITLE_ID), 0) as titleCount,
                        coalesce(count(*), 0) as instanceCount,
                        coalesce(sum(ig.GATHER_SIZE), 0) as gatheredBytes,
-                       coalesce(sum(ig.GATHER_FILES), 0) as gatheredFiles
+                       coalesce(sum(ig.GATHER_FILES), 0) as gatheredFiles,
+                       min(i.INSTANCE_DATE) as startDate,
+                       max(i.INSTANCE_DATE) as endDate
                 from instanceIds i2
                 join instance i on i.INSTANCE_ID = i2.INSTANCE_ID
                 join ins_gather ig on i.INSTANCE_ID = ig.INSTANCE_ID""",
