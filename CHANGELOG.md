@@ -1,8 +1,16 @@
 # PANDAS Changelog
 
+## 4.5.0
+
+### New features
+
+- **Collection stats:** The date range and number of publishers of archived titles in the collection is now shown.   
+  Clicking the publishers count will show the list of publishers ordered by number of titles. This is intended to aid 
+  cataloguing of collections.
+
 ## 4.4.0
 
-## New features
+### New features
 
 - **Agency transfer contacts:** You can now designate one user per agency as the transfer contact on the Edit Agency 
   screen. When initiating a title transfer, selecting an agency will automatically pre‑select that agency’s transfer
