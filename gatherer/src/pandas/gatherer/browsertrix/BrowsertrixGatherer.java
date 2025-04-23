@@ -10,6 +10,7 @@ import pandas.gatherer.repository.Repository;
 import pandas.util.Strings;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -17,8 +18,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -35,6 +38,28 @@ public class BrowsertrixGatherer implements Backend {
     private volatile boolean shutdown;
     private final static int EXIT_OK = 0;
     private final static int EXIT_INTERRUPTED = 11;
+    private final static List<String> BEHAVIOR_SCRIPTS = List.of("bsky.js");
+    private final static Path BEHAVIORS_DIR = unpackBehaviors();
+
+    private static Path unpackBehaviors() {
+        try {
+            Path tempDir = Files.createTempDirectory("pandas-browsertrix-behaviors");
+            tempDir.toFile().deleteOnExit();
+
+            for (String script : BEHAVIOR_SCRIPTS) {
+                Path path = tempDir.resolve(script);
+                try (InputStream stream = Objects.requireNonNull(BrowsertrixGatherer.class.getResourceAsStream(script),
+                        "browsertrix behavior " + script + " not found")) {
+                    Files.copy(stream, path);
+                }
+                path.toFile().deleteOnExit();
+            }
+
+            return tempDir;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to unpack browsertrix behaviors", e);
+        }
+    }
 
     public BrowsertrixGatherer(BrowsertrixConfig config, InstanceService instanceService, PywbService pywbService, WorkingArea workingArea, Repository repository, ThumbnailGenerator thumbnailGenerator) {
         this.config = config;
@@ -72,8 +97,9 @@ public class BrowsertrixGatherer implements Backend {
             depth = scope.getDepth();
         }
 
-        var command = new ArrayList<String>();
-        command.addAll(List.of("podman", "run", "--rm", "-v", workingDir + ":/crawls/"));
+        var command = new ArrayList<>(List.of("podman", "run", "--rm",
+                "-v", workingDir + ":/crawls/",
+                "-v", BEHAVIORS_DIR + ":/behaviors/"));
         if (config.getPodmanOptions() != null) {
             command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
         }
@@ -81,6 +107,7 @@ public class BrowsertrixGatherer implements Backend {
                 "crawl", "--id", instance.getHumanId(), "-c", instance.getBrowsertrixCollectionName(), "--combinewarc",
                 "--logging", "none",
                 "--saveState", "always",
+                "--customBehaviors", "/behaviors/",
                 "--depth", String.valueOf(depth)));
 
         if (scope != null && scope.isIncludeSubdomains()) {
@@ -176,7 +203,7 @@ public class BrowsertrixGatherer implements Backend {
     }
 
     @Override
-    public void postprocess(Instance instance) throws IOException, InterruptedException {
+    public void postprocess(Instance instance) throws IOException {
         pywbService.reindex(instance);
         thumbnailGenerator.generateReplayThumbnail(instance, pywbService.replayUrlFor(instance));
     }
@@ -185,12 +212,14 @@ public class BrowsertrixGatherer implements Backend {
     public void archive(Instance instance) throws IOException, InterruptedException {
         Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
         Path collectionDir = workingDir.resolve("collections").resolve(instance.getBrowsertrixCollectionName());
-        var warcs = Files.list(collectionDir)
-                .filter(f -> f.getFileName().toString().endsWith(".warc.gz"))
-                .map(this::renameWarcIfNecessary)
-                .toList();
-        var artifacts = List.of(collectionDir.resolve("pages").resolve("pages.jsonl"),
-                        workingDir.resolve("stdio.log")).stream().filter(Files::exists).toList();
+        List<Path> warcs;
+        try (Stream<Path> stream = Files.list(collectionDir)) {
+            warcs = stream.filter(f -> f.getFileName().toString().endsWith(".warc.gz"))
+                    .map(this::renameWarcIfNecessary)
+                    .toList();
+        }
+        var artifacts = Stream.of(collectionDir.resolve("pages").resolve("pages.jsonl"),
+                        workingDir.resolve("stdio.log")).filter(Files::exists).toList();
         repository.storeArtifactPaths(instance, artifacts);
         repository.storeWarcs(instance, warcs);
         delete(instance);
