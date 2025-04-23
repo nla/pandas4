@@ -101,7 +101,7 @@ public class BrowsertrixGatherer implements Backend {
 
         var command = new ArrayList<>(List.of("podman", "run", "--rm",
                 "-v", workingDir + ":/crawls/",
-                "-v", BEHAVIORS_DIR + ":/behaviors/"));
+                "-v", BEHAVIORS_DIR + ":/behaviors/:z"));
         if (config.getPodmanOptions() != null) {
             command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
         }
