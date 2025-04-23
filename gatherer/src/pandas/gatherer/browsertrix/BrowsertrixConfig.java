@@ -1,4 +1,4 @@
-package pandas.gatherer.heritrix;
+package pandas.gatherer.browsertrix;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

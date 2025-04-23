@@ -1,4 +1,4 @@
-package pandas.gatherer.heritrix;
+package pandas.gatherer.browsertrix;
 
 import org.apache.commons.io.file.PathUtils;
 import org.slf4j.Logger;

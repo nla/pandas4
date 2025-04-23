@@ -1,4 +1,4 @@
-package pandas.gatherer.heritrix;
+package pandas.gatherer.browsertrix;
 
 import org.junit.jupiter.api.Test;
 
