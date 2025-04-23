@@ -15,6 +15,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,8 @@ public class BrowsertrixGatherer implements Backend {
 
     private static Path unpackBehaviors() {
         try {
-            Path tempDir = Files.createTempDirectory("pandas-browsertrix-behaviors");
+            Path tempDir = Files.createTempDirectory("pandas-browsertrix-behaviors",
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
             tempDir.toFile().deleteOnExit();
 
             for (String script : BEHAVIOR_SCRIPTS) {
