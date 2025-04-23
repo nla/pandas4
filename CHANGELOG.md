@@ -1,5 +1,12 @@
 # PANDAS Changelog
 
+## 4.5.1
+
+### Bug fixes
+
+- **Custom behavior support for Bluesky crawling:** Added a behavior script to ensure all of Bluesky's language-specific
+  JavaScript chunks are archived, fixing replay when the browser has a different primary language to the crawler.
+
 ## 4.5.0
 
 ### New features
