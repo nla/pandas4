@@ -184,7 +184,7 @@ public class Link {
     }
 
     public String toBambooCrawl(long crawlId) {
-        return bambooBaseUrl + "/crawl/" + crawlId;
+        return bambooBaseUrl + "/crawls/" + crawlId;
     }
 
     public String toBambooWarc(String filename) {

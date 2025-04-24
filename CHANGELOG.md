@@ -1,5 +1,12 @@
 # PANDAS Changelog
 
+## 4.5.2
+
+### Bug fixes
+
+- **Pages tool sort order:** Snapshots now sorted by date descending rather than URL.
+- **Pages tool crawl links:** Fixed typo in link to Bamboo crawls.
+
 ## 4.5.1
 
 ### Bug fixes
