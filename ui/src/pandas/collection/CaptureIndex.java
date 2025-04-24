@@ -23,7 +23,7 @@ public class CaptureIndex {
     private String baseUrl;
 
     public List<Capture> query(String q, boolean excludeErrors) {
-        if (baseUrl == null) throw new IllegalStateException("CDX_URL not configured");
+        if (baseUrl == null || baseUrl.isEmpty()) throw new IllegalStateException("CDX_URL not configured");
 
         List<String> urls = new ArrayList<>();
         Set<String> digests = new HashSet<>();
