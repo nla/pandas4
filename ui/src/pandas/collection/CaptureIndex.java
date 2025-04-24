@@ -57,8 +57,7 @@ public class CaptureIndex {
 
     public List<Capture> queryDateDesc(String q) {
         var captures = query(q, false);
-        captures.sort(Comparator.comparing(Capture::getUrl)
-                .thenComparing(Comparator.comparing(Capture::getDate).reversed()));
+        captures.sort(Comparator.comparing(Capture::getDate).reversed());
         return captures;
     }
 
