@@ -1,5 +1,15 @@
 # PANDAS Changelog
 
+## 4.5.3
+
+### Bug fixes
+
+- **Browsertrix exit codes:** Don't treat the new size and time exit codes as a failed crawl.
+
+### Dependency updates
+
+- **browsertrix-crawler:** 1.5.8 → 1.6.0
+
 ## 4.5.2
 
 ### Bug fixes
