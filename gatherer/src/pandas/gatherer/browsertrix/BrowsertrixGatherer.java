@@ -16,10 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -37,8 +34,11 @@ public class BrowsertrixGatherer implements Backend {
     private final Repository repository;
     private final ThumbnailGenerator thumbnailGenerator;
     private volatile boolean shutdown;
-    private final static int EXIT_OK = 0;
+    private final static int EXIT_SUCCESS = 0;
     private final static int EXIT_INTERRUPTED = 11;
+    private final static int EXIT_SIZE_LIMIT = 14;
+    private final static int EXIT_TIME_LIMIT = 15;
+    private final Set<Integer> NORMAL_EXIT_CODES = Set.of(EXIT_SUCCESS, EXIT_INTERRUPTED, EXIT_SIZE_LIMIT, EXIT_TIME_LIMIT);
     private final static List<String> BEHAVIOR_SCRIPTS = List.of("bsky.js");
     private final static Path BEHAVIORS_DIR = unpackBehaviors();
 
@@ -181,7 +181,7 @@ public class BrowsertrixGatherer implements Backend {
 
             int exitValue = process.exitValue();
             log.info(getGatherMethod() + " {} returned {}", instance.getHumanId(), exitValue);
-            if (exitValue != EXIT_OK && exitValue != EXIT_INTERRUPTED) {
+            if (!NORMAL_EXIT_CODES.contains(exitValue)) {
                 System.err.println(Files.readString(logFile));
                 throw new GatherException("Browsertrix exited with status " + exitValue);
             }
