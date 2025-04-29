@@ -9,6 +9,10 @@
 ### Dependency updates
 
 - **browsertrix-crawler:** 1.5.8 → 1.6.0
+- **commons-io:** 2.18.0 → 2.19.0
+- **guava:** 33.4.0-jre → 33.4.8-jre
+- **p6spy-spring-boot-starter:** 1.10.0 → 1.11.0
+- **spring-boot:** 3.4.4 → 3.4.5
 
 ## 4.5.2
 
