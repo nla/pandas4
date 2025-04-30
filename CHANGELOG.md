@@ -1,5 +1,15 @@
 # PANDAS Changelog
 
+## 4.5.4
+
+### Bug fixes
+
+- **Bulk add websites:** Fixed broken 'Gather immediately' checkbox.
+
+### Dependency updates
+
+- **jsoup:** 1.19.1 → 1.20.1
+
 ## 4.5.3
 
 ### Bug fixes
