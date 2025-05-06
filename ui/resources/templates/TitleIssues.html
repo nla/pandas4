@@ -76,13 +76,15 @@
                     <input name="id" type="hidden">
                     <input name="name" placeholder="Issue name" required>
                 </td>
-                <td><input name="url" placeholder="URL" required></td>
+                <td><input name="url" placeholder="URL" th:value="${instances.get(0)?.tepUrlAbsolute ?: ''}" required></td>
                 <td>
-                    <select name="instance">
+                    <select name="instance" data-selectedindex="1">
                         <option></option>
                         <option th:each="instance, iterStat : ${instances}" th:value="${instance.id}"
                                 th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"
-                                th:selected="${iterStat.index == 0}" selected>15 Nov 2022 11:26am</option>
+                                th:selected="${iterStat.index == 0}" selected
+                                th:data-url="${instance.tepUrlAbsolute}"
+                                data-url="https://example.com/">15 Nov 2022 11:26am</option>
                     </select>
                 </td>
                 <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>
@@ -154,7 +156,8 @@
                             <option></option>
                             <option th:each="instance: ${instances}" th:value="${instance.id}"
                                     th:text="${@dateFormats.SHORT_DATE_TIME.format(instance.date)}"
-                                    th:selected="${instance == issue.instance}">15 Nov 2022 11:26am</option>
+                                    th:selected="${instance == issue.instance}"
+                                    data-url="https://example.com/">15 Nov 2022 11:26am</option>
                         </select>
                     </td>
                     <td><button type=button class="btn btn-danger btn-compact delete-issue-button"><i class="icon delete"></i></button></td>

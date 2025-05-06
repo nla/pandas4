@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.6.0
+
+### New features
+
+- **Issue editor prefill:** The issue URL is now prefilled with the TEP URL of the selected instance.
+
 ## 4.5.4
 
 ### Bug fixes

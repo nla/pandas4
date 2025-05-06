@@ -26,6 +26,21 @@ issueTable.addEventListener("click", function (event) {
     }
 });
 
+issueTable.addEventListener("change", function (event) {
+    let target = event.target;
+    // if an instance is selected, prepopulate the URL field
+    if (target instanceof HTMLSelectElement && target.name === 'instance') {
+        let previouslySelectedOption = target.options[target.dataset.selectedindex];
+        let url = target.selectedOptions[0].dataset.url;
+        if (url) {
+            const urlInput = target.closest('tr').querySelector('input[name="url"]');
+            if (!urlInput.value || (previouslySelectedOption && urlInput.value === previouslySelectedOption.dataset.url)) urlInput.value = url;
+        }
+        // save the selected index so we know which option was selected last time
+        target.dataset.selectedindex = target.selectedIndex;
+    }
+});
+
 issueTable.addEventListener("dragstart", function (event) {
     if (event.target.classList.contains("issue") || event.target.classList.contains("issue-group")) {
         event.dataTransfer.setData('text/x-pandas-issue', 'true');
