@@ -79,10 +79,11 @@ public class TitleController {
     private final ProfileRepository profileRepository;
     private final ScopeRepository scopeRepository;
     private final CollectionRepository collectionRepository;
+    private final IssueRepository issueRepository;
     private final IssueGroupRepository issueGroupRepository;
     private final PermissionEvaluator permissionEvaluator;
 
-    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueGroupRepository issueGroupRepository,
+    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueRepository issueRepository, IssueGroupRepository issueGroupRepository,
                            PermissionEvaluator permissionEvaluator) {
         this.titleRepository = titleRepository;
         this.userRepository = userRepository;
@@ -103,6 +104,7 @@ public class TitleController {
         this.profileRepository = profileRepository;
         this.scopeRepository = scopeRepository;
         this.collectionRepository = collectionRepository;
+        this.issueRepository = issueRepository;
         this.issueGroupRepository = issueGroupRepository;
         this.permissionEvaluator = permissionEvaluator;
     }
@@ -343,7 +345,7 @@ public class TitleController {
         // First, build an index of all the existing groups and issues.
         Map<Long, IssueGroup> groupMap = new HashMap<>();
         Map<Long, Issue> issueMap = new HashMap<>();
-        IssueGroup theNoneGroup = IssueGroup.newNoneGroup();
+        IssueGroup theNoneGroup = null;
         for (IssueGroup group : issueGroupRepository.findByTepTitleOrderByOrder(title)) {
             if (group.isNone()) {
                 theNoneGroup = group;
@@ -354,42 +356,42 @@ public class TitleController {
                 issueMap.put(issue.getId(), issue);
             }
         }
+        if (theNoneGroup == null) {
+            theNoneGroup = IssueGroup.newNoneGroup();
+            theNoneGroup.setTep(tep);
+        }
 
-        // Remove all the groups except for the -None- group.
-        tep.removeAllIssueGroups();
-        theNoneGroup.setOrder(0);
-        theNoneGroup.removeAllIssues();
-        tep.addIssueGroup(theNoneGroup);
 
-        // Add all the new and updated groups and issues back in.
+        // Clear out the existing issues
+        tep.getIssueGroups().clear();
+        theNoneGroup.getIssues().clear();
+
+        // Now add them all back, in the new order
         IssueGroup group = theNoneGroup;
         for (int i = 0; i < types.size(); i++) {
             Long id = ids.get(i);
             switch (types.get(i)) {
                 case "IssueGroup" -> {
-                    group = id == null ? new IssueGroup() : groupMap.get(id);
+                    group = id == null ? new IssueGroup() : groupMap.remove(id);
                     group.setName(names.pop());
                     group.setOrder(tep.getIssueGroups().size());
-                    group.removeAllIssues();
-                    tep.addIssueGroup(group);
-                    // If this a new group we need to save it before moving existing issues to it or we get an
-                    // "object references an unsaved transient instance" error.
-                    // I think this is an ordering issue where if the cascade gets to the old group before the new group
-                    // it'll try to save the issue even though it's no longer in the old group.
-                    if (group.getId() == null) {
-                        group = issueGroupRepository.save(group);
-                    }
+                    group.setTep(tep);
+                    group.getIssues().clear();
                 }
                 case "Issue" -> {
-                    Issue issue = id == null ? new Issue() : issueMap.get(id);
+                    Issue issue = id == null ? new Issue() : issueMap.remove(id);
                     issue.setName(names.pop());
                     issue.setUrl(urls.pop());
                     issue.setInstance(instances.pop().orElse(null));
                     issue.setOrder(group.getIssues().size());
-                    group.addIssue(issue);
+                    issue.setGroup(group);
                 }
             }
         }
+
+        // Delete any existing groups and issues the user didn't include.
+        issueGroupRepository.deleteAll(groupMap.values());
+        issueRepository.deleteAll(issueMap.values());
 
         titleRepository.save(title);
 

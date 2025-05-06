@@ -6,6 +6,10 @@
 
 - **Issue editor prefill:** The issue URL is now prefilled with the TEP URL of the selected instance.
 
+### Bug fixes
+
+- **Issue editor error:** Fixed error when moving an existing issue to a newly created issue group.
+
 ## 4.5.4
 
 ### Bug fixes

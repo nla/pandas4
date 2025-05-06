@@ -1,14 +1,11 @@
 package pandas.collection;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
-
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -120,7 +117,7 @@ public class Tep {
     @JoinColumn(name = "COPYRIGHT_TYPE_ID")
     private CopyrightType copyrightType;
 
-    @OneToMany(mappedBy = "tep", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tep", cascade = { CascadeType.MERGE, CascadeType.REMOVE })
     @OrderBy("order, id desc")
     private List<IssueGroup> issueGroups = new ArrayList<>();
 
@@ -270,7 +267,7 @@ public class Tep {
     }
 
     public List<IssueGroup> getIssueGroups() {
-        return Collections.unmodifiableList(issueGroups);
+        return issueGroups;
     }
 
     @Override
@@ -284,14 +281,5 @@ public class Tep {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public void removeAllIssueGroups() {
-        issueGroups.clear();
-    }
-
-    public void addIssueGroup(IssueGroup group) {
-        issueGroups.add(group);
-        group.setTep(this);
     }
 }

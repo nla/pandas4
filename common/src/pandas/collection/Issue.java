@@ -1,9 +1,8 @@
 package pandas.collection;
 
+import jakarta.persistence.*;
 import pandas.delivery.DeliveryUrls;
 import pandas.gather.Instance;
-
-import jakarta.persistence.*;
 
 import java.time.Instant;
 
@@ -110,7 +109,10 @@ public class Issue {
     }
 
     public void setGroup(IssueGroup group) {
+        if (this.group == group) return;
+        if (this.group != null) this.group.getIssues().remove(this);
         this.group = group;
+        if (group != null) group.getIssues().add(this);
     }
 
     public Instance getInstance() {

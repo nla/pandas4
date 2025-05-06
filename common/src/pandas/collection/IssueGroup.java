@@ -1,9 +1,9 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * A label under which to group issues on the title's TEP.
@@ -29,7 +29,7 @@ public class IssueGroup {
     @Column(name = "ISSUE_GROUP_ORDER", nullable = true, precision = 0)
     private Integer order;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, fetch = FetchType.EAGER)
     @OrderBy("order")
     private Collection<Issue> issues = new ArrayList<>();
 
@@ -80,16 +80,7 @@ public class IssueGroup {
     }
 
     public Collection<Issue> getIssues() {
-        return Collections.unmodifiableCollection(issues);
-    }
-
-    public void removeAllIssues() {
-        issues.clear();
-    }
-
-    public void addIssue(Issue issue) {
-        issues.add(issue);
-        issue.setGroup(this);
+        return issues;
     }
 
     public Tep getTep() {
@@ -97,6 +88,10 @@ public class IssueGroup {
     }
 
     public void setTep(Tep tep) {
+        if (this.tep == tep) return;
+        if (this.tep != null) this.tep.getIssueGroups().remove(this);
         this.tep = tep;
+        if (tep != null) tep.getIssueGroups().add(this);
     }
+
 }
