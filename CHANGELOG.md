@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.6.1
+
+### Bug fixes
+
+- **Issue editor:** Fixed some more corner cases.
+
 ## 4.6.0
 
 ### New features
