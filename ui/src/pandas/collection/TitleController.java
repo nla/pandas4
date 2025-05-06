@@ -364,6 +364,7 @@ public class TitleController {
 
         // Clear out the existing issues
         tep.getIssueGroups().clear();
+        theNoneGroup.setOrder(0);
         theNoneGroup.getIssues().clear();
 
         // Now add them all back, in the new order
