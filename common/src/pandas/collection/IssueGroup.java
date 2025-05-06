@@ -88,10 +88,7 @@ public class IssueGroup {
     }
 
     public void setTep(Tep tep) {
-        if (this.tep == tep) return;
-        if (this.tep != null) this.tep.getIssueGroups().remove(this);
         this.tep = tep;
-        if (tep != null) tep.getIssueGroups().add(this);
     }
 
 }

@@ -358,15 +358,16 @@ public class TitleController {
         }
         if (theNoneGroup == null) {
             theNoneGroup = IssueGroup.newNoneGroup();
-            theNoneGroup.setTep(tep);
         }
 
 
-        // Clear out the existing groups
+        // Clear out the existing groups and issues
         tep.getIssueGroups().clear();
         tep.getIssueGroups().add(theNoneGroup);
+        theNoneGroup.setTep(tep);
         theNoneGroup.setOrder(0);
         theNoneGroup.getIssues().clear();
+        groupMap.values().forEach(group -> group.getIssues().clear());
 
         // Now add them all back, in the new order
         IssueGroup group = theNoneGroup;
@@ -378,7 +379,7 @@ public class TitleController {
                     group.setName(names.pop());
                     group.setOrder(tep.getIssueGroups().size());
                     group.setTep(tep);
-                    group.getIssues().clear();
+                    tep.getIssueGroups().add(group);
                 }
                 case "Issue" -> {
                     Issue issue = id == null ? new Issue() : issueMap.remove(id);
@@ -387,6 +388,7 @@ public class TitleController {
                     issue.setInstance(instances.pop().orElse(null));
                     issue.setOrder(group.getIssues().size());
                     issue.setGroup(group);
+                    group.getIssues().add(issue);
                 }
             }
         }
