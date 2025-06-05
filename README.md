@@ -8,6 +8,17 @@ infrastructure.
 PANDAS provides a user interface for curators to perform website selection, collection building,
 scheduled crawling and quality assuarance using various web crawlers (Heritrix, Browsertrix, HTTrack).
 
+## Features
+
+* Submission form with autofilling and suggestions
+* Multiple agencies (institutions) and users collaborate on a unified web archive
+* Flexible crawl scheduling and job queuing
+* Subject tags and hierarchical collections for events and topics
+* Tracking of publisher contact details and permission requests
+* Manual QA queue with thumbnail overview
+* Bulk operations (add sites, edit, QA)
+
+
 External Dependencies
 ---------------------
 
