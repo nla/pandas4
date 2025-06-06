@@ -1,18 +1,16 @@
 package pandas;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockserver.client.MockServerClient;
-import org.mockserver.springtest.MockServerTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import pandas.collection.Title;
@@ -25,18 +23,16 @@ import pandas.gatherer.heritrix.HeritrixProcess;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 import static pandas.gather.InstanceThumbnail.Type.LIVE;
 import static pandas.gather.InstanceThumbnail.Type.REPLAY;
 
@@ -50,7 +46,6 @@ import static pandas.gather.InstanceThumbnail.Type.REPLAY;
         "bamboo.crawlSeriesId = 1",
         "spring.jpa.hibernate.ddl-auto=create-drop"})
 @ContextConfiguration(initializers = GathererIT.Initializer.class)
-@MockServerTest("bamboo.url = http://127.0.0.1:${mockServerPort}/bamboo")
 public class GathererIT {
     @TempDir static Path tempDir;
     @Autowired TitleService titleService;
@@ -66,22 +61,67 @@ public class GathererIT {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
-    MockServerClient mockServer;
+    private static HttpServer server;
+
+    @BeforeAll
+    public static void setUp() throws IOException {
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/target/", exchange -> {
+            if (exchange.getRequestURI().getPath().equals("/target/redir")) {
+                exchange.getResponseHeaders().add("Location", "/target/dest");
+                exchange.sendResponseHeaders(302, -1);
+            } else if (exchange.getRequestURI().getPath().equals("/target/dest")) {
+                var response = "dest page";
+                exchange.sendResponseHeaders(200, response.length());
+                try (var os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
+            } else {
+                var response = "test page";
+                exchange.sendResponseHeaders(200, response.length());
+                try (var os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
+            }
+        });
+        server.createContext("/bamboo/instances/1", exchange -> {
+            exchange.sendResponseHeaders(404, -1);
+        });
+        server.createContext("/bamboo/crawls/new", exchange -> {
+            if (exchange.getRequestMethod().equals("POST")) {
+                exchange.getResponseHeaders().add("Location", "/bamboo/crawls/1");
+                exchange.sendResponseHeaders(200, -1);
+            }
+        });
+        server.createContext("/bamboo/crawls/1/artifacts/", exchange -> {
+            if (exchange.getRequestMethod().equals("PUT")) {
+                exchange.sendResponseHeaders(200, -1);
+            }
+        });
+        server.createContext("/bamboo/crawls/1/warcs/", exchange -> {
+            if (exchange.getRequestMethod().equals("PUT")) {
+                exchange.sendResponseHeaders(200, -1);
+            }
+        });
+        server.start();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        if (server != null) server.stop(0);
+    }
+
+    @DynamicPropertySource
+    static void registerBambooUrl(DynamicPropertyRegistry registry) {
+        int port = server.getAddress().getPort();
+        String url = "http://127.0.0.1:" + port + "/bamboo";
+        registry.add("bamboo.url", () -> url);
+    }
 
     @Test
     @Timeout(30)
     public void testHeritrixCrawl() throws IOException, InterruptedException {
-        mockServer.when(request().withMethod("GET").withPath("/target/")).respond(response().withBody("test page"));
-        mockServer.when(request().withMethod("GET").withPath("/target/redir"))
-                .respond(response().withStatusCode(302)
-                .withHeader("Location", "/target/dest"));
-        mockServer.when(request().withMethod("GET").withPath("/target/dest")).respond(response().withBody("dest page"));
-
-        mockServer.when(request().withPath("/bamboo/instances/1")).respond(response().withStatusCode(404));
-        mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
-        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
-        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
-
+        int serverPort = server.getAddress().getPort();
         int heritrixPort = 18443;
         Path heritrixWorking = Files.createDirectories(tempDir.resolve("heritrix"));
         String password = "password";
@@ -106,9 +146,9 @@ public class GathererIT {
             TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
             form.setName("Heritrix title");
             form.setGatherMethod(gatherMethodRepository.findByName("Heritrix").orElseThrow());
-            String seedUrl = "http://127.0.0.1:" + mockServer.getPort() + "/target/";
-            String redirSeedUrl = "http://127.0.0.1:" + mockServer.getPort() + "/target/redir";
-            String redirDestUrl = "http://127.0.0.1:" + mockServer.getPort() + "/target/dest";
+            String seedUrl = "http://127.0.0.1:" + serverPort + "/target/";
+            String redirSeedUrl = "http://127.0.0.1:" + serverPort + "/target/redir";
+            String redirDestUrl = "http://127.0.0.1:" + serverPort + "/target/dest";
             form.setSeedUrls(seedUrl + "\n" + redirSeedUrl);
             form.setOneoffDates(List.of(Instant.now()));
             Title title = titleService.save(form, null);
@@ -165,15 +205,11 @@ public class GathererIT {
     @Test
     @Timeout(value = 10)
     public void testHttrackCrawl() throws InterruptedException {
-        mockServer.when(request().withMethod("GET").withPath("/target/")).respond(response().withBody("test page"));
-        mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
-        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
-        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
-
+        int serverPort = server.getAddress().getPort();
         TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("HTTrack title");
         form.setGatherMethod(gatherMethodRepository.findByName("HTTrack").orElseThrow());
-        form.setSeedUrls("http://127.0.0.1:" + mockServer.getPort() + "/target/");
+        form.setSeedUrls("http://127.0.0.1:" + serverPort + "/target/");
         form.setOneoffDates(List.of(Instant.now()));
         Title title = titleService.save(form, null);
 
@@ -216,15 +252,12 @@ public class GathererIT {
         }
         Assumptions.assumeTrue(Files.exists(Path.of("/usr/bin/podman")), "podman not installed");
 
-        mockServer.when(request().withMethod("GET").withPath("/target/")).respond(response().withBody("test page"));
-        mockServer.when(request().withMethod("POST").withPath("/bamboo/crawls/new")).respond(response().withHeader("Location", "/bamboo/crawls/1"));
-        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/artifacts/.*")).respond(response());
-        mockServer.when(request().withMethod("PUT").withPath("/bamboo/crawls/1/warcs/.*")).respond(response());
+        int serverPort = server.getAddress().getPort();
 
         TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
         form.setName("Browsertrix title");
         form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.BROWSERTRIX).orElseThrow());
-        form.setSeedUrls("http://127.0.0.1:" + mockServer.getPort() + "/target/");
+        form.setSeedUrls("http://127.0.0.1:" + serverPort + "/target/");
         form.setOneoffDates(List.of(Instant.now()));
         Title title = titleService.save(form, null);
 

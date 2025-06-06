@@ -1,40 +1,65 @@
 package pandas.gatherer.core;
 
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockserver.integration.ClientAndServer;
-import org.mockserver.junit.jupiter.MockServerExtension;
-import org.mockserver.model.MediaType;
-import org.mockserver.springtest.MockServerTest;
 import pandas.browser.BrowserMissingException;
 import pandas.gather.InstanceThumbnail;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 
-@MockServerTest
-@ExtendWith(MockServerExtension.class)
 class ThumbnailGeneratorTest {
-    private final ClientAndServer mockServer;
+    private static HttpServer server;
 
-    ThumbnailGeneratorTest(ClientAndServer mockServer) {
-        this.mockServer = mockServer;
+    @BeforeAll
+    public static void setUp() throws IOException {
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+
+        // /test.html → always return HTML
+        server.createContext("/test.html", exchange -> {
+            byte[] body = "<h1>Hello world</h1>".getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
+            exchange.sendResponseHeaders(200, body.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(body);
+            }
+            exchange.close();
+        });
+
+        server.createContext("/test.pdf", exchange -> {
+            exchange.getResponseHeaders().add("Content-Type", "application/pdf");
+            exchange.sendResponseHeaders(200, 0);
+            try (var output = exchange.getResponseBody();
+                 var input = ThumbnailGeneratorTest.class.getResourceAsStream("test.pdf")) {
+                input.transferTo(output);
+            }
+            exchange.close();
+        });
+
+        server.start();
     }
+
+    @AfterAll
+    public static void tearDown() {
+        if (server != null) server.stop(0);
+    }
+
 
     @Test
     public void html() throws Exception {
         try {
-            mockServer.when(request("/test.html")).respond(response("<h1>Hello world</h1>"));
             ThumbnailGenerator generator = new ThumbnailGenerator(null, null, null);
-            InstanceThumbnail thumbnail = generator.generateThumbnail("http://127.0.0.1:" + mockServer.getPort() + "/test.html");
+            InstanceThumbnail thumbnail = generator.generateThumbnail("http://127.0.0.1:" + server.getAddress().getPort() + "/test.html");
             assertEquals(200, thumbnail.getStatus());
             assertNotNull(thumbnail.getData());
             assertTrue(thumbnail.getData().length > 0);
@@ -45,14 +70,16 @@ class ThumbnailGeneratorTest {
 
     @Test
     public void pdf() throws Exception {
-        assumeTrue(Files.exists(Path.of("/usr/bin/gs")), "missing /usr/bin/gs");
-        byte[] testPdf;
-        try (InputStream stream = getClass().getResourceAsStream("test.pdf")) {
-            testPdf = requireNonNull(stream).readAllBytes();
+        try {
+            new ProcessBuilder("gs", "--version")
+                    .redirectError(ProcessBuilder.Redirect.DISCARD)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .start().waitFor();
+        } catch (IOException e) {
+            Assumptions.abort("Failed to run gs");
         }
-        mockServer.when(request("/test.pdf")).respond(response().withBody(testPdf).withContentType(MediaType.PDF));
         ThumbnailGenerator generator = new ThumbnailGenerator(null, null, null);
-        InstanceThumbnail thumbnail = generator.generateThumbnail("http://127.0.0.1:" + mockServer.getPort() + "/test.pdf");
+        InstanceThumbnail thumbnail = generator.generateThumbnail("http://127.0.0.1:" + server.getAddress().getPort() + "/test.pdf");
         assertEquals(200, thumbnail.getStatus());
         assertNotNull(thumbnail.getData());
         assertTrue(thumbnail.getData().length > 0);
