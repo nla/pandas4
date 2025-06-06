@@ -14,9 +14,9 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <hibernate.search.version>7.2.3.Final</hibernate.search.version>
+        <hibernate.search.version>7.2.4.Final</hibernate.search.version>
         <lucene.version>9.11.1</lucene.version>
-        <spring.version>3.4.5</spring.version>
+        <spring.version>3.5.0</spring.version>
         <sonar.organization>nla</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
@@ -48,7 +48,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.7.5</version>
+                <version>42.7.6</version>
             </dependency>
             <dependency>
                 <groupId>com.oracle.ojdbc</groupId>
