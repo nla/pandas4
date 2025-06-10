@@ -203,7 +203,7 @@ public class KeycloakAdminClient {
     private void deleteUserRealmRoleMapping(String userId, Role role) {
         restClient.method(HttpMethod.DELETE).uri("/users/{user-id}/role-mappings/realm", userId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(role)
+                .body(List.of(role))
                 .retrieve()
                 .toBodilessEntity();
     }
