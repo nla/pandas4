@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.6.2
+
+### Bug fixes
+
+- Fixed an exception changing user access levels with newer versions of Keycloak.
+
 ## 4.6.1
 
 ### Bug fixes
