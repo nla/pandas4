@@ -43,9 +43,9 @@ I --> E
         - **All pages on website** – archives every page under the seed URL.
         - **Just this page** – archives only the single URL you entered.
         - **This page and the pages it links to** – archives the seed URL plus directly linked pages.
-      - **Scheduling:**
-        1. Under **Schedule**, choose how often to gather (e.g. Annually, Monthly).
-        2. To start immediately, under **One-off**, leave date/time blank, and click **Add**.
+    - **Schedule:**
+        - Choose how often to gather (e.g. Annually, Monthly).
+        - To start immediately, under **One-off**, leave date/time blank, and click **Add**.
 
 5. **Save & Monitor Gather**
    - Click **Save**.
