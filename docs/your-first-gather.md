@@ -9,12 +9,12 @@ the gather again.
 
 ```mermaid
 ---
-title: The basic workflow
+The basic workflow
 ---
 flowchart LR
-A[Create title] --> B[Configure gather options\n and schedule]
-B --> E[Gatherer runs\non schedule]
-E --> F[Instance appears in QA]
+A[Create title] --> B[Set gather options<br> and schedule]
+B --> E[Gatherer runs<br>per schedule]
+E --> F[New instance<br>appears in QA]
 F --> G{QA OK?}
 G -- Yes --> H[Archive instance]
 G -- No  --> I[Edit title & re-gather]
