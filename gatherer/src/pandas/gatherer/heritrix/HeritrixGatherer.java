@@ -20,7 +20,7 @@ import java.util.Set;
 import static pandas.gatherer.heritrix.HeritrixClient.State.*;
 
 @Component
-@ConditionalOnExpression("'${heritrix.url}' != '' or '${heritrix.home}' != ''")
+@ConditionalOnExpression("'${heritrix.url:}' != '' or '${heritrix.home:}' != ''")
 public class HeritrixGatherer implements Backend {
     private static final Logger log = LoggerFactory.getLogger(HeritrixGatherer.class);
     private final HeritrixClient heritrix;
