@@ -132,6 +132,12 @@ public class BrowsertrixGatherer implements Backend {
             if (profile.getCrawlLimitBytes() != null) {
                 sizeLimit = profile.getCrawlLimitBytes();
             }
+
+            if (profile.getBrowsertrixConfig() != null && !profile.getBrowsertrixConfig().isBlank()) {
+                for (String option : profile.getBrowsertrixConfig().split("\\s+")) {
+                    command.add(option);
+                }
+            }
         }
 
         command.add("--timeLimit");

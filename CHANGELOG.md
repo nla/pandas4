@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.7.0
+
+### New features
+
+- Gather profiles can now include custom Browsertrix command-line options.
+
 ## 4.6.2
 
 ### Bug fixes

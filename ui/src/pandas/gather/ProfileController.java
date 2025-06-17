@@ -64,6 +64,7 @@ public class ProfileController {
             String description,
             GatherMethod gatherMethod,
             String heritrixConfig,
+            String browsertrixConfig,
             @Positive Long crawlLimitBytes,
             @Positive Long crawlLimitSeconds) {
         ProfileEditForm(Profile profile) {
@@ -71,6 +72,7 @@ public class ProfileController {
                     profile.getDescription(),
                     profile.getGatherMethod(),
                     profile.getHeritrixConfig(),
+                    profile.getBrowsertrixConfig(),
                     profile.getCrawlLimitBytes(),
                     profile.getCrawlLimitSeconds());
         }
@@ -80,6 +82,7 @@ public class ProfileController {
             profile.setDescription(description);
             profile.setGatherMethod(gatherMethod);
             profile.setHeritrixConfig(heritrixConfig);
+            profile.setBrowsertrixConfig(browsertrixConfig);
             profile.setCrawlLimitBytes(crawlLimitBytes);
             profile.setCrawlLimitSeconds(crawlLimitSeconds);
         }

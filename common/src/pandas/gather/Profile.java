@@ -29,6 +29,9 @@ public class Profile {
     @Column
     private String heritrixConfig;
 
+    @Column
+    private String browsertrixConfig;
+
     @ManyToOne
     @JoinColumn(name = "GATHER_METHOD_ID")
     private GatherMethod gatherMethod;
@@ -109,5 +112,13 @@ public class Profile {
     public boolean canBeAppliedTo(GatherMethod gatherMethod) {
         if (this.gatherMethod == null) return true;
         return this.gatherMethod.equals(gatherMethod);
+    }
+
+    public String getBrowsertrixConfig() {
+        return browsertrixConfig;
+    }
+
+    public void setBrowsertrixConfig(String browsertrixConfig) {
+        this.browsertrixConfig = browsertrixConfig;
     }
 }

@@ -33,8 +33,11 @@
                             th:value="${method.id}"></option>
                 </select>
             </label>
-            <label>Heritrix configuration <textarea th:field="*{heritrixConfig}"
-                                                    class="form-control"></textarea></label>
+            <label>Heritrix overrides
+                <textarea th:field="*{heritrixConfig}" class="form-control"></textarea></label>
+
+            <label>Browsertrix command-line options
+                <textarea th:field="*{browsertrixConfig}" class="form-control"></textarea></label>
         </fieldset>
         <fieldset>
             <legend>Crawl limits</legend>
