@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pandas.agency.User;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
+import pandas.util.Strings;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -209,7 +210,7 @@ public class InstanceService {
 
         command.addAll(instance.getTitle().getGather().buildHttrackCommand());
 
-        instance.setGatherCommand(TitleGather.shellEncode(command));
+        instance.setGatherCommand(Strings.shellEncode(command));
         instanceRepository.save(instance);
         return command;
     }

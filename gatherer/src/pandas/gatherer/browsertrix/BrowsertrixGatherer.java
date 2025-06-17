@@ -134,9 +134,7 @@ public class BrowsertrixGatherer implements Backend {
             }
 
             if (profile.getBrowsertrixConfig() != null && !profile.getBrowsertrixConfig().isBlank()) {
-                for (String option : profile.getBrowsertrixConfig().split("\\s+")) {
-                    command.add(option);
-                }
+                command.addAll(Strings.shellSplit(profile.getBrowsertrixConfig()));
             }
         }
 

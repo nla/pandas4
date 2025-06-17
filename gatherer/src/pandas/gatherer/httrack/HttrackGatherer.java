@@ -7,6 +7,7 @@ import pandas.gather.*;
 import pandas.gatherer.core.Backend;
 import pandas.gatherer.core.GatherException;
 import pandas.gatherer.core.WorkingArea;
+import pandas.util.Strings;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -64,7 +65,7 @@ public class HttrackGatherer implements Backend {
 		List<String> command = instanceService.buildAndSaveHttrackCommand(instance.getId(),
 				httrackConfig.getExecutable().toString(),
 				instanceDir);
-		log.info("Executing {}", TitleGather.shellEncode(command));
+		log.info("Executing {}", Strings.shellEncode(command));
 		if (!Files.exists(instanceDir)) Files.createDirectories(instanceDir);
 		File logFile = File.createTempFile("pandas-gatherer-" + instance.getHumanId(), ".log");
 		try {

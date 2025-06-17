@@ -13,11 +13,11 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericFie
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 import pandas.collection.Title;
+import pandas.util.Strings;
 
 import java.sql.Types;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
@@ -391,14 +391,8 @@ public class TitleGather {
         return argument == null ? null : argument.getArgument();
     }
 
-    public static String shellEncode(List<String> command) {
-        return command.stream().map(s -> s.matches("[a-zA-Z0-9_.=@/:-]*") ?
-                        s : "'" + s.replace("'", "'\\''") + "'")
-                .collect(Collectors.joining(" "));
-    }
-
     public String buildHttrackCommandString() {
-        return shellEncode(buildHttrackCommand());
+        return Strings.shellEncode(buildHttrackCommand());
     }
 
     /**
