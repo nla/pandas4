@@ -5,7 +5,7 @@
     <groupId>au.gov.nla.pandas</groupId>
     <artifactId>pandas4-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.6.3-SNAPSHOT</version>
+    <version>4.7.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
