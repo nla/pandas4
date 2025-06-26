@@ -31,6 +31,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -55,6 +56,7 @@ public class PageInfoController {
         this.subjectRepository = subjectRepository;
         this.httpClient = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.ALWAYS)
+                .connectTimeout(Duration.ofSeconds(15))
                 .build();
         this.pageInfoCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(1, TimeUnit.DAYS)
@@ -138,6 +140,7 @@ public class PageInfoController {
     private PageInfo fetchPageInfo(String url) throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder(URI.create(url))
                 .header("User-Agent", "nla.gov.au_bot (National Library of Australia Legal Deposit Request; +https://www.nla.gov.au/legal-deposit/request)")
+                .timeout(Duration.ofSeconds(15))
                 .build();
         var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
         try (InputStream body = response.body()) {
