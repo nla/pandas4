@@ -2,6 +2,8 @@
 
 This file documents Heritrix settings used in PANDAS or other NLA crawls where we differ from the defaults.
 
+See also: [crawler-beans.cxml](../common/resources/pandas/crawlconfig/crawler-beans.cxml)
+
 ## Robots policy
 
 We ignore `nofollow` in the `robots` `<meta>` tag, as we've had site owners complain we didn't
