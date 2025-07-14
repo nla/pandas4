@@ -9,23 +9,26 @@ public class MastodonSiteArchiver {
         String userAgent = null;
         String url = null;
         String minId = "0";
-        int limit = 40;
+        int batchSize = 40;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-A", "--user-agent" -> userAgent = args[++i];
                 case "--min-id" -> minId = args[++i];
-                case "--limit" -> limit = Integer.parseInt(args[++i]);
+                case "--batch-size" -> batchSize = Integer.parseInt(args[++i]);
                 default -> {
                     if (args[i].startsWith("-")) usage();
                     url = args[i];
                 }
             }
         }
-        if (url == null) usage();
+        if (url == null) {
+            usage();
+            return;
+        }
         try (var warcWriter = new WarcWriter(System.out)) {
             var client = new MastodonClient(url, userAgent, warcWriter);
             while (true) {
-                var statuses = client.getPublicTimeline(true, limit, minId);
+                var statuses = client.getPublicTimeline(true, batchSize, minId);
                 if (statuses.isEmpty()) break;
                 minId = statuses.get(0).id();
             }
