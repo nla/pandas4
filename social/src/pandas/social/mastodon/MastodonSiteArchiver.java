@@ -1,8 +1,11 @@
 package pandas.social.mastodon;
 
 import org.netpreserve.jwarc.WarcWriter;
+import org.netpreserve.jwarc.Warcinfo;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class MastodonSiteArchiver {
     public static void main(String[] args) throws IOException {
@@ -25,7 +28,9 @@ public class MastodonSiteArchiver {
             usage();
             return;
         }
+        var metadata = Map.of("software", List.of("pandas-social"));
         try (var warcWriter = new WarcWriter(System.out)) {
+            warcWriter.write(new Warcinfo.Builder().fields(metadata).build());
             var client = new MastodonClient(url, userAgent, warcWriter);
             while (true) {
                 var statuses = client.getPublicTimeline(true, batchSize, minId);
