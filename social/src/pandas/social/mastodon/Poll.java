@@ -13,16 +13,18 @@ import java.util.List;
 public record Poll(
         @NotNull String id,
         @NotNull String expiresAt,
-        @Nullable Instant expired,
+        @Nullable Boolean expired,
         boolean multiple,
         @NotNull List<Option> options,
-        @NotNull List<Integer> votes
+        @Nullable Integer votesCount,
+        @Nullable Integer votersCount,
+        @Nullable List<CustomEmoji> emojis
 ) {
     // https://docs.joinmastodon.org/entities/Poll/#Option
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record Option(
             @NotNull String title,
-            @Nullable Long votes
+            @Nullable Long votesCount
     ) {
     }
 }

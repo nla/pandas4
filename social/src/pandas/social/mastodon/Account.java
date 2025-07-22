@@ -41,7 +41,9 @@ public record Account(
         @Nullable LocalDate lastStatusAt,
         long statusesCount,
         long followersCount,
-        long followingCount) {
+        long followingCount,
+        @Nullable Boolean indexable,
+        @Nullable Boolean hide_collections) {
 
     public pandas.social.Account toGenericAccount() {
         return new pandas.social.Account(

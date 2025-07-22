@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.List;
 
 // https://docs.joinmastodon.org/entities/PreviewCard/
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -27,7 +28,8 @@ public record PreviewCard(
         @Nullable String embedUrl,
         @Nullable String blurhash,
         @Nullable String language,
-        @Nullable Instant publishedAt
+        @Nullable Instant publishedAt,
+        @Nullable List<Author> authors
 ) {
     // https://docs.joinmastodon.org/entities/PreviewCard/#type
     public enum Type {
@@ -35,5 +37,11 @@ public record PreviewCard(
         @JsonProperty("photo") PHOTO,
         @JsonProperty("video") VIDEO,
         @JsonProperty("rich") RICH
+    }
+
+    record Author(
+            String name,
+            String url,
+            @Nullable Account account) {
     }
 }

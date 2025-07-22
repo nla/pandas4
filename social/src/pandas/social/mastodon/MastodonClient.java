@@ -76,7 +76,7 @@ public class MastodonClient {
         var params = new Params();
         params.add("local", local);
         params.add("limit", limit);
-        params.add("max_id", minId);
+        params.add("min_id", minId);
         return Arrays.asList(sendRequest("/api/v1/timelines/public?" + params, Status[].class));
     }
 
