@@ -149,7 +149,8 @@
                 <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions})}">
                     <td class="failed-gather-actions">
                         <form th:if="${instance.stateBeforeFailure != null && instance.stateBeforeFailure.canBeRetried()}"
-                              th:action="@{/queue/retry(instance=${instance.id})}" method="post">
+                              th:action="@{/queue/retry(instance=${instance.id})}" method="post"
+                              sec:authorize="hasPermission(#vars.instance.title, 'edit')">
                             <button type="submit" th:text="${'Retry ' + instance.stateBeforeFailure.name}">Retry
                             </button>
                         </form>

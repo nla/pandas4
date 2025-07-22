@@ -62,7 +62,7 @@ public class GatherQueueController {
     }
 
     @PostMapping("/queue/retry")
-    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
+    @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
     public String retry(@RequestParam("instance") Instance instance) {
         instanceService.retryAfterFailure(instance, userService.getCurrentUser());
