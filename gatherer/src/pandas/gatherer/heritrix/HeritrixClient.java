@@ -1,5 +1,6 @@
 package pandas.gatherer.heritrix;
 
+import com.ctc.wstx.exc.WstxEOFException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -101,6 +102,17 @@ public class HeritrixClient {
                     return sendRequest("GET", location, null, responseClass);
                 }
                 return xmlMapper.readValue(body, responseClass);
+            } catch (JsonParseException e) {
+                if (e.getCause() instanceof WstxEOFException && method.equals("GET")) {
+                    log.warn("Got empty response, retrying {} {} (attempt {})", method, uri, tries + 1);
+                    try {
+                        Thread.sleep(1000 + 5000 * tries);
+                    } catch (InterruptedException ex) {
+                        throw new IOException("Interrupted while waiting to retry", ex);
+                    }
+                } else {
+                    throw e;
+                }
             } catch (IOException e) {
                 String authenticate = connection.getHeaderField("WWW-Authenticate");
                 if (connection.getResponseCode() == 401 && authenticate != null && authenticate.startsWith("Digest ")) {
