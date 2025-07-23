@@ -1,5 +1,16 @@
 # PANDAS Changelog
 
+## 4.7.1
+
+### Bug fixes
+
+- Fixed title owners missing permission to retry failed instances.
+- The gatherer now retries GET requests to the Heritrix API that returned an empty body.
+
+### Dependency upgrades
+
+- **jwarc**: 0.31.1 → 0.32.0
+
 ## 4.7.0
 
 ### New features
