@@ -43,6 +43,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>v@{version}</tagNameFormat>
                 </configuration>
             </plugin>
