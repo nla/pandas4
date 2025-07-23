@@ -49,6 +49,20 @@
         </plugins>
     </build>
 
+    <scm>
+        <url>https://github.com/nla/pandas4</url>
+        <connection>scm:git:git@github.com:nla/pandas4</connection>
+        <developerConnection>scm:git:git@github.com:nla/pandas4</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
