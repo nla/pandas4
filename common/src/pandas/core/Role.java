@@ -31,6 +31,7 @@ public class Role {
 
     @Id
     @Column(name = "ROLE_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "ROLE_SEQ")
     @SequenceGenerator(name = "ROLE_SEQ", sequenceName = "ROLE_SEQ", allocationSize = 1)
     private Long id;

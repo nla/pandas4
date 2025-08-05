@@ -3,6 +3,7 @@ package pandas.core;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
@@ -15,7 +16,11 @@ import pandas.gather.*;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Populates the database with default values if it is empty.
+ */
 @Component
+@DependsOn("flywayConfig")
 public class DatabaseInit {
     private final Logger log = LoggerFactory.getLogger(DatabaseInit.class);
 
@@ -110,6 +115,7 @@ public class DatabaseInit {
             Role role = new Role();
             role.setOrganisation(agency.getOrganisation());
             role.setType(Role.TYPE_SYSADMIN);
+            role.setTitle("System Administrator");
 
             User user = new User();
             user.setNameGiven("Admin");

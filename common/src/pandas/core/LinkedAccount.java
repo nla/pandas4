@@ -21,6 +21,7 @@ import java.time.Instant;
 public class LinkedAccount {
     @Id
     @Column(name = "LINKED_ACCOUNT_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "LINKED_ACCOUNT_SEQ")
     @SequenceGenerator(name = "LINKED_ACCOUNT_SEQ", sequenceName = "LINKED_ACCOUNT_SEQ", allocationSize = 1)
     private Long id;

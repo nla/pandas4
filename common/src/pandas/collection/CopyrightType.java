@@ -1,6 +1,8 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
+import pandas.core.UseIdentityGeneratorIfMySQL;
+
 import java.util.Objects;
 
 /**
@@ -14,6 +16,7 @@ public class CopyrightType {
 
     @Id
     @Column(name = "COPYRIGHT_TYPE_ID", nullable = false)
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "COPYRIGHT_TYPE_SEQ")
     @SequenceGenerator(name = "COPYRIGHT_TYPE_SEQ", sequenceName = "COPYRIGHT_TYPE_SEQ", allocationSize = 1)
     public Long getId() {

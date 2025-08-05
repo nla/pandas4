@@ -2,6 +2,7 @@ package pandas.collection;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.sql.Types;
 import java.time.Instant;
@@ -16,6 +17,7 @@ import java.util.Objects;
 @Table(indexes = {@Index(name="tep_title_id_index", columnList = "title_id")})
 public class Tep {
     @Id
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "TEP_SEQ")
     @SequenceGenerator(name = "TEP_SEQ", sequenceName = "TEP_SEQ", allocationSize = 1)
     @Column(name = "TEP_ID", nullable = false, precision = 0)

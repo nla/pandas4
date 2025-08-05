@@ -11,6 +11,7 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.collection.Title;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.sql.Types;
 import java.time.Instant;
@@ -33,6 +34,7 @@ public class Instance {
 
     @Id
     @Column(name = "INSTANCE_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "INSTANCE_SEQ")
     @SequenceGenerator(name = "INSTANCE_SEQ", sequenceName = "INSTANCE_SEQ", allocationSize = 1)
     private Long id;

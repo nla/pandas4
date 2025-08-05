@@ -1,6 +1,7 @@
 package pandas.gather;
 
 import jakarta.persistence.*;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ public class OptionArgument {
 
     @Id
     @Column(name = "OPTION_ARGUMENT_ID", nullable = false, precision = 0)
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "OPTION_ARGUMENT_SEQ")
     @SequenceGenerator(name = "OPTION_ARGUMENT_SEQ", sequenceName = "OPTION_ARGUMENT_SEQ", allocationSize = 1)
     private Long id;

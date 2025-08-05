@@ -4,6 +4,8 @@ import pandas.agency.User;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import pandas.core.UseIdentityGeneratorIfMySQL;
+
 import java.time.Instant;
 
 @Entity
@@ -11,6 +13,7 @@ import java.time.Instant;
 public class StateHistory {
     @Id
     @Column(name = "STATE_HISTORY_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STATE_HISTORY_SEQ")
     @SequenceGenerator(name = "STATE_HISTORY_SEQ", sequenceName = "STATE_HISTORY_SEQ", allocationSize = 1)
     private Long id;

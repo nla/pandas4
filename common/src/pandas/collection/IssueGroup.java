@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +16,7 @@ public class IssueGroup {
     public static final String NONE_GROUP_NAME = "-None-";
 
     @Id
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "ISSUE_GROUP_SEQ")
     @SequenceGenerator(name = "ISSUE_GROUP_SEQ", sequenceName = "ISSUE_GROUP_SEQ", allocationSize = 1)
     @Column(name = "ISSUE_GROUP_ID", nullable = false, precision = 0)

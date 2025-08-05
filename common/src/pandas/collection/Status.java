@@ -3,6 +3,7 @@ package pandas.collection;
 import jakarta.persistence.*;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ public class Status {
 
     @Id
     @Column(name = "STATUS_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STATUS_SEQ")
     @SequenceGenerator(name = "STATUS_SEQ", sequenceName = "STATUS_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)

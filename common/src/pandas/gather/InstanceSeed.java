@@ -2,6 +2,7 @@ package pandas.gather;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 public class InstanceSeed {
     @Id
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "INSTANCE_SEED_SEQ")
     @SequenceGenerator(name = "INSTANCE_SEED_SEQ", sequenceName = "INSTANCE_SEED_SEQ", allocationSize = 1)
     private Long id;

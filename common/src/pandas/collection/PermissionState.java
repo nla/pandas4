@@ -1,6 +1,8 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
+import pandas.core.UseIdentityGeneratorIfMySQL;
+
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ public class PermissionState {
 
     @Id
     @Column(name = "PERMISSION_STATE_ID", nullable = false, precision = 0)
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "PERMISSION_STATE_SEQ")
     @SequenceGenerator(name = "PERMISSION_STATE_SEQ", sequenceName = "PERMISSION_STATE_SEQ", allocationSize = 1)
     private Long id;

@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.User;
 import pandas.collection.Title;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.core.View;
 
 import jakarta.persistence.*;
@@ -25,6 +26,7 @@ import java.time.Instant;
 public class Discovery {
     @Id
     @Column(name = "DISCOVERY_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "DISCOVERY_SEQ")
     @SequenceGenerator(name = "DISCOVERY_SEQ", sequenceName = "DISCOVERY_SEQ", allocationSize = 1)
     @JsonView(View.Summary.class)

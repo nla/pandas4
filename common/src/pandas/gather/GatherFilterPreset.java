@@ -1,11 +1,13 @@
 package pandas.gather;
 
 import jakarta.persistence.*;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 @Entity
 @Table(name = "GATHER_FILTER_PRESET")
 public class GatherFilterPreset {
     @Id
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GATHER_FILTER_PRESET_SEQ")
     @SequenceGenerator(name = "GATHER_FILTER_PRESET_SEQ", sequenceName = "GATHER_FILTER_PRESET_SEQ", allocationSize = 1)
     @Column(name = "GATHER_FILTER_PRESET_ID")

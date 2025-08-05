@@ -15,7 +15,7 @@ public class DatabasePropertiesListener implements ApplicationListener<Applicati
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         ConfigurableEnvironment environment = event.getEnvironment();
-        if (environment.getProperty("spring.datasource.url", "").startsWith("jdbc:oracle:")) {
+        if (FlywayConfig.determineDatabaseType(environment.getProperty("spring.datasource.url", "")) != null) {
             return; // Use Flyway
         }
         log.info("Not using Flyway so allowing Hibernate to manage the database schema");

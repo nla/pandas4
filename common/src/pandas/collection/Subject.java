@@ -8,6 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.core.View;
 
 import jakarta.persistence.*;
@@ -28,6 +29,7 @@ public class Subject {
 
     @Id
     @Column(name = "SUBJECT_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SUBJECT_SEQ")
     @SequenceGenerator(name = "SUBJECT_SEQ", sequenceName = "SUBJECT_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)

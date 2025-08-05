@@ -1,10 +1,12 @@
 package pandas.social;
 
 import jakarta.persistence.*;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 
 @Entity
 public class AttachmentArchiverState {
     @Id
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ATTACHMENT_ARCHIVER_STATE_SEQ")
     @SequenceGenerator(name = "ATTACHMENT_ARCHIVER_STATE_SEQ", sequenceName = "ATTACHMENT_ARCHIVER_STATE_SEQ", allocationSize = 1)
     private Long id;

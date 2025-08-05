@@ -2,6 +2,8 @@ package pandas.gather;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import pandas.core.UseIdentityGeneratorIfMySQL;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -10,6 +12,7 @@ import java.util.Objects;
 public class GatherDate implements Comparable<GatherDate> {
     @Id
     @Column(name = "GATHER_DATE_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GATHER_DATE_SEQ")
     @SequenceGenerator(name = "GATHER_DATE_SEQ", sequenceName = "GATHER_DATE_SEQ", allocationSize = 1)
     private Long id;

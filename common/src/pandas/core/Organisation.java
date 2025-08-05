@@ -23,6 +23,7 @@ import java.util.List;
 public class Organisation implements Serializable {
     @Id
     @Column(name="ORGANISATION_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ORGANISATION_SEQ")
     @SequenceGenerator(name = "ORGANISATION_SEQ", sequenceName = "ORGANISATION_SEQ", allocationSize = 1)
     @GenericField

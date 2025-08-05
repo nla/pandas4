@@ -3,6 +3,7 @@ package pandas.collection;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.core.View;
 
 import jakarta.persistence.*;
@@ -12,6 +13,7 @@ import jakarta.persistence.*;
 public class PublisherType {
     @Id
     @Column(name = "PUBLISHER_TYPE_ID")
+    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PUBLISHER_TYPE_SEQ")
     @SequenceGenerator(name = "PUBLISHER_TYPE_SEQ", sequenceName = "PUBLISHER_TYPE_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
