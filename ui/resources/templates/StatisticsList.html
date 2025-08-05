@@ -17,6 +17,26 @@
         </ol>
     </nav>
 
+    <h3>Titles</h3>
+
+    <ul>
+        <li><a th:href="@{/statistics/agency-archiving}">Titles archived by agency</a></li>
+        <li><a th:href="@{/statistics/new-titles-by-subject}">New Titles by Subject (by Year)</a>
+    </ul>
+
+    <table class="statistics-table">
+        <tr><td>Titles</td><td th:text="${@format.comma(@titleRepository.count())}"></td></tr>
+        <tr><td>Instances:</td></tr>
+        <tr><td style="padding-left: 24px">Archived</td><td th:text="${@format.comma(@instanceRepository.countArchived())}"></td></tr>
+        <tr><td style="padding-left: 24px">Total</td><td th:text="${@format.comma(@instanceRepository.count())}"></td></tr>
+        <tr><td>Subjects</td><td th:text="${@format.comma(@subjectRepository.count())}"></td></tr>
+        <tr><td>Collections</td><td th:text="${@format.comma(@collectionRepository.count())}"></td></tr>
+        <tr><td>Publishers</td><td th:text="${@format.comma(@publisherRepository.count())}"></td></tr>
+        <tr><td>Users:</td></tr>
+        <tr><td style="padding-left: 24px">Active</td><td th:text="${@format.comma(@userRepository.countActive())}"></td></tr>
+        <tr><td style="padding-left: 24px">Total</td><td th:text="${@format.comma(@userRepository.count())}"></td></tr>
+    </table>
+
     <h3>Archived Content</h3>
 
     <p>
@@ -52,23 +72,5 @@
         </tfoot>
     </table>
 
-    <h3>PANDAS Metadata</h3>
-
-    <ul>
-        <li><a th:href="@{/statistics/new-titles-by-subject}">New Titles by Subject (by Year)</a>
-    </ul>
-
-    <table class="statistics-table">
-        <tr><td>Titles</td><td th:text="${@format.comma(@titleRepository.count())}"></td></tr>
-        <tr><td>Instances:</td></tr>
-        <tr><td style="padding-left: 24px">Archived</td><td th:text="${@format.comma(@instanceRepository.countArchived())}"></td></tr>
-        <tr><td style="padding-left: 24px">Total</td><td th:text="${@format.comma(@instanceRepository.count())}"></td></tr>
-        <tr><td>Subjects</td><td th:text="${@format.comma(@subjectRepository.count())}"></td></tr>
-        <tr><td>Collections</td><td th:text="${@format.comma(@collectionRepository.count())}"></td></tr>
-        <tr><td>Publishers</td><td th:text="${@format.comma(@publisherRepository.count())}"></td></tr>
-        <tr><td>Users:</td></tr>
-        <tr><td style="padding-left: 24px">Active</td><td th:text="${@format.comma(@userRepository.countActive())}"></td></tr>
-        <tr><td style="padding-left: 24px">Total</td><td th:text="${@format.comma(@userRepository.count())}"></td></tr>
-    </table>
 
 </main>

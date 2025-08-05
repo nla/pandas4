@@ -204,10 +204,15 @@ public class StatisticsController {
     }
 
     @GetMapping("/statistics/agency-archiving")
-    @ResponseBody
-    public List<AgencyRepository.ArchivingStats> agencyArchiving(
-            @RequestParam(required = false) Instant startDate,
-            @RequestParam(required = false) Instant endDate) {
-        return agencyRepository.archivingStats(startDate, endDate);
+    public String agencyArchiving(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            Model model) {
+        Instant startInstant = startDate == null ? null : startDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+        Instant endInstant = endDate == null ? null : endDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+        model.addAttribute("stats", agencyRepository.archivingStats(startInstant, endInstant));
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        return "StatisticsAgencyArchiving";
     }
 }
