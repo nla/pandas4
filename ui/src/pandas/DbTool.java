@@ -257,7 +257,12 @@ public class DbTool {
                     json.array();
                     for (int col = 1; col <= columnCount; col++) {
                         if (metadata.getColumnType(col) == Types.BLOB) {
-                            json.value(Base64.getEncoder().encodeToString(rs.getBytes(col)));
+                            byte[] bytes = rs.getBytes(col);
+                            if (bytes == null) {
+                                json.nul();
+                            } else {
+                                json.value(Base64.getEncoder().encodeToString(bytes));
+                            }
                         } else {
                             json.value(rs.getString(col));
                         }
