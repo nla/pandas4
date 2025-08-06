@@ -1153,9 +1153,7 @@ alter table instance
     add constraint instance_oldinstancestatus_fk foreign key (instance_status_id) references old_instance_status (instance_status_id),
     add constraint instance_title_fk foreign key (title_id) references title (title_id),
     add constraint instance_profile_fk foreign key (profile_id) references profile (profile_id) on delete set null,
-    add constraint instance_scope_fk foreign key (scope_id) references scope (scope_id) on delete set null,
-    add constraint instance_instancegather_fk foreign key (instance_id) references ins_gather (instance_id),
-    add constraint instance_instanceresource_fk foreign key (instance_id) references ins_resource (instance_id);
+    add constraint instance_scope_fk foreign key (scope_id) references scope (scope_id) on delete set null;
 
 alter table title_gather
     add constraint title_gather_profile_fk foreign key (active_profile_id) references profile (profile_id),
