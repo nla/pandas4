@@ -57,7 +57,7 @@ create table agency
     form_letter_url        varchar(4000) comment 'The URL this agency uses to access any form letters they wish to use to communicate with publisher and title contacts.',
     local_database_prefix  varchar(64),
     local_reference_prefix varchar(64),
-    logo                   blob comment 'This agency''s logo image file',
+    logo                   longblob comment 'This agency''s logo image file',
     organisation_id        bigint comment 'The organisation table which corresponds to this agency',
     legal_deposit          bigint default 0,
     transfer_contact_id    bigint,
@@ -498,7 +498,7 @@ create table thumbnail
     crop_width         bigint        not null,
     crop_height        bigint        not null,
     content_type       varchar(4000) not null,
-    data               blob          not null,
+    data               longblob          not null,
     created_date       timestamp  not null,
     last_modified_date timestamp  not null,
 
@@ -513,7 +513,7 @@ create table subject
     thumbnail_url     text,
     description       text,
     thumbnail_id      bigint comment 'Foreign key to a thumbnail for this subject',
-    icon              blob,
+    icon              longblob,
 
     constraint subject_subject_fk foreign key (subject_parent_id) references subject (subject_id),
     constraint subject_thumbnail_id_fk foreign key (thumbnail_id) references thumbnail (id)
@@ -761,7 +761,7 @@ create table instance_seed
 create table instance_thumbnail
 (
     instance_id        bigint       not null,
-    data               blob         not null,
+    data               longblob         not null,
     created_date       timestamp not null,
     last_modified_date timestamp not null,
     content_type       varchar(255) not null,
@@ -1024,7 +1024,7 @@ create table title_flag
 create table title_embedding
 (
     title_id  bigint       not null auto_increment primary key,
-    embedding blob         not null,
+    embedding longblob         not null,
     created   timestamp not null,
     constraint title_embedding_title_title_id_fk foreign key (title_id) references title (title_id) on delete cascade
 );
@@ -1138,7 +1138,7 @@ create table spring_session_attributes
 (
     session_primary_id char(36)     not null,
     attribute_name     varchar(200) not null,
-    attribute_bytes    blob         not null,
+    attribute_bytes    longblob         not null,
     constraint spring_session_attributes_pk primary key (session_primary_id, attribute_name),
     constraint spring_session_attributes_fk foreign key (session_primary_id) references spring_session (primary_id) on delete cascade
 );
