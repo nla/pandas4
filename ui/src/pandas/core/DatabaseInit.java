@@ -3,7 +3,7 @@ package pandas.core;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
@@ -20,7 +20,6 @@ import java.util.stream.Stream;
  * Populates the database with default values if it is empty.
  */
 @Component
-@DependsOn("flywayConfig")
 public class DatabaseInit {
     private final Logger log = LoggerFactory.getLogger(DatabaseInit.class);
 
@@ -34,7 +33,8 @@ public class DatabaseInit {
     private final StatusRepository statusRepository;
     private final UserRepository userRepository;
 
-    public DatabaseInit(AgencyRepository agencyRepository, FormatRepository formatRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, PublisherTypeRepository publisherTypeRepository, ScopeRepository scopeRepository, StateRepository stateRepository, StatusRepository statusRepository, UserRepository userRepository) {
+    // FlywayConfig is included here just to ensure its initialized first.
+    public DatabaseInit(@Autowired(required = false) FlywayConfig flywayConfig, AgencyRepository agencyRepository, FormatRepository formatRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, PublisherTypeRepository publisherTypeRepository, ScopeRepository scopeRepository, StateRepository stateRepository, StatusRepository statusRepository, UserRepository userRepository) {
         this.agencyRepository = agencyRepository;
         this.formatRepository = formatRepository;
         this.gatherMethodRepository = gatherMethodRepository;
