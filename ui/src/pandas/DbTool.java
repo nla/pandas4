@@ -12,13 +12,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DbTool {
     private static Pattern SANE_TABLE_NAME = Pattern.compile("[a-zA-Z0-9_]+");
+    private final String jdbcUrl;
+    private final String quoteChar;
+    private final Connection connection;
+
+    public DbTool(Connection connection) throws SQLException {
+        this.connection = connection;
+        this.jdbcUrl = connection.getMetaData().getURL();
+        if (jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:")) {
+            quoteChar = "`";
+        } else {
+            quoteChar = "";
+        }
+    }
 
     public static void main(String args[]) throws SQLException, IOException, JsonParserException {
         String dbUrl = System.getenv("PANDAS_DB_URL");
@@ -30,16 +45,20 @@ public class DbTool {
         properties.put("password", System.getenv("PANDAS_DB_PASSWORD"));
         properties.put("defaultRowPrefetch", 500);
         try (Connection connection = DriverManager.getConnection(dbUrl, properties)) {
+            var dbTool = new DbTool(connection);
             switch (args[0]) {
                 case "dump":
                     dump(connection, Paths.get(args[1]));
                     break;
                 case "load":
-                    if (!dbUrl.startsWith("jdbc:h2:") && !dbUrl.startsWith("jdbc:postgresql:")) {
-                        System.err.println("Only loading into h2 or postgresql allowed to prevent mishaps");
+                    if (!dbUrl.startsWith("jdbc:h2:") &&
+                        !dbUrl.startsWith("jdbc:postgresql:") &&
+                        !dbUrl.startsWith("jdbc:mysql:") &&
+                        !dbUrl.startsWith("jdbc:mariadb:")) {
+                        System.err.println("Only loading into h2, postgresql, mysql or mariadb allowed to prevent mishaps");
                         System.exit(1);
                     }
-                    load(connection, Paths.get(args[1]));
+                    dbTool.load(Paths.get(args[1]));
                     break;
                 default:
                     usage();
@@ -54,11 +73,23 @@ public class DbTool {
         System.exit(1);
     }
 
-    private static void load(Connection connection, Path infile) throws IOException, JsonParserException, SQLException {
-        boolean lowercase = connection.getMetaData().getURL().startsWith("jdbc:postgresql:");
+    private String quote(String s) {
+        return quoteChar + s + quoteChar;
+    }
+
+    private void load(Path infile) throws IOException, JsonParserException, SQLException {
+        boolean lowercase = jdbcUrl.startsWith("jdbc:postgresql:")
+                            || jdbcUrl.startsWith("jdbc:mysql:")
+                            || jdbcUrl.startsWith("jdbc:mariadb:");
         int batchSize = 5000;
         connection.setAutoCommit(false);
-        connection.prepareStatement("SET session_replication_role = replica").execute();
+        if (jdbcUrl.startsWith("jdbc:postgresql:")) {
+            connection.prepareStatement("SET session_replication_role = replica").execute();
+        } else if (jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:")) {
+            connection.prepareStatement("SET foreign_key_checks = 0").execute();
+            // Allow inserting 0 into AUTO_INCREMENT columns
+            connection.prepareStatement("SET SESSION sql_mode = CONCAT(@@sql_mode, ',NO_AUTO_VALUE_ON_ZERO')").execute();
+        }
 
         try (InputStream stream = Files.newInputStream(infile)) {
             JsonReader json = JsonReader.from(stream);
@@ -84,9 +115,9 @@ public class DbTool {
                             break;
                         case "rows":
                             sanityCheckTableName(table);
-                            String columnsWithCommas = String.join(", ", columns);
+                            String columnsWithCommas = columns.stream().map(this::quote).collect(Collectors.joining(", "));
                             String placeholders = String.join(",", Collections.nCopies(columns.size(), "?"));
-                            String sql = "INSERT INTO " + table + " (" + columnsWithCommas + ") VALUES (" + placeholders + ")";
+                            String sql = "INSERT INTO " + quote(table) + " (" + columnsWithCommas + ") VALUES (" + placeholders + ")";
 
                             int[] columnTypes = lookupColumnTypes(connection, table, columns);
                             if (columnTypes == null) {
@@ -102,13 +133,14 @@ public class DbTool {
 
                             System.out.println(table);
 
-                            try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM " + table)) {
+                            try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM " + quote(table))) {
                                 long rows = stmt.executeLargeUpdate();
                                 System.out.println("deleted " + rows);
                             }
 
                             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
                                 json.array();
+                                int batchCount = 0;
                                 int row;
                                 for (row = 1; json.next(); row++) {
                                     json.array();
@@ -135,13 +167,12 @@ public class DbTool {
                                                     stmt.setNull(col, columnTypes[col - 1]);
                                                 } else {
                                                     try {
-                                                        stmt.setObject(col, LocalDateTime.parse(value.replace(' ', 'T')));
+                                                        stmt.setObject(col, Instant.parse(value));
                                                     } catch (DateTimeParseException e) {
-                                                        System.err.println("Bogus date: " + value);
+                                                        System.err.println("Bogus instant: " + value);
                                                         stmt.setNull(col, columnTypes[col - 1]);
                                                     }
                                                 }
-                                                //stmt.setString(col, value);
                                                 break;
                                             }
                                             case Types.BIT:
@@ -182,16 +213,21 @@ public class DbTool {
                                         }
                                     }
                                     stmt.addBatch();
+                                    batchCount++;
 
-                                    if (row % batchSize == 0) {
+                                    if (batchCount >= batchSize) {
                                         int[] result = stmt.executeBatch();
+                                        stmt.clearBatch();
+                                        batchCount = 0;
                                         System.err.println("Inserted " + result.length + " rows into " + table);
                                     }
                                 }
-                                if (row % batchSize != 0) {
+                                if (batchCount > 0) {
                                     int[] result = stmt.executeBatch();
+                                    stmt.clearBatch();
                                     System.err.println("Inserted " + result.length + " rows into " + table);
                                 }
+                                connection.commit();
                             }
                             break;
                     }
@@ -256,7 +292,15 @@ public class DbTool {
                 while (rs.next()) {
                     json.array();
                     for (int col = 1; col <= columnCount; col++) {
-                        if (metadata.getColumnType(col) == Types.BLOB) {
+                        int columnType = metadata.getColumnType(col);
+                        if (columnType == Types.TIMESTAMP) {
+                            var timestamp = rs.getTimestamp(col);
+                            if (timestamp == null) {
+                                json.nul();
+                            } else {
+                                json.value(timestamp.toString());
+                            }
+                        } else if (columnType == Types.BLOB) {
                             byte[] bytes = rs.getBytes(col);
                             if (bytes == null) {
                                 json.nul();
