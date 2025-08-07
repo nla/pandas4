@@ -1,9 +1,12 @@
 package pandas;
 
+import com.googlecode.flyway.core.Flyway;
 import com.grack.nanojson.JsonAppendableWriter;
 import com.grack.nanojson.JsonParserException;
 import com.grack.nanojson.JsonReader;
 import com.grack.nanojson.JsonWriter;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import pandas.core.FlywayConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +16,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.sql.*;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -58,12 +60,22 @@ public class DbTool {
                         System.err.println("Only loading into h2, postgresql, mysql or mariadb allowed to prevent mishaps");
                         System.exit(1);
                     }
+                    dbTool.migrate();
                     dbTool.load(Paths.get(args[1]));
                     break;
                 default:
                     usage();
             }
         }
+    }
+
+    private void migrate() {
+        String dbType = FlywayConfig.determineDatabaseType(jdbcUrl);
+        if (dbType == null) return;
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(new SingleConnectionDataSource(connection, true));
+        flyway.setLocations("classpath:pandas/migrations/" + dbType);
+        flyway.migrate();
     }
 
     private static void usage() {
@@ -169,7 +181,7 @@ public class DbTool {
                                                     try {
                                                         stmt.setObject(col, Instant.parse(value));
                                                     } catch (DateTimeParseException e) {
-                                                        System.err.println("Bogus instant: " + value);
+                                                        System.err.println("Bogus instant: " + value + " on " + table + " row " + row);
                                                         stmt.setNull(col, columnTypes[col - 1]);
                                                     }
                                                 }
@@ -261,9 +273,13 @@ public class DbTool {
                 .array();
 
         List<String> tableNames = new ArrayList<>();
-        try (ResultSet tables = connection.getMetaData().getTables(null, "PANDAS3", null, new String[]{"TABLE"})) {
-            while (tables.next()) {
-                tableNames.add(tables.getString("TABLE_NAME"));
+        if (System.getenv().containsKey("TABLES")) {
+            tableNames.addAll(Arrays.asList(System.getenv("TABLES").split(",")));
+        } else {
+            try (ResultSet tables = connection.getMetaData().getTables(null, "PANDAS3", null, new String[]{"TABLE"})) {
+                while (tables.next()) {
+                    tableNames.add(tables.getString("TABLE_NAME"));
+                }
             }
         }
         System.err.println(tableNames);
@@ -298,7 +314,7 @@ public class DbTool {
                             if (timestamp == null) {
                                 json.nul();
                             } else {
-                                json.value(timestamp.toString());
+                                json.value(timestamp.toInstant().toString());
                             }
                         } else if (columnType == Types.BLOB) {
                             byte[] bytes = rs.getBytes(col);
