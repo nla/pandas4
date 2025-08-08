@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Titles archived by agency - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
+<main>
+    <header>
+    </header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/statistics}" href="StatisticsList.html">Statistics</a></li>
+            <li class="active">Titles archived by agency </li>
+        </ol>
+    </nav>
+
+    <form th:action="@{/statistics/agency-archiving}" method="get" class="filters" style="margin-bottom: 12px; color: #999">
+        <label for="startDate">Instance date:</label>
+        <input id="startDate" name="startDate" type="date"
+               th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}" />
+
+        <label for="endDate"> to </label>
+        <input id="endDate" name="endDate" type="date"
+               th:value="${endDate   != null ? #temporals.format(endDate,   'yyyy-MM-dd') : ''}" />
+        <button type="submit">Apply</button>
+    </form>
+
+    <table class="statistics-table">
+        <thead>
+            <tr>
+                <td>Agency</td>
+                <td>Titles</td>
+                <td>Instances</td>
+                <td>Files</td>
+                <td>Size</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row : ${stats}">
+                <td th:text="${row.name}"></td>
+                <td th:text="${row.titles}"></td>
+                <td th:text="${row.instances}"></td>
+                <td th:text="${row.files}"></td>
+                <td th:text="${@format.bytes(row.size)}"></td>
+            </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>Total</td>
+            <td th:text="${#aggregates.sum(stats.![titles])}">0</td>
+            <td th:text="${#aggregates.sum(stats.![instances])}">0</td>
+            <td th:text="${#aggregates.sum(stats.![files])}">0</td>
+            <td th:text="${@format.bytes(#aggregates.sum(stats.![size]) ?: 0)}">0</td>
+        </tr>
+        </tfoot>
+    </table>
+
+</main>
