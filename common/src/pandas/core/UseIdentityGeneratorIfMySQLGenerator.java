@@ -18,6 +18,7 @@ import org.hibernate.type.Type;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.Properties;
 
@@ -35,8 +36,12 @@ public class UseIdentityGeneratorIfMySQLGenerator extends IdentityGenerator impl
             var sequenceAnno = field.getAnnotation(SequenceGenerator.class);
             if (sequenceAnno == null) throw new IllegalArgumentException("Field must be annotated with @SequenceGenerator");
             this.sequenceName = sequenceAnno.sequenceName();
+        } else if (annotatedMember instanceof Method method) {
+            var sequenceAnno = method.getAnnotation(SequenceGenerator.class);
+            if (sequenceAnno == null) throw new IllegalArgumentException("Method must be annotated with @SequenceGenerator");
+            this.sequenceName = sequenceAnno.sequenceName();
         } else {
-            throw new IllegalArgumentException("Only fields are supported");
+            throw new IllegalArgumentException("Only fields/methods are supported not " + annotatedMember);
         }
     }
 

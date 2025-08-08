@@ -1,8 +1,8 @@
 create table individual
 (
-    audit_create_date      timestamp comment 'The date and time on which this individual was created',
+    audit_create_date      datetime(6) comment 'The date and time on which this individual was created',
     audit_create_userid    bigint comment 'The system user who created this individual',
-    audit_date             timestamp comment 'The date and time on which this individual was last updated',
+    audit_date             datetime(6) comment 'The date and time on which this individual was last updated',
     audit_userid           bigint comment 'The system user who last updated this individual',
     comments               varchar(100) comment 'Notes about this individual',
     email                  varchar(120) comment 'The email address for this individual',
@@ -28,7 +28,7 @@ create table organisation
 (
     alias           varchar(500) comment 'Abbreviation or alternate name for an organisation',
     agency_id       bigint comment 'Foreign key to the partner agency which this set of organisation details belongs to. Mutually exclusive with indexer_id and publisher_id',
-    audit_date      timestamp comment 'The date and time on which this table was last updated',
+    audit_date      datetime(6) comment 'The date and time on which this table was last updated',
     audit_userid    bigint comment 'The user who last updated this table',
     comments        varchar(100) comment 'Any notes on this organisation',
     longcountry     varchar(100) comment 'The full country name used in this organisation''s primary address',
@@ -160,7 +160,7 @@ create table permission
     permission_type        varchar(50),
     permission_type_id     bigint comment 'Foreign key to the type of permission, ie. publisher (blanket) level or title level',
     publisher_id           bigint comment 'Foreign key to the publisher who has the authority to grant this permission, if this is a blanket permission.',
-    status_set_date        timestamp comment 'The date on which this permission''s status was determined',
+    status_set_date        datetime(6) comment 'The date on which this permission''s status was determined',
     title_id               bigint comment 'Foreign key to the title this permission refers to (if it is a title level permission)'
 ) comment ='Information about whether the publisher of a title has granted or denied access to archived versions of that title, or to a group of related titles which they have the rights to.';
 
@@ -229,18 +229,18 @@ create table title_gather
     active_profile_id  bigint comment 'Foreign key to the gather profile currently applied to this title (if any)',
     authenticate_ip    bigint,
     authenticate_user  bigint,
-    cal_start_date     timestamp,
-    first_gather_date  timestamp comment 'The date on which this title was first gathered',
+    cal_start_date     datetime(6),
+    first_gather_date  datetime(6) comment 'The date on which this title was first gathered',
     gather_method_id   bigint comment 'Foreign key to the method used to gather this title',
     gather_schedule_id bigint comment 'Foreign key to the frequency of recurring gathers for this title',
     gather_url         varchar(4000),
-    last_gather_date   timestamp comment 'The most recent date on which this title was gathered',
-    next_gather_date   timestamp comment 'The next date on which this title will be gathered (could be a recurring or non-recurring gather)',
+    last_gather_date   datetime(6) comment 'The most recent date on which this title was gathered',
+    next_gather_date   datetime(6) comment 'The next date on which this title will be gathered (could be a recurring or non-recurring gather)',
     notes              varchar(4000) comment 'Notes about gathering this title',
     password           varchar(128),
     queued             bigint,
     is_scheduled       bigint comment 'Controls whether the title gather will take place or not',
-    scheduled_date     timestamp comment 'The next recurring gather date for this title',
+    scheduled_date     datetime(6) comment 'The next recurring gather date for this title',
     title_id           bigint  not null auto_increment primary key comment 'Foreign key to the title these gather details are for',
     username           varchar(128),
     gather_command     text,
@@ -274,7 +274,7 @@ create table title
     permission_id          bigint,
     pi                     bigint,
     publisher_id           bigint,
-    reg_date               timestamp,
+    reg_date               datetime(6),
     seed_url               varchar(1024),
     short_display_name     varchar(256),
     tep_id                 bigint,
@@ -285,7 +285,7 @@ create table title
     title_url              varchar(1024),
     unable_to_archive      bigint       not null default 0,
     legal_deposit          bigint       not null default 0,
-    last_modified_date     timestamp not null default current_timestamp,
+    last_modified_date     datetime(6) not null default current_timestamp(6),
 
     constraint title_agency_fk foreign key (agency_id) references agency (agency_id),
     constraint title_currentowner_fk foreign key (current_owner_id) references individual (individual_id),
@@ -314,7 +314,7 @@ create table tep
     copyright_note      varchar(4000),
     copyright_type_id   bigint,
     copyright_url       varchar(1024),
-    display_date        timestamp,
+    display_date        datetime(6),
     display_title       varchar(4000),
     do_collection       bigint,
     do_search           bigint,
@@ -371,7 +371,7 @@ create table instance
     display_note          varchar(4000) comment 'A note to be displayed with this instance on the Title TEP',
     gather_method_name    varchar(256) comment 'The method used to gather this instance',
     gathered_url          varchar(1024) comment 'The Seed URL used for this instance',
-    instance_date         timestamp comment 'The date and time at which this instance was gathered',
+    instance_date         datetime(6) comment 'The date and time at which this instance was gathered',
     instance_id           bigint       not null auto_increment primary key comment 'Sequence generated ID for the title instance',
     instance_state_id     bigint comment 'Foreign key to the old Pv2 state for this instance',
     instance_status_id    bigint comment 'Foreign key to the old Pv2 status for this instance',
@@ -389,7 +389,7 @@ create table instance
     gather_command        text,
     profile_id            bigint,
     scope_id              bigint,
-    last_modified_date    timestamp not null default current_timestamp comment 'Last modification timestamp'
+    last_modified_date    datetime(6) not null default current_timestamp(6) comment 'Last modification datetime(6)'
 ) comment ='A snapshot of the online resource, including status, date and summary statistics.';
 
 create index instance_tep_url_title_id
@@ -414,10 +414,10 @@ create table ins_resource
 create table ins_gather
 (
     gather_files  bigint comment 'The number of files gathered for this instance',
-    gather_finish timestamp comment 'The date and time this instance finished gathering',
+    gather_finish datetime(6) comment 'The date and time this instance finished gathering',
     gather_rate   bigint comment 'The average download rate for this instance''s gather (bytes/s)',
     gather_size   bigint comment 'How large the gather for this instance is (bytes)',
-    gather_start  timestamp comment 'The date and time this instance started gathering',
+    gather_start  datetime(6) comment 'The date and time this instance started gathering',
     gather_time   bigint comment 'How long the gather for this instance took',
     instance_id   bigint not null auto_increment primary key,
     constraint ins_gather_instance_fk foreign key (instance_id) references instance (instance_id)
@@ -447,7 +447,7 @@ create table auth_group
 
 create table auth_restr
 (
-    condition_date      timestamp comment 'The date the current condition (status) for this restriction was applied',
+    condition_date      datetime(6) comment 'The date the current condition (status) for this restriction was applied',
     condition_id        bigint comment 'Foreign key to the status associated with this restriction (enabled, disabled, etc)',
     title_auth_restr_id bigint not null auto_increment primary key comment 'Sequence generated id for an authorisation restriction',
     title_id            bigint comment 'Foreign key to the title this authorisation restriction refers to',
@@ -489,7 +489,7 @@ create table thumbnail
     status             bigint        not null comment 'Thumbnail capture status',
     priority           bigint        not null comment 'Thumbnail display priority',
     url                varchar(4000),
-    capture_date       timestamp  not null comment 'When the thumbnail was captured',
+    capture_date       datetime(6)  not null comment 'When the thumbnail was captured',
     source_type        varchar(4000),
     width              bigint        not null,
     height             bigint        not null,
@@ -499,8 +499,8 @@ create table thumbnail
     crop_height        bigint        not null,
     content_type       varchar(4000) not null,
     data               longblob          not null,
-    created_date       timestamp  not null,
-    last_modified_date timestamp  not null,
+    created_date       datetime(6)  not null,
+    last_modified_date datetime(6)  not null,
 
     constraint thumbnail_title_fk foreign key (title_id) references title (title_id) on delete cascade
 ) comment ='Lookup table of thumbnail images for titles, with capture metadata';
@@ -539,11 +539,11 @@ create table col
     col_parent_id      bigint comment 'Optional foreign key to the parent collection',
     thumbnail_url      text,
     thumbnail_id       bigint comment 'Foreign key to the thumbnail for this collection',
-    start_date         timestamp,
-    end_date           timestamp,
-    created_date       timestamp,
+    start_date         datetime(6),
+    end_date           datetime(6),
+    created_date       datetime(6),
     created_by         bigint,
-    last_modified_date timestamp,
+    last_modified_date datetime(6),
     last_modified_by   bigint,
     gather_schedule_id bigint       not null default 1 comment 'Foreign key to gather_schedule',
     closed             tinyint      not null default 0 comment 'Whether this collection is closed',
@@ -638,7 +638,7 @@ create table contact_type
 
 create table contact
 (
-    contact_date      timestamp comment 'The date and time on which a communication occurred',
+    contact_date      datetime(6) comment 'The date and time on which a communication occurred',
     contact_id        bigint not null auto_increment primary key comment 'A sequence generated id for a contact event (communication)',
     contact_method_id bigint comment 'Foreign key to a lookup of methods of communication',
     contact_type_id   bigint comment 'Foreign key to a lookup of types of communications',
@@ -661,10 +661,10 @@ create table contact
 create table date_restr
 (
     agency_area_id            bigint comment 'Foreign key to the location which this restriction limits viewing of the title to',
-    condition_date            timestamp comment 'The date the current condition (status) for this restriction was applied',
+    condition_date            datetime(6) comment 'The date the current condition (status) for this restriction was applied',
     condition_id              bigint comment 'Foreign key to the condition (status) of this title display restriction',
-    restriction_end_date      timestamp comment 'The date on which this display restriction expires',
-    restiction_start_date     timestamp comment 'The date on which this display restriction first becomes effective (if enabled)',
+    restriction_end_date      datetime(6) comment 'The date on which this display restriction expires',
+    restiction_start_date     datetime(6) comment 'The date on which this display restriction first becomes effective (if enabled)',
     title_date_restriction_id bigint not null auto_increment primary key comment 'Sequence generated ID for this restriction',
     title_id                  bigint comment 'Foreign key to the title this restriction applies to',
 
@@ -675,12 +675,12 @@ create table date_restr
 create table discovery_source
 (
     discovery_source_id    bigint not null auto_increment primary key,
-    created_date           timestamp,
+    created_date           datetime(6),
     item_description_query varchar(255),
     item_link_query        varchar(255),
     item_name_query        varchar(255),
     item_query             varchar(255),
-    last_modified_date     timestamp,
+    last_modified_date     datetime(6),
     link_query             varchar(255),
     name                   varchar(255),
     url                    varchar(255),
@@ -693,9 +693,9 @@ create table discovery_source
 create table discovery
 (
     discovery_id        bigint not null auto_increment primary key,
-    created_date        timestamp,
+    created_date        datetime(6),
     description         varchar(1024),
-    last_modified_date  timestamp,
+    last_modified_date  datetime(6),
     locality            varchar(255),
     name                varchar(1024),
     postcode            varchar(255),
@@ -725,7 +725,7 @@ create table email_template
 
 create table gather_date
 (
-    gather_date     timestamp comment 'A date on which a non-recurring gather should take place for a title',
+    gather_date     datetime(6) comment 'A date on which a non-recurring gather should take place for a title',
     gather_date_id  bigint not null auto_increment primary key comment 'Sequence generated ID for a non-recurring gather date',
     title_gather_id bigint not null comment 'Foreign key to the gather details for a particular title',
     constraint gather_date_titlegather_fk
@@ -762,8 +762,8 @@ create table instance_thumbnail
 (
     instance_id        bigint       not null,
     data               longblob         not null,
-    created_date       timestamp not null,
-    last_modified_date timestamp not null,
+    created_date       datetime(6) not null,
+    last_modified_date datetime(6) not null,
     content_type       varchar(255) not null,
     status             bigint       not null,
     type               smallint     not null default 0,
@@ -778,9 +778,9 @@ create table linked_account
     individual_id      bigint       not null,
     provider           varchar(255) not null,
     external_id        varchar(255) not null,
-    created_date       timestamp not null,
-    last_modified_date timestamp,
-    last_login_date    timestamp,
+    created_date       datetime(6) not null,
+    last_modified_date datetime(6),
+    last_login_date    datetime(6),
 
     constraint linked_account_individual_fk
         foreign key (individual_id) references individual (individual_id)
@@ -795,7 +795,7 @@ create table owner_history
     individual_id  bigint       not null comment 'Foreign key to the pandas user who owns or previously owned a particular title',
     note           varchar(4000) comment 'A note written by a user who was transferring a title to another user',
     owner_id       bigint       not null auto_increment primary key,
-    ownership_date timestamp not null comment 'The date on which ownership of the title began for this user',
+    ownership_date datetime(6) not null comment 'The date on which ownership of the title began for this user',
     title_id       bigint       not null comment 'Foreign key to the title this ownership record refers to',
     transferrer_id bigint comment 'Foreign key to the individual who transferred ownership of this title',
 
@@ -807,7 +807,7 @@ create table owner_history
 
 create table pandas_exception_log
 (
-    exception_date       timestamp,
+    exception_date       datetime(6),
     instance_id          bigint,
     exception_originator varchar(100),
     exception_log_id     bigint not null auto_increment primary key,
@@ -831,7 +831,7 @@ create table period_type
 create table period_restr
 (
     agency_area_id        bigint comment 'Foreign key to the location which access to a title is limited to',
-    condition_date        timestamp comment 'The date the current condition (status) for this restriction was applied',
+    condition_date        datetime(6) comment 'The date the current condition (status) for this restriction was applied',
     condition_id          bigint comment 'Foreign key to the status fo this restriction',
     period_multiplier     bigint comment 'How many times the period type must pass after the start date, before this restriction expires',
     period_restriction_id bigint not null auto_increment primary key comment 'Sequence generated id for this period restriction',
@@ -847,13 +847,13 @@ create table period_restr
 create table qa_problem
 (
     affects_whole_site     bigint comment 'Whether or not this problem affects the whole site or just one or two pages',
-    creation_date          timestamp comment 'The date and time at which the QA problem was first created',
+    creation_date          datetime(6) comment 'The date and time at which the QA problem was first created',
     example_link           varchar(4000) comment 'Links to any examples of the problem',
     external_id            varchar(16) comment 'The ID of the problem in the external QA system',
     individual_id          bigint comment 'The user who reported the problem',
     instance_id            bigint comment 'The instance this problem was found in',
     is_recurring           bigint comment 'Whether this problem is always/often found in instances of this title',
-    modification_date      timestamp comment 'The date and time on which this QA problem was last updated',
+    modification_date      datetime(6) comment 'The date and time on which this QA problem was last updated',
     problem_description    varchar(4000) comment 'A description of this QA problem',
     problem_id             bigint not null auto_increment primary key comment 'A sequence generated ID for this QA problem',
     problem_name           varchar(1024) comment 'A short label for this QA problem',
@@ -876,7 +876,7 @@ create table rejected_domain
     id           bigint       not null auto_increment primary key,
     domain       varchar(255) not null,
     reason_id    bigint       not null,
-    created_date timestamp not null,
+    created_date datetime(6) not null,
     user_id      bigint       not null,
     agency_id    bigint,
 
@@ -912,13 +912,13 @@ create table report
     individual_id        bigint not null comment 'Id of the individual who requested this report.',
     report_type_id       bigint not null comment 'Key of the type of report that was selected, see report_type table.',
     agency_id            bigint comment 'Key of the agency that this report covers.',
-    period_start         date comment 'Start date for the period this report covers. Should be null for scheduled reports.',
-    period_end           date comment 'End date for the period this report covers. Should be null for scheduled reports.',
+    period_start         datetime comment 'Start date for the period this report covers. Should be null for scheduled reports.',
+    period_end           datetime comment 'End date for the period this report covers. Should be null for scheduled reports.',
     show_details         bigint not null comment 'Detail level to be included in the report. 0 = "Numbers only" summary. 1 = full details.',
     publisher_type_id    bigint comment 'Publisher type this report should cover. Null if not applicable for this report type.',
     restriction_type     bigint comment 'Restriction type this report should cover (if applicable). null=N/A, 0=period, 1=date, 2=auth',
-    last_generation_date date comment 'Date this report was last generated.',
-    next_generation_date date comment 'Date this report should next be generated. Null if the report is not scheduled (ie ad-hoc report).',
+    last_generation_date datetime comment 'Date this report was last generated.',
+    next_generation_date datetime comment 'Date this report should next be generated. Null if the report is not scheduled (ie ad-hoc report).',
     report_schedule_id   bigint comment 'Key of the schedule this report is on. Null if the report is not scheduled.',
     scheduled_day        bigint comment 'Day of the week or month (depending on schedule_id) that this report should be delivered upon.',
     is_visible           bigint not null comment 'Should this report appear in the user''s report tray? 0=hidden, 1=visible',
@@ -933,8 +933,8 @@ create table report
 
 create table role
 (
-    audit_create_date timestamp comment 'The date and time at which this role was created',
-    audit_date        timestamp comment 'The date and time at which this role was last modified',
+    audit_create_date datetime(6) comment 'The date and time at which this role was created',
+    audit_date        datetime(6) comment 'The date and time at which this role was last modified',
     audit_userid      bigint comment 'The user who last modified this role',
     comments          varchar(200) comment 'Any notes about this role',
     individual_id     bigint       not null comment 'Foreign key to the individual who performs this role',
@@ -952,12 +952,12 @@ create table social_target
     social_target_id       bigint       not null auto_increment primary key,
     query                  varchar(255) not null,
     server                 varchar(255) not null,
-    created_date           timestamp,
-    last_modified_date     timestamp,
-    last_visited_date      timestamp,
-    newest_post_date       timestamp,
+    created_date           datetime(6),
+    last_modified_date     datetime(6),
+    last_visited_date      datetime(6),
+    newest_post_date       datetime(6),
     newest_post_id         varchar(255),
-    oldest_post_date       timestamp,
+    oldest_post_date       datetime(6),
     oldest_post_id         varchar(255),
     post_count             bigint       not null default 0,
     created_by             bigint,
@@ -973,10 +973,10 @@ create table social_target
 
 create table state_history
 (
-    end_date         timestamp comment 'The date and time this state stopped being the current one for an instance',
+    end_date         datetime(6) comment 'The date and time this state stopped being the current one for an instance',
     individual_id    bigint comment 'Foreign key to the individual who caused this state to be applied',
     instance_id      bigint comment 'Foreign key to the instance this state applies or once applied to',
-    start_date       timestamp comment 'The date and time this state stopped being the current one for an instance',
+    start_date       datetime(6) comment 'The date and time this state stopped being the current one for an instance',
     state_history_id bigint not null auto_increment primary key comment 'Sequence generated id for this status history entry',
     state_id         bigint comment 'Foreign key to the state for this status history entry',
 
@@ -989,10 +989,10 @@ create index state_history_state_date on state_history (state_id, start_date);
 
 create table status_history
 (
-    end_date          timestamp comment 'The date and time this status stopped being the current one for a title',
+    end_date          datetime(6) comment 'The date and time this status stopped being the current one for a title',
     individual_id     bigint comment 'Foreign key to the individual who caused this status to be applied',
     reason_id         bigint comment 'Foreign key to a reason why this status was applied',
-    start_date        timestamp comment 'The date and time this status stopped being the current one for a title',
+    start_date        datetime(6) comment 'The date and time this status stopped being the current one for a title',
     status_history_id bigint not null auto_increment primary key comment 'Sequence generated ID for this status history entry',
     status_id         bigint comment 'Foreign key to the status for this entry',
     title_id          bigint comment 'Foreign key to the title this status applies or applied to',
@@ -1025,7 +1025,7 @@ create table title_embedding
 (
     title_id  bigint       not null auto_increment primary key,
     embedding longblob         not null,
-    created   timestamp not null,
+    created   datetime(6) not null,
     constraint title_embedding_title_title_id_fk foreign key (title_id) references title (title_id) on delete cascade
 );
 
@@ -1042,7 +1042,7 @@ create table title_history
 (
     ceased_id        bigint comment 'Foreign key to the title which has been replaced by a new (continuing) title',
     continues_id     bigint comment 'Foreign key to the title which took over from a ceased title',
-    date_changed     timestamp comment 'The date the old title was replaced by the new title',
+    date_changed     datetime(6) comment 'The date the old title was replaced by the new title',
     title_history_id bigint not null auto_increment primary key comment 'Sequence generated ID for a record of historicly used titles',
     constraint title_history_continuedby_fk foreign key (ceased_id) references title (title_id),
     constraint title_history_continues_fk foreign key (continues_id) references title (title_id)
@@ -1052,7 +1052,7 @@ create table title_par_child
 (
     child_id           bigint comment 'Foreign key to a child title of this parent title',
     parent_id          bigint comment 'Foreign key to the parent title for this child title',
-    related_date       timestamp comment 'The date the parent child relationship was created',
+    related_date       datetime(6) comment 'The date the parent child relationship was created',
     title_par_child_id bigint not null auto_increment primary key comment 'Sequence generated ID for the child parent title relationship',
     constraint title_par_child_child_fk foreign key (child_id) references title (title_id),
     constraint title_par_child_parent_fk foreign key (parent_id) references title (title_id)
@@ -1060,7 +1060,7 @@ create table title_par_child
 
 create table title_previous_name
 (
-    date_changed     timestamp comment 'The date the previous name stopped being current',
+    date_changed     datetime(6) comment 'The date the previous name stopped being current',
     previous_name    varchar(256) comment 'A name which used to be used for a title, but has now been changed',
     title_history_id bigint not null auto_increment primary key comment 'Sequence generated ID for the previous title name',
     title_id         bigint comment 'Foreign key to the title this previous name is for'
@@ -1068,7 +1068,7 @@ create table title_previous_name
 
 create table mime_type
 (
-    date_added   timestamp comment 'The date this mime type was added',
+    date_added   datetime(6) comment 'The date this mime type was added',
     mime_type_id bigint not null auto_increment primary key comment 'Sequence generated id for this mime type',
     note         varchar(256) comment 'Notes about this mime type',
     parameter    varchar(256) comment 'Extra parameters specified with a mime type. Eg. charset',

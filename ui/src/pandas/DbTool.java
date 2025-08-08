@@ -5,7 +5,7 @@ import com.grack.nanojson.JsonAppendableWriter;
 import com.grack.nanojson.JsonParserException;
 import com.grack.nanojson.JsonReader;
 import com.grack.nanojson.JsonWriter;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.mariadb.jdbc.MariaDbDataSource;
 import pandas.core.FlywayConfig;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DbTool {
-    private static Pattern SANE_TABLE_NAME = Pattern.compile("[a-zA-Z0-9_]+");
+    private static final Pattern SANE_TABLE_NAME = Pattern.compile("[a-zA-Z0-9_]+");
     private final String jdbcUrl;
     private final String quoteChar;
     private final Connection connection;
@@ -37,6 +37,10 @@ public class DbTool {
         }
     }
 
+    private static boolean isMySQL(String jdbcUrl) {
+        return jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:");
+    }
+
     public static void main(String args[]) throws SQLException, IOException, JsonParserException {
         String dbUrl = System.getenv("PANDAS_DB_URL");
         if (args.length < 2 || dbUrl == null) {
@@ -45,7 +49,14 @@ public class DbTool {
         Properties properties = new Properties();
         properties.put("user", System.getenv("PANDAS_DB_USER"));
         properties.put("password", System.getenv("PANDAS_DB_PASSWORD"));
-        properties.put("defaultRowPrefetch", 500);
+        if (isMySQL(dbUrl)) {
+            // ensure DATETIME columns are stored in UTC to avoid DST ambiguity
+            properties.put("connectionTimeZone", "UTC");
+            properties.put("preserveInstants", true);
+            properties.put("forceConnectionTimeZoneToSession", true);
+        } else {
+            properties.put("defaultRowPrefetch", 500);
+        }
         try (Connection connection = DriverManager.getConnection(dbUrl, properties)) {
             var dbTool = new DbTool(connection);
             switch (args[0]) {
@@ -69,11 +80,16 @@ public class DbTool {
         }
     }
 
-    private void migrate() {
+    private void migrate() throws SQLException {
         String dbType = FlywayConfig.determineDatabaseType(jdbcUrl);
         if (dbType == null) return;
+
         Flyway flyway = new Flyway();
-        flyway.setDataSource(new SingleConnectionDataSource(connection, true));
+        MariaDbDataSource dataSource = new MariaDbDataSource();
+        dataSource.setUrl(System.getenv("PANDAS_DB_URL"));
+        dataSource.setUser(System.getenv("PANDAS_DB_USER"));
+        dataSource.setPassword(System.getenv("PANDAS_DB_PASSWORD"));
+        flyway.setDataSource(dataSource);
         flyway.setLocations("classpath:pandas/migrations/" + dbType);
         flyway.migrate();
     }
@@ -179,7 +195,8 @@ public class DbTool {
                                                     stmt.setNull(col, columnTypes[col - 1]);
                                                 } else {
                                                     try {
-                                                        stmt.setObject(col, Instant.parse(value));
+                                                        Instant instant = Instant.parse(value);
+                                                        stmt.setObject(col, Timestamp.from(instant));
                                                     } catch (DateTimeParseException e) {
                                                         System.err.println("Bogus instant: " + value + " on " + table + " row " + row);
                                                         stmt.setNull(col, columnTypes[col - 1]);
