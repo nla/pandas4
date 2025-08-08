@@ -2,9 +2,19 @@
 
 ## Unreleased
 
+### New features
+
+* 'Titles archived by agency' report under Statistics. This is the 'Total archived titles' report from PANDAS 3.
+
+* MySQL database support.
+
 ### Bug fixes
 
 * Fixed broken link on view title screen to the contact person for a contact event when the person is a publisher contact.
+
+### Changes
+
+* Webjar version numbers are no longer hard-coded in templates and are now resolved by webjars-locator-lite.
 
 ## 4.7.1
 
