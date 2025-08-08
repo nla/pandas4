@@ -12,6 +12,8 @@
 
 * Fixed broken link on view title screen to the contact person for a contact event when the person is a publisher contact.
 
+* Fixed a null pointer exception on the issues editor when a title has no instances.
+
 ### Changes
 
 * Webjar version numbers are no longer hard-coded in templates and are now resolved by webjars-locator-lite.

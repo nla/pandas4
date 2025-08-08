@@ -76,7 +76,7 @@
                     <input name="id" type="hidden">
                     <input name="name" placeholder="Issue name" required>
                 </td>
-                <td><input name="url" placeholder="URL" th:value="${instances.get(0)?.tepUrlAbsolute ?: ''}" required></td>
+                <td><input name="url" placeholder="URL" th:value="${(instances != null and !instances.isEmpty()) ? instances.get(0).tepUrlAbsolute : ''}" required></td>
                 <td>
                     <select name="instance" data-selectedindex="1">
                         <option></option>
