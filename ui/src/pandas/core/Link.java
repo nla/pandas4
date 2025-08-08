@@ -91,9 +91,12 @@ public class Link {
     }
 
     public String edit(Title title, ContactPerson contactPerson) {
+        // contact person might belong to the publisher instead of the title
+        if (!contactPerson.getTitles().contains(title)) {
+            return edit(contactPerson);
+        }
         return to(title) + "/contact-people/" + contactPerson.getId() + "/edit";
     }
-
 
     public String flag(Title title) {
         return to(title) + "/flag";

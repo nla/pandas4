@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## Unreleased
+
+### Bug fixes
+
+* Fixed broken link on view title screen to the contact person for a contact event when the person is a publisher contact.
+
 ## 4.7.1
 
 ### Bug fixes
