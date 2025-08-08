@@ -2,12 +2,7 @@ package pandas.collection;
 
 import jakarta.persistence.*;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
-import org.springframework.cglib.core.Local;
-import pandas.core.Individual;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -24,7 +19,6 @@ import java.util.Objects;
 public class Permission {
     @Id
     @Column(name = "PERMISSION_ID", nullable = false)
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "PERMISSION_SEQ")
     @SequenceGenerator(name = "PERMISSION_SEQ", sequenceName = "PERMISSION_SEQ", allocationSize = 1)
     @GenericField

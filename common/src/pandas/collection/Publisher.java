@@ -7,7 +7,6 @@ import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.core.Organisation;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.core.View;
 
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ import java.util.List;
 public class Publisher {
     @Id
     @Column(name = "PUBLISHER_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "PUBLISHER_SEQ")
     @SequenceGenerator(name = "PUBLISHER_SEQ", sequenceName = "PUBLISHER_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)

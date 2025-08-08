@@ -3,7 +3,6 @@ package pandas.collection;
 import pandas.agency.User;
 
 import jakarta.persistence.*;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.time.Instant;
 
@@ -12,7 +11,6 @@ import java.time.Instant;
 public class StatusHistory {
     @Id
     @Column(name = "STATUS_HISTORY_ID", nullable = false)
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "STATUS_HISTORY_SEQ")
     @SequenceGenerator(name = "STATUS_HISTORY_SEQ", sequenceName = "STATUS_HISTORY_SEQ", allocationSize = 1)
     private Long id;

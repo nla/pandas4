@@ -17,7 +17,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.User;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.core.View;
 import pandas.gather.GatherSchedule;
 import pandas.util.TimeFrame;
@@ -44,7 +43,6 @@ public class Collection {
 
     @Id
     @Column(name = "COL_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "COL_SEQ")
     @SequenceGenerator(name = "COL_SEQ", sequenceName = "COL_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES, sortable = Sortable.YES)

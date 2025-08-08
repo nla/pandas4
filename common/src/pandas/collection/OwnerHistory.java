@@ -7,7 +7,6 @@ import pandas.agency.User;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.time.Instant;
 
@@ -17,7 +16,6 @@ import java.time.Instant;
 public class OwnerHistory {
     @Id
     @Column(name = "OWNER_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OWNER_HISTORY_SEQ")
     @SequenceGenerator(name = "OWNER_HISTORY_SEQ", sequenceName = "OWNER_HISTORY_SEQ", allocationSize = 1)
     private Long id;

@@ -20,7 +20,6 @@ import java.util.Objects;
 public abstract class Individual {
     @Id
     @Column(name = "INDIVIDUAL_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "INDIVIDUAL_SEQ")
     @SequenceGenerator(name = "INDIVIDUAL_SEQ", sequenceName = "INDIVIDUAL_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)

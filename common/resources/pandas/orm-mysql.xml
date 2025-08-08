@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 version="3.0"
+                 xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm https://jakarta.ee/xml/ns/persistence/orm_3_0.xsd">
+    <!-- Override @GeneratedValue to IDENTITY for all id columns on all entities when running on MySQL. -->
+
+    <entity class="pandas.agency.Agency">
+        <attributes>
+            <id name="id">
+                <column name="AGENCY_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Collection">
+        <attributes>
+            <id name="id">
+                <column name="COL_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.CopyrightType">
+        <attributes>
+            <id name="id">
+                <column name="COPYRIGHT_TYPE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Format">
+        <attributes>
+            <id name="id">
+                <column name="FORMAT_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Issue">
+        <attributes>
+            <id name="id">
+                <column name="ISSUE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.IssueGroup">
+        <attributes>
+            <id name="id">
+                <column name="ISSUE_GROUP_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.OwnerHistory">
+        <attributes>
+            <id name="id">
+                <column name="OWNER_HISTORY_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Permission">
+        <attributes>
+            <id name="id">
+                <column name="PERMISSION_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.PermissionState">
+        <attributes>
+            <id name="id">
+                <column name="PERMISSION_STATE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.PermissionType">
+        <attributes>
+            <id name="id">
+                <column name="PERMISSION_TYPE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Publisher">
+        <attributes>
+            <id name="id">
+                <column name="PUBLISHER_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.PublisherType">
+        <attributes>
+            <id name="id">
+                <column name="PUBLISHER_TYPE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.SocialTarget">
+        <attributes>
+            <id name="id">
+                <column name="SOCIAL_TARGET_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Status">
+        <attributes>
+            <id name="id">
+                <column name="STATUS_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.StatusHistory">
+        <attributes>
+            <id name="id">
+                <column name="STATUS_HISTORY_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Subject">
+        <attributes>
+            <id name="id">
+                <column name="SUBJECT_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Tep">
+        <attributes>
+            <id name="id">
+                <column name="TEP_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Thumbnail">
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.Title">
+        <attributes>
+            <id name="id">
+                <column name="TITLE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.collection.TitleHistory">
+        <attributes>
+            <id name="id">
+                <column name="TITLE_HISTORY_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.core.Individual">
+        <attributes>
+            <id name="id">
+                <column name="INDIVIDUAL_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.core.LinkedAccount">
+        <attributes>
+            <id name="id">
+                <column name="LINKED_ACCOUNT_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.core.Organisation">
+        <attributes>
+            <id name="id">
+                <column name="ORGANISATION_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.core.Role">
+        <attributes>
+            <id name="id">
+                <column name="ROLE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.GatherDate">
+        <attributes>
+            <id name="id">
+                <column name="GATHER_DATE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.GatherFilterPreset">
+        <attributes>
+            <id name="id">
+                <column name="GATHER_FILTER_PRESET_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.GatherMethod">
+        <attributes>
+            <id name="id">
+                <column name="GATHER_METHOD_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.GatherSchedule">
+        <attributes>
+            <id name="id">
+                <column name="GATHER_SCHEDULE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.Instance">
+        <attributes>
+            <id name="id">
+                <column name="INSTANCE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.InstanceSeed">
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.OptionArgument">
+        <attributes>
+            <id name="id">
+                <column name="OPTION_ARGUMENT_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.PandasExceptionLog">
+        <attributes>
+            <id name="id">
+                <column name="PANDAS_EXCEPTION_LOG_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.Profile">
+        <attributes>
+            <id name="id">
+                <column name="PROFILE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.Scope">
+        <attributes>
+            <id name="id">
+                <column name="SCOPE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.State">
+        <attributes>
+            <id name="id">
+                <column name="STATE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.gather.StateHistory">
+        <attributes>
+            <id name="id">
+                <column name="STATE_HISTORY_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="pandas.social.AttachmentArchiverState">
+        <attributes>
+            <id name="id">
+                <column name="ATTACHMENT_ARCHIVER_STATE_ID"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
+</entity-mappings>

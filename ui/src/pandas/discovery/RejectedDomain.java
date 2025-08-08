@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.Agency;
 import pandas.agency.User;
 import pandas.collection.Reason;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.time.Instant;
 
@@ -21,7 +20,6 @@ import java.time.Instant;
 public class RejectedDomain {
     @Id
     @Column(name = "ID", nullable = false)
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "REJECTED_DOMAIN_SEQ")
     @SequenceGenerator(name = "REJECTED_DOMAIN_SEQ", sequenceName = "REJECTED_DOMAIN_SEQ", allocationSize = 1)
     private Long id;

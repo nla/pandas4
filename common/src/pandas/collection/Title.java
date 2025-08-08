@@ -17,7 +17,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.Agency;
 import pandas.agency.User;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.core.View;
 import pandas.gather.Instance;
 import pandas.gather.TitleGather;
@@ -55,7 +54,6 @@ public class Title {
 
     @Id
     @Column(name = "TITLE_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "TITLE_SEQ")
     @SequenceGenerator(name = "TITLE_SEQ", sequenceName = "TITLE_SEQ", allocationSize = 1)
 // TODO: native generator for mysql support, but this breaks existing h2 schema

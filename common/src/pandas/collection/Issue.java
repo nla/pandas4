@@ -1,7 +1,6 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.delivery.DeliveryUrls;
 import pandas.gather.Instance;
 
@@ -16,7 +15,6 @@ import java.time.Instant;
         indexes = {@Index(name = "issue_issue_group_id_order_index", columnList = "issue_group_id, issue_order")})
 public class Issue {
     @Id
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "ARCH_ISSUE_SEQ")
     @SequenceGenerator(name = "ARCH_ISSUE_SEQ", sequenceName = "ARCH_ISSUE_SEQ", allocationSize = 1)
     @Column(name = "ISSUE_ID", nullable = false, precision = 0)

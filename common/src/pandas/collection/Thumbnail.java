@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import pandas.core.IThumbnail;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.time.Instant;
 
@@ -12,7 +11,6 @@ import java.time.Instant;
 @Table(indexes = {@Index(name = "thubmnail_title_id_index", columnList = "title_id")})
 public class Thumbnail implements IThumbnail {
     @Id
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "THUMBNAIL_SEQ")
     @SequenceGenerator(name = "THUMBNAIL_SEQ", sequenceName = "THUMBNAIL_SEQ", allocationSize = 1)
     private Long id;

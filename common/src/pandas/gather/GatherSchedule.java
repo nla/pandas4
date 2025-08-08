@@ -4,7 +4,6 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 import jakarta.persistence.*;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.time.*;
 import java.time.format.TextStyle;
@@ -26,7 +25,6 @@ public class GatherSchedule implements Comparable<GatherSchedule> {
     @Id
     @Column(name = "GATHER_SCHEDULE_ID")
     @GenericField(aggregable = Aggregable.YES)
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GATHER_SCHEDULE_SEQ")
     @SequenceGenerator(name = "GATHER_SCHEDULE_SEQ", sequenceName = "GATHER_SCHEDULE_SEQ", allocationSize = 1)
     private Long id;

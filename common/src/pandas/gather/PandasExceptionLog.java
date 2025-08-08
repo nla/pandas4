@@ -1,10 +1,8 @@
 package pandas.gather;
 
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 
 import jakarta.persistence.*;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.sql.Types;
 import java.time.Instant;
@@ -14,7 +12,6 @@ import java.time.Instant;
 public class PandasExceptionLog {
     @Id
     @Column(name = "EXCEPTION_LOG_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PANDAS_EXCEPTION_LOG_SEQ")
     @SequenceGenerator(name = "PANDAS_EXCEPTION_LOG_SEQ", sequenceName = "PANDAS_EXCEPTION_LOG_SEQ", allocationSize = 1)
     private Long id;

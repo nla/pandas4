@@ -4,7 +4,6 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 import jakarta.persistence.*;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 @Entity
 @Table(name = "FORMAT")
@@ -14,7 +13,6 @@ public class Format {
 
     @Id
     @Column(name = "FORMAT_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FORMAT_SEQ")
     @SequenceGenerator(name = "FORMAT_SEQ", sequenceName = "FORMAT_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)

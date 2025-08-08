@@ -5,14 +5,12 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericFie
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 @Entity
 @Table(name = "PROFILE")
 public class Profile {
     @Id
     @Column(name = "PROFILE_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PROFILE_SEQ")
     @SequenceGenerator(name = "PROFILE_SEQ", sequenceName = "PROFILE_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)

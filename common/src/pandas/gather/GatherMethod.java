@@ -4,7 +4,6 @@ import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
 import jakarta.persistence.*;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 
 import java.util.Objects;
 
@@ -21,7 +20,6 @@ public class GatherMethod {
     @Id
     @Column(name = "GATHER_METHOD_ID")
     @GenericField(aggregable = Aggregable.YES)
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GATHER_METHOD_SEQ")
     @SequenceGenerator(name = "GATHER_METHOD_SEQ", sequenceName = "GATHER_METHOD_SEQ", allocationSize = 1)
     private Long id;

@@ -11,7 +11,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.User;
-import pandas.core.UseIdentityGeneratorIfMySQL;
 import pandas.core.View;
 
 import java.time.Instant;
@@ -21,7 +20,6 @@ import java.time.Instant;
 public class SocialTarget {
     @Id
     @Column(name = "SOCIAL_TARGET_ID")
-    @UseIdentityGeneratorIfMySQL
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SOCIAL_TARGET_SEQ")
     @SequenceGenerator(name = "SOCIAL_TARGET_SEQ", sequenceName = "SOCIAL_TARGET_SEQ", allocationSize = 1)
     @GenericField(aggregable = Aggregable.YES)
