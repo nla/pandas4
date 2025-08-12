@@ -158,6 +158,14 @@ public abstract class Individual {
         return role;
     }
 
+    public boolean hasRole() {
+        return role != null;
+    }
+
+    public Role getRoleIfExists() {
+        return role;
+    }
+
     public void setRole(Role role) {
         this.role = role;
         role.setIndividual(this);

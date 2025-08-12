@@ -12,7 +12,9 @@ import java.time.Instant;
 @Table(name = "CONTACT")
 public class ContactEvent {
     @Id
-    @Column(name = "CONTACT_ID", nullable = false, precision = 0)
+    @Column(name = "CONTACT_ID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "CONTACT_SEQ")
+    @SequenceGenerator(name = "CONTACT_SEQ", sequenceName = "CONTACT_SEQ", allocationSize = 1)
     private Long id;
 
     /**
@@ -129,5 +131,13 @@ public class ContactEvent {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Title getTitle() {
+        return title;
+    }
+
+    public void setTitle(Title title) {
+        this.title = title;
     }
 }

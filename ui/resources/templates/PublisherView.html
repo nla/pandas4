@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="|${publisher.name} (Publisher) - PANDAS|">Somebody (Publisher) - PANDAS</title>
@@ -186,6 +186,25 @@
                     <td><a th:href="${'tel:' + contactPerson.fax}" th:text="${contactPerson.fax}">025555555</a></td>
                 </tr>
             </table>
+        </div>
+    </section>
+
+    <section th:if="${publisher.contactEvents != null}">
+        <h4>Contact Events 
+            <a sec:authorize="hasPermission(#vars.publisher, 'edit')" th:href="@{|/publishers/${publisher.id}/contact-events/new|}"><i class="icon add"></i></a>
+        </h4>
+        <div th:if="${publisher.contactEvents.isEmpty()}">
+            <em>No contact events recorded.</em>
+        </div>
+        <div th:each="contactEvent : ${publisher.contactEvents}" style="margin: 0.5em 0; padding: 0.5em; border-left: 3px solid #ccc;">
+            <strong th:if="${contactEvent.date != null}" th:text="${@dateFormats.SHORT_DATE.format(contactEvent.date)}"></strong>
+            <span th:text="${contactEvent.method != null ? contactEvent.method.name : ''}"></span>
+            <span th:text="${contactEvent.type != null ? contactEvent.type.name : ''}"></span>
+            <a th:if="${contactEvent.contactPerson != null}" th:text="${contactEvent.contactPerson.name}"
+               th:href="${@link.edit(contactEvent.contactPerson)}"></a>
+            <span th:if="${contactEvent.user != null}" th:text="${contactEvent.user.userid}"></span>
+            <div th:if="${contactEvent.note != null and !contactEvent.note.isEmpty()}" th:text="${contactEvent.note}" style="margin-top: 0.25em; color: #666;"></div>
+            <a sec:authorize="hasPermission(#vars.publisher, 'edit')" th:href="@{|/publishers/${publisher.id}/contact-events/${contactEvent.id}/edit|}"><i class="icon edit"></i></a>
         </div>
     </section>
 

@@ -212,16 +212,22 @@
             </div>
         </div>
 
-        <div th:unless="${title.contactEvents.isEmpty()}">
-            <h4>Contact Events</h4>
+        <div>
+            <h4>Contact Events 
+                <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/contact-events/new|}"><i class="icon add"></i></a>
+            </h4>
+            <div th:if="${title.contactEvents.isEmpty()}">
+                <em>No contact events recorded.</em>
+            </div>
             <div th:each="contactEvent : ${title.contactEvents}">
                 <strong th:if="${contactEvent.date != null}" th:text="${@dateFormats.SHORT_DATE.format(contactEvent.date)}"></strong>
-                <span th:text="${contactEvent.method.name}"></span>
-                <span th:text="${contactEvent.type.name}"></span>
+                <span th:text="${contactEvent.method != null ? contactEvent.method.name : ''}"></span>
+                <span th:text="${contactEvent.type != null ? contactEvent.type.name : ''}"></span>
                 <a th:if="${contactEvent.contactPerson != null}" th:text="${contactEvent.contactPerson.name}"
                    th:href="${@link.edit(title, contactEvent.contactPerson)}"></a>
                 <span th:if="${contactEvent.user != null}" th:text="${contactEvent.user.userid}"></span>
                 <span th:text="${contactEvent.note}"></span>
+                <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/contact-events/${contactEvent.id}/edit|}"><i class="icon edit"></i></a>
             </div>
         </div>
 

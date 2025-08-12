@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact Event - PANDAS</title>
+  <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+  <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
+<main>
+  <header>
+    <nav>
+      <button type="submit" class="btn btn-primary" form=form><i class="icon save"></i> Save</button>
+      <a href="javascript:history.back()" data-keybind="Escape" class="btn btn-secondary"><i class="icon cancel"></i>
+        Cancel</a>
+    </nav>
+    <button th:if="${contactEventId != null}" type="submit"
+            th:formaction="@{|/contact-events/${contactEventId}/delete|}"
+            class="btn btn-danger float-right" form=form><i class="icon delete"></i> Delete
+    </button>
+  </header>
+
+  <nav class="breadcrumb">
+    <ol th:if="${publisher}">
+      <li><a th:href="@{/publishers}" style="font-weight: bold">Publishers</a></li>
+      <li><a th:href="${@link.to(publisher)}" th:text="${publisher.name}">My cool publisher</a></li>
+      <li class="active">Contact Event</li>
+    </ol>
+    <ol th:if="${title}">
+      <li><a th:href="@{/titles}" style="font-weight: bold">Titles</a></li>
+      <li><a th:href="${@link.to(title)}" th:text="${title.name}">My cool title</a></li>
+      <li class="active">Contact Event</li>
+    </ol>
+  </nav>
+
+  <form method=post class=form th:action="@{''}" id=form>
+      <fieldset th:object="${form}">
+          <div>
+              <label>Date <input type="datetime-local" name="date" th:value="*{dateFormatted}" required></label>
+          </div>
+
+          <div th:if="${contactPeople != null and !contactPeople.isEmpty()}">
+              <label>Contact Person
+                  <select th:field="*{contactPerson}" required>
+                      <option th:each="person : ${contactPeople}"
+                              th:value="${person}"
+                              th:text="${person.nameAndFunction}">John Doe, Editor
+                      </option>
+                  </select>
+              </label>
+          </div>
+
+          <div>
+              <label>Method
+                  <select th:field="*{method}" required>
+                      <option th:each="method : ${contactMethods}"
+                              th:value="${method}"
+                              th:text="${method.name}">Email
+                      </option>
+                  </select>
+              </label>
+              <label>Type
+                  <select th:field="*{type}" required>
+                      <option value=""></option>
+                      <option th:each="type : ${contactTypes}"
+                              th:value="${type}"
+                              th:text="${type.name}">Initial Contact
+                      </option>
+                  </select>
+              </label>
+          </div>
+
+          <label>Notes
+              <textarea th:field="*{note}" rows="4" cols="50"></textarea>
+          </label>
+      </fieldset>
+  </form>
+</main>

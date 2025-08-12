@@ -58,6 +58,10 @@ public class Publisher {
     @OneToMany(mappedBy = "publisher")
     private List<Permission> permissions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "publisher")
+    @OrderBy("date DESC")
+    private List<ContactEvent> contactEvents = new ArrayList<>();
+
     public String getLocalReference() {
         return localReference;
     }
@@ -123,5 +127,9 @@ public class Publisher {
 
     public List<Permission> getPermissions() {
         return Collections.unmodifiableList(permissions);
+    }
+
+    public List<ContactEvent> getContactEvents() {
+        return Collections.unmodifiableList(contactEvents);
     }
 }

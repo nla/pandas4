@@ -2,7 +2,6 @@ package pandas.collection;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import pandas.core.Individual;
-import pandas.core.Organisation;
 import pandas.core.Role;
 
 import jakarta.persistence.Column;
@@ -44,8 +43,9 @@ public class ContactPerson extends Individual {
     }
 
     public Publisher getPublisher() {
-        if (getRole().getOrganisation() == null) return null;
-        return getRole().getOrganisation().getPublisher();
+        Role existingRole = getRoleIfExists();
+        if (existingRole == null || existingRole.getOrganisation() == null) return null;
+        return existingRole.getOrganisation().getPublisher();
     }
 
     public void setPublisher(Publisher publisher) {
@@ -57,8 +57,6 @@ public class ContactPerson extends Individual {
 
     @Override
     public String getName() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getNameGiven());
         return Stream.of(getNameTitle(), getNameGiven(), getNameFamily())
                 .filter(s -> s != null && !s.isBlank())
                 .collect(Collectors.joining(" "));
@@ -71,9 +69,9 @@ public class ContactPerson extends Individual {
         if (function != null) {
             builder.append(", ").append(function);
         }
-        Organisation organisation = getRole().getOrganisation();
-        if (organisation != null) {
-            builder.append(" (").append(organisation.getName()).append(")");
+        Role existingRole = getRoleIfExists();
+        if (existingRole != null && existingRole.getOrganisation() != null) {
+            builder.append(" (").append(existingRole.getOrganisation().getName()).append(")");
         }
         return builder.toString();
     }

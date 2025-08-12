@@ -306,4 +306,12 @@
             </basic>
         </attributes>
     </entity>
+    <entity class="pandas.collection.ContactEvent">
+        <attributes>
+            <id name="id">
+                <column name="contact_id"/>
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
 </entity-mappings>
