@@ -36,7 +36,7 @@
             <td align="right" th:text="${title.pi ?: title.id}">12345</td>
             <td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a></td>
             <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
-            <td>TODO: Request Permission |
+            <td><a th:href="@{titles/{titleId}/contact-events/new(type=2,titleId=${title.id})}">Request Permission</a>  |
                 <a th:href="@{/titles/{id}/transfer(id=${title.id})}">Transfer</a>
             </td>
         </tr>

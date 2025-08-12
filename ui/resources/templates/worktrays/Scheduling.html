@@ -36,7 +36,7 @@
             <td align="right" th:text="${title.pi ?: title.id}">12345</td>
             <td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a></td>
             <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
-            <td>TODO: Schedule</td>
+            <td><a th:href="${@link.edit(title) + '#gather'}">Schedule</a></td>
         </tr>
         </tbody>
     </table>

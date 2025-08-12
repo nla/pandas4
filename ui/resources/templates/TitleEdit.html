@@ -257,7 +257,7 @@
             </details>
         </fieldset>
 
-        <fieldset sec:authorize="hasRole('stduser')">
+        <fieldset sec:authorize="hasRole('stduser')" id="permission">
             <legend>Permission</legend>
             <label>
                 Collect under
@@ -327,7 +327,7 @@
             </script>
         </fieldset>
 
-        <fieldset>
+        <fieldset id="gather">
             <legend>Gather</legend>
 
             <div id="ceasedWarning" class="alert-error">

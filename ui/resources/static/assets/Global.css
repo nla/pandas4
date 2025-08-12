@@ -234,6 +234,13 @@ body > main > header, main > form > header {
 }
 
 /*
+ * Adjust scroll margin to account for fixed header when linking to an id
+ */
+[id] {
+    scroll-margin-top: calc(var(--header-height) + 8px);
+}
+
+/*
  * Buttons
  */
 
