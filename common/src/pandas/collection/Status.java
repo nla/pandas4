@@ -103,4 +103,17 @@ public class Status {
     public List<Long> getAllowedTransitionIds() {
         return allowedTransitions.getOrDefault(getId(), Collections.emptyList());
     }
+
+    public boolean isSelected() {
+        return id != null && id.equals(SELECTED_ID);
+    }
+
+    public boolean isSelectedOrAnyPermission() {
+        if (id == null) return false;
+        return id == SELECTED_ID ||
+               id == PERMISSION_REQUESTED_ID ||
+               id == PERMISSION_GRANTED_ID ||
+               id == PERMISSION_IMPOSSIBLE_ID ||
+               id == PERMISSION_DENIED_ID;
+    }
 }

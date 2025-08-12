@@ -303,6 +303,8 @@ public class TitleService {
             titleRepository.save(title);
         }
 
+        syncStatusWithPermissionState(title, user);
+
         return title;
     }
 
@@ -411,6 +413,34 @@ public class TitleService {
             title.removeSubjects(form.getSubjectsToRemove());
         }
         titleRepository.saveAll(titles);
+    }
+
+    private boolean hasPermissionRequest(Title title) {
+        return title.getContactEvents().stream()
+                .anyMatch(event -> event.getType().isPermissionRequest());
+    }
+
+    /**
+     * Updates the status of the given title based on its associated permission state.
+     */
+    @Transactional
+    public void syncStatusWithPermissionState(Title title, User user) {
+        if (title.getPermission() == null) return;
+        if (!title.getStatus().isSelectedOrAnyPermission()) return;
+
+        Long newStatusId = switch (title.getPermission().getStateName()) {
+            case PermissionState.UNKNOWN -> hasPermissionRequest(title) ? Status.PERMISSION_REQUESTED_ID : Status.SELECTED_ID;
+            case PermissionState.GRANTED -> Status.PERMISSION_GRANTED_ID;
+            case PermissionState.DENIED -> Status.PERMISSION_DENIED_ID;
+            case PermissionState.IMPOSSIBLE -> Status.PERMISSION_IMPOSSIBLE_ID;
+            default -> null;
+        };
+
+        if (newStatusId != null && !title.getStatus().getId().equals(newStatusId)) {
+            title.setStatus(statusRepository.findById(newStatusId).orElseThrow());
+            recordStatusChange(title, user, Instant.now(), null);
+            titleRepository.save(title);
+        }
     }
 
     @PreAuthorize("hasPermission(#title, 'edit')")

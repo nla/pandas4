@@ -268,4 +268,8 @@ public class Permission {
     public long getTitleCount() {
         return Hibernate.size(titles);
     }
+
+    public boolean isImpossible() {
+        return hasState(PermissionState.IMPOSSIBLE);
+    }
 }

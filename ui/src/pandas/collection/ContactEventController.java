@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import pandas.agency.User;
 import pandas.agency.UserService;
 import pandas.core.Resolver;
 
@@ -26,6 +25,7 @@ public class ContactEventController {
     private final ContactTypeRepository contactTypeRepository;
     private final TitleRepository titleRepository;
     private final UserService userService;
+    private final TitleService titleService;
 
     public ContactEventController(ContactEventRepository contactEventRepository,
                                   TitleRepository titleRepository,
@@ -33,7 +33,7 @@ public class ContactEventController {
                                   ContactPersonRepository contactPersonRepository,
                                   ContactMethodRepository contactMethodRepository,
                                   ContactTypeRepository contactTypeRepository,
-                                  UserService userService) {
+                                  UserService userService, TitleService titleService) {
         this.contactEventRepository = contactEventRepository;
         this.titleRepository = titleRepository;
         this.resolver = resolver;
@@ -41,6 +41,7 @@ public class ContactEventController {
         this.contactMethodRepository = contactMethodRepository;
         this.contactTypeRepository = contactTypeRepository;
         this.userService = userService;
+        this.titleService = titleService;
     }
 
     // Contact events for titles
@@ -97,6 +98,8 @@ public class ContactEventController {
         handleNewContactPersonCreation(contactEvent, form, title, title.getPublisher());
 
         contactEventRepository.save(contactEvent);
+        titleService.syncStatusWithPermissionState(title, userService.getCurrentUser());
+
         return "redirect:/titles/" + title.getId();
     }
 
@@ -116,6 +119,8 @@ public class ContactEventController {
         handleNewContactPersonCreation(contactEvent, form, title, null);
         
         contactEventRepository.save(contactEvent);
+        titleService.syncStatusWithPermissionState(title, userService.getCurrentUser());
+
         return "redirect:/titles/" + title.getId();
     }
 
@@ -198,6 +203,7 @@ public class ContactEventController {
         
         if (contactEvent.getTitle() != null) {
             redirectUrl = "redirect:/titles/" + contactEvent.getTitle().getId();
+            titleService.syncStatusWithPermissionState(contactEvent.getTitle(), userService.getCurrentUser());
         } else if (contactEvent.getPublisher() != null) {
             redirectUrl = "redirect:/publishers/" + contactEvent.getPublisher().getId();
         }
