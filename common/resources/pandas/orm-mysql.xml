@@ -56,7 +56,7 @@
     <entity class="pandas.collection.OwnerHistory">
         <attributes>
             <id name="id">
-                <column name="OWNER_HISTORY_ID"/>
+                <column name="OWNER_ID"/>
                 <generated-value strategy="IDENTITY"/>
             </id>
         </attributes>
