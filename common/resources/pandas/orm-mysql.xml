@@ -254,7 +254,7 @@
     <entity class="pandas.gather.PandasExceptionLog">
         <attributes>
             <id name="id">
-                <column name="PANDAS_EXCEPTION_LOG_ID"/>
+                <column name="EXCEPTION_LOG_ID"/>
                 <generated-value strategy="IDENTITY"/>
             </id>
         </attributes>
