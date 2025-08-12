@@ -15,6 +15,8 @@ public class PermissionEditForm {
     private String domain;
     private String note;
     private ContactPerson contactPerson;
+    private ContactPersonEditForm newTitleContact;
+    private ContactPersonEditForm newPublisherContact;
 
     public static PermissionEditForm from(Permission permission) {
         var form = new PermissionEditForm();
@@ -88,5 +90,21 @@ public class PermissionEditForm {
     public PermissionEditForm setContactPerson(ContactPerson contactPerson) {
         this.contactPerson = contactPerson;
         return this;
+    }
+
+    public ContactPersonEditForm getNewTitleContact() {
+        return newTitleContact;
+    }
+
+    public void setNewTitleContact(ContactPersonEditForm newTitleContact) {
+        this.newTitleContact = newTitleContact;
+    }
+
+    public ContactPersonEditForm getNewPublisherContact() {
+        return newPublisherContact;
+    }
+
+    public void setNewPublisherContact(ContactPersonEditForm newPublisherContact) {
+        this.newPublisherContact = newPublisherContact;
     }
 }

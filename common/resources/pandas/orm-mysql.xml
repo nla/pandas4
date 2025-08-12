@@ -299,4 +299,11 @@
             </id>
         </attributes>
     </entity>
+    <entity class="pandas.collection.ContactPerson">
+        <attributes>
+            <basic name="function">
+                <column name="`function`"/>
+            </basic>
+        </attributes>
+    </entity>
 </entity-mappings>

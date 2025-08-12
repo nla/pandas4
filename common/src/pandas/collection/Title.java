@@ -787,7 +787,7 @@ public class Title {
     }
 
     public List<ContactPerson> getContactPeople() {
-        return Collections.unmodifiableList(contactPeople);
+        return contactPeople;
     }
 
     public Instant getLastContactDate() {

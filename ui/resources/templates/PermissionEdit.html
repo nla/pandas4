@@ -33,7 +33,7 @@
     </ol>
   </nav>
 
-  <form method=post class=form th:object="${form}" th:action="@{''}" id=form>
+  <form method=post class=form th:object="${form}" th:action="@{''}" id=form th:with="formPath = 'form'">
 
     <fieldset th:fragment="fieldset" th:id="${id}" style="border: 1px solid #ccc">
       <div style="gap: 16px">
@@ -68,8 +68,10 @@
 
       <label>
         Granted by
-        <select th:field="*{contactPerson}">
+        <select th:field="*{contactPerson}" onchange="showContactPersonSubform(this)">
           <option value=""></option>
+          <option value="" data-subform="newTitleContactSubform" th:if="${title}">&lt;New Title Contact Person&gt;</option>
+          <option value="" data-subform="newPublisherContactSubform">&lt;New Publisher Contact Person&gt;</option>
           <option th:each="person: ${contactPeople}" th:value="${person.id}"
                   th:text="${person.nameAndFunction}"></option>
           <option th:if="${#object.contactPerson != null && !contactPeople.contains(#object.contactPerson)}"
@@ -78,8 +80,23 @@
         </select>
       </label>
 
+      <div id="newTitleContactSubform" style="display:none">
+        <th:block th:insert="~{ContactPersonEdit.html :: fieldset(${formPath + '.newTitleContact'})}"></th:block>
+      </div>
+      <div id="newPublisherContactSubform" style="display:none">
+        <th:block th:insert="~{ContactPersonEdit.html :: fieldset(${formPath + '.newPublisherContact'})}"></th:block>
+      </div>
       <script>
         {
+          // Show the correct subform when the contact person is changed
+          function showContactPersonSubform(select) {
+              document.querySelectorAll('#newTitleContactSubform, #newPublisherContactSubform').forEach(el => el.style.display = 'none');
+              const subform = select.selectedOptions[0].dataset.subform;
+              if (subform) {
+                  document.getElementById(subform).style.display = 'block';
+              }
+          }
+
           let fieldset = document.currentScript.parentElement;
           let statusSetDate = fieldset.querySelector(".permission-statusSetDate");
           fieldset.querySelectorAll(".permission-stateName").forEach(el =>

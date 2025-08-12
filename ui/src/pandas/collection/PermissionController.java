@@ -2,6 +2,7 @@ package pandas.collection;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,11 +43,21 @@ public class PermissionController {
 
     @PostMapping("/permissions/new")
     @PreAuthorize("hasPermission(#publisher, 'edit')")
+    @Transactional
     public String create(PermissionEditForm form,
                          @RequestParam("publisher") Publisher publisher,
                          Model model) {
         Permission permission = new Permission(publisher);
         form.applyTo(permission);
+
+        // New publisher contact person
+        if (!form.getNewPublisherContact().isNameBlank()) {
+            var contactPerson = form.getNewPublisherContact().build();
+            contactPerson.setPublisher(publisher);
+            contactPerson = contactPersonRepository.save(contactPerson);
+            permission.setContactPerson(contactPerson);
+        }
+
         permissionRepository.save(permission);
         return "redirect:/publishers/" + publisher.getId();
     }

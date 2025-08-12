@@ -269,7 +269,7 @@
             </label>
 
             <th:block th:object="${form.titlePermission}"
-                      th:insert="~{PermissionEdit.html :: fieldset (id='titlePermissionFieldset',contactPeople=${titleContactPeople},blanket=false)}"
+                      th:insert="~{PermissionEdit.html :: fieldset (id='titlePermissionFieldset',contactPeople=${titleContactPeople},blanket=false, formPath='form.titlePermission')}"
                      style="display: none">
             </th:block>
 

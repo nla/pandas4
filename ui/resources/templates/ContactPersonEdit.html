@@ -33,22 +33,24 @@
     </ol>
   </nav>
 
-  <form method=post class=form th:object="${form}" th:action="@{''}" id=form>
-    <fieldset>
-      <div>
-        <label style="width: 3em">Title <input th:field="*{nameTitle}"></label>
-        <label>First Name <input th:field="*{nameGiven}"></label>
-        <label>Last Name <input th:field="*{nameFamily}"></label>
-      </div>
+  <form method=post class=form th:action="@{''}" id=form  th:with="formPath = 'form'">
+      <fieldset th:fragment="fieldset(formPath)" th:object="${__${formPath}__}" >
+          <th:block>
+              <div>
+                  <label style="width: 3em">Title <input th:field="*{nameTitle}"></label>
+                  <label>First Name <input th:field="*{nameGiven}"></label>
+                  <label>Last Name <input th:field="*{nameFamily}"></label>
+              </div>
 
-      <label>Position <input th:field="*{function}"></label>
-      <label>Email <input th:field="*{email}"></label>
+              <label>Position <input th:field="*{function}"></label>
+              <label>Email <input th:field="*{email}"></label>
 
-      <div>
-        <label>Phone <input th:field="*{phone}"></label>
-        <label>Mobile <input th:field="*{mobilePhone}"></label>
-        <label>Fax <input th:field="*{fax}"></label>
-      </div>
-    </fieldset>
+              <div>
+                  <label>Phone <input th:field="*{phone}"></label>
+                  <label>Mobile <input th:field="*{mobilePhone}"></label>
+                  <label>Fax <input th:field="*{fax}"></label>
+              </div>
+          </th:block>
+      </fieldset>
   </form>
 </main>

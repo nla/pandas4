@@ -33,13 +33,14 @@ public class TitleService {
     private final PublisherRepository publisherRepository;
     private final ScopeRepository scopeRepository;
     private final OptionRepository optionRepository;
+    private final ContactPersonRepository contactPersonRepository;
 
     public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
                         StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
                         GatherScheduleRepository gatherScheduleRepository, ProfileRepository profileRepository, PublisherRepository publisherRepository,
-                        ScopeRepository scopeRepository, OptionRepository optionRepository) {
+                        ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
@@ -52,6 +53,7 @@ public class TitleService {
         this.publisherRepository = publisherRepository;
         this.scopeRepository = scopeRepository;
         this.optionRepository = optionRepository;
+        this.contactPersonRepository = contactPersonRepository;
     }
 
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
@@ -180,22 +182,6 @@ public class TitleService {
             }
         }
 
-        // create default permission
-        if (title.getDefaultPermission() == null) {
-            Permission permission = new Permission(title);
-            title.setDefaultPermission(permission);
-            title.setPermission(permission);
-        }
-
-        if (form.getPermissionType() == TitleEditForm.PermissionTypeRadio.TITLE) {
-            Permission permission = title.getDefaultPermission();
-            form.getTitlePermission().applyTo(permission);
-            title.setPermission(permission);
-        } else if (form.getPermissionType() == TitleEditForm.PermissionTypeRadio.PUBLISHER &&
-                   form.getPublisherPermission() != null) {
-            title.setPermission(form.getPublisherPermission());
-        }
-
         // create or update publisher
         Publisher publisher = form.getPublisher();
         if (publisher == null && form.getPublisherName() != null) { // create new
@@ -209,6 +195,40 @@ public class TitleService {
             publisher = publisherRepository.save(publisher);
         }
         title.setPublisher(publisher);
+
+        // create default permission
+        if (title.getDefaultPermission() == null) {
+            Permission permission = new Permission(title);
+            title.setDefaultPermission(permission);
+            title.setPermission(permission);
+        }
+
+        if (form.getPermissionType() == TitleEditForm.PermissionTypeRadio.TITLE) {
+            Permission permission = title.getDefaultPermission();
+            PermissionEditForm permissionForm = form.getTitlePermission();
+            permissionForm.applyTo(permission);
+
+            // Permission: Granted by: New title contact person
+            if (!permissionForm.getNewTitleContact().isNameBlank()) {
+                var contactPerson = contactPersonRepository.save(permissionForm.getNewTitleContact().build());
+                title.getContactPeople().add(contactPerson);
+                permission.setContactPerson(contactPerson);
+            }
+
+            // Permission: Granted by: New publisher contact person
+            if (!permissionForm.getNewPublisherContact().isNameBlank()) {
+                var contactPerson = permissionForm.getNewPublisherContact().build();
+                contactPerson.setPublisher(publisher);
+                contactPerson = contactPersonRepository.save(contactPerson);
+                permission.setContactPerson(contactPerson);
+            }
+
+            title.setPermission(permission);
+        } else if (form.getPermissionType() == TitleEditForm.PermissionTypeRadio.PUBLISHER &&
+                   form.getPublisherPermission() != null) {
+            title.setPermission(form.getPublisherPermission());
+        }
+
 
         titleRepository.save(title);
 

@@ -4,8 +4,8 @@
 
 ### New features
 
+* New title and publisher contact people can now be created inline from the edit title and publisher blanket permission forms.
 * 'Titles archived by agency' report under Statistics. This is the 'Total archived titles' report from PANDAS 3.
-
 * MySQL database support.
 
 ### Bug fixes
