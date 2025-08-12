@@ -11,8 +11,8 @@
 ### Bug fixes
 
 * Fixed broken link on view title screen to the contact person for a contact event when the person is a publisher contact.
-
 * Fixed a null pointer exception on the issues editor when a title has no instances.
+* Fixed exception deleting title contact people.
 
 ### Changes
 

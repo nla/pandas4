@@ -2,6 +2,7 @@ package pandas.collection;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ContactPersonController {
     private final ContactPersonRepository contactPersonRepository;
+    private final TitleRepository titleRepository;
 
-    public ContactPersonController(ContactPersonRepository contactPersonRepository, PublisherRepository publisherRepository) {
+    public ContactPersonController(ContactPersonRepository contactPersonRepository, PublisherRepository publisherRepository, TitleRepository titleRepository) {
         this.contactPersonRepository = contactPersonRepository;
+        this.titleRepository = titleRepository;
     }
 
     @GetMapping("/contact-people/new")
@@ -55,11 +58,20 @@ public class ContactPersonController {
     }
 
     @PostMapping("/contact-people/{id}/delete")
-    @PreAuthorize("hasPermission(#contactPerson.publisher, 'edit')")
+    @PreAuthorize("hasPermission(#contactPerson, 'edit')")
+    @Transactional
     public String delete(@PathVariable("id") ContactPerson contactPerson) {
         Publisher publisher = contactPerson.getPublisher();
+        Long titleId = null;
+        for (var title : contactPerson.getTitles()) {
+            titleId = title.getId();
+            title.getContactPeople().remove(contactPerson);
+        }
+        titleRepository.saveAll(contactPerson.getTitles());
         contactPersonRepository.delete(contactPerson);
-        return "redirect:/publishers/" + publisher.getId();
+        if (publisher != null) return "redirect:/publishers/" + publisher.getId();
+        if (titleId != null) return "redirect:/titles/" + titleId;
+        return "redirect:/";
     }
 
     @GetMapping("/titles/{titleId}/contact-people/{individualId}/edit")
@@ -82,19 +94,6 @@ public class ContactPersonController {
         contactPerson.enforceBelongsToTitle(title);
         form.applyTo(contactPerson);
         contactPersonRepository.save(contactPerson);
-        return "redirect:/titles/" + title.getId();
-    }
-
-    @PostMapping("/titles/{titleId}/contact-people/{individualId}/delete")
-    @PreAuthorize("hasPermission(#contactPerson.publisher, 'edit')")
-    public String deleteViaTitle(@PathVariable("titleId") Title title,
-                                 @PathVariable("individualId") ContactPerson contactPerson) {
-        contactPerson.enforceBelongsToTitle(title);
-        if (contactPerson.getTitles().size() == 1) {
-            contactPersonRepository.delete(contactPerson);
-        } else {
-            throw new UnsupportedOperationException("TODO: support deleting when there's multiple titles");
-        }
         return "redirect:/titles/" + title.getId();
     }
 }

@@ -7,6 +7,7 @@ import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
 import pandas.agency.User;
 import pandas.agency.UserRepository;
+import pandas.collection.ContactPerson;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 
@@ -55,6 +56,19 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
             }
             case "Collection:edit" -> {
                 return authorities.contains(EDIT_COLLECTIONS);
+            }
+            case "ContactPerson:edit" -> {
+                var contactPerson = (ContactPerson) target;
+                if (contactPerson.getPublisher() != null &&
+                    hasPermission(authentication, contactPerson.getPublisher(), "edit")) {
+                    return true;
+                }
+                for (var title : contactPerson.getTitles()) {
+                    if (hasPermission(authentication, title, "edit")) {
+                        return true;
+                    }
+                }
+                return false;
             }
             case "Publisher:edit" -> {
                 return authorities.contains(EDIT_PUBLISHERS);
