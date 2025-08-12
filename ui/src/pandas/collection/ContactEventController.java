@@ -9,47 +9,55 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import pandas.agency.User;
-import pandas.agency.UserRepository;
+import pandas.agency.UserService;
 import pandas.core.Resolver;
 
 import java.time.Instant;
+import java.util.List;
 
 @Controller
 public class ContactEventController {
     private final Resolver resolver;
     private final ContactEventRepository contactEventRepository;
     private final ContactPersonRepository contactPersonRepository;
-    private final UserRepository userRepository;
     private final ContactMethodRepository contactMethodRepository;
     private final ContactTypeRepository contactTypeRepository;
+    private final TitleRepository titleRepository;
+    private final UserService userService;
 
     public ContactEventController(ContactEventRepository contactEventRepository,
                                   TitleRepository titleRepository,
-                                  PublisherRepository publisherRepository, Resolver resolver,
+                                  Resolver resolver,
                                   ContactPersonRepository contactPersonRepository,
-                                  UserRepository userRepository,
                                   ContactMethodRepository contactMethodRepository,
-                                  ContactTypeRepository contactTypeRepository) {
+                                  ContactTypeRepository contactTypeRepository,
+                                  UserService userService) {
         this.contactEventRepository = contactEventRepository;
+        this.titleRepository = titleRepository;
         this.resolver = resolver;
         this.contactPersonRepository = contactPersonRepository;
-        this.userRepository = userRepository;
         this.contactMethodRepository = contactMethodRepository;
         this.contactTypeRepository = contactTypeRepository;
+        this.userService = userService;
     }
 
     // Contact events for titles
     @GetMapping("/titles/{titleId}/contact-events/new")
     @PreAuthorize("hasPermission(#title, 'edit')")
-    public String newForTitle(@PathVariable("titleId") Title title, Model model) {
+    public String newForTitle(@PathVariable("titleId") Title title,
+                              @RequestParam(required = false) ContactType type,
+                              Model model) {
         ContactEvent contactEvent = new ContactEvent();
+        contactEvent.setType(type);
         contactEvent.setTitle(title);
         contactEvent.setDate(Instant.now());
         
         model.addAttribute("form", ContactEventEditForm.from(contactEvent));
         model.addAttribute("title", title);
-        model.addAttribute("contactPeople", title.getContactPeople());
+        model.addAttribute("publisher", title.getPublisher());
+        model.addAttribute("publisherContacts", title.getPublisher() == null ? List.of() : contactPersonRepository.findByOrganisation(title.getPublisher().getOrganisation()));
         model.addAttribute("contactMethods", contactMethodRepository.findAllByOrderByName());
         model.addAttribute("contactTypes", contactTypeRepository.findAllByOrderByName());
         return "ContactEventEdit";
@@ -66,7 +74,8 @@ public class ContactEventController {
         
         model.addAttribute("form", ContactEventEditForm.from(contactEvent));
         model.addAttribute("title", title);
-        model.addAttribute("contactPeople", title.getContactPeople());
+        model.addAttribute("publisher", title.getPublisher());
+        model.addAttribute("publisherContacts", title.getPublisher() == null ? List.of() : contactPersonRepository.findByOrganisation(title.getPublisher().getOrganisation()));
         model.addAttribute("contactMethods", contactMethodRepository.findAllByOrderByName());
         model.addAttribute("contactTypes", contactTypeRepository.findAllByOrderByName());
         model.addAttribute("contactEventId", contactEvent.getId());
@@ -83,12 +92,10 @@ public class ContactEventController {
         ContactEvent contactEvent = new ContactEvent();
         form.applyTo(contactEvent, resolver);
         contactEvent.setTitle(title);
-        
-        // Set current user if not specified
-        if (contactEvent.getUser() == null && authentication != null && authentication.getPrincipal() instanceof User user) {
-            contactEvent.setUser(user);
-        }
-        
+        contactEvent.setUser(userService.getCurrentUser());
+
+        handleNewContactPersonCreation(contactEvent, form, title, title.getPublisher());
+
         contactEventRepository.save(contactEvent);
         return "redirect:/titles/" + title.getId();
     }
@@ -105,11 +112,8 @@ public class ContactEventController {
         }
         
         form.applyTo(contactEvent, resolver);
-        
-        // Set current user if not specified
-        if (contactEvent.getUser() == null && authentication != null && authentication.getPrincipal() instanceof User user) {
-            contactEvent.setUser(user);
-        }
+
+        handleNewContactPersonCreation(contactEvent, form, title, null);
         
         contactEventRepository.save(contactEvent);
         return "redirect:/titles/" + title.getId();
@@ -125,7 +129,7 @@ public class ContactEventController {
         
         model.addAttribute("form", ContactEventEditForm.from(contactEvent));
         model.addAttribute("publisher", publisher);
-        model.addAttribute("contactPeople", contactPersonRepository.findByOrganisation(publisher.getOrganisation()));
+        model.addAttribute("publisherContacts", contactPersonRepository.findByOrganisation(publisher.getOrganisation()));
         model.addAttribute("contactMethods", contactMethodRepository.findAllByOrderByName());
         model.addAttribute("contactTypes", contactTypeRepository.findAllByOrderByName());
         return "ContactEventEdit";
@@ -142,7 +146,7 @@ public class ContactEventController {
         
         model.addAttribute("form", ContactEventEditForm.from(contactEvent));
         model.addAttribute("publisher", publisher);
-        model.addAttribute("contactPeople", contactPersonRepository.findByOrganisation(publisher.getOrganisation()));
+        model.addAttribute("publisherContacts", contactPersonRepository.findByOrganisation(publisher.getOrganisation()));
         model.addAttribute("contactMethods", contactMethodRepository.findAllByOrderByName());
         model.addAttribute("contactTypes", contactTypeRepository.findAllByOrderByName());
         model.addAttribute("contactEventId", contactEvent.getId());
@@ -159,11 +163,9 @@ public class ContactEventController {
         ContactEvent contactEvent = new ContactEvent();
         form.applyTo(contactEvent, resolver);
         contactEvent.setPublisher(publisher);
+        contactEvent.setUser(userService.getCurrentUser());
         
-        // Set current user if not specified
-        if (contactEvent.getUser() == null && authentication != null && authentication.getPrincipal() instanceof User user) {
-            contactEvent.setUser(user);
-        }
+        handleNewContactPersonCreation(contactEvent, form, null, publisher);
         
         contactEventRepository.save(contactEvent);
         return "redirect:/publishers/" + publisher.getId();
@@ -182,11 +184,8 @@ public class ContactEventController {
         
         form.applyTo(contactEvent, resolver);
         
-        // Set current user if not specified
-        if (contactEvent.getUser() == null && authentication != null && authentication.getPrincipal() instanceof User user) {
-            contactEvent.setUser(user);
-        }
-        
+        handleNewContactPersonCreation(contactEvent, form, null, publisher);
+
         contactEventRepository.save(contactEvent);
         return "redirect:/publishers/" + publisher.getId();
     }
@@ -205,6 +204,24 @@ public class ContactEventController {
         
         contactEventRepository.delete(contactEvent);
         return redirectUrl;
+    }
+
+    private void handleNewContactPersonCreation(ContactEvent contactEvent, ContactEventEditForm form, Title title, Publisher publisher) {
+        // Handle new title contact person
+        if (form.newTitleContact() != null && !form.newTitleContact().isNameBlank() && title != null) {
+            ContactPerson newContact = form.newTitleContact().build();
+            title.getContactPeople().add(newContact);
+            contactPersonRepository.save(newContact);
+            titleRepository.save(title);
+            contactEvent.setContactPerson(newContact);
+        }
+        // Handle new publisher contact person
+        else if (form.newPublisherContact() != null && !form.newPublisherContact().isNameBlank() && publisher != null) {
+            ContactPerson newContact = form.newPublisherContact().build();
+            newContact.setPublisher(publisher);
+            contactPersonRepository.save(newContact);
+            contactEvent.setContactPerson(newContact);
+        }
     }
 
 }

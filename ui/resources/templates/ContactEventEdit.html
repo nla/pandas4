@@ -21,7 +21,7 @@
   </header>
 
   <nav class="breadcrumb">
-    <ol th:if="${publisher}">
+    <ol th:if="${publisher != null && title == null}">
       <li><a th:href="@{/publishers}" style="font-weight: bold">Publishers</a></li>
       <li><a th:href="${@link.to(publisher)}" th:text="${publisher.name}">My cool publisher</a></li>
       <li class="active">Contact Event</li>
@@ -39,15 +39,30 @@
               <label>Date <input type="datetime-local" name="date" th:value="*{dateFormatted}" required></label>
           </div>
 
-          <div th:if="${contactPeople != null and !contactPeople.isEmpty()}">
-              <label>Contact Person
-                  <select th:field="*{contactPersonId}" required>
-                      <option th:each="person : ${contactPeople}"
-                              th:value="${person.id}"
-                              th:text="${person.nameAndFunction}">John Doe, Editor
-                      </option>
-                  </select>
-              </label>
+          <label>
+              Contact person
+              <select th:field="*{contactPersonId}" onchange="showContactPersonSubform(this)" required>
+                  <option value=""></option>
+                  <optgroup label="Create new">
+                      <option value="" data-subform="newTitleContactSubform" th:if="${title}">Add new title contact</option>
+                      <option value="" data-subform="newPublisherContactSubform" th:if="${publisher != null}">Add new publisher contact</option>
+                  </optgroup>
+                  <optgroup label="Title contacts" th:if="${title != null && !title.contactPeople.isEmpty()}">
+                      <option th:each="person: ${title.contactPeople}" th:value="${person.id}"
+                              th:text="${person.nameAndFunction}"></option>
+                  </optgroup>
+                  <optgroup label="Publisher contacts" th:if="${!publisherContacts.isEmpty()}">
+                      <option th:each="person: ${publisherContacts}" th:value="${person.id}"
+                              th:text="${person.nameAndFunction}"></option>
+                  </optgroup>
+              </select>
+          </label>
+
+          <div id="newTitleContactSubform" style="display:none">
+              <th:block th:insert="~{ContactPersonEdit.html :: fieldset('form.newTitleContact')}"></th:block>
+          </div>
+          <div id="newPublisherContactSubform" style="display:none">
+              <th:block th:insert="~{ContactPersonEdit.html :: fieldset('form.newPublisherContact')}"></th:block>
           </div>
 
           <div>
@@ -73,6 +88,17 @@
           <label>Notes
               <textarea th:field="*{note}" rows="4" cols="50"></textarea>
           </label>
+
+          <script>
+              // Show the correct subform when the contact person is changed
+              function showContactPersonSubform(select) {
+                  document.querySelectorAll('#newTitleContactSubform, #newPublisherContactSubform').forEach(el => el.style.display = 'none');
+                  const subform = select.selectedOptions[0].dataset.subform;
+                  if (subform) {
+                      document.getElementById(subform).style.display = 'block';
+                  }
+              }
+          </script>
       </fieldset>
   </form>
 </main>

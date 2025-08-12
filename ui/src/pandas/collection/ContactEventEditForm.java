@@ -13,9 +13,11 @@ import java.time.format.DateTimeFormatter;
 public record ContactEventEditForm(
     LocalDateTime date,
     String note,
-    @NotNull Long contactPersonId,
+    Long contactPersonId,
     @NotNull Long methodId,
-    @NotNull Long typeId
+    @NotNull Long typeId,
+    ContactPersonEditForm newTitleContact,
+    ContactPersonEditForm newPublisherContact
 ) {
     public static ContactEventEditForm from(ContactEvent contactEvent) {
         return new ContactEventEditForm(
@@ -23,7 +25,9 @@ public record ContactEventEditForm(
                 contactEvent.getNote(),
                 contactEvent.getContactPerson() == null ? null : contactEvent.getContactPerson().getId(),
                 contactEvent.getMethod() == null ? null : contactEvent.getMethod().getId(),
-                contactEvent.getType() == null ? null : contactEvent.getType().getId());
+                contactEvent.getType() == null ? null : contactEvent.getType().getId(),
+                new ContactPersonEditForm(),
+                new ContactPersonEditForm());
     }
 
     void applyTo(ContactEvent contactEvent, Resolver resolver) {

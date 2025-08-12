@@ -7,12 +7,12 @@ import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import pandas.core.Organisation;
+import pandas.core.Role;
 import pandas.core.View;
 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * An organisation (which may consist of a single person) that holds the copyright to one or more titles.

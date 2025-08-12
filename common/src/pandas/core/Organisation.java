@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -95,6 +96,9 @@ public class Organisation implements Serializable {
 
     @OneToOne(mappedBy = "organisation")
     private Publisher publisher;
+
+    @OneToMany(mappedBy = "organisation")
+    private List<Role> roles = new ArrayList<>();
 
     public String getAlias() {
         return this.alias;
@@ -305,5 +309,9 @@ public class Organisation implements Serializable {
 
     public Publisher getPublisher() {
         return publisher;
+    }
+
+    public List<Role> getRoles() {
+        return Collections.unmodifiableList(roles);
     }
 }
