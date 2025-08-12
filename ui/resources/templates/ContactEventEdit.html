@@ -41,9 +41,9 @@
 
           <div th:if="${contactPeople != null and !contactPeople.isEmpty()}">
               <label>Contact Person
-                  <select th:field="*{contactPerson}" required>
+                  <select th:field="*{contactPersonId}" required>
                       <option th:each="person : ${contactPeople}"
-                              th:value="${person}"
+                              th:value="${person.id}"
                               th:text="${person.nameAndFunction}">John Doe, Editor
                       </option>
                   </select>
@@ -52,18 +52,18 @@
 
           <div>
               <label>Method
-                  <select th:field="*{method}" required>
+                  <select th:field="*{methodId}" required>
                       <option th:each="method : ${contactMethods}"
-                              th:value="${method}"
+                              th:value="${method.id}"
                               th:text="${method.name}">Email
                       </option>
                   </select>
               </label>
               <label>Type
-                  <select th:field="*{type}" required>
+                  <select th:field="*{typeId}" required>
                       <option value=""></option>
                       <option th:each="type : ${contactTypes}"
-                              th:value="${type}"
+                              th:value="${type.id}"
                               th:text="${type.name}">Initial Contact
                       </option>
                   </select>

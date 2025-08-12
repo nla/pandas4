@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -10,11 +11,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import pandas.agency.User;
 import pandas.agency.UserRepository;
+import pandas.core.Resolver;
 
 import java.time.Instant;
 
 @Controller
 public class ContactEventController {
+    private final Resolver resolver;
     private final ContactEventRepository contactEventRepository;
     private final ContactPersonRepository contactPersonRepository;
     private final UserRepository userRepository;
@@ -22,13 +25,14 @@ public class ContactEventController {
     private final ContactTypeRepository contactTypeRepository;
 
     public ContactEventController(ContactEventRepository contactEventRepository,
-                                 TitleRepository titleRepository,
-                                 PublisherRepository publisherRepository,
-                                 ContactPersonRepository contactPersonRepository,
-                                 UserRepository userRepository,
-                                 ContactMethodRepository contactMethodRepository,
-                                 ContactTypeRepository contactTypeRepository) {
+                                  TitleRepository titleRepository,
+                                  PublisherRepository publisherRepository, Resolver resolver,
+                                  ContactPersonRepository contactPersonRepository,
+                                  UserRepository userRepository,
+                                  ContactMethodRepository contactMethodRepository,
+                                  ContactTypeRepository contactTypeRepository) {
         this.contactEventRepository = contactEventRepository;
+        this.resolver = resolver;
         this.contactPersonRepository = contactPersonRepository;
         this.userRepository = userRepository;
         this.contactMethodRepository = contactMethodRepository;
@@ -73,11 +77,11 @@ public class ContactEventController {
     @PreAuthorize("hasPermission(#title, 'edit')")
     @Transactional
     public String createForTitle(@PathVariable("titleId") Title title,
-                                ContactEventEditForm form,
+                                @Valid ContactEventEditForm form,
                                 Authentication authentication,
                                 Model model) {
         ContactEvent contactEvent = new ContactEvent();
-        form.applyTo(contactEvent);
+        form.applyTo(contactEvent, resolver);
         contactEvent.setTitle(title);
         
         // Set current user if not specified
@@ -94,13 +98,13 @@ public class ContactEventController {
     @Transactional
     public String updateForTitle(@PathVariable("titleId") Title title,
                                 @PathVariable("id") ContactEvent contactEvent,
-                                ContactEventEditForm form,
+                                @Valid ContactEventEditForm form,
                                 Authentication authentication) {
         if (!title.equals(contactEvent.getTitle())) {
             throw new IllegalArgumentException("Contact event does not belong to this title");
         }
         
-        form.applyTo(contactEvent);
+        form.applyTo(contactEvent, resolver);
         
         // Set current user if not specified
         if (contactEvent.getUser() == null && authentication != null && authentication.getPrincipal() instanceof User user) {
@@ -149,11 +153,11 @@ public class ContactEventController {
     @PreAuthorize("hasPermission(#publisher, 'edit')")
     @Transactional
     public String createForPublisher(@PathVariable("publisherId") Publisher publisher,
-                                    ContactEventEditForm form,
+                                    @Valid ContactEventEditForm form,
                                     Authentication authentication,
                                     Model model) {
         ContactEvent contactEvent = new ContactEvent();
-        form.applyTo(contactEvent);
+        form.applyTo(contactEvent, resolver);
         contactEvent.setPublisher(publisher);
         
         // Set current user if not specified
@@ -170,13 +174,13 @@ public class ContactEventController {
     @Transactional
     public String updateForPublisher(@PathVariable("publisherId") Publisher publisher,
                                     @PathVariable("id") ContactEvent contactEvent,
-                                    ContactEventEditForm form,
+                                    @Valid ContactEventEditForm form,
                                     Authentication authentication) {
         if (!publisher.equals(contactEvent.getPublisher())) {
             throw new IllegalArgumentException("Contact event does not belong to this publisher");
         }
         
-        form.applyTo(contactEvent);
+        form.applyTo(contactEvent, resolver);
         
         // Set current user if not specified
         if (contactEvent.getUser() == null && authentication != null && authentication.getPrincipal() instanceof User user) {
