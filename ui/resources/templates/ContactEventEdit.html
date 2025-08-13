@@ -35,13 +35,11 @@
 
   <form method=post class=form th:action="@{''}" id=form>
       <fieldset th:object="${form}">
-          <div>
-              <label>Date <input type="datetime-local" name="date" th:value="*{dateFormatted}" required></label>
-          </div>
+          <div id="contactPersonCard" style="display: none"></div>
 
           <label>
               Contact person
-              <select th:field="*{contactPersonId}" onchange="showContactPersonSubform(this)" required>
+              <select th:field="*{contactPersonId}" onchange="onContactPersonChange(this)" required>
                   <option value=""></option>
                   <optgroup label="Create new">
                       <option value="" data-subform="newTitleContactSubform" th:if="${title}">Add new title contact</option>
@@ -83,21 +81,39 @@
                       </option>
                   </select>
               </label>
+              <label>Date <input type="datetime-local" name="date" th:value="*{dateFormatted}" required></label>
           </div>
 
           <label>Notes
               <textarea th:field="*{note}" rows="4" cols="50"></textarea>
           </label>
 
-          <script>
-              // Show the correct subform when the contact person is changed
-              function showContactPersonSubform(select) {
+          <script th:inline="javascript">
+              const contactPeopleBase = /*[[@{/contact-people}]]*/ "";
+
+              function onContactPersonChange(select) {
+                  // Show the correct subform
                   document.querySelectorAll('#newTitleContactSubform, #newPublisherContactSubform').forEach(el => el.style.display = 'none');
                   const subform = select.selectedOptions[0].dataset.subform;
                   if (subform) {
                       document.getElementById(subform).style.display = 'block';
                   }
+
+                  // Load contact person embed
+                  let contactPersonCard = document.getElementById('contactPersonCard');
+                  contactPersonCard.style.display = 'none';
+                  let contactPersonId = select.value;
+                  if (contactPersonId !== "") {
+                      fetch(contactPeopleBase + "/" + contactPersonId + "/card")
+                          .then(r => r.text())
+                          .then(html => {
+                              contactPersonCard.innerHTML = html;
+                              contactPersonCard.style.display = 'block';
+                          })
+                  }
               }
+
+              onContactPersonChange(document.getElementById('contactPersonId'));
           </script>
       </fieldset>
   </form>

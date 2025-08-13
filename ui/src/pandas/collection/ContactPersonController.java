@@ -96,4 +96,10 @@ public class ContactPersonController {
         contactPersonRepository.save(contactPerson);
         return "redirect:/titles/" + title.getId();
     }
+
+    @GetMapping("/contact-people/{id}/card")
+    public String card(@PathVariable("id") ContactPerson contactPerson, Model model) {
+        model.addAttribute("contactPerson", contactPerson);
+        return "PublisherView :: contactPerson";
+    }
 }

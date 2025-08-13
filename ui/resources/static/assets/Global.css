@@ -81,7 +81,7 @@ details > summary {
     cursor: pointer;
 }
 
-input:not([type]), input[type=text], input[type=password], select {
+input:not([type]), input[type=text], input[type=password], input[type=datetime-local], select {
     height: 32px;
     border-radius: .2rem;
     border: 1px solid #ccc;
@@ -817,3 +817,43 @@ button.title-flag:active:after, button.title-flag.active:after {
 .status-3xx { color: darkblue; }
 .status-4xx { color: darkorange; }
 .status-5xx { color: darkred; }
+
+/**
+ * Contact person card
+ */
+
+.contact-person {
+    /*margin: 1em 0;*/
+    padding: .75em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: inline-block;
+    min-width: 150px;
+}
+
+.contact-person--name {
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+.contact-person--position {
+    font-size: 1.1em;
+    color: var(--color-dark-grey);
+}
+
+.contact-person--edit-button {
+    margin-left: 1em;
+}
+
+.contact-person--email > td {
+    padding-bottom: .5em;
+}
+
+.contact-person--header {
+    display: flex;
+    margin-bottom: 1em;
+}
+
+.contact-person--header :nth-child(0) {
+    flex-grow: 1;
+}
