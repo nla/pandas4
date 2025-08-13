@@ -37,51 +37,37 @@ public class StateHistory {
     @NotNull
     private State state;
 
-    public Instant getEndDate() {
-        return this.endDate;
+    protected StateHistory() {
     }
 
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
+    public StateHistory(Instance instance, State state, Instant startDate, User user) {
+        this.instance = instance;
+        this.state = state;
+        this.startDate = startDate;
+        this.user = user;
+    }
+
+    public Instant getEndDate() {
+        return this.endDate;
     }
 
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Instant getStartDate() {
         return this.startDate;
-    }
-
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
     }
 
     public Long getId() {
         return this.id;
     }
 
-    public void setId(Long stateHistoryId) {
-        this.id = stateHistoryId;
-    }
-
     public Instance getInstance() {
         return instance;
     }
 
-    public void setInstance(Instance instance) {
-        this.instance = instance;
-    }
-
     public State getState() {
         return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
     }
 }

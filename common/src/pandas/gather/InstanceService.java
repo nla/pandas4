@@ -80,12 +80,7 @@ public class InstanceService {
     }
 
     private void insertStateHistory(Instance instance, State state, Instant now, User user) {
-        StateHistory stateHistory = new StateHistory();
-        stateHistory.setInstance(instance);
-        stateHistory.setState(state);
-        stateHistory.setStartDate(now);
-        stateHistory.setUser(user);
-        stateHistoryReposistory.save(stateHistory);
+        stateHistoryReposistory.save(new StateHistory(instance, state, now, user));
     }
 
     @Transactional
