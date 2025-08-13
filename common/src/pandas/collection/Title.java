@@ -963,6 +963,32 @@ public class Title {
         return Objects.equals(id, title.id);
     }
 
+    /**
+     * Transfers ownership of this title to a new owner and agency.
+     * Creates an ownership history record. Does nothing if the new owner is the same as the current one.
+     *
+     * @param newAgency the new agency that will own the title
+     * @param newOwner the new user who will own the title
+     * @param note optional note about the transfer
+     * @param transferrer the user performing the transfer
+     * @param transferDate the date of the transfer
+     */
+    public void transferOwnership(Agency newAgency, User newOwner, String note, User transferrer, Instant transferDate) {
+        if (newAgency.equals(agency) && newOwner.equals(owner)) return;
+
+        OwnerHistory ownerHistory = new OwnerHistory();
+        ownerHistory.setTitle(this);
+        ownerHistory.setDate(transferDate);
+        ownerHistory.setUser(newOwner);
+        ownerHistory.setAgency(newAgency);
+        ownerHistory.setTransferrer(transferrer);
+        ownerHistory.setNote(note);
+        
+        setAgency(newAgency);
+        setOwner(newOwner);
+        ownerHistories.add(ownerHistory);
+    }
+
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;

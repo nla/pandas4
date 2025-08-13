@@ -450,16 +450,7 @@ public class TitleService {
 
     @Transactional
     public void transferOwnership(Title title, Agency newAgency, User newOwner, String note, User currentUser) {
-        OwnerHistory ownerHistory = new OwnerHistory();
-        ownerHistory.setTitle(title);
-        ownerHistory.setDate(Instant.now());
-        ownerHistory.setUser(newOwner);
-        ownerHistory.setAgency(newAgency);
-        ownerHistory.setTransferrer(currentUser);
-        ownerHistory.setNote(note);
-        title.setAgency(newAgency);
-        title.setOwner(newOwner);
-        title.getOwnerHistories().add(ownerHistory);
+        title.transferOwnership(newAgency, newOwner, note, currentUser, Instant.now());
         titleRepository.save(title);
     }
 
