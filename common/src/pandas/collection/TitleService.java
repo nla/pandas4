@@ -219,13 +219,8 @@ public class TitleService {
 
         // create an owner history record if the title is new
         if (form.getId() == null && (title.getOwner() != null || title.getAgency() != null)) {
-            OwnerHistory ownerHistory = new OwnerHistory();
-            ownerHistory.setTitle(title);
-            ownerHistory.setUser(title.getOwner());
-            ownerHistory.setAgency(title.getAgency());
-            ownerHistory.setNote("Created new title");
-            ownerHistory.setDate(now);
-            ownerHistoryRepository.save(ownerHistory);
+            ownerHistoryRepository.save(new OwnerHistory(title, title.getAgency(), title.getOwner(),
+                    "Created new title", null, now));
         }
 
         saveGatherSettings(form, title, seeds);
@@ -312,16 +307,7 @@ public class TitleService {
 
             if (form.isEditOwner()) {
                 if (!Objects.equals(title.getOwner(), form.getOwner())) {
-                    title.setOwner(form.getOwner());
-                    title.setAgency(form.getOwner().getAgency());
-                    OwnerHistory ownerHistory = new OwnerHistory();
-                    ownerHistory.setTitle(title);
-                    ownerHistory.setDate(now);
-                    ownerHistory.setUser(form.getOwner());
-                    ownerHistory.setAgency(title.getAgency());
-                    ownerHistory.setTransferrer(currentUser);
-                    ownerHistory.setNote("Bulk change");
-                    ownerHistoryRepository.save(ownerHistory);
+                    title.transferOwnership(title.getAgency(), form.getOwner(), "Bulk change", currentUser, now);
                 }
             }
 

@@ -59,59 +59,43 @@ public class OwnerHistory {
     @JoinColumn(name = "TRANSFERRER_ID")
     private User transferrer;
 
-    public String getNote() {
-        return this.note;
+    public OwnerHistory() {
     }
 
-    public void setNote(String note) {
+    public OwnerHistory(Title title, Agency agency, User owner, String note, User transferrer, Instant date) {
+        this.title = title;
+        this.agency = agency;
+        this.user = owner;
         this.note = note;
+        this.transferrer = transferrer;
+        this.date = date;
+    }
+
+    public String getNote() {
+        return this.note;
     }
 
     public Instant getDate() {
         return this.date;
     }
 
-    public void setDate(Instant ownershipDate) {
-        this.date = ownershipDate;
-    }
-
     public Agency getAgency() {
         return agency;
-    }
-
-    public void setAgency(Agency agency) {
-        this.agency = agency;
     }
 
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Title getTitle() {
         return title;
-    }
-
-    public void setTitle(Title title) {
-        this.title = title;
     }
 
     public User getTransferrer() {
         return transferrer;
     }
 
-    public void setTransferrer(User transferrer) {
-        this.transferrer = transferrer;
-    }
-
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 }

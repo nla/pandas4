@@ -976,17 +976,9 @@ public class Title {
     public void transferOwnership(Agency newAgency, User newOwner, String note, User transferrer, Instant transferDate) {
         if (newAgency.equals(agency) && newOwner.equals(owner)) return;
 
-        OwnerHistory ownerHistory = new OwnerHistory();
-        ownerHistory.setTitle(this);
-        ownerHistory.setDate(transferDate);
-        ownerHistory.setUser(newOwner);
-        ownerHistory.setAgency(newAgency);
-        ownerHistory.setTransferrer(transferrer);
-        ownerHistory.setNote(note);
-        
         setAgency(newAgency);
         setOwner(newOwner);
-        ownerHistories.add(ownerHistory);
+        ownerHistories.add(new OwnerHistory(this, newAgency, newOwner, note, transferrer, transferDate));
     }
 
     public void changeStatus(Status newStatus, Reason reason, User user, Instant changeDate) {

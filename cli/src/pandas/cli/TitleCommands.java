@@ -30,13 +30,7 @@ public class TitleCommands {
         var titles = titleRepository.findAllById(Arrays.asList(titleIds));
         var histories = new ArrayList<OwnerHistory>();
         for (var title: titles) {
-            var oh = new OwnerHistory();
-            oh.setTitle(title);
-            oh.setNote("Bulk change");
-            oh.setTransferrer(owner);
-            oh.setUser(owner);
-            oh.setAgency(title.getAgency());
-            oh.setDate(instant);
+            var oh = new OwnerHistory(title, title.getAgency(), owner, "Bulk change", owner, instant);
             histories.add(oh);
             System.out.println(oh);
         }
