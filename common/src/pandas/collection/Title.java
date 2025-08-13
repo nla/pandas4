@@ -989,6 +989,60 @@ public class Title {
         ownerHistories.add(ownerHistory);
     }
 
+    public void changeStatus(Status newStatus, Reason reason, User user, Instant changeDate) {
+        if (newStatus.equals(status)) return;
+        setStatus(newStatus);
+
+        // Validate reason is applicable for current status
+        if (reason != null && !reason.getStatus().equals(this.status)) {
+            reason = null; // Invalid reason, ignore it
+        }
+
+        // Mark previous status histories as ended
+        for (StatusHistory history : statusHistories) {
+            if (history.getEndDate() == null) {
+                history.setEndDate(changeDate);
+            }
+        }
+
+        // Create new status history record
+        StatusHistory statusHistory = new StatusHistory();
+        statusHistory.setStartDate(changeDate);
+        statusHistory.setStatus(this.status);
+        statusHistory.setReason(reason);
+        statusHistory.setUser(user);
+        statusHistory.setTitle(this);
+
+        statusHistories.add(statusHistory);
+    }
+
+    /**
+     * Synchronizes this title's status with its permission state if needed.
+     */
+    public void syncStatusWithPermissionState(Statuses statuses, User user) {
+        if (permission == null) return;
+        if (!status.isSelectedOrAnyPermission()) return;
+
+        Status newStatus = switch (permission.getStateName()) {
+            case PermissionState.UNKNOWN -> hasPermissionRequest() ? statuses.permissionRequested() : statuses.selected();
+            case PermissionState.GRANTED -> statuses.permissionGranted();
+            case PermissionState.DENIED -> statuses.permissionDenied();
+            case PermissionState.IMPOSSIBLE -> statuses.permissionImpossible();
+            default -> status;
+        };
+        changeStatus(newStatus, null, user, Instant.now());
+    }
+
+    /**
+     * Checks if this title has any contact events that are permission requests.
+     *
+     * @return true if there are permission request contact events, false otherwise
+     */
+    private boolean hasPermissionRequest() {
+        return contactEvents.stream()
+                .anyMatch(event -> event.getType().isPermissionRequest());
+    }
+
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;

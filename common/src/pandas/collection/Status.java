@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
@@ -11,6 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "STATUS")
+@Immutable
 public class Status {
     public static final long NOMINATED_ID = 1;
     public static final long REJECTED_ID = 2;

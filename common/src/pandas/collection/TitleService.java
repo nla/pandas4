@@ -34,13 +34,14 @@ public class TitleService {
     private final ScopeRepository scopeRepository;
     private final OptionRepository optionRepository;
     private final ContactPersonRepository contactPersonRepository;
+    private final Statuses statuses;
 
     public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
                         StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
                         GatherScheduleRepository gatherScheduleRepository, ProfileRepository profileRepository, PublisherRepository publisherRepository,
-                        ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository) {
+                        ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository, Statuses statuses) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
@@ -54,6 +55,7 @@ public class TitleService {
         this.scopeRepository = scopeRepository;
         this.optionRepository = optionRepository;
         this.contactPersonRepository = contactPersonRepository;
+        this.statuses = statuses;
     }
 
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
@@ -124,15 +126,8 @@ public class TitleService {
         Tep tep = title.getTep(); // ensure we have a tep
         title.getTep().setDisplayTitle(title.getName());
 
-        boolean statusChanged = false;
-        if (!Objects.equals(title.getStatus(), form.getStatus())) {
-            title.setStatus(form.getStatus());
-            statusChanged = true;
-        }
-        if (title.getStatus() == null) {
-            title.setStatus(statusRepository.findById(Status.NOMINATED_ID).orElseThrow());
-            statusChanged = true;
-        }
+        if (form.getStatus() == null) form.setStatus(statuses.nominated());
+        title.changeStatus(form.getStatus(), form.getReason(), user, now);
 
         // Link as the next title in a series
         if (form.getContinues() != null) {
@@ -148,20 +143,6 @@ public class TitleService {
         for (Title continuedByTitle: form.getContinuedByTitles()) {
             if (title.getContinuedBy().stream().noneMatch(th -> th.getContinues().equals(continuedByTitle))) {
                 title.getContinuedBy().add(new TitleHistory(title, continuedByTitle));
-            }
-        }
-
-        // if transitioning to the selected status, try to move to the appropriate permission status if possible
-        if (statusChanged && title.getStatus().getId().equals(Status.SELECTED_ID) && title.getPermission() != null
-            && title.getPermission().getState() != null) {
-            Long newStatusId = switch (title.getPermission().getState().getName()) {
-                case PermissionState.GRANTED -> Status.PERMISSION_GRANTED_ID;
-                case PermissionState.DENIED -> Status.PERMISSION_DENIED_ID;
-                case PermissionState.IMPOSSIBLE -> Status.PERMISSION_IMPOSSIBLE_ID;
-                default -> null;
-            };
-            if (newStatusId != null) {
-                title.setStatus(statusRepository.findById(newStatusId).orElseThrow());
             }
         }
 
@@ -229,7 +210,7 @@ public class TitleService {
             title.setPermission(form.getPublisherPermission());
         }
 
-
+        title.syncStatusWithPermissionState(statuses, user);
         titleRepository.save(title);
 
         // if there's no PI, populate it using the title id
@@ -247,11 +228,6 @@ public class TitleService {
             ownerHistory.setNote("Created new title");
             ownerHistory.setDate(now);
             ownerHistoryRepository.save(ownerHistory);
-        }
-
-        // create a status history record if we changed it
-        if (statusChanged) {
-            recordStatusChange(title, user, now, form.getReason());
         }
 
         //
@@ -317,25 +293,6 @@ public class TitleService {
         return gather;
     }
 
-    /**
-     * Create a new status history record for this title. Assumes the status has already been updated.
-     */
-    private void recordStatusChange(Title title, User user, Instant now, Reason reason) {
-        // ensure reason is actually applicable for this status
-        if (reason != null && !reason.getStatus().equals(title.getStatus())) {
-            log.warn("Tried to set inapplicable reason {} for status {}", reason.getName(), title.getStatus().getName());
-            reason = null;
-        }
-
-        statusHistoryRepository.markPreviousEnd(title, now);
-        var statusHistory = new StatusHistory();
-        statusHistory.setStartDate(now);
-        statusHistory.setStatus(title.getStatus());
-        statusHistory.setReason(reason);
-        statusHistory.setUser(user);
-        statusHistory.setTitle(title);
-        statusHistoryRepository.save(statusHistory);
-    }
 
     private List<Title> findAllByIdInBatches(List<Long> titleIds) {
         int batchSize = 500;
@@ -403,8 +360,8 @@ public class TitleService {
 
             if (form.isEditStatus() && !title.getStatus().equals(form.getStatus()) &&
                     title.getStatus().isTransitionAllowed(form.getStatus())) {
-                title.setStatus(form.getStatus());
-                recordStatusChange(title, currentUser, Instant.now(), form.getReason());
+                title.changeStatus(form.getStatus(), form.getReason(), currentUser, Instant.now());
+                title.syncStatusWithPermissionState(statuses, currentUser);
             }
 
             title.addCollections(form.getCollectionsToAdd());
@@ -415,32 +372,13 @@ public class TitleService {
         titleRepository.saveAll(titles);
     }
 
-    private boolean hasPermissionRequest(Title title) {
-        return title.getContactEvents().stream()
-                .anyMatch(event -> event.getType().isPermissionRequest());
-    }
-
     /**
      * Updates the status of the given title based on its associated permission state.
      */
     @Transactional
     public void syncStatusWithPermissionState(Title title, User user) {
-        if (title.getPermission() == null) return;
-        if (!title.getStatus().isSelectedOrAnyPermission()) return;
-
-        Long newStatusId = switch (title.getPermission().getStateName()) {
-            case PermissionState.UNKNOWN -> hasPermissionRequest(title) ? Status.PERMISSION_REQUESTED_ID : Status.SELECTED_ID;
-            case PermissionState.GRANTED -> Status.PERMISSION_GRANTED_ID;
-            case PermissionState.DENIED -> Status.PERMISSION_DENIED_ID;
-            case PermissionState.IMPOSSIBLE -> Status.PERMISSION_IMPOSSIBLE_ID;
-            default -> null;
-        };
-
-        if (newStatusId != null && !title.getStatus().getId().equals(newStatusId)) {
-            title.setStatus(statusRepository.findById(newStatusId).orElseThrow());
-            recordStatusChange(title, user, Instant.now(), null);
-            titleRepository.save(title);
-        }
+        title.syncStatusWithPermissionState(statuses, user);
+        titleRepository.save(title);
     }
 
     @PreAuthorize("hasPermission(#title, 'edit')")
