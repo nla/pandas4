@@ -404,10 +404,6 @@ public class Title {
         return agency;
     }
 
-    public void setAgency(Agency agency) {
-        this.agency = agency;
-    }
-
     public Long getId() {
         return id;
     }
@@ -490,10 +486,6 @@ public class Title {
 
     public User getOwner() {
         return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
     }
 
     public Status getStatus() {
@@ -986,8 +978,8 @@ public class Title {
     public void transferOwnership(Agency newAgency, User newOwner, String note, User transferrer, Instant transferDate) {
         if (newAgency.equals(agency) && newOwner.equals(owner)) return;
 
-        setAgency(newAgency);
-        setOwner(newOwner);
+        this.agency = newAgency;
+        this.owner = newOwner;
         ownerHistories.add(new OwnerHistory(this, newAgency, newOwner, note, transferrer, transferDate));
     }
 
