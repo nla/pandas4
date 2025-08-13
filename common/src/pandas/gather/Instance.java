@@ -175,10 +175,6 @@ public class Instance {
         return this.state;
     }
 
-    public void setState(State state) {
-        this.state = state;
-    }
-
     public void changeState(State newState, User user, Instant changeDate) {
         if (state.equals(newState)) return;
 
@@ -219,10 +215,6 @@ public class Instance {
         return getDate().atZone(ZoneId.systemDefault());
     }
 
-    public void setDate(Instant instanceDate) {
-        this.date = instanceDate;
-    }
-
     public Long getId() {
         return this.id;
     }
@@ -243,16 +235,8 @@ public class Instance {
         return this.instanceStateId;
     }
 
-    public void setInstanceStateId(Long instanceStateId) {
-        this.instanceStateId = instanceStateId;
-    }
-
     public Long getInstanceStatusId() {
         return this.instanceStatusId;
-    }
-
-    public void setInstanceStatusId(Long instanceStatusId) {
-        this.instanceStatusId = instanceStatusId;
     }
 
     public Boolean getIsDisplayed() {
@@ -271,10 +255,6 @@ public class Instance {
         return this.prefix;
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
     public Long getProcessable() {
         return this.processable;
     }
@@ -287,10 +267,6 @@ public class Instance {
         return this.resourceId;
     }
 
-    public void setResourceId(Long resourceId) {
-        this.resourceId = resourceId;
-    }
-
     public Long getRestrictable() {
         return this.restrictable;
     }
@@ -299,14 +275,9 @@ public class Instance {
         return this.restrictionEnabledT;
     }
 
-    public void setRestrictionEnabledT(Long restrictionEnabledT) {
-        this.restrictionEnabledT = restrictionEnabledT;
-    }
-
     public String getTepUrl() {
         return this.tepUrl;
     }
-
 
     private static final Pattern NPH_REGEX = Pattern.compile("/nph-arch(/\\d{4})?/[a-zA-Z]\\d{4}-[a-zA-Z]{3}-\\d{1,2}/(.*)$");
     private static final Pattern OLYMPICS_SPECIAL_CASE = Pattern.compile("^/parchive/2000/(?:olympics|paralympic.org)/");
@@ -355,10 +326,6 @@ public class Instance {
         return this.typeName;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
     public String getGatherCommand() {
         return this.gatherCommand;
     }
@@ -369,10 +336,6 @@ public class Instance {
 
     public Title getTitle() {
         return title;
-    }
-
-    public void setTitle(Title title) {
-        this.title = title;
     }
 
     public InstanceGather getGather() {
@@ -413,10 +376,6 @@ public class Instance {
 
     public List<PandasExceptionLog> getExceptions() {
         return exceptions;
-    }
-
-    public void setExceptions(List<PandasExceptionLog> exceptions) {
-        this.exceptions = exceptions;
     }
 
     public InstanceThumbnail getThumbnail() {
