@@ -70,4 +70,8 @@ public class StateHistory {
     public State getState() {
         return state;
     }
+
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
+    }
 }

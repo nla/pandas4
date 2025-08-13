@@ -66,17 +66,11 @@ class ApiControllerTest {
 
         var archivedState = stateRepository.findByName(State.ARCHIVED).orElseThrow();
 
-        Instance hiddenInstance = new Instance();
-        hiddenInstance.setTitle(title);
-        hiddenInstance.setDate(Instant.parse("2022-12-19T01:02:03Z"));
+        Instance hiddenInstance = new Instance(title, Instant.parse("2022-12-19T01:02:03Z"), archivedState, null);
         hiddenInstance.setIsDisplayed(false);
-        hiddenInstance.setState(archivedState);
 
-        Instance visibleInstance = new Instance();
-        visibleInstance.setTitle(title);
-        visibleInstance.setDate(Instant.parse("2022-12-20T04:56:55Z"));
+        Instance visibleInstance = new Instance(title, Instant.parse("2022-12-20T04:56:55Z"), archivedState, null);
         visibleInstance.setIsDisplayed(true);
-        visibleInstance.setState(archivedState);
 
         instanceRepository.save(visibleInstance);
     }

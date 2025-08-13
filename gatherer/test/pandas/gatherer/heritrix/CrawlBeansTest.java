@@ -30,11 +30,7 @@ public class CrawlBeansTest {
         title.setName("test title");
         title.setGather(gather);
 
-        Instance instance = new Instance();
-        instance.setTitle(title);
-        instance.setId(1L);
-        instance.setDate(Instant.now());
-        instance.setGatherMethodName("Heritrix");
+        Instance instance = new Instance(title, Instant.now(), null, "Heritrix");
 
         CrawlBeans.writeConfig(instance, jobDir, null);
 

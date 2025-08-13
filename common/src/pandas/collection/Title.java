@@ -347,9 +347,11 @@ public class Title {
 
     public Title(User creator, Instant regDate) {
         this.regDate = regDate;
-        owner = creator;
-        agency = creator.getAgency();
-        ownerHistories.add(new OwnerHistory(this, agency, creator, "Created new title", null, regDate));
+        if (creator != null) {
+            this.owner = creator;
+            this.agency = creator.getAgency();
+            this.ownerHistories.add(new OwnerHistory(this, agency, creator, "Created new title", null, regDate));
+        }
     }
 
     public List<String> getAllSeeds() {

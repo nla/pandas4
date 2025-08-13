@@ -94,7 +94,7 @@
                     </span>
                 </label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Status
-                    <select th:field="*{status}" onchange="updateReasons()" th:data-current="${form.status.id}">
+                    <select th:field="*{statusId}" onchange="updateReasons()" th:data-current="${form.statusId}">
                         <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
                     </select>
                 </label>
@@ -356,7 +356,7 @@
             </script>
 
             <div th:each="collection: ${form.collections}"
-                 th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
+                 th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.statusId.isCeased()}"
                  style="color: #555; margin-bottom: 8px; font-style: italic; ">
                 Also gathered <strong th:text="${collection.gatherSchedule.name}">Daily</strong> as part of
                 <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}"

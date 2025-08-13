@@ -25,11 +25,15 @@ public class ScriptsTest {
     static final int pi = 12345;
     static final String dateString = "20170101-1234";
 
+    @TempDir Path temp;
     @TempDir Path master;
-    @TempDir Path workingDir;
+    Path workingDir;
     @TempDir Path derivative;
 
     private Config buildTestConfig() throws IOException {
+        workingDir = temp.resolve("working");
+        Files.createDirectories(workingDir);
+
         Path warcDir = master.resolve("warc");
         Files.createDirectory(warcDir);
 
@@ -41,7 +45,9 @@ public class ScriptsTest {
         config.setRepo1Dir(derivative);
         config.setRepo2Dir(warcDir);
 
-        Files.createDirectory(workingDir.resolve("../upload"));
+        Path uploadDir = workingDir.resolve("../upload");
+        Files.createDirectory(uploadDir);
+        config.setUploadDir(uploadDir);
         Files.createFile(workingDir.resolve("../upload/exclude-files.lst"));
         Files.createDirectory(workingDir.resolve("../warc"));
         Files.createDirectories(master.resolve("access/arc3"));

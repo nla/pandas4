@@ -411,7 +411,7 @@ public class TitleController {
         TitleEditForm form = titleService.editForm(title);
 
         if (setStatus != null && title.getStatus().isTransitionAllowed(setStatus)) {
-            form.setStatus(setStatus);
+            form.setStatusId(setStatus.getId());
         }
 
         String backlink = Requests.backlink();
@@ -458,13 +458,13 @@ public class TitleController {
         suggestedCollection.removeIf(form.getCollections()::contains);
         model.addAttribute("suggestedCollections", suggestedCollection);
 
-        if (form.getStatus() == null) {
+        if (form.getStatusId() == null) {
             model.addAttribute("statusList", statusRepository.findAllById(
                     List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
         } else {
             var statusList = new ArrayList<Status>();
-            statusList.add(form.getStatus());
-            List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatus().getId(), emptyList());
+            statusList.add(statusRepository.findById(form.getStatusId()).orElseThrow());
+            List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatusId(), emptyList());
             statusRepository.findAllById(statusIds).forEach(statusList::add);
             statusList.sort(Comparator.comparing(Status::getId));
             model.addAttribute("statusList", statusList);
@@ -514,9 +514,7 @@ public class TitleController {
 
     @GetMapping(value = "/titles/{id}/heritrix-config", produces = "application/xml")
     public void heritrixConfig(@PathVariable("id") Title title, ServletResponse response) throws IOException {
-        Instance instance = new Instance();
-        instance.setTitle(title);
-        instance.setDate(Instant.now());
+        Instance instance = new Instance(title, Instant.now(), null, "Heritrix");
         response.setContentType("application/xml");
         CrawlBeans.writeCrawlXml(instance, new OutputStreamWriter(response.getOutputStream(), UTF_8), null);
     }

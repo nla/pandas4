@@ -10,6 +10,7 @@ import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import pandas.agency.User;
 import pandas.collection.Title;
 
 import java.sql.Types;
@@ -146,12 +147,48 @@ public class Instance {
     @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InstanceSeed> seeds = new ArrayList<>();
 
+    protected Instance() {
+    }
+
+    public Instance(Title title, Instant date, State state, String gatherMethod) {
+        this.title = title;
+        this.date = date;
+        this.state = state;
+        this.prefix = "PAN";
+        if (title.getGather() != null) {
+            String gatherUrl = title.getGather().getGatherUrl();
+            if (gatherUrl != null) {
+                setTepUrl("/pan/" + title.getPi() + "/" + getDateString() + "/" + gatherUrl.replaceFirst("^https?://", ""));
+                this.gatheredUrl = gatherUrl;
+            }
+            this.scope = title.getGather().getScope();
+            this.profile = title.getGather().getActiveProfile();
+        }
+        this.gatherMethodName = gatherMethod;
+        this.processable = 1L; // unused?
+        this.removeable = 1L; // unused?
+        this.restrictable = 1L; // unused?
+        this.transportable = 1L; // unused?
+    }
+
     public State getState() {
         return this.state;
     }
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public void changeState(State newState, User user, Instant changeDate) {
+        if (state.equals(newState)) return;
+
+        // Mark the end of the previous state history record, if one exists
+        if (this.stateHistory != null && !this.stateHistory.isEmpty()) {
+            this.stateHistory.get(this.stateHistory.size() - 1).setEndDate(changeDate);
+        }
+
+        this.stateHistory.add(new StateHistory(this, newState, changeDate, user));
+        this.state = newState;
     }
 
     public String getDisplayNote() {
@@ -166,16 +203,8 @@ public class Instance {
         return this.gatherMethodName;
     }
 
-    public void setGatherMethodName(String gatherMethodName) {
-        this.gatherMethodName = gatherMethodName;
-    }
-
     public String getGatheredUrl() {
         return this.gatheredUrl;
-    }
-
-    public void setGatheredUrl(String gatheredUrl) {
-        this.gatheredUrl = gatheredUrl;
     }
 
     public Instant getDate() {
@@ -184,10 +213,6 @@ public class Instance {
 
     public String getDateString() {
         return getDateZoned().format(instanceDateFormat);
-    }
-
-    public void setDateString(String dateString) {
-        setDate(Instant.from(instanceDateFormat.withZone(ZoneId.systemDefault()).parse(dateString)));
     }
 
     private ZonedDateTime getDateZoned() {
@@ -254,16 +279,8 @@ public class Instance {
         return this.processable;
     }
 
-    public void setProcessable(Long processable) {
-        this.processable = processable;
-    }
-
     public Long getRemoveable() {
         return this.removeable;
-    }
-
-    public void setRemoveable(Long removeable) {
-        this.removeable = removeable;
     }
 
     public Long getResourceId() {
@@ -276,10 +293,6 @@ public class Instance {
 
     public Long getRestrictable() {
         return this.restrictable;
-    }
-
-    public void setRestrictable(Long restrictable) {
-        this.restrictable = restrictable;
     }
 
     public Long getRestrictionEnabledT() {
@@ -336,10 +349,6 @@ public class Instance {
 
     public Long getTransportable() {
         return this.transportable;
-    }
-
-    public void setTransportable(Long transportable) {
-        this.transportable = transportable;
     }
 
     public String getTypeName() {
@@ -441,12 +450,12 @@ public class Instance {
     }
 
     public static Instance createDummy(long pi, String dateString) {
-        Instance instance = new Instance();
-        instance.setDateString(dateString);
+        Instant date = Instant.from(instanceDateFormat.withZone(ZoneId.systemDefault()).parse(dateString));
         Title title = new Title();
-        title.setPi((long)pi);
-        instance.setTitle(title);
-        return instance;
+        title.setGather(new TitleGather());
+        title.getGather().setGatherUrl("http://test");
+        title.setPi(pi);
+        return new Instance(title, date, null, null);
     }
 
     public InstanceThumbnail getLiveThumbnail() {
@@ -480,14 +489,6 @@ public class Instance {
 
     public Scope getScope() {
         return scope;
-    }
-
-    public void setScope(Scope scope) {
-        this.scope = scope;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
     }
 
     public Profile getProfile() {

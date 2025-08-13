@@ -21,17 +21,19 @@ public class InstanceService {
     private final TitleRepository titleRepository;
     private final GatherDateRepository gatherDateRepository;
     private final StateRepository stateRepository;
+    private final States states;
     private final StateHistoryRepository stateHistoryReposistory;
     private final InstanceGatherRepository instanceGatherRepository;
     private final InstanceResourceRepository instanceResourceRepository;
     private final PandasExceptionLogRepository pandasExceptionLogRepository;
     private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, GatherDateRepository gatherDateRepository, StateRepository stateRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, GatherDateRepository gatherDateRepository, StateRepository stateRepository, States states, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.instanceRepository = instanceRepository;
         this.titleRepository = titleRepository;
         this.gatherDateRepository = gatherDateRepository;
         this.stateRepository = stateRepository;
+        this.states = states;
         this.stateHistoryReposistory = stateHistoryReposistory;
         this.instanceGatherRepository = instanceGatherRepository;
         this.instanceResourceRepository = instanceResourceRepository;
@@ -44,21 +46,7 @@ public class InstanceService {
         title = titleRepository.findById(title.getId()).orElseThrow();
         Instant now = Instant.now();
 
-        Instance instance = new Instance();
-        instance.setTitle(title);
-        instance.setDate(now);
-        String gatherUrl = title.getGather().getGatherUrl();
-        instance.setTepUrl("/pan/" + title.getPi() + "/" + instance.getDateString() + "/" +  gatherUrl.replaceFirst("^https?://", ""));
-        instance.setGatheredUrl(gatherUrl);
-        instance.setGatherMethodName(gatherMethod);
-        instance.setScope(title.getGather().getScope());
-        instance.setState(stateRepository.findByName(State.CREATION).orElseThrow());
-        instance.setPrefix("PAN"); // unused?
-        instance.setProfile(title.getGather().getActiveProfile());
-        instance.setProcessable(1L); // unused?
-        instance.setRemoveable(1L); // unused?
-        instance.setRestrictable(1L); // unused?
-        instance.setTransportable(1L); // unused?
+        Instance instance = new Instance(title, now, states.creation(), gatherMethod);
         instanceRepository.save(instance);
 
         insertStateHistory(instance, instance.getState(), now, null);
@@ -92,10 +80,8 @@ public class InstanceService {
     public void updateState(Instance instance, String stateName, User user) {
         Instant now = Instant.now();
         State state = stateRepository.findByName(stateName).orElseThrow();
-        instance.setState(state);
-        instanceRepository.updateState(instance.getId(), stateName, now);
-        stateHistoryReposistory.markPreviousStateEnd(instance.getId(), now);
-        insertStateHistory(instance, state, now, user);
+        instance.changeState(state, user, now);
+        instanceRepository.save(instance);
     }
 
     public Instance refresh(Instance instance) {
@@ -143,7 +129,8 @@ public class InstanceService {
         instance = instanceRepository.findById(instance.getId()).orElseThrow(() -> new IllegalStateException("instance doesn't exist"));
         if (instance.getState().isArchivedOrArchiving()) return;
         if (!instance.canArchive()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
-        updateState(instance, State.ARCHIVING, user);
+
+        instance.changeState(states.archiving(), user, Instant.now());
 
         // display the new instance immediately
         Title title = instance.getTitle();

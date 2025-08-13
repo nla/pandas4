@@ -14,6 +14,8 @@ public class State {
             PUBLISHED = "published", FAILED = "failed";
 
     public static final long ARCHIVED_ID = 1L;
+    public static final long CREATION_ID = 5;
+    public static final long ARCHIVING_ID = 13;
 
     @Id
     @Column(name = "STATE_ID")

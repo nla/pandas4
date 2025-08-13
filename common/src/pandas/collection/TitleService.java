@@ -88,7 +88,7 @@ public class TitleService {
         form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
         form.setGatherSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
         form.setScope(scopeRepository.findById(Scope.DEFAULT_ID).orElse(null));
-        form.setStatus(statuses.selected());
+        form.setStatusId(Status.SELECTED_ID);
         form.setSubjects(subjects);
         form.setPermissionType(TitleEditForm.PermissionTypeRadio.LEGAL_DEPOSIT);
         form.setCataloguingNotRequired(true);
@@ -126,8 +126,8 @@ public class TitleService {
         Tep tep = title.getTep(); // ensure we have a tep
         title.getTep().setDisplayTitle(title.getName());
 
-        if (form.getStatus() == null) form.setStatus(statuses.nominated());
-        title.changeStatus(form.getStatus(), form.getReason(), user, now);
+        if (form.getStatusId() == null) form.setStatusId(Status.NOMINATED_ID);
+        title.changeStatus(statuses.ref(form.getStatusId()), form.getReason(), user, now);
 
         // Link as the next title in a series
         if (form.getContinues() != null) {
