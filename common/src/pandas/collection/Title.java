@@ -342,6 +342,16 @@ public class Title {
     @OrderBy("date")
     private List<TitleHistory> continues = new ArrayList<>();
 
+    public Title() {
+    }
+
+    public Title(User creator, Instant regDate) {
+        this.regDate = regDate;
+        owner = creator;
+        agency = creator.getAgency();
+        ownerHistories.add(new OwnerHistory(this, agency, creator, "Created new title", null, regDate));
+    }
+
     public List<String> getAllSeeds() {
         List<String> seeds = new ArrayList<>();
         String primarySeed = getPrimarySeedUrl();

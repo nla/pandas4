@@ -101,9 +101,11 @@ public class TitleService {
     @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
     public Title save(TitleEditForm form, User user) {
         Instant now = Instant.now();
-        Title title = form.getId() == null ? new Title() : titleRepository.findById(form.getId()).orElseThrow();
+        Title title;
         if (form.getId() == null) {
-            title.setRegDate(now);
+            title = new Title(user, now);
+        } else {
+            title = titleRepository.findById(form.getId()).orElseThrow();
         }
         title.setAnbdNumber(Strings.emptyToNull(form.getAnbdNumber()));
         title.setCataloguingNotRequired(form.isCataloguingNotRequired());
@@ -151,14 +153,6 @@ public class TitleService {
             title.setTitleUrl(seeds[0]);
         } else {
             title.setTitleUrl(form.getTitleUrl());
-        }
-
-        if (title.getId() == null) {
-            // set initial owning user and agency
-            if (user != null) {
-                title.setOwner(user);
-                title.setAgency(user.getRole().getOrganisation().getAgency());
-            }
         }
 
         // create or update publisher
@@ -215,12 +209,6 @@ public class TitleService {
         if (title.getPi() == null) {
             title.setPi(title.getId());
             titleRepository.save(title);
-        }
-
-        // create an owner history record if the title is new
-        if (form.getId() == null && (title.getOwner() != null || title.getAgency() != null)) {
-            ownerHistoryRepository.save(new OwnerHistory(title, title.getAgency(), title.getOwner(),
-                    "Created new title", null, now));
         }
 
         saveGatherSettings(form, title, seeds);
