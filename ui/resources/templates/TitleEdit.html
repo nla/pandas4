@@ -110,17 +110,18 @@
                             updateCeasedWarning();
 
                             let reasonSelect = document.getElementById("reason");
-                            let statusId = document.getElementById("status").value;
+                            let statusSelect = document.getElementById("statusId");
+                            let statusId = statusSelect.value;
                             reasonSelect.parentElement.style.display = 'none';
                             reasonSelect.value = "";
 
                             // if the status field is disabled, hide the reason field
-                            if (document.getElementById("status").disabled) {
+                            if (statusSelect.disabled) {
                                 return;
                             }
 
                             // if the selected status is the current status, hide the reason field
-                            if (statusId === document.getElementById("status").dataset.current) {
+                            if (statusId === statusSelect.dataset.current) {
                                 return;
                             }
 
@@ -336,7 +337,7 @@
             <script>
                 function updateCeasedWarning() {
                     // show a gather warning if the status is ceased
-                    let selectedStatus = document.getElementById("status").selectedOptions[0].text;
+                    let selectedStatus = document.getElementById("statusId").selectedOptions[0].text;
                     let isCeasedOrRejected = selectedStatus === "ceased" || selectedStatus === "rejected";
                     document.getElementById("ceasedWarning").style.display = isCeasedOrRejected ? 'block' : 'none';
                     document.querySelectorAll(".disable-when-ceased").forEach(element => element.disabled = isCeasedOrRejected);
@@ -347,7 +348,7 @@
                 }
 
                 window.addEventListener("load", updateCeasedWarning);
-                document.getElementById("status").addEventListener("change", updateCeasedWarning);
+                document.getElementById("statusId").addEventListener("change", updateCeasedWarning);
 
                 // re-enable disabled elements before submitting so their data is actually sent
                 titleEditForm.addEventListener("submit", event => {
