@@ -228,10 +228,18 @@ public class TitleService {
             ownerHistoryRepository.save(ownerHistory);
         }
 
-        //
-        // update gather dates
-        //
+        saveGatherSettings(form, title, seeds);
 
+        // create legacy tep relation if needed
+        if (title.getLegacyTepRelation() == null) {
+            title.setLegacyTepRelation(title.getTep());
+            titleRepository.save(title);
+        }
+
+        return title;
+    }
+
+    private void saveGatherSettings(TitleEditForm form, Title title, String[] seeds) {
         // create or update the corresponding TitleGather record
         TitleGather titleGather = title.getGather();
         if (titleGather == null) titleGather = createTitleGather(title);
@@ -270,14 +278,6 @@ public class TitleService {
         }
 
         titleGatherRepository.save(titleGather);
-
-        // create legacy tep relation if needed
-        if (title.getLegacyTepRelation() == null) {
-            title.setLegacyTepRelation(title.getTep());
-            titleRepository.save(title);
-        }
-
-        return title;
     }
 
     private TitleGather createTitleGather(Title title) {
@@ -288,7 +288,6 @@ public class TitleService {
         title.setGather(gather);
         return gather;
     }
-
 
     private List<Title> findAllByIdInBatches(List<Long> titleIds) {
         int batchSize = 500;
