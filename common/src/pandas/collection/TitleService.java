@@ -25,7 +25,6 @@ public class TitleService {
     private final TitleGatherRepository titleGatherRepository;
     private final FormatRepository formatRepository;
     private final StatusRepository statusRepository;
-    private final StatusHistoryRepository statusHistoryRepository;
     private final OwnerHistoryRepository ownerHistoryRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
@@ -38,7 +37,7 @@ public class TitleService {
 
     public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
-                        StatusHistoryRepository statusHistoryRepository, OwnerHistoryRepository ownerHistoryRepository,
+                        OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
                         GatherScheduleRepository gatherScheduleRepository, ProfileRepository profileRepository, PublisherRepository publisherRepository,
                         ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository, Statuses statuses) {
@@ -46,7 +45,6 @@ public class TitleService {
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
         this.statusRepository = statusRepository;
-        this.statusHistoryRepository = statusHistoryRepository;
         this.ownerHistoryRepository = ownerHistoryRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
@@ -90,7 +88,7 @@ public class TitleService {
         form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
         form.setGatherSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
         form.setScope(scopeRepository.findById(Scope.DEFAULT_ID).orElse(null));
-        form.setStatus(statusRepository.findById(Status.SELECTED_ID).orElseThrow());
+        form.setStatus(statuses.selected());
         form.setSubjects(subjects);
         form.setPermissionType(TitleEditForm.PermissionTypeRadio.LEGAL_DEPOSIT);
         form.setCataloguingNotRequired(true);
