@@ -1,5 +1,6 @@
 package pandas.collection;
 
+import jakarta.validation.constraints.NotNull;
 import pandas.agency.User;
 
 import jakarta.persistence.*;
@@ -37,6 +38,17 @@ public class StatusHistory {
     @Column(name = "END_DATE")
     private Instant endDate;
 
+    public StatusHistory() {
+    }
+
+    public StatusHistory(Title title, @NotNull Status status, Reason reason, Instant startDate, User user) {
+        this.title = title;
+        this.status = status;
+        this.reason = reason;
+        this.startDate = startDate;
+        this.user = user;
+    }
+
     public Instant getEndDate() {
         return endDate;
     }
@@ -49,47 +61,23 @@ public class StatusHistory {
         return startDate;
     }
 
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Title getTitle() {
         return title;
     }
 
-    public void setTitle(Title title) {
-        this.title = title;
-    }
-
     public Status getStatus() {
         return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
     }
 
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Reason getReason() {
         return reason;
-    }
-
-    public void setReason(Reason reason) {
-        this.reason = reason;
     }
 }

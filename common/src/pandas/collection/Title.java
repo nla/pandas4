@@ -1006,14 +1006,7 @@ public class Title {
         }
 
         // Create new status history record
-        StatusHistory statusHistory = new StatusHistory();
-        statusHistory.setStartDate(changeDate);
-        statusHistory.setStatus(this.status);
-        statusHistory.setReason(reason);
-        statusHistory.setUser(user);
-        statusHistory.setTitle(this);
-
-        statusHistories.add(statusHistory);
+        statusHistories.add(new StatusHistory(this, status, reason, changeDate, user));
     }
 
     /**
