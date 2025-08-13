@@ -197,6 +197,9 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     Stream<Title> findBySeedUrlLike(String seedUrlPattern);
 
+    @Query("select i.title from Instance i where i.id = :instanceId")
+    Optional<Title> findByInstanceId(long instanceId);
+
     interface TitleListItem {
         long getId();
         String getName();

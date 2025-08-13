@@ -15,6 +15,7 @@ public class State {
 
     public static final long ARCHIVED_ID = 1L;
     public static final long CREATION_ID = 5;
+    public static final long GATHER_PROCESS_ID = 9;
     public static final long ARCHIVING_ID = 13;
 
     @Id
@@ -83,5 +84,9 @@ public class State {
 
     public boolean isGathering() {
         return getName().equals(GATHERING);
+    }
+
+    public boolean isCreation() {
+        return getName().equals(CREATION);
     }
 }

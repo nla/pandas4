@@ -4,7 +4,10 @@
 
 ### New features
 
-* New title and publisher contact people can now be created inline from the edit title and publisher blanket permission forms.
+* Contact events can now be added to titles and publishers.
+* WebDAV and FTP working area URLs are now displayed on the view instance screen.
+* Implemented most of worktray actions that were a "TODO" placeholder.
+* New title and publisher contact people can now be created inline from the title, permission and contact event forms.
 * 'Titles archived by agency' report under Statistics. This is the 'Total archived titles' report from PANDAS 3.
 * MySQL database support.
 

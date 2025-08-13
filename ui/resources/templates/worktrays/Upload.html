@@ -38,7 +38,7 @@
             <td><a th:text="${instance.title.name}" th:href="${@link.to(instance.title)}">Example title</a></td>
             <td><a href="#workingAreaUrl"><i class="icon globe"></i></a></td>
             <td><a th:if="${instance.title.owner}" th:text="${instance.title.owner.userid}" th:href="${@link.to(instance.title.owner)}">jsmith</a></td>
-            <td>TODO: Upload</td>
+            <td><a th:href="${@link.to(instance)}">Upload</a></td>
         </tr>
         </tbody>
     </table>

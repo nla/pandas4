@@ -24,4 +24,8 @@ public class States {
     public State creation() {
         return ref(State.CREATION_ID);
     }
+
+    public State gatherProcess() {
+        return ref(State.GATHER_PROCESS_ID);
+    }
 }

@@ -28,6 +28,12 @@ public class Link {
     @Value("${pandas.deliveryBaseUrl:https://webarchive.nla.gov.au/awa/}")
     private String deliveryBaseUrl = "https://webarchive.nla.gov.au/awa/";
 
+    @Value("${pandas.webdavBaseUrl:https://pandas.nla.gov.au/dav/}")
+    private String webdavBaseUrl;
+
+    @Value("${pandas.ftpBaseUrl:ftp://pandas-ftp.nla.gov.au/working/}")
+    private String ftpBaseUrl;
+
     private final String bambooBaseUrl;
 
     public Link(Config config) {
@@ -68,6 +74,14 @@ public class Link {
 
     public String delivery(Issue issue) {
         return delivery(issue.getDate(), issue.getDeliveryUrl());
+    }
+
+    public String webdav(Instance instance) {
+        return webdavBaseUrl + instance.getPi() + "/" + instance.getDateString();
+    }
+
+    public String ftp(Instance instance) {
+        return ftpBaseUrl + instance.getPi() + "/" + instance.getDateString();
     }
 
     public String edit(Agency agency) {

@@ -14,9 +14,12 @@
         <nav>
             <a th:if="${instance.canEdit()}" sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:href="${@link.edit(instance)}" class="btn"><i class="icon edit"></i> Edit</a>
 
-            <a th:href="${bambooUrl}" class="btn btn-secondary">View in Bamboo</a>
+            <a th:href="${bambooUrl}" class="btn btn-secondary" th:if="${!instance.state.isCreation()}">View in Bamboo</a>
             <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
                     th:href="${@link.to(instance) + '/process'}" class="btn btn-secondary">Process</a>
+            <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canPostProcess()}"
+                    form=actionForm th:formaction="${@link.to(instance) + '/post-process'}" type="submit"
+                    class="btn btn-secondary">Post process</button>
         </nav>
         <button th:if="${instance.canDelete()}" th:formaction="${@link.to(instance) + '/delete'}" type=submit form=actionForm class="btn btn-danger"><i class="icon delete"></i> Delete</button>
     </header>
@@ -101,6 +104,19 @@
         </table>
     </section>
 
+    <section th:if="${instance.isWorkingAreaAccessible()}">
+        <h2>Working Area</h2>
+        <div class="working-area-instructions">
+            <p>
+                <strong>WebDAV:</strong>
+                <a th:href="${@link.webdav(instance)}" th:text="${@link.webdav(instance)}">https://pandas.nla.gov.au/dav/145451/20220225-1839</a>
+            </p>
+            <p>
+                <strong>FTP:</strong>
+                <a th:href="${@link.ftp(instance)}" th:text="${@link.ftp(instance)}">ftp://pandas-ftp.nla.gov.au:working/145451/20220225-1839</a>
+        </p>
+    </div>
+    </section>
 
     <h2 id="state-history" style="clear: left">History</h2>
     <table class="history-table">

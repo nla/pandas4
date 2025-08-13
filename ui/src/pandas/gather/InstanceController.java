@@ -166,6 +166,13 @@ public class InstanceController {
         return "redirect:/instances/" + instance.getId();
     }
 
+    @PostMapping("/instances/{id}/post-process")
+    @PreAuthorize("hasPermission(#instanceId, 'Instance', 'edit')")
+    public String postProcess(@PathVariable("id") long instanceId) {
+        instanceService.postProcess(instanceId, userService.getCurrentUser());
+        return "redirect:/instances/" + instanceId;
+    }
+
     @PostMapping("/instances/archive")
     public String archiveSelected(@RequestParam("instance") List<Instance> instances) {
         var user = userService.getCurrentUser();

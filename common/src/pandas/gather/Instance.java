@@ -356,6 +356,10 @@ public class Instance {
         return getState().isGathered();
     }
 
+    public boolean canPostProcess() {
+        return isUploadMethod() && getState().isCreation();
+    }
+
     public boolean canFindAndReplace() {
         return getState().isGathered() &&
                 Set.of(GatherMethod.HTTRACK, GatherMethod.UPLOAD).contains(getGatherMethodName());
@@ -372,6 +376,10 @@ public class Instance {
 
     public boolean canEdit() {
         return getState().isArchivedOrArchiving() || getState().isGathered();
+    }
+
+    public boolean isWorkingAreaAccessible() {
+        return getState().isGathered() || (isUploadMethod() && getState().isCreation());
     }
 
     public List<PandasExceptionLog> getExceptions() {
@@ -484,6 +492,10 @@ public class Instance {
 
     public boolean isBrowsertrixMethod() {
         return GatherMethod.BROWSERTRIX.equals(getGatherMethodName());
+    }
+
+    public boolean isUploadMethod() {
+        return GatherMethod.UPLOAD.equals(getGatherMethodName());
     }
 
     public void setSeeds(List<InstanceSeed> seeds) {

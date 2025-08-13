@@ -203,4 +203,11 @@ public class InstanceService {
         instance.setSeeds(seeds);
         instanceRepository.save(instance);
     }
+
+    @Transactional
+    public void postProcess(long instanceId, User currentUser) {
+        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+        if (!instance.canPostProcess()) throw new IllegalStateException("can't post process instance in state " + instance.getState().getName());
+        instance.changeState(states.gatherProcess(), currentUser, Instant.now());
+    }
 }

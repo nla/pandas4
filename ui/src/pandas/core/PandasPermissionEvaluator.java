@@ -127,6 +127,10 @@ public class PandasPermissionEvaluator implements PermissionEvaluator {
             case "Collection:edit" -> {
                 return authorities.contains(EDIT_COLLECTIONS);
             }
+            case "Instance:edit" -> {
+                Title title = titleRepository.findByInstanceId((Long) targetId).orElseThrow(NotFoundException::new);
+                return hasPermission(authentication, title, permission);
+            }
             case "Publisher:edit" -> {
                 return authorities.contains(EDIT_PUBLISHERS);
             }
