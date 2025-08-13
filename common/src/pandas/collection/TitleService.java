@@ -279,8 +279,6 @@ public class TitleService {
             titleRepository.save(title);
         }
 
-        syncStatusWithPermissionState(title, user);
-
         return title;
     }
 
