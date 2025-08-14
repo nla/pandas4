@@ -56,10 +56,8 @@ public class Instance {
     @GenericField(sortable = Sortable.YES)
     private Instant date;
 
-    @ManyToOne
-    @JoinColumn(name = "CURRENT_STATE_ID")
-    @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.NO)
+    @Column(name = "CURRENT_STATE_ID")
+    @GenericField(aggregable = Aggregable.YES)
     private State state;
 
     @Column(name = "DISPLAY_NOTE", length = 4000)
@@ -366,12 +364,14 @@ public class Instance {
     }
 
     public boolean canDelete() {
-        return Set.of(State.GATHERING, State.GATHERED, State.CREATION, State.FAILED, State.CHECKING, State.CHECKED)
-                .contains(getState().getName());
+        return switch (getState()) {
+            case GATHERING, GATHERED, CREATION, FAILED, CHECKING, CHECKED -> true;
+            default -> false;
+        };
     }
 
     public boolean canStop() {
-        return getState().getName().equals(State.GATHERING);
+        return getState() == State.GATHERING;
     }
 
     public boolean canEdit() {
@@ -512,5 +512,20 @@ public class Instance {
 
     public InstanceSeed getSeed(String url) {
         return getSeeds().stream().filter(seed -> seed.getUrl().equals(url)).findFirst().orElse(null);
+    }
+
+    public void retryAfterFailure(User user, Instant changeDate) {
+        if (!getState().isFailed()) return;
+        State stateBeforeFailure = getStateBeforeFailure();
+        if (!stateBeforeFailure.canBeRetried()) return;
+        changeState(stateBeforeFailure, user, changeDate);
+    }
+
+    public void delete(User user, Instant changeDate) {
+        if (getState().isDeletedOrDeleting()) return;
+        if (!canDelete()) {
+            throw new IllegalStateException("can't delete instance in state " + getState());
+        }
+        changeState(State.DELETING, user, changeDate);
     }
 }

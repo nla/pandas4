@@ -79,9 +79,7 @@ public class DatabaseInit {
 
         if (stateRepository.count() == 0) {
             log.info("Populating state table");
-            stateRepository.saveAll(Stream.of("archived", "awaitGather", "checked", "checking", "creation", "deleted",
-                    "deleting", "gatherPause", "gatherProcess", "gathered", "reserved11", "gathering", "archiving",
-                    "failed").map(State::new).toList());
+            stateRepository.saveAll(Stream.of(State.values()).map(StateEntity::new).toList());
         }
 
         if (statusRepository.count() == 0) {

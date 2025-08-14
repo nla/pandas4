@@ -4,89 +4,109 @@ import jakarta.persistence.*;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
-@Entity
-@Table(name = "STATE")
-public class State {
-    public static final String ARCHIVING = "archiving", ARCHIVED = "archived", CHECKED = "checked",
-            CHECKING = "checking", CREATION = "creation", DELETED = "deleted", DELETING = "deleting",
-            AWAIT_GATHER = "awaitGather", GATHERING = "gathering", GATHER_PAUSE = "gatherPause",
-            GATHER_PROCESS = "gatherProcess", GATHER_STOP = "gatherStop", GATHERED = "gathered",
-            PUBLISHED = "published", FAILED = "failed";
+import java.util.Arrays;
+import java.util.Map;
 
-    public static final long ARCHIVED_ID = 1L;
-    public static final long CREATION_ID = 5;
-    public static final long GATHER_PROCESS_ID = 9;
-    public static final long ARCHIVING_ID = 13;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 
-    @Id
-    @Column(name = "STATE_ID")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STATE_SEQ")
-    @SequenceGenerator(name = "STATE_SEQ", sequenceName = "STATE_SEQ", allocationSize = 1)
+public enum State {
+    ARCHIVED(1),
+    AWAIT_GATHER(2),
+    CHECKED(3),
+    CHECKING(4),
+    CREATION(5),
+    DELETED(6),
+    DELETING(7),
+    GATHER_PAUSE(8),
+    GATHER_PROCESS(9),
+    GATHERED(10),
+    GATHERING(12),
+    ARCHIVING(13),
+    FAILED(14);
+
+    private static final Map<Integer, State> byId = Arrays.stream(State.values())
+            .collect(toUnmodifiableMap(State::id, state -> state));
+
+    private final int id;
+
     @GenericField(aggregable = Aggregable.YES)
-    private Long id;
+    private final String stateName = camelCase(name());
 
-    @Column(name = "STATE_NAME")
-    private String name;
-
-    public State() {
+    State(int id) {
+        this.id = id;
     }
 
-    public State(String name) {
-        this.name = name;
+    public int id() {
+        return id;
     }
 
-    public Long getId() {
-        return this.id;
+    private String camelCase(String name) {
+        String[] parts = name.split("_");
+        StringBuilder result = new StringBuilder(parts[0].toLowerCase());
+        for (int i = 1; i < parts.length; i++) {
+            result.append(parts[i].substring(0, 1).toUpperCase())
+                    .append(parts[i].substring(1).toLowerCase());
+        }
+        return result.toString();
     }
 
-    public void setId(Long stateId) {
-        this.id = stateId;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String stateName) {
-        this.name = stateName;
-    }
 
     public boolean isDeletedOrDeleting() {
-        return getName().equals(DELETED) || getName().equals(DELETING);
+        return this == DELETED || this == DELETING;
     }
 
     public boolean isFailed() {
-        return getName().equals(FAILED);
+        return this == FAILED;
     }
 
     public boolean isArchived() {
-        return getName().equals(ARCHIVED);
+        return this == ARCHIVED;
     }
 
     public boolean isArchivedOrArchiving() {
-        return getName().equals(ARCHIVING) || isArchived();
+        return this == ARCHIVING || isArchived();
     }
 
     public boolean canBeRetried() {
-        return switch (getName()) {
+        return switch (this) {
             case ARCHIVING, DELETING, GATHER_PROCESS, GATHERING -> true;
             default -> false;
         };
     }
 
     public boolean isGatheringOrCreation() {
-        return getName().equals(GATHERING) || getName().equals(CREATION);
+        return this == GATHERING || this == CREATION;
     }
 
     public boolean isGathered() {
-        return getName().equals(GATHERED);
+        return this == GATHERED;
     }
 
     public boolean isGathering() {
-        return getName().equals(GATHERING);
+        return this == GATHERING;
     }
 
     public boolean isCreation() {
-        return getName().equals(CREATION);
+        return this == CREATION;
+    }
+
+    public String getStateName() {
+        return stateName;
+    }
+
+    @Converter(autoApply = true)
+    public static class JPAConverter implements AttributeConverter<State, Integer> {
+        @Override
+        public Integer convertToDatabaseColumn(State state) {
+            return state == null ? null : state.id;
+        }
+
+        @Override
+        public State convertToEntityAttribute(Integer id) {
+            if (id == null) return null;
+            State state = byId.get(id);
+            if (state == null) throw new IllegalArgumentException("No State found for id: " + id);
+            return state;
+        }
     }
 }

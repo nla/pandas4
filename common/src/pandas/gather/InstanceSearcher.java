@@ -54,12 +54,12 @@ public class InstanceSearcher {
         };
     }
 
-    public SearchResults<Instance> search(long stateId, Long agencyId, Long ownerId,
+    public SearchResults<Instance> search(State state, Long agencyId, Long ownerId,
                                           MultiValueMap<String, String> params, Pageable pageable) {
         var session = Search.session(entityManager);
         var scope = session.scope(Instance.class);
         var search = session.search(scope)
-                .where(buildPredicate(scope.predicate(), stateId, agencyId, ownerId, params, null))
+                .where(buildPredicate(scope.predicate(), state, agencyId, ownerId, params, null))
                 .sort(f -> f.field("date").desc());
 
         // we can do inactive facets as part of the main search
@@ -79,7 +79,7 @@ public class InstanceSearcher {
             if (facet instanceof EntityFacet && params.containsKey(facet.param)) {
                 // we need to do separate searches for each active entity facets that applies all other facets
                 var facetResult = session.search(scope)
-                        .where(buildPredicate(scope.predicate(), stateId, agencyId, ownerId, params, facet))
+                        .where(buildPredicate(scope.predicate(), state, agencyId, ownerId, params, facet))
                         .aggregation(((EntityFacet<?>) facet).key, f -> f.terms().field(facet.field, Long.class)
                                 .maxTermCount(20)).fetch(0);
                 facetResults.add(facet.results(params, facetResult));
@@ -92,13 +92,13 @@ public class InstanceSearcher {
     }
 
     private SearchPredicate buildPredicate(SearchPredicateFactory f,
-            long stateId, Long agencyId, Long ownerId, MultiValueMap<String, String> params, Facet excludedFacet) {
+            State state, Long agencyId, Long ownerId, MultiValueMap<String, String> params, Facet excludedFacet) {
         var and = f.and();
         for (Facet facet : facets) {
             if (facet == excludedFacet) continue;
             and.add(facet.predicate(f, params, false));
         }
-        and.add(f.match().field("state.id").matching(stateId));
+        and.add(f.match().field("state").matching(state));
         if (agencyId != null) and.add(f.match().field("title.agency.id").matching(agencyId));
         if (ownerId != null) and.add(f.match().field("title.owner.id").matching(ownerId));
         return and.toPredicate();

@@ -163,29 +163,29 @@ public class GathererIT {
 
             // wait until gathering finishes
             Long instanceId = instance.getId();
-            while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState().getName())) {
+            while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState())) {
                 Thread.sleep(100);
-                instance = instanceRepository.findById(instanceId).orElseThrow();
+                instance = instanceRepository.getOrThrow(instanceId);
             }
 
-            assertEquals(State.GATHERED, instance.getState().getName());
+            assertEquals(State.GATHERED, instance.getState());
 
             // archive the instance
-            instanceService.updateState(instance, State.ARCHIVING);
+            instanceService.updateState(instance.getId(), State.ARCHIVING);
 
             // wait until archiving finishes
-            while (instance.getState().getName().equals(State.ARCHIVING)) {
+            while (instance.getState().equals(State.ARCHIVING)) {
                 Thread.sleep(100);
-                instance = instanceRepository.findById(instanceId).orElseThrow();
+                instance = instanceRepository.getOrThrow(instanceId);
             }
-            assertEquals(State.ARCHIVED, instance.getState().getName());
+            assertEquals(State.ARCHIVED, instance.getState());
 
             assertNotNull(instance.getGather().getFiles(), "missing files gather stat");
             assertNotNull(instance.getGather().getSize(), "missing size gather stat");
 
             TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
-                var instance2 = instanceRepository.findById(instanceId).orElseThrow();
+                var instance2 = instanceRepository.getOrThrow(instanceId);
                 assertEquals(200, instance2.getSeed(seedUrl).getStatus());
                 assertEquals(302, instance2.getSeed(redirSeedUrl).getStatus());
                 assertEquals(redirDestUrl, instance2.getSeed(redirSeedUrl).getRedirect());
@@ -222,22 +222,22 @@ public class GathererIT {
         Instance instance = instances.get(0);
 
         // wait until gathering finishes
-        while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState().getName())) {
+        while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState())) {
             Thread.sleep(100);
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
 
-        assertEquals(State.GATHERED, instance.getState().getName());
+        assertEquals(State.GATHERED, instance.getState());
 
         // archive the instance
-        instanceService.updateState(instance, State.ARCHIVING);
+        instanceService.updateState(instance.getId(), State.ARCHIVING);
 
         // wait until archiving finishes
-        while (instance.getState().getName().equals(State.ARCHIVING)) {
+        while (instance.getState().equals(State.ARCHIVING)) {
             Thread.sleep(100);
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
-        assertEquals(State.ARCHIVED, instance.getState().getName());
+        assertEquals(State.ARCHIVED, instance.getState());
         assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
     }
 
@@ -270,21 +270,21 @@ public class GathererIT {
         Instance instance = instances.get(0);
 
         // wait until gathering finishes
-        while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState().getName())) {
+        while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState())) {
             Thread.sleep(100);
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
-        assertEquals(State.GATHERED, instance.getState().getName());
+        assertEquals(State.GATHERED, instance.getState());
 
         // archive the instance
-        instanceService.updateState(instance, State.ARCHIVING);
+        instanceService.updateState(instance.getId(), State.ARCHIVING);
 
         // wait until archiving finishes
-        while (instance.getState().getName().equals(State.ARCHIVING)) {
+        while (instance.getState().equals(State.ARCHIVING)) {
             Thread.sleep(100);
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
-        assertEquals(State.ARCHIVED, instance.getState().getName());
+        assertEquals(State.ARCHIVED, instance.getState());
         assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
 
     }

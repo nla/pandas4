@@ -15,25 +15,25 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static pandas.gather.State.FAILED;
+
 @Service
 public class InstanceService {
     private final InstanceRepository instanceRepository;
     private final TitleRepository titleRepository;
     private final GatherDateRepository gatherDateRepository;
     private final StateRepository stateRepository;
-    private final States states;
     private final StateHistoryRepository stateHistoryReposistory;
     private final InstanceGatherRepository instanceGatherRepository;
     private final InstanceResourceRepository instanceResourceRepository;
     private final PandasExceptionLogRepository pandasExceptionLogRepository;
     private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, GatherDateRepository gatherDateRepository, StateRepository stateRepository, States states, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, GatherDateRepository gatherDateRepository, StateRepository stateRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
         this.instanceRepository = instanceRepository;
         this.titleRepository = titleRepository;
         this.gatherDateRepository = gatherDateRepository;
         this.stateRepository = stateRepository;
-        this.states = states;
         this.stateHistoryReposistory = stateHistoryReposistory;
         this.instanceGatherRepository = instanceGatherRepository;
         this.instanceResourceRepository = instanceResourceRepository;
@@ -46,7 +46,7 @@ public class InstanceService {
         title = titleRepository.findById(title.getId()).orElseThrow();
         Instant now = Instant.now();
 
-        Instance instance = new Instance(title, now, states.creation(), gatherMethod);
+        Instance instance = new Instance(title, now, State.CREATION, gatherMethod);
         instanceRepository.save(instance);
 
         insertStateHistory(instance, instance.getState(), now, null);
@@ -72,14 +72,14 @@ public class InstanceService {
     }
 
     @Transactional
-    public void updateState(Instance instance, String stateName) {
-        updateState(instance, stateName, null);
+    public void updateState(long instanceId, State state) {
+        updateState(instanceId, state, null);
     }
 
     @Transactional
-    public void updateState(Instance instance, String stateName, User user) {
+    public void updateState(long instanceId, State state, User user) {
         Instant now = Instant.now();
-        State state = stateRepository.findByName(stateName).orElseThrow();
+        Instance instance = instanceRepository.getOrThrow(instanceId);
         instance.changeState(state, user, now);
         instanceRepository.save(instance);
     }
@@ -92,23 +92,18 @@ public class InstanceService {
      * Log an gather exception and set the instance to failed.
      */
     @Transactional
-    public void recordFailure(Instance instance, String summary, String message, String originator) {
-        PandasExceptionLog logEntry = new PandasExceptionLog();
-        logEntry.setDate(Instant.now());
-        logEntry.setInstance(instance);
-        logEntry.setSummary(summary);
-        logEntry.setDetail(message);
-        logEntry.setOriginator(originator);
-        logEntry.setPi(instance.getTitle().getPi());
-        logEntry.setViewed(0L);
-        pandasExceptionLogRepository.save(logEntry);
-        
-        updateState(instance, State.FAILED);
+    public void recordFailure(long instanceId, String summary, String message, String originator) {
+        Instant now = Instant.now();
+        Instance instance = instanceRepository.getOrThrow(instanceId);
+        pandasExceptionLogRepository.save(new PandasExceptionLog(now, instance, summary, message, originator,
+                instance.getTitle().getPi(), 0L));
+        instance.changeState(State.FAILED, null, now);
+        instanceRepository.save(instance);
     }
 
     @Transactional
     public void publishInstanceImmediatelyIfNecessary(long instanceId) {
-        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+        Instance instance = instanceRepository.getOrThrow(instanceId);
         if (instance.getTitle().getTep() != null && instance.getTitle().getTep().isPublishImmediately()) {
             instance.setIsDisplayed(true);
             instanceRepository.save(instance);
@@ -128,9 +123,9 @@ public class InstanceService {
     public void archive(Instance instance, User user) {
         instance = instanceRepository.findById(instance.getId()).orElseThrow(() -> new IllegalStateException("instance doesn't exist"));
         if (instance.getState().isArchivedOrArchiving()) return;
-        if (!instance.canArchive()) throw new IllegalStateException("can't archive instance in state " + instance.getState().getName());
+        if (!instance.canArchive()) throw new IllegalStateException("can't archive instance in state " + instance.getState());
 
-        instance.changeState(states.archiving(), user, Instant.now());
+        instance.changeState(State.ARCHIVING, user, Instant.now());
 
         // display the new instance immediately
         Title title = instance.getTitle();
@@ -162,27 +157,44 @@ public class InstanceService {
         instanceGatherRepository.save(insGather);
     }
 
-    @PreAuthorize("hasPermission(#instance.title, 'edit')")
+    @PreAuthorize("hasPermission(#instanceId, 'Instance', 'edit')")
     @Transactional
-    public void delete(Instance instance, User currentUser) {
-        if (instance.getState().isDeletedOrDeleting()) return;
-        if (!instance.canDelete()) {
-            throw new IllegalStateException("can't delete instance in state " + instance.getState().getName());
-        }
-        updateState(instance, State.DELETING, currentUser);
+    public void delete(long instanceId, User currentUser) {
+        var instance = instanceRepository.getOrThrow(instanceId);
+        instance.delete(currentUser, Instant.now());
+        instanceRepository.save(instance);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void retryAfterFailure(Instance instance, User currentUser) {
-        if (!instance.getState().isFailed()) return;
-        State stateBeforeFailure = instance.getStateBeforeFailure();
-        if (!stateBeforeFailure.canBeRetried()) return;
-        updateState(instance, stateBeforeFailure.getName(), currentUser);
+    @Transactional
+    public void retryAfterFailure(long instanceId, User currentUser) {
+        Instance instance = instanceRepository.getOrThrow(instanceId);
+        instance.retryAfterFailure(currentUser, Instant.now());
+        instanceRepository.save(instance);
+    }
+
+    @Transactional
+    public void retryAllFailed(User currentUser) {
+        var instances = instanceRepository.findByStateInOrderByDate(List.of(FAILED));
+        Instant now = Instant.now();
+        for (Instance instance : instances) {
+            instance.retryAfterFailure(currentUser, now);
+        }
+        instanceRepository.saveAll(instances);
+    }
+
+    @Transactional
+    public void deleteAllFailed(User currentUser) {
+        var instances = instanceRepository.findByStateInOrderByDate(List.of(FAILED));
+        Instant now = Instant.now();
+        for (Instance instance : instances) {
+            instance.delete(currentUser, now);
+        }
+        instanceRepository.saveAll(instances);
     }
 
     @Transactional
     public List<String> buildAndSaveHttrackCommand(long instanceId, String executable, Path instanceDir) {
-        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+        Instance instance = instanceRepository.getOrThrow(instanceId);
         List<String> command = new ArrayList<>();
         command.add(executable);
         command.add("-qi");
@@ -199,15 +211,24 @@ public class InstanceService {
 
     @Transactional
     public void updateSeedStatuses(long instanceId, List<InstanceSeed> seeds) {
-        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+        Instance instance = instanceRepository.getOrThrow(instanceId);
         instance.setSeeds(seeds);
         instanceRepository.save(instance);
     }
 
     @Transactional
     public void postProcess(long instanceId, User currentUser) {
-        Instance instance = instanceRepository.findById(instanceId).orElseThrow();
-        if (!instance.canPostProcess()) throw new IllegalStateException("can't post process instance in state " + instance.getState().getName());
-        instance.changeState(states.gatherProcess(), currentUser, Instant.now());
+        Instance instance = instanceRepository.getOrThrow(instanceId);
+        if (!instance.canPostProcess()) throw new IllegalStateException("can't post process instance in state " + instance.getState().getStateName());
+        instance.changeState(State.GATHER_PROCESS, currentUser, Instant.now());
+    }
+
+    @Transactional
+    public void stop(long instanceId, User user) {
+        var instance = instanceRepository.getOrThrow(instanceId);
+        if (instance.canStop()) {
+            instance.changeState(State.GATHERED, user, Instant.now());
+            instanceRepository.save(instance);
+        }
     }
 }

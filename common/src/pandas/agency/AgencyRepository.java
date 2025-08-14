@@ -37,7 +37,7 @@ public interface AgencyRepository extends CrudRepository<Agency, Long>, PagingAn
         join t.agency a
         join t.collections c
         where c = :collection
-        and exists (select i from Instance i where i.title = t and i.state.id = 1)
+        and exists (select i from Instance i where i.title = t and i.state = pandas.gather.State.ARCHIVED)
         group by a.id
         order by count(t) desc""")
     List<Long> findIdsByCollection(@Param("collection") Collection collection);
@@ -68,7 +68,7 @@ public interface AgencyRepository extends CrudRepository<Agency, Long>, PagingAn
               sum(i.gather.files) as files,
               sum(i.gather.size) as size
             from Instance i
-            where i.state.id = 1
+            where i.state = pandas.gather.State.ARCHIVED
               and (i.date >= :startDate or cast(:startDate as date) is null)
               and (i.date <= :endDate or cast(:endDate as date) is null)
             group by id, name

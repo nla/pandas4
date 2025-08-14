@@ -66,11 +66,11 @@ class Worker implements Runnable {
 		loop:
 		while (!gatherManager.isShutdown()) {
 			instance = instanceService.refresh(instance);
-			log.info("{} {}", instance.getState().getName(), instance.getHumanId());
+			log.info("{} {}", instance.getState(), instance.getHumanId());
 			try {
-				String nextState;
-				switch (instance.getState().getName()) {
-					case State.CREATION:
+				State nextState;
+				switch (instance.getState()) {
+					case CREATION:
 						nameThread("C", instance);
 						log.info("mkdir {}", workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString()));
 						workingArea.createInstance(instance.getTitle().getPi(), instance.getDateString());
@@ -81,7 +81,7 @@ class Worker implements Runnable {
 						}
 						nextState = State.GATHERING;
 						break;
-					case State.GATHERING:
+					case GATHERING:
 						nameThread("G", instance);
 						Instant startTime = Instant.now();
 						thumbnailGenerator.generateLiveThumbnail(instance);
@@ -89,18 +89,18 @@ class Worker implements Runnable {
 						nextState = State.GATHER_PROCESS;
 						saveGatherStatistics(instance, startTime);
 						break;
-					case State.GATHER_PROCESS:
+					case GATHER_PROCESS:
 						nameThread("P", instance);
 						backend.postprocess(instance);
 						nextState = State.GATHERED;
 						break;
-					case State.ARCHIVING:
+					case ARCHIVING:
 						nameThread("A", instance);
                         backend.archive(instance);
                         instanceService.publishInstanceImmediatelyIfNecessary(instance.getId());
                         nextState = State.ARCHIVED;
                         break;
-					case State.DELETING:
+					case DELETING:
 						nameThread("D", instance);
                         backend.delete(instance);
                         nextState = State.DELETED;
@@ -113,16 +113,16 @@ class Worker implements Runnable {
 				 * Only move to the state if its unchanged. It might have been updated in the background
 				 * by a user pausing or stopping an instance.
 				 */
-				if (instance.getState().getName().equals(instanceService.refresh(instance).getState().getName()) && !gatherManager.isShutdown()) {
-					instanceService.updateState(instance, nextState);
+				if (instance.getState().equals(instanceService.refresh(instance).getState()) && !gatherManager.isShutdown()) {
+					instanceService.updateState(instance.getId(), nextState);
 				}
 			} catch (Exception e) {
-				log.error("{} {}", instance.getState().getName(), instance.getHumanId(), e);
+				log.error("{} {}", instance.getState(), instance.getHumanId(), e);
 				// we try try hard not to crash as the worker will be permanently dead if we do
 				// there might be an intermittent problem with the database so these
 				// could fail.
 				try {
-					instanceService.recordFailure(instance, "Failed " + instance.getState().getName(), e.getMessage(), Thread.currentThread().getName());
+					instanceService.recordFailure(instance.getId(), "Failed " + instance.getState(), e.getMessage(), Thread.currentThread().getName());
 				} catch (Exception e2) {
 					log.error("Error logging exception to db", e2);
 				}

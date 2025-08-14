@@ -31,16 +31,16 @@ public class InstanceIntegrationTest extends IntegrationTest {
         Title title = createTitle();
         Instance instance1 = instanceService.createInstance(GatherMethod.HERITRIX, title);
         Instance instance2 = instanceService.createInstance(GatherMethod.HERITRIX, title);
-        instanceService.updateState(instance1, State.GATHERED);
-        instanceService.updateState(instance2, State.GATHERED);
+        instanceService.updateState(instance1.getId(), State.GATHERED);
+        instanceService.updateState(instance2.getId(), State.GATHERED);
 
         mockMvc.perform(post("/instances/archive")
                 .with(csrf())
                 .param("instance", String.valueOf(instance1.getId()), String.valueOf(instance2.getId())))
                 .andExpect(status().is3xxRedirection());
 
-        assertEquals(State.ARCHIVING, instanceService.refresh(instance1).getState().getName());
-        assertEquals(State.ARCHIVING, instanceService.refresh(instance2).getState().getName());
+        assertEquals(State.ARCHIVING, instanceService.refresh(instance1).getState());
+        assertEquals(State.ARCHIVING, instanceService.refresh(instance2).getState());
     }
 
     @Test
@@ -55,8 +55,8 @@ public class InstanceIntegrationTest extends IntegrationTest {
                 .param("instance", String.valueOf(instance1.getId()), String.valueOf(instance2.getId())))
                 .andExpect(status().is3xxRedirection());
 
-        assertEquals(State.DELETING, instanceService.refresh(instance1).getState().getName());
-        assertEquals(State.DELETING, instanceService.refresh(instance2).getState().getName());
+        assertEquals(State.DELETING, instanceService.refresh(instance1).getState());
+        assertEquals(State.DELETING, instanceService.refresh(instance2).getState());
     }
 
     private Title createTitle() {

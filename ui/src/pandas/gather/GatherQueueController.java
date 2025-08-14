@@ -37,7 +37,7 @@ public class GatherQueueController {
     public String gatherQueue(Model model) {
         var statusFuture = gathererClient.statusAsync();
         Instant endOfToday = LocalDateTime.of(LocalDate.now(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant();
-        var gatheringStates = stateRepository.mustFindByName(GATHERING, GATHER_PAUSE, GATHER_PROCESS,
+        var gatheringStates = List.of(GATHERING, GATHER_PAUSE, GATHER_PROCESS,
                 ARCHIVING, DELETING);
         model.addAttribute("queuedGathers", titleGatherRepository.findQueuedBefore(endOfToday));
         model.addAttribute("gatheringInstances", instanceRepository.findByStateInOrderByDate(gatheringStates));
@@ -62,10 +62,9 @@ public class GatherQueueController {
     }
 
     @PostMapping("/queue/retry")
-    @PreAuthorize("hasPermission(#instance.title, 'edit')")
-    @Transactional
-    public String retry(@RequestParam("instance") Instance instance) {
-        instanceService.retryAfterFailure(instance, userService.getCurrentUser());
+    @PreAuthorize("hasPermission(#instanceId, 'Instance', 'edit')")
+    public String retry(@RequestParam("instance") long instanceId) {
+        instanceService.retryAfterFailure(instanceId, userService.getCurrentUser());
         return "redirect:/queue";
     }
 
@@ -73,23 +72,18 @@ public class GatherQueueController {
     @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
     @Transactional
     public String retryAll() {
-        for (Instance instance : listFailedInstances()) {
-            instanceService.retryAfterFailure(instance, userService.getCurrentUser());
-        }
+        instanceService.retryAllFailed(userService.getCurrentUser());
         return "redirect:/queue";
     }
 
     @PostMapping("/queue/delete-all-failed")
-    @Transactional
     public String deleteAllFailed() {
-        for (Instance instance : listFailedInstances()) {
-            instanceService.delete(instance, userService.getCurrentUser());
-        }
+        instanceService.deleteAllFailed(userService.getCurrentUser());
         return "redirect:/queue";
     }
 
 
     private List<Instance> listFailedInstances() {
-        return instanceRepository.findByStateInOrderByDate(stateRepository.mustFindByName(FAILED));
+        return instanceRepository.findByStateInOrderByDate(List.of(FAILED));
     }
 }

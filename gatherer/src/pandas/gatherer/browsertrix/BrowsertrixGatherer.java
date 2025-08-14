@@ -178,7 +178,7 @@ public class BrowsertrixGatherer implements Backend {
         try {
             while (!process.waitFor(1, TimeUnit.SECONDS)) {
                 instance = instanceService.refresh(instance);
-                if (shutdown || !instance.getState().getName().equals(State.GATHERING)) {
+                if (shutdown || !instance.getState().equals(State.GATHERING)) {
                     return;
                 }
             }

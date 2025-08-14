@@ -80,7 +80,7 @@ public class HttrackGatherer implements Backend {
 			try {
 				while (!httrack.process.waitFor(1, TimeUnit.SECONDS)) {
 					instance = instanceService.refresh(instance);
-					if (shutdown || !instance.getState().getName().equals(State.GATHERING)
+					if (shutdown || !instance.getState().equals(State.GATHERING)
 						|| System.currentTimeMillis() > deadline) {
 						httrack.stop();
 						httrack.waitKill(60);

@@ -48,7 +48,7 @@ class ScripterAgent implements Runnable {
 				log.info("instanceId: " + instanceId);
 				
 				try {
-					Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+					Instance instance = instanceRepository.getOrThrow(instanceId);
 					if (instance != null) {
 
 						log.info(selfName +  " starting script run");
@@ -62,7 +62,7 @@ class ScripterAgent implements Runnable {
 							}
 						} catch (Exception e) {
 							log.error("Script failed", e);
-							instanceService.recordFailure(instance, "Script failed", e.getMessage(), "ScripterAgent");
+							instanceService.recordFailure(instance.getId(), "Script failed", e.getMessage(), "ScripterAgent");
 						} finally {
 							scripterManager.instanceFinished(instanceId);
 						}

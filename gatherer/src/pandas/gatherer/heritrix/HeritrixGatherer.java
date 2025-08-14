@@ -142,7 +142,7 @@ public class HeritrixGatherer implements Backend {
             }
             if (!instance.getState().isGathering()) {
                 log.info("job {} unfinished but instance {} is {} so cancelling", jobName, instance.getId(),
-                        instance.getState().getName());
+                        instance.getState());
                 return;
             }
             Thread.sleep(1000);

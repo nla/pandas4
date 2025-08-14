@@ -105,7 +105,10 @@ public enum Status {
 
         @Override
         public Status convertToEntityAttribute(Integer id) {
-            return id == null ? null : byId.get(id);
+            if (id == null) return null;
+            Status status = byId.get(id);
+            if (status == null) throw new IllegalArgumentException("No Status found for id: " + id);
+            return status;
         }
     }
 }

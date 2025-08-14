@@ -206,9 +206,7 @@ public class WorktraysController {
         request.getSession().setAttribute("qaFilterStickyParams",
                 UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
     	
-        State gatheredState = stateRepository.findByName(State.GATHERED).orElseThrow();
-
-        var instances = instanceSearcher.search(gatheredState.getId(), agencyId, ownerId, params, pageable);
+        var instances = instanceSearcher.search(State.GATHERED, agencyId, ownerId, params, pageable);
 
         Map<Long, PreviousGather> previousGathers = new HashMap<>();
         instanceRepository.findPreviousStats(instances.getContent())

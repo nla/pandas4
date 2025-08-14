@@ -43,44 +43,34 @@ public class PandasExceptionLog {
     @JdbcTypeCode(Types.LONGVARCHAR)
     private String detail;
 
-    public Instant getDate() {
-        return this.date;
+    public PandasExceptionLog(Instant date, Instance instance, String summary, String detail, String originator, Long pi, long viewed) {
+        this.date = date;
+        this.instance = instance;
+        this.summary = summary;
+        this.detail = detail;
+        this.originator = originator;
+        this.pi = pi;
+        this.viewed = viewed;
     }
 
-    public void setDate(Instant exceptionDate) {
-        this.date = exceptionDate;
+    public Instant getDate() {
+        return this.date;
     }
 
     public Instance getInstance() {
         return instance;
     }
 
-    public void setInstance(Instance instance) {
-        this.instance = instance;
-    }
-
     public String getOriginator() {
         return this.originator;
-    }
-
-    public void setOriginator(String exceptionOriginator) {
-        this.originator = exceptionOriginator;
     }
 
     public Long getId() {
         return this.id;
     }
 
-    public void setId(Long exceptionLogId) {
-        this.id = exceptionLogId;
-    }
-
     public Long getPi() {
         return this.pi;
-    }
-
-    public void setPi(Long pi) {
-        this.pi = pi;
     }
 
     public String getSummary() {
@@ -95,23 +85,11 @@ public class PandasExceptionLog {
         return this.titleId;
     }
 
-    public void setTitleId(Long titleId) {
-        this.titleId = titleId;
-    }
-
     public Long getViewed() {
         return this.viewed;
     }
 
-    public void setViewed(Long exceptionViewed) {
-        this.viewed = exceptionViewed;
-    }
-
     public String getDetail() {
         return this.detail;
-    }
-
-    public void setDetail(String exceptionDetail) {
-        this.detail = exceptionDetail;
     }
 }

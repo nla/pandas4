@@ -20,7 +20,7 @@ public interface PublisherRepository extends CrudRepository<Publisher, Long>, Pa
             FROM Title t
             JOIN t.collections c
             JOIN t.instances i
-            WHERE c = :collection AND i.state.id = 1
+            WHERE c = :collection AND i.state = pandas.gather.State.ARCHIVED
             GROUP BY t.publisher
             ORDER BY COUNT(DISTINCT t) DESC
             """)

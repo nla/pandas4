@@ -22,7 +22,7 @@ public interface StateHistoryRepository extends CrudRepository<StateHistory, Lon
     @Query("""
         select new pandas.gather.InstanceEvent(sh.id, sh.startDate, sh.instance.id,
          sh.instance.title.id, sh.instance.title.name) from StateHistory sh
-        where sh.state.name = 'archiving'
+        where sh.state = pandas.gather.State.ARCHIVING
           and sh.user = :user
           and sh.startDate > :dateLimit
         order by sh.startDate desc

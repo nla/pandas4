@@ -191,7 +191,7 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 	private void updateGatherStats() {
 		for (long instanceId : currentInstances.keySet()) {
 			if (systemShutDown) break;
-			Instance instance = instanceRepository.findById(instanceId).orElseThrow();
+			Instance instance = instanceRepository.getOrThrow(instanceId);
 			if (instance.getGatherMethodName().equals(GatherMethod.HTTRACK) ||
 					instance.getGatherMethodName().equals(GatherMethod.BROWSERTRIX)) {
 				try {

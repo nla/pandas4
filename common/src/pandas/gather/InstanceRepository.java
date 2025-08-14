@@ -1,9 +1,9 @@
 package pandas.gather;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -18,40 +18,48 @@ import java.util.List;
 
 @Repository
 public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSpecificationExecutor<Instance> {
+    default Instance getOrThrow(long id) {
+        return findById(id).orElseThrow(() -> new EntityNotFoundException("Instance not found: " + id));
+    }
+
     List<Instance> findByStateInOrderByDate(List<State> states);
 
-    @Query("select i from Instance i where i.state.id in (12, 9, 7, 13) and i.gatherMethodName = ?1")
+    @Query("""
+            select i from Instance i
+            where i.state in (
+              pandas.gather.State.GATHERING,
+              pandas.gather.State.GATHER_PROCESS,
+              pandas.gather.State.DELETING,
+              pandas.gather.State.ARCHIVING)
+            and i.gatherMethodName = ?1""")
     List<Instance> findIncomplete(String gatherMethodName);
 
-    @Query("select i.state.name from Instance i where i.id = ?1")
-    String getStateName(long instanceId);
-
-    @Modifying
-    @Query("update Instance i set i.state = (select s from State s where s.name = ?2), i.lastModifiedDate = ?3 where i.id = ?1")
-    void updateState(Long id, String stateName, Instant now);
-
     @Query("select i from Instance i where not exists (select it from InstanceThumbnail it where it.instanceId = i.id) " +
-            "and i.state.name = 'archived'")
+            "and i.state = pandas.gather.State.ARCHIVED")
     List<Instance> findWithoutThumbnails(Pageable pageable);
 
     List<Instance> findByTitle(Title title);
 
-    @Query("select i from Instance i where i.title = :title and i.state.name <> 'deleted' order by i.date desc")
+    @Query("select i from Instance i where i.title = :title and i.state <> pandas.gather.State.DELETED order by i.date desc")
     List<Instance> findRecentGathers(@Param("title") Title title, Pageable pageable);
 
-    @Query("select i from Instance i where i.title = :title and i.state.name = 'archived' and i.isDisplayed = true order by i.date desc")
+    @Query("select i from Instance i where i.title = :title and i.state = pandas.gather.State.ARCHIVED and i.isDisplayed = true order by i.date desc")
     List<Instance> findDisplayedByTitle(@Param("title") Title title);
 
-    @Query("select i from Instance i\n" +
-            "where i.state.name in ('gathering', 'gatherPause', 'gatherProcess')\n" +
-            "and i.title.awaitingConfirmation = false\n" +
-            "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +
-            "and (:ownerId is null or i.title.owner.id = :ownerId)\n" +
-            "order by i.date desc")
+    @Query("""
+            select i from Instance i
+            where i.state in (
+                pandas.gather.State.GATHERING,
+                pandas.gather.State.GATHER_PAUSE,
+                pandas.gather.State.GATHER_PROCESS)
+            and i.title.awaitingConfirmation = false
+            and (:agencyId is null or i.title.agency.id = :agencyId)
+            and (:ownerId is null or i.title.owner.id = :ownerId)
+            order by i.date desc""")
     Page<Instance> worktrayGathering(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select i from Instance i\n" +
-            "where i.state.name = 'creation'\n" +
+            "where i.state = pandas.gather.State.CREATION\n" +
             "and i.gatherMethodName = 'Upload'\n" +
             "and i.title.awaitingConfirmation = false\n" +
             "and (:agencyId is null or i.title.agency.id = :agencyId)\n" +
@@ -60,20 +68,20 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
     Page<Instance> worktrayInstancesForUpload(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select count(*) from Instance i\n" +
-            "where i.state.name = 'gathered'\n" +
+            "where i.state = pandas.gather.State.GATHERED\n" +
             "and i.title.owner.id = :ownerId")
     long countGatheredWorktray(@Param("ownerId") Long ownerId);
 
     @Query("""
         select i from Instance i
-        where i.state.name = 'gathered'
+        where i.state = pandas.gather.State.GATHERED
         and (:agencyId is null or i.title.agency.id = :agencyId)
         and (:ownerId is null or i.title.owner.id = :ownerId)
         order by i.id desc""")
     Page<Instance> listGatheredWorktray(Long agencyId, Long ownerId, Pageable pageable);
 
     @Query("select i from Instance i\n" +
-            "where i.state.name = 'gathered'\n" +
+            "where i.state = pandas.gather.State.GATHERED\n" +
             "and (:agency is null or i.title.agency = :agency)\n" +
             "and (:owner is null or i.title.owner = :owner)\n" +
             "and i.id < :instanceId\n" +
@@ -82,7 +90,7 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
                                               @Param("instanceId") long instanceId, Pageable pageable);
 
     @Query("select i from Instance i\n" +
-            "where i.state.name = 'gathered'\n" +
+            "where i.state = pandas.gather.State.GATHERED\n" +
             "and (:agency is null or i.title.agency = :agency)\n" +
             "and (:owner is null or i.title.owner = :owner)\n" +
             "and i.id > :instanceId\n" +
@@ -96,7 +104,7 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
             "   on prev.id = (select max(i.id) from Instance i " +
             "                 where i.title = cur.title " +
             "                   and i.id < cur.id " +
-            "                   and i.state.name = 'archived') " +
+            "                   and i.state = pandas.gather.State.ARCHIVED) " +
             "where cur in (:instances)")
     List<PreviousGather> findPreviousStats(@Param("instances") List<Instance> instances);
 
@@ -109,12 +117,12 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
               and instance.id = coalesce(
                   (select min(i.id) from Instance i
                           where i.title.id = title.id
-                          and i.state.id = 1
+                          and i.state = pandas.gather.State.ARCHIVED
                           and (i.isDisplayed is null or i.isDisplayed = true)
                           and i.date >= :time),
                   (select max(i.id) from Instance i
                           where i.title.id = title.id
-                          and i.state.id = 1
+                          and i.state = pandas.gather.State.ARCHIVED
                           and i.date < :time))
               order by title.name
             """)
@@ -128,7 +136,7 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
                 where col = :collection
                 and instance.id = (select min(i.id) from Instance i
                             where i.title.id = title.id
-                            and i.state.id = 1
+                            and i.state = pandas.gather.State.ARCHIVED
                             and (i.isDisplayed is null or i.isDisplayed = true)
                             and (col.startDate is null or i.date >= col.startDate)
                             and (col.endDate is null or i.date <= col.endDate)) 
@@ -136,6 +144,6 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
                 """)
     List<Instance> findByCollection(@Param("collection") Collection collection);
 
-    @Query("select count(i) from Instance i where i.state.name = 'archived'")
+    @Query("select count(i) from Instance i where i.state = pandas.gather.State.ARCHIVED")
     long countArchived();
 }

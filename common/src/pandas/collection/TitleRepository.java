@@ -43,7 +43,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             t.agency.id <> 3
             and t.status not in (pandas.collection.Status.NOMINATED, pandas.collection.Status.MONITORED, pandas.collection.Status.REJECTED)
             and (t.legalDeposit = true or t.permission.stateName not in ('Denied', 'Unknown'))
-            and exists (select 1 from t.instances i where i.state.name = 'archived')
+            and exists (select 1 from t.instances i where i.state = pandas.gather.State.ARCHIVED)
             """;
 
     String SUBJECT_CONDITIONS = PUBLISH_CONDITIONS + "AND t.tep.doSubject = true\n";
@@ -142,16 +142,18 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     Page<Title> worktrayScheduled(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId,
                                   @Param("endDate") Instant endDate, Pageable pageable);
 
-    @Query("select t from Title t\n" +
-            "where exists (select i.id from Instance i where i.title = t and i.state.name = 'archived' and i.isDisplayed is null)\n" +
-            "and t.awaitingConfirmation = false\n" +
-            "and (:agencyId is null or t.agency.id = :agencyId)\n" +
-            "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "order by t.gather.lastGatherDate")
+    @Query("""
+            select t from Title t
+            where exists (select i.id from Instance i where i.title = t and
+                i.state = pandas.gather.State.ARCHIVED and i.isDisplayed is null)
+            and t.awaitingConfirmation = false
+            and (:agencyId is null or t.agency.id = :agencyId)
+            and (:ownerId is null or t.owner.id = :ownerId)
+            order by t.gather.lastGatherDate""")
     Page<Title> worktrayArchivedTitles(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select t from Title t\n" +
-            "where exists (select i.id from Instance i where i.title = t and i.state.name <> 'deleted')\n" +
+            "where exists (select i.id from Instance i where i.title = t and i.state <> pandas.gather.State.DELETED)\n" +
             "and t.anbdNumber is null\n" +
             "and t.awaitingConfirmation = false\n" +
            "and t.status not in (pandas.collection.Status.MONITORED, pandas.collection.Status.REJECTED, pandas.collection.Status.NOMINATED)\n" +

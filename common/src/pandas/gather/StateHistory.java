@@ -32,8 +32,7 @@ public class StateHistory {
     @NotNull
     private Instant startDate;
 
-    @ManyToOne
-    @JoinColumn(name = "STATE_ID")
+    @Column(name = "STATE_ID")
     @NotNull
     private State state;
 
