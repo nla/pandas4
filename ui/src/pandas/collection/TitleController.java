@@ -54,7 +54,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.*;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
@@ -72,7 +71,6 @@ public class TitleController {
     private final GatherService gatherService;
     private final ClassificationService classificationService;
     private final OwnerHistoryRepository ownerHistoryRepository;
-    private final StatusRepository statusRepository;
     private final UserService userService;
     private final PublisherTypeRepository publisherTypeRepository;
     private final AgencyRepository agencyRepository;
@@ -83,7 +81,7 @@ public class TitleController {
     private final IssueGroupRepository issueGroupRepository;
     private final PermissionEvaluator permissionEvaluator;
 
-    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, StatusRepository statusRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueRepository issueRepository, IssueGroupRepository issueGroupRepository,
+    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueRepository issueRepository, IssueGroupRepository issueGroupRepository,
                            PermissionEvaluator permissionEvaluator) {
         this.titleRepository = titleRepository;
         this.userRepository = userRepository;
@@ -97,7 +95,6 @@ public class TitleController {
         this.gatherService = gatherService;
         this.classificationService = classificationService;
         this.ownerHistoryRepository = ownerHistoryRepository;
-        this.statusRepository = statusRepository;
         this.userService = userService;
         this.publisherTypeRepository = publisherTypeRepository;
         this.agencyRepository = agencyRepository;
@@ -411,7 +408,7 @@ public class TitleController {
         TitleEditForm form = titleService.editForm(title);
 
         if (setStatus != null && title.getStatus().isTransitionAllowed(setStatus)) {
-            form.setStatusId(setStatus.getId());
+            form.setStatus(setStatus);
         }
 
         String backlink = Requests.backlink();
@@ -458,15 +455,14 @@ public class TitleController {
         suggestedCollection.removeIf(form.getCollections()::contains);
         model.addAttribute("suggestedCollections", suggestedCollection);
 
-        if (form.getStatusId() == null) {
-            model.addAttribute("statusList", statusRepository.findAllById(
-                    List.of(Status.NOMINATED_ID, Status.SELECTED_ID, Status.MONITORED_ID, Status.REJECTED_ID)));
+        if (form.getStatus() == null) {
+            model.addAttribute("statusList",
+                    List.of(Status.NOMINATED, Status.SELECTED, Status.MONITORED, Status.REJECTED));
         } else {
-            var statusList = new ArrayList<Status>();
-            statusList.add(statusRepository.findById(form.getStatusId()).orElseThrow());
-            List<Long> statusIds = Status.allowedTransitions.getOrDefault(form.getStatusId(), emptyList());
-            statusRepository.findAllById(statusIds).forEach(statusList::add);
-            statusList.sort(Comparator.comparing(Status::getId));
+            ArrayList<Status> statusList = new ArrayList<>();
+            statusList.add(form.getStatus());
+            statusList.addAll(form.getStatus().getAllowedTransitions());
+            statusList.sort(Comparator.comparing(Status::id));
             model.addAttribute("statusList", statusList);
         }
         return "TitleEdit";

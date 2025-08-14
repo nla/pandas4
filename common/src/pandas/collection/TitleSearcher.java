@@ -56,7 +56,6 @@ public class TitleSearcher {
                          PublisherRepository publisherRepository,
                          PublisherTypeRepository publisherTypeRepository,
                          ScopeRepository scopeRepository,
-                         StatusRepository statusRepository,
                          SubjectRepository subjectRepository,
                          UserRepository userRepository) {
         this.facets = new Facet[]{
@@ -75,7 +74,7 @@ public class TitleSearcher {
                 new EntityFacet<>("Owner", "owner", "owner.id", userRepository::findAllById, User::getId, User::getName, List.of("owner.nameGiven", "owner.nameFamily", "owner.userid")),
                 new EntityFacet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName, List.of("publisher.organisation.name")),
                 new EntityFacet<>("Publisher Type", "publisher.type", "publisher.type.id", publisherTypeRepository::findAllById, PublisherType::getId, PublisherType::getName),
-                new EntityFacet<>("Status", "status", "status.id", statusRepository::findAllById, Status::getId, Status::getName),
+                new EnumFacet<>(Status.class, "Status", "status", "status", Status::getName),
                 new EntityFacet<>("Subject", "subject", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName, List.of("subjects.fullName")),
                 new EntityFacet<>("Subject 2", "subject2", "subjects.id", subjectRepository::findAllById, Subject::getId, Subject::getName, List.of("subjects.fullName"))
         };
@@ -225,9 +224,12 @@ public class TitleSearcher {
                     .sort(this::sort);
             // we can do inactive facets as part of the main search
             for (Facet facet : facets) {
-                if (!(facet instanceof EntityFacet)) continue;
                 if (params.containsKey(facet.param)) continue;
-                search.aggregation(((EntityFacet<?>) facet).key, f -> f.terms().field(facet.field, Long.class).maxTermCount(20));
+                if (facet instanceof EntityFacet<?> entityFacet) {
+                    search.aggregation(entityFacet.key, f -> f.terms().field(facet.field, Long.class).maxTermCount(20));
+                } else if (facet instanceof EnumFacet<?> enumFacet) {
+                    enumFacet.aggregate(search);
+                }
             }
             var searchQuery = search.toQuery();
             log.info("Query: {}", searchQuery.queryString());
@@ -241,6 +243,13 @@ public class TitleSearcher {
                             .where(f -> predicate(f, facet))
                             .aggregation(((EntityFacet<?>) facet).key, f -> f.terms().field(facet.field, Long.class)
                                     .maxTermCount(20)).fetch(0);
+                    facetResults.add(facet.results(params, facetResult));
+                } else if (facet instanceof EnumFacet<?> enumFacet && params.containsKey(facet.param)) {
+                    // we need to do separate searches for each active enum facets that applies all other facets
+                    var facetSearch = session.search(Title.class)
+                            .where(f -> predicate(f, facet));
+                    enumFacet.aggregate(facetSearch);
+                    var facetResult = facetSearch.fetch(0);
                     facetResults.add(facet.results(params, facetResult));
                 } else {
                     facetResults.add(facet.results(params, result));

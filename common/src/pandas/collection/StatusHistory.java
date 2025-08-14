@@ -20,8 +20,7 @@ public class StatusHistory {
     @JoinColumn(name="TITLE_ID")
     private Title title;
 
-    @ManyToOne
-    @JoinColumn(name = "STATUS_ID")
+    @Column(name = "STATUS_ID")
     private Status status;
 
     @ManyToOne

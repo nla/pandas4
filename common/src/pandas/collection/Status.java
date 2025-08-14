@@ -1,97 +1,68 @@
 package pandas.collection;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Immutable;
-import org.hibernate.search.engine.backend.types.Aggregable;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-@Entity
-@Table(name = "STATUS")
-@Immutable
-public class Status {
-    public static final long NOMINATED_ID = 1;
-    public static final long REJECTED_ID = 2;
-    public static final long SELECTED_ID = 3;
-    public static final long MONITORED_ID = 4;
-    public static final long PERMISSION_REQUESTED_ID = 5;
-    public static final long PERMISSION_DENIED_ID = 6;
-    public static final long PERMISSION_GRANTED_ID = 7;
-    public static final long PERMISSION_IMPOSSIBLE_ID = 8;
-    public static final long CEASED_ID = 11;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 
-    public static Map<Long,List<Long>> allowedTransitions = Map.of(
-            NOMINATED_ID, List.of(SELECTED_ID, MONITORED_ID, REJECTED_ID, CEASED_ID),
-            MONITORED_ID, List.of(SELECTED_ID, REJECTED_ID, CEASED_ID),
-            REJECTED_ID, List.of(NOMINATED_ID, SELECTED_ID, CEASED_ID),
-            SELECTED_ID, List.of(REJECTED_ID, CEASED_ID),
-            PERMISSION_REQUESTED_ID, List.of(REJECTED_ID, CEASED_ID),
-            PERMISSION_DENIED_ID, List.of(REJECTED_ID, CEASED_ID),
-            PERMISSION_GRANTED_ID, List.of(REJECTED_ID, CEASED_ID),
-            PERMISSION_IMPOSSIBLE_ID, List.of(REJECTED_ID, CEASED_ID),
-            CEASED_ID, List.of(SELECTED_ID)
+public enum Status {
+    NOMINATED(1),
+    REJECTED(2),
+    SELECTED(3),
+    MONITORED(4),
+    PERMISSION_REQUESTED(5),
+    PERMISSION_DENIED(6),
+    PERMISSION_GRANTED(7),
+    PERMISSION_IMPOSSIBLE(8),
+    CEASED(11);
+
+    public static final Map<Status, EnumSet<Status>> allowedTransitions = Map.of(
+            NOMINATED, EnumSet.of(SELECTED, MONITORED, REJECTED, CEASED),
+            MONITORED, EnumSet.of(SELECTED, REJECTED, CEASED),
+            REJECTED, EnumSet.of(NOMINATED, SELECTED, CEASED),
+            SELECTED, EnumSet.of(REJECTED, CEASED),
+            PERMISSION_REQUESTED, EnumSet.of(REJECTED, CEASED),
+            PERMISSION_DENIED, EnumSet.of(REJECTED, CEASED),
+            PERMISSION_GRANTED, EnumSet.of(REJECTED, CEASED),
+            PERMISSION_IMPOSSIBLE, EnumSet.of(REJECTED, CEASED),
+            CEASED, EnumSet.of(SELECTED)
     );
 
-    @Id
-    @Column(name = "STATUS_ID")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STATUS_SEQ")
-    @SequenceGenerator(name = "STATUS_SEQ", sequenceName = "STATUS_SEQ", allocationSize = 1)
-    @GenericField(aggregable = Aggregable.YES)
-    private Long id;
+    private static final Map<Integer, Status> byId = Arrays.stream(Status.values())
+            .collect(toUnmodifiableMap(Status::id, status -> status));
 
-    @Column(name = "STATUS_NAME")
-    private String name;
+    private final int id;
 
-    public Status() {
+    Status(int id) {
+        this.id = id;
     }
 
-    public Status(String name) {
-        this.name = name;
+    public static Iterable<Status> fromIds(Iterable<Long> ids) {
+        List<Status> statuses = new ArrayList<>();
+        for (Long id : ids) {
+            Status status = fromId(id.intValue());
+            if (status != null) {
+                statuses.add(status);
+            }
+        }
+        return statuses;
     }
 
     public boolean isTransitionAllowed(Status newStatus) {
-        return allowedTransitions.getOrDefault(getId(), Collections.emptyList()).contains(newStatus.getId());
+        return allowedTransitions.getOrDefault(this, EnumSet.noneOf(Status.class)).contains(newStatus);
     }
 
-    public Long getId() {
+    public int id() {
         return this.id;
     }
 
-    public void setId(Long statusId) {
-        this.id = statusId;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String statusName) {
-        this.name = statusName;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Status status = (Status) o;
-        return Objects.equals(id, status.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
     public boolean isCeased() {
-        return id != null && id.equals(CEASED_ID);
+        return this == CEASED;
     }
 
     public boolean isRejected() {
-        return id != null && id.equals(REJECTED_ID);
+        return this == REJECTED;
     }
 
     public boolean isActive() {
@@ -99,23 +70,42 @@ public class Status {
     }
 
     private boolean isNominated() {
-        return id != null && id.equals(NOMINATED_ID);
+        return this == NOMINATED;
     }
 
-    public List<Long> getAllowedTransitionIds() {
-        return allowedTransitions.getOrDefault(getId(), Collections.emptyList());
+    public Set<Status> getAllowedTransitions() {
+        return allowedTransitions.getOrDefault(this, EnumSet.noneOf(Status.class));
     }
 
     public boolean isSelected() {
-        return id != null && id.equals(SELECTED_ID);
+        return this == SELECTED;
     }
 
     public boolean isSelectedOrAnyPermission() {
-        if (id == null) return false;
-        return id == SELECTED_ID ||
-               id == PERMISSION_REQUESTED_ID ||
-               id == PERMISSION_GRANTED_ID ||
-               id == PERMISSION_IMPOSSIBLE_ID ||
-               id == PERMISSION_DENIED_ID;
+        return switch (this) {
+            case SELECTED, PERMISSION_REQUESTED, PERMISSION_GRANTED, PERMISSION_IMPOSSIBLE, PERMISSION_DENIED -> true;
+            default -> false;
+        };
+    }
+
+    public String getName() {
+        return name().toLowerCase(Locale.ROOT).replace("_", " ");
+    }
+
+    public static Status fromId(int id) {
+        return byId.get(id);
+    }
+
+    @Converter(autoApply = true)
+    public static class JPAConverter implements AttributeConverter<Status, Integer> {
+        @Override
+        public Integer convertToDatabaseColumn(Status status) {
+            return status == null ? null : status.id;
+        }
+
+        @Override
+        public Status convertToEntityAttribute(Integer id) {
+            return id == null ? null : byId.get(id);
+        }
     }
 }

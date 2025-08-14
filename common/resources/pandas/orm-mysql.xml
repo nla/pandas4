@@ -109,7 +109,7 @@
             </id>
         </attributes>
     </entity>
-    <entity class="pandas.collection.Status">
+    <entity class="pandas.collection.StatusEntity">
         <attributes>
             <id name="id">
                 <column name="STATUS_ID"/>

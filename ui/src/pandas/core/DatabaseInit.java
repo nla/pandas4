@@ -13,6 +13,7 @@ import pandas.collection.*;
 import pandas.collection.Format;
 import pandas.gather.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -85,9 +86,7 @@ public class DatabaseInit {
 
         if (statusRepository.count() == 0) {
             log.info("Populating status table");
-            statusRepository.saveAll(Stream.of("nominated", "rejected", "selected", "monitored", "permission requested",
-                    "permission denied", "permission granted", "permission impossible", "reserved9", "reserved10",
-                    "ceased").map(Status::new).toList());
+            statusRepository.saveAll(Arrays.stream(Status.values()).map(StatusEntity::new).toList());
         }
 
         if (publisherTypeRepository.count() == 0) {

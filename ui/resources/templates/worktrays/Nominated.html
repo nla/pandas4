@@ -22,9 +22,7 @@
     <table th:fragment="table">
         <thead>
         <tr>
-            <th>Site</th>
             <th>Registered</th>
-            <th>PI</th>
             <th align=left>Title</th>
             <th>Nominator</th>
             <th>Owner</th>
@@ -32,17 +30,18 @@
         </thead>
         <tbody>
         <tr th:each="title: ${nominatedTitles}">
-            <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
             <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
-            <td align="right" th:text="${title.pi}">12345</td>
-            <td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a></td>
+            <td>
+                <a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a><br>
+                <a th:href="${title.titleUrl}" th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}" class="live-url">example.com</a>
+            </td>
             <td><a th:if="${title.nominator}" th:text="${title.nominator.userid}" th:href="${@link.to(title.nominator)}">jsmith</a></td>
             <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
             <td>
-                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=3)}">Accept</a> |
-                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=2)}">Reject</a> |
-                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus=4)}">Monitor</a> |
-                <a th:href="@{/titles/{id}/transfer(id=${title.id})}">Transfer</a>
+                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus='SELECTED')}" class="btn btn-compact">Accept</a>
+                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus='REJECTED')}" class="btn btn-compact btn-secondary">Reject</a>
+                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus='MONITORED')}" class="btn btn-compact btn-secondary">Monitor</a>
+                <a th:href="@{/titles/{id}/transfer(id=${title.id})}" class="btn btn-compact btn-secondary">Transfer</a>
             </td>
         </tr>
         </tbody>

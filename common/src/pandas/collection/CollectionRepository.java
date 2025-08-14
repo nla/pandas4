@@ -69,7 +69,7 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
             "join sh.title t " +
             "join t.collections c " +
             "where sh.user = :user and " +
-            "sh.status.name in ('selected', 'nominated') " +
+            "sh.status in (pandas.collection.Status.SELECTED, pandas.collection.Status.NOMINATED) " +
             "group by c.id " +
             "order by MAX(sh.startDate) desc")
     List<Long> findRecentlyUsedIds(@Param("user") User user, Pageable pageable);

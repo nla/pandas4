@@ -165,11 +165,9 @@ public class Title {
     @OrderBy("id")
     private List<StatusHistory> statusHistories = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "CURRENT_STATUS_ID")
-    @IndexedEmbedded(includePaths = {"id"})
-    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
+    @Column(name = "CURRENT_STATUS_ID")
     @NotNull
+    @GenericField(aggregable = Aggregable.YES)
     private Status status;
 
     @ManyToMany
@@ -883,9 +881,9 @@ public class Title {
             return "Title belongs to PADI agency";
         if (getStatus() == null)
             return "Title status is null";
-        if (getStatus().getId().equals(Status.NOMINATED_ID) ||
-                getStatus().getId().equals(Status.REJECTED_ID) ||
-                getStatus().getId().equals(Status.MONITORED_ID))
+        if (getStatus() == Status.NOMINATED ||
+                getStatus() == Status.REJECTED ||
+                getStatus() == Status.MONITORED)
             return "Title status is " + getStatus().getName();
         if (!hasAnyArchivedInstances()) {
             return "Title has no archived instances";
@@ -1008,15 +1006,15 @@ public class Title {
     /**
      * Synchronizes this title's status with its permission state if needed.
      */
-    public void syncStatusWithPermissionState(Statuses statuses, User user) {
+    public void syncStatusWithPermissionState(User user) {
         if (permission == null) return;
         if (!status.isSelectedOrAnyPermission()) return;
 
         Status newStatus = switch (permission.getStateName()) {
-            case PermissionState.UNKNOWN -> hasPermissionRequest() ? statuses.permissionRequested() : statuses.selected();
-            case PermissionState.GRANTED -> statuses.permissionGranted();
-            case PermissionState.DENIED -> statuses.permissionDenied();
-            case PermissionState.IMPOSSIBLE -> statuses.permissionImpossible();
+            case PermissionState.UNKNOWN -> hasPermissionRequest() ? Status.PERMISSION_REQUESTED : Status.SELECTED;
+            case PermissionState.GRANTED -> Status.PERMISSION_GRANTED;
+            case PermissionState.DENIED -> Status.PERMISSION_DENIED;
+            case PermissionState.IMPOSSIBLE -> Status.PERMISSION_IMPOSSIBLE;
             default -> status;
         };
         changeStatus(newStatus, null, user, Instant.now());

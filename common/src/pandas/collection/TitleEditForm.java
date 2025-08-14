@@ -37,7 +37,7 @@ public class TitleEditForm {
     private String seedUrls;
     private String filters;
     private boolean ignoreRobotsTxt;
-    private Long statusId;
+    private Status status;
     private Reason reason;
     private boolean unableToArchive;
     private boolean disappeared;
@@ -102,7 +102,7 @@ public class TitleEditForm {
         setName(title.getName());
         setNotes(title.getNotes());
         setPublisher(title.getPublisher());
-        setStatusId(title.getStatus() == null ? null : title.getStatus().getId());
+        setStatus(title.getStatus() == null ? null : title.getStatus());
         setSubjects(title.getSubjects());
         if (title.getSeedUrl() != null) {
             setSeedUrls(title.getSeedUrl());
@@ -288,12 +288,12 @@ public class TitleEditForm {
         this.seedUrls = seedUrls;
     }
 
-    public Long getStatusId() {
-        return statusId;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public List<Instant> getOneoffDates() {

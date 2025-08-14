@@ -10,7 +10,7 @@ public class Reason {
 
     @ManyToOne
     @JoinColumn(name = "STATUS_ID")
-    private Status status;
+    private StatusEntity status;
 
     @Column(name = "REASON", nullable = false, length = 512)
     private String name;
@@ -31,11 +31,11 @@ public class Reason {
         this.id = id;
     }
 
-    public Status getStatus() {
+    public StatusEntity getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(StatusEntity status) {
         this.status = status;
     }
 }

@@ -17,8 +17,7 @@ class TitleGatherTest {
 
         TitleGather gather = new TitleGather();
         gather.setTitle(new Title());
-        gather.getTitle().setStatus(new Status());
-        gather.getTitle().getStatus().setId(1L);
+        gather.getTitle().setStatus(Status.NOMINATED);
         gather.setScheduledDate(LocalDateTime.of(2012, 1, 1, 9, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
 
         gather.setSchedule(monthly);

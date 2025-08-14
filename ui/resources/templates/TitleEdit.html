@@ -94,8 +94,8 @@
                     </span>
                 </label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Status
-                    <select th:field="*{statusId}" onchange="updateReasons()" th:data-current="${form.statusId}">
-                        <option th:each="status: ${statusList}" th:value="${status.id}" th:text="${status.name}">Selected</option>
+                    <select th:field="*{status}" onchange="updateReasons()" th:data-current="${form.status}">
+                        <option th:each="status: ${statusList}" th:value="${status}" th:text="${status.name}">Selected</option>
                     </select>
                 </label>
                 <label th:fragment="reason" style="display: none">Reason
@@ -110,7 +110,7 @@
                             updateCeasedWarning();
 
                             let reasonSelect = document.getElementById("reason");
-                            let statusSelect = document.getElementById("statusId");
+                            let statusSelect = document.getElementById("status");
                             let statusId = statusSelect.value;
                             reasonSelect.parentElement.style.display = 'none';
                             reasonSelect.value = "";
@@ -337,7 +337,7 @@
             <script>
                 function updateCeasedWarning() {
                     // show a gather warning if the status is ceased
-                    let selectedStatus = document.getElementById("statusId").selectedOptions[0].text;
+                    let selectedStatus = document.getElementById("status").selectedOptions[0].text;
                     let isCeasedOrRejected = selectedStatus === "ceased" || selectedStatus === "rejected";
                     document.getElementById("ceasedWarning").style.display = isCeasedOrRejected ? 'block' : 'none';
                     document.querySelectorAll(".disable-when-ceased").forEach(element => element.disabled = isCeasedOrRejected);
@@ -348,7 +348,7 @@
                 }
 
                 window.addEventListener("load", updateCeasedWarning);
-                document.getElementById("statusId").addEventListener("change", updateCeasedWarning);
+                document.getElementById("status").addEventListener("change", updateCeasedWarning);
 
                 // re-enable disabled elements before submitting so their data is actually sent
                 titleEditForm.addEventListener("submit", event => {
@@ -357,7 +357,7 @@
             </script>
 
             <div th:each="collection: ${form.collections}"
-                 th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.statusId.isCeased()}"
+                 th:unless="${collection.gatherSchedule == null || collection.gatherSchedule.isNone() || form.status.isCeased()}"
                  style="color: #555; margin-bottom: 8px; font-style: italic; ">
                 Also gathered <strong th:text="${collection.gatherSchedule.name}">Daily</strong> as part of
                 <a th:href="@{/collections/{id}(id=${collection.id})}" th:text="${collection.fullName}"

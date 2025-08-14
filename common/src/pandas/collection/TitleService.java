@@ -24,8 +24,6 @@ public class TitleService {
     private final TitleRepository titleRepository;
     private final TitleGatherRepository titleGatherRepository;
     private final FormatRepository formatRepository;
-    private final StatusRepository statusRepository;
-    private final OwnerHistoryRepository ownerHistoryRepository;
     private final GatherMethodRepository gatherMethodRepository;
     private final GatherScheduleRepository gatherScheduleRepository;
     private final ProfileRepository profileRepository;
@@ -33,19 +31,15 @@ public class TitleService {
     private final ScopeRepository scopeRepository;
     private final OptionRepository optionRepository;
     private final ContactPersonRepository contactPersonRepository;
-    private final Statuses statuses;
 
-    public TitleService(FormatRepository formatRepository, StatusRepository statusRepository,
+    public TitleService(FormatRepository formatRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
-                        OwnerHistoryRepository ownerHistoryRepository,
                         GatherMethodRepository gatherMethodRepository,
                         GatherScheduleRepository gatherScheduleRepository, ProfileRepository profileRepository, PublisherRepository publisherRepository,
-                        ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository, Statuses statuses) {
+                        ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
-        this.statusRepository = statusRepository;
-        this.ownerHistoryRepository = ownerHistoryRepository;
         this.gatherMethodRepository = gatherMethodRepository;
         this.gatherScheduleRepository = gatherScheduleRepository;
         this.profileRepository = profileRepository;
@@ -53,7 +47,6 @@ public class TitleService {
         this.scopeRepository = scopeRepository;
         this.optionRepository = optionRepository;
         this.contactPersonRepository = contactPersonRepository;
-        this.statuses = statuses;
     }
 
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
@@ -88,7 +81,7 @@ public class TitleService {
         form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.DEFAULT).orElseThrow());
         form.setGatherSchedule(gatherScheduleRepository.findByName(GatherSchedule.DEFAULT).orElseThrow());
         form.setScope(scopeRepository.findById(Scope.DEFAULT_ID).orElse(null));
-        form.setStatusId(Status.SELECTED_ID);
+        form.setStatus(Status.SELECTED);
         form.setSubjects(subjects);
         form.setPermissionType(TitleEditForm.PermissionTypeRadio.LEGAL_DEPOSIT);
         form.setCataloguingNotRequired(true);
@@ -126,8 +119,8 @@ public class TitleService {
         Tep tep = title.getTep(); // ensure we have a tep
         title.getTep().setDisplayTitle(title.getName());
 
-        if (form.getStatusId() == null) form.setStatusId(Status.NOMINATED_ID);
-        title.changeStatus(statuses.ref(form.getStatusId()), form.getReason(), user, now);
+        if (form.getStatus() == null) form.setStatus(Status.NOMINATED);
+        title.changeStatus(form.getStatus(), form.getReason(), user, now);
 
         // Link as the next title in a series
         if (form.getContinues() != null) {
@@ -202,7 +195,7 @@ public class TitleService {
             title.setPermission(form.getPublisherPermission());
         }
 
-        title.syncStatusWithPermissionState(statuses, user);
+        title.syncStatusWithPermissionState(user);
         titleRepository.save(title);
 
         // if there's no PI, populate it using the title id
@@ -330,7 +323,7 @@ public class TitleService {
             if (form.isEditStatus() && !title.getStatus().equals(form.getStatus()) &&
                     title.getStatus().isTransitionAllowed(form.getStatus())) {
                 title.changeStatus(form.getStatus(), form.getReason(), currentUser, Instant.now());
-                title.syncStatusWithPermissionState(statuses, currentUser);
+                title.syncStatusWithPermissionState(currentUser);
             }
 
             title.addCollections(form.getCollectionsToAdd());
@@ -346,7 +339,7 @@ public class TitleService {
      */
     @Transactional
     public void syncStatusWithPermissionState(Title title, User user) {
-        title.syncStatusWithPermissionState(statuses, user);
+        title.syncStatusWithPermissionState(user);
         titleRepository.save(title);
     }
 
@@ -363,12 +356,10 @@ public class TitleService {
 
     @NotNull
     public List<Status> allowedStatusTransitions(List<Title> titles) {
-        List<Long> statusIds = titles.stream().map(Title::getStatus).distinct()
-                .flatMap(status -> status.getAllowedTransitionIds().stream())
+        List<Status> transitions = titles.stream().map(Title::getStatus).distinct()
+                .flatMap(status -> status.getAllowedTransitions().stream())
                 .distinct().toList();
-        var statusList = new ArrayList<Status>();
-        statusRepository.findAllById(statusIds).forEach(statusList::add);
-        statusList.sort(Comparator.comparing(Status::getId));
-        return statusList;
+        transitions.sort(Comparator.comparing(Status::id));
+        return transitions;
     }
 }

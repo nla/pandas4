@@ -41,7 +41,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     String PUBLISH_CONDITIONS = """
             t.agency.id <> 3
-            and t.status.name not in ('nominated', 'monitored', 'rejected')
+            and t.status not in (pandas.collection.Status.NOMINATED, pandas.collection.Status.MONITORED, pandas.collection.Status.REJECTED)
             and (t.legalDeposit = true or t.permission.stateName not in ('Denied', 'Unknown'))
             and exists (select 1 from t.instances i where i.state.name = 'archived')
             """;
@@ -86,7 +86,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "from Title t\n" +
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "and t.status.name = 'nominated'\n" +
+            "and t.status = pandas.collection.Status.NOMINATED\n" +
             "and t.awaitingConfirmation = false\n" +
             "order by t.regDate desc")
     Page<Title> worktrayNominated(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
@@ -94,7 +94,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select t from Title t\n" +
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "and t.status.name = 'monitored'\n" +
+            "and t.status = pandas.collection.Status.MONITORED\n" +
             "and t.awaitingConfirmation = false\n" +
             " order by t.regDate desc")
     Page<Title> worktrayMonitored(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
@@ -102,7 +102,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select t from Title t\n" +
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "and t.status.name = 'selected'\n" +
+            "and t.status = pandas.collection.Status.SELECTED\n" +
             "and t.awaitingConfirmation = false\n" +
             "and t.permission.stateName = 'Unknown'\n" +
             "and t.legalDeposit = false\n" +
@@ -112,22 +112,22 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select t from Title t\n" +
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "and t.status.name = 'permission requested'\n" +
+            "and t.status = pandas.collection.Status.PERMISSION_REQUESTED\n" +
             "and t.legalDeposit = false\n" +
             " order by t.regDate desc")
     Page<Title> worktrayPermissionRequested(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select t from Title t\n" +
-            "where (t.status.name = 'permission granted'\n" +
-            "       or (t.legalDeposit = true and (t.status.name in ('selected', 'permission requested', 'permission denied', 'permission impossible'))))\n" +
-            "and t.permission.state.name = 'Unknown'\n" +
-            "and t.gather.nextGatherDate is null\n" +
-            "and t.unableToArchive = false\n" +
-            "and t.disappeared = false\n" +
-            "and t.awaitingConfirmation = false\n" +
-            "and (:agencyId is null or t.agency.id = :agencyId)\n" +
-            "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "order by t.name")
+           "where (t.status = pandas.collection.Status.PERMISSION_GRANTED\n" +
+           "       or (t.legalDeposit = true and (t.status in (pandas.collection.Status.SELECTED, pandas.collection.Status.PERMISSION_REQUESTED, pandas.collection.Status.PERMISSION_DENIED, pandas.collection.Status.PERMISSION_IMPOSSIBLE))))\n" +
+           "and t.permission.state.name = 'Unknown'\n" +
+           "and t.gather.nextGatherDate is null\n" +
+           "and t.unableToArchive = false\n" +
+           "and t.disappeared = false\n" +
+           "and t.awaitingConfirmation = false\n" +
+           "and (:agencyId is null or t.agency.id = :agencyId)\n" +
+           "and (:ownerId is null or t.owner.id = :ownerId)\n" +
+           "order by t.name")
     Page<Title> worktrayAwaitingScheduling(@Param("agencyId") Long agencyId,
                                            @Param("ownerId") Long ownerId,
                                            Pageable pageable);
@@ -154,9 +154,9 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "where exists (select i.id from Instance i where i.title = t and i.state.name <> 'deleted')\n" +
             "and t.anbdNumber is null\n" +
             "and t.awaitingConfirmation = false\n" +
-            "and t.status.name not in ('monitored', 'rejected', 'nominated')\n" +
-            "and (t.legalDeposit = true or t.status.name not in ('permission impossible', 'permission denied'))\n" +
-            "and t.cataloguingNotRequired <> true\n" +
+           "and t.status not in (pandas.collection.Status.MONITORED, pandas.collection.Status.REJECTED, pandas.collection.Status.NOMINATED)\n" +
+           "and (t.legalDeposit = true or t.status not in (pandas.collection.Status.PERMISSION_IMPOSSIBLE, pandas.collection.Status.PERMISSION_DENIED))\n" +
+           "and t.cataloguingNotRequired <> true\n" +
             "and (:agencyId is null or t.agency.id = :agencyId)\n" +
             "and (:ownerId is null or t.owner.id = :ownerId)\n" +
             "order by t.gather.lastGatherDate")
@@ -169,16 +169,16 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select distinct t from Title t\n" +
             " join t.statusHistories sh\n" +
             " where sh.user = :nominator and " +
-            "       sh.status.name in ('nominated', 'selected')\n and " +
-            "       sh.startDate > :dateLimit " +
+           "       sh.status in (pandas.collection.Status.NOMINATED, pandas.collection.Status.SELECTED)\n and " +
+           "       sh.startDate > :dateLimit " +
             " order by t.regDate desc")
     List<Title> findByNominatorOrSelector(@Param("nominator") User nominator, @Param("dateLimit") Instant dateLimit);
 
     @Query("select t from Title t\n" +
             " join t.statusHistories sh\n" +
             " where sh.user = :selector and " +
-            "       sh.status.name = 'selected'\n and " +
-            "       sh.startDate > :dateLimit " +
+           "       sh.status = pandas.collection.Status.SELECTED\n and " +
+           "       sh.startDate > :dateLimit " +
             " order by t.regDate desc")
     List<Title> findBySelector(@Param("selector") User selector, @Param("dateLimit") Instant dateLimit);
 
