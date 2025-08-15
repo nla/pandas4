@@ -64,10 +64,10 @@ class ApiControllerTest {
         form.getCollections().add(parentCollection);
         title = titleService.save(form, null);
 
-        Instance hiddenInstance = new Instance(title, Instant.parse("2022-12-19T01:02:03Z"), State.ARCHIVED, null);
+        Instance hiddenInstance = new Instance(title, Instant.parse("2022-12-19T01:02:03Z"), null);
         hiddenInstance.setIsDisplayed(false);
 
-        Instance visibleInstance = new Instance(title, Instant.parse("2022-12-20T04:56:55Z"), State.ARCHIVED, null);
+        Instance visibleInstance = new Instance(title, Instant.parse("2022-12-20T04:56:55Z"), null);
         visibleInstance.setIsDisplayed(true);
 
         instanceRepository.save(visibleInstance);

@@ -510,7 +510,7 @@ public class TitleController {
 
     @GetMapping(value = "/titles/{id}/heritrix-config", produces = "application/xml")
     public void heritrixConfig(@PathVariable("id") Title title, ServletResponse response) throws IOException {
-        Instance instance = new Instance(title, Instant.now(), null, "Heritrix");
+        Instance instance = new Instance(title, Instant.now(), "Heritrix");
         response.setContentType("application/xml");
         CrawlBeans.writeCrawlXml(instance, new OutputStreamWriter(response.getOutputStream(), UTF_8), null);
     }

@@ -367,7 +367,7 @@ create table old_instance_state
 
 create table instance
 (
-    current_state_id      bigint comment 'Foreign key to the state of this instance',
+    current_state_id      bigint not null comment 'Foreign key to the state of this instance',
     display_note          varchar(4000) comment 'A note to be displayed with this instance on the Title TEP',
     gather_method_name    varchar(256) comment 'The method used to gather this instance',
     gathered_url          varchar(1024) comment 'The Seed URL used for this instance',

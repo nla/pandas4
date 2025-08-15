@@ -6,8 +6,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.search.engine.backend.types.Aggregable;
 import org.hibernate.search.engine.backend.types.Projectable;
 import org.hibernate.search.engine.backend.types.Sortable;
-import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pandas.agency.User;
@@ -56,7 +57,7 @@ public class Instance {
     @GenericField(sortable = Sortable.YES)
     private Instant date;
 
-    @Column(name = "CURRENT_STATE_ID")
+    @Column(name = "CURRENT_STATE_ID", nullable = false)
     @GenericField(aggregable = Aggregable.YES)
     private State state;
 
@@ -125,7 +126,7 @@ public class Instance {
     @OneToMany(mappedBy = "instance")
     private List<InstanceThumbnail> thumbnails;
 
-    @OneToMany(mappedBy = "instance")
+    @OneToMany(mappedBy = "instance", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id")
     private List<StateHistory> stateHistory = new ArrayList<>();
 
@@ -148,10 +149,9 @@ public class Instance {
     protected Instance() {
     }
 
-    public Instance(Title title, Instant date, State state, String gatherMethod) {
+    public Instance(Title title, Instant date, String gatherMethod) {
         this.title = title;
         this.date = date;
-        this.state = state;
         this.prefix = "PAN";
         if (title.getGather() != null) {
             String gatherUrl = title.getGather().getGatherUrl();
@@ -167,14 +167,16 @@ public class Instance {
         this.removeable = 1L; // unused?
         this.restrictable = 1L; // unused?
         this.transportable = 1L; // unused?
+        changeState(State.CREATION, null, date);
     }
 
     public State getState() {
         return this.state;
     }
 
-    public void changeState(State newState, User user, Instant changeDate) {
-        if (state.equals(newState)) return;
+    @NullMarked
+    public void changeState(State newState, @Nullable User user, Instant changeDate) {
+        if (newState.equals(state)) return;
 
         // Mark the end of the previous state history record, if one exists
         if (this.stateHistory != null && !this.stateHistory.isEmpty()) {
@@ -215,10 +217,6 @@ public class Instance {
 
     public Long getId() {
         return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getHumanId() {
@@ -422,7 +420,7 @@ public class Instance {
         title.setGather(new TitleGather());
         title.getGather().setGatherUrl("http://test");
         title.setPi(pi);
-        return new Instance(title, date, null, null);
+        return new Instance(title, date, null);
     }
 
     public InstanceThumbnail getLiveThumbnail() {
@@ -435,7 +433,7 @@ public class Instance {
     }
 
     public List<StateHistory> getStateHistory() {
-        return stateHistory;
+        return Collections.unmodifiableList(stateHistory);
     }
 
     public Instant getLastStateChangeDate() {

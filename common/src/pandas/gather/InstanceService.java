@@ -2,7 +2,6 @@ package pandas.gather;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.agency.User;
 import pandas.collection.Title;
@@ -21,24 +20,18 @@ import static pandas.gather.State.FAILED;
 public class InstanceService {
     private final InstanceRepository instanceRepository;
     private final TitleRepository titleRepository;
-    private final GatherDateRepository gatherDateRepository;
-    private final StateRepository stateRepository;
     private final StateHistoryRepository stateHistoryReposistory;
     private final InstanceGatherRepository instanceGatherRepository;
     private final InstanceResourceRepository instanceResourceRepository;
     private final PandasExceptionLogRepository pandasExceptionLogRepository;
-    private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, GatherDateRepository gatherDateRepository, StateRepository stateRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository, InstanceThumbnailRepository instanceThumbnailRepository) {
+    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository) {
         this.instanceRepository = instanceRepository;
         this.titleRepository = titleRepository;
-        this.gatherDateRepository = gatherDateRepository;
-        this.stateRepository = stateRepository;
         this.stateHistoryReposistory = stateHistoryReposistory;
         this.instanceGatherRepository = instanceGatherRepository;
         this.instanceResourceRepository = instanceResourceRepository;
         this.pandasExceptionLogRepository = pandasExceptionLogRepository;
-        this.instanceThumbnailRepository = instanceThumbnailRepository;
     }
 
     @Transactional
@@ -46,10 +39,8 @@ public class InstanceService {
         title = titleRepository.findById(title.getId()).orElseThrow();
         Instant now = Instant.now();
 
-        Instance instance = new Instance(title, now, State.CREATION, gatherMethod);
+        Instance instance = new Instance(title, now, gatherMethod);
         instanceRepository.save(instance);
-
-        insertStateHistory(instance, instance.getState(), now, null);
 
         InstanceGather instanceGather = new InstanceGather();
         instanceGather.setInstance(instance);
@@ -65,10 +56,6 @@ public class InstanceService {
         titleRepository.save(title);
 
         return instance;
-    }
-
-    private void insertStateHistory(Instance instance, State state, Instant now, User user) {
-        stateHistoryReposistory.save(new StateHistory(instance, state, now, user));
     }
 
     @Transactional
