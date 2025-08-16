@@ -65,9 +65,11 @@ class ApiControllerTest {
         title = titleService.save(form, null);
 
         Instance hiddenInstance = new Instance(title, Instant.parse("2022-12-19T01:02:03Z"), null);
+        hiddenInstance.changeState(State.ARCHIVED, null, Instant.now());
         hiddenInstance.setIsDisplayed(false);
 
         Instance visibleInstance = new Instance(title, Instant.parse("2022-12-20T04:56:55Z"), null);
+        visibleInstance.changeState(State.ARCHIVED, null, Instant.now());
         visibleInstance.setIsDisplayed(true);
 
         instanceRepository.save(visibleInstance);
