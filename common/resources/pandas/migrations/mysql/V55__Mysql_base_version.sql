@@ -975,10 +975,10 @@ create table state_history
 (
     end_date         datetime(6) comment 'The date and time this state stopped being the current one for an instance',
     individual_id    bigint comment 'Foreign key to the individual who caused this state to be applied',
-    instance_id      bigint comment 'Foreign key to the instance this state applies or once applied to',
-    start_date       datetime(6) comment 'The date and time this state stopped being the current one for an instance',
+    instance_id      bigint not null comment 'Foreign key to the instance this state applies or once applied to',
+    start_date       datetime(6) not null comment 'The date and time this state stopped being the current one for an instance',
     state_history_id bigint not null auto_increment primary key comment 'Sequence generated id for this status history entry',
-    state_id         bigint comment 'Foreign key to the state for this status history entry',
+    state_id         bigint not null comment 'Foreign key to the state for this status history entry',
 
     constraint state_history_individual_fk foreign key (individual_id) references individual (individual_id),
     constraint state_history_instance_fk foreign key (instance_id) references instance (instance_id),

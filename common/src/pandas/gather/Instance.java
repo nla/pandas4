@@ -157,9 +157,10 @@ public class Instance {
     protected Instance() {
     }
 
+    @NullMarked
     public Instance(Title title, Instant date, String gatherMethod) {
-        this.title = title;
-        this.date = date;
+        this.title = Objects.requireNonNull(title);
+        this.date = Objects.requireNonNull(date);
         this.prefix = "PAN";
         if (title.getGather() != null) {
             String gatherUrl = title.getGather().getGatherUrl();
@@ -170,7 +171,7 @@ public class Instance {
             this.scope = title.getGather().getScope();
             this.profile = title.getGather().getActiveProfile();
         }
-        this.gatherMethodName = gatherMethod;
+        this.gatherMethodName = Objects.requireNonNull(gatherMethod);
         this.processable = 1L; // unused?
         this.removeable = 1L; // unused?
         this.restrictable = 1L; // unused?
@@ -233,14 +234,6 @@ public class Instance {
 
     public String getBrowsertrixCollectionName() {
         return getHumanId().replace('.', '-');
-    }
-
-    public Long getInstanceStateId() {
-        return this.instanceStateId;
-    }
-
-    public Long getInstanceStatusId() {
-        return this.instanceStatusId;
     }
 
     public Boolean getIsDisplayed() {
@@ -404,7 +397,7 @@ public class Instance {
         title.setGather(new TitleGather());
         title.getGather().setGatherUrl("http://test");
         title.setPi(pi);
-        return new Instance(title, date, null);
+        return new Instance(title, date, GatherMethod.DEFAULT);
     }
 
     public InstanceThumbnail getLiveThumbnail() {
@@ -496,14 +489,16 @@ public class Instance {
         return getSeeds().stream().filter(seed -> seed.getUrl().equals(url)).findFirst().orElse(null);
     }
 
-    public void retryAfterFailure(User user, Instant changeDate) {
+    @NullMarked
+    public void retryAfterFailure(@Nullable User user, Instant changeDate) {
         if (!getState().isFailed()) return;
         State stateBeforeFailure = getStateBeforeFailure();
         if (!stateBeforeFailure.canBeRetried()) return;
         changeState(stateBeforeFailure, user, changeDate);
     }
 
-    public void delete(User user, Instant changeDate) {
+    @NullMarked
+    public void delete(@Nullable User user, Instant changeDate) {
         if (getState().isDeletedOrDeleting()) return;
         if (!canDelete()) {
             throw new IllegalStateException("can't delete instance in state " + getState());
