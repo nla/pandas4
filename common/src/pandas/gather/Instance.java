@@ -71,9 +71,11 @@ public class Instance {
     private String gatheredUrl;
 
     @Column(name = "INSTANCE_STATE_ID")
+    @Deprecated(forRemoval = true)
     private Long instanceStateId;
 
     @Column(name = "INSTANCE_STATUS_ID")
+    @Deprecated(forRemoval = true)
     private Long instanceStatusId;
 
     @Column(name = "IS_DISPLAYED")
@@ -83,18 +85,23 @@ public class Instance {
     private String prefix;
 
     @Column(name = "PROCESSABLE")
+    @Deprecated(forRemoval = true)
     private Long processable;
 
     @Column(name = "REMOVEABLE")
+    @Deprecated(forRemoval = true)
     private Long removeable;
 
     @Column(name = "RESOURCE_ID")
+    @Deprecated(forRemoval = true)
     private Long resourceId;
 
     @Column(name = "RESTRICTABLE")
+    @Deprecated(forRemoval = true)
     private Long restrictable;
 
     @Column(name = "RESTRICTION_ENABLED_T")
+    @Deprecated(forRemoval = true)
     private Long restrictionEnabledT;
 
     @Column(name = "TEP_URL")
@@ -103,6 +110,7 @@ public class Instance {
     private String tepUrl;
 
     @Column(name = "TRANSPORTABLE")
+    @Deprecated(forRemoval = true)
     private Long transportable;
 
     @Column(name = "TYPE_NAME")
@@ -179,7 +187,7 @@ public class Instance {
         if (newState.equals(state)) return;
 
         // Mark the end of the previous state history record, if one exists
-        if (this.stateHistory != null && !this.stateHistory.isEmpty()) {
+        if (!this.stateHistory.isEmpty()) {
             this.stateHistory.get(this.stateHistory.size() - 1).setEndDate(changeDate);
         }
 
@@ -251,26 +259,6 @@ public class Instance {
         return this.prefix;
     }
 
-    public Long getProcessable() {
-        return this.processable;
-    }
-
-    public Long getRemoveable() {
-        return this.removeable;
-    }
-
-    public Long getResourceId() {
-        return this.resourceId;
-    }
-
-    public Long getRestrictable() {
-        return this.restrictable;
-    }
-
-    public Long getRestrictionEnabledT() {
-        return this.restrictionEnabledT;
-    }
-
     public String getTepUrl() {
         return this.tepUrl;
     }
@@ -312,10 +300,6 @@ public class Instance {
 
     public void setTepUrl(String tepUrl) {
         this.tepUrl = tepUrl;
-    }
-
-    public Long getTransportable() {
-        return this.transportable;
     }
 
     public String getTypeName() {
