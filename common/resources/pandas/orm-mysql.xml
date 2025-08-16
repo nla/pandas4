@@ -275,7 +275,7 @@
             </id>
         </attributes>
     </entity>
-    <entity class="pandas.gather.State">
+    <entity class="pandas.gather.StateEntity">
         <attributes>
             <id name="id">
                 <column name="STATE_ID"/>
