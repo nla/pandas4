@@ -422,7 +422,8 @@ public class TitleGather {
 
         if (getIgnoreRobotsTxt()) command.add("--robots=0");
 
-        command.add(getGatherUrlWithAuthentication());
+        String url = getGatherUrlWithAuthentication();
+        if (url != null) command.add(url);
         command.addAll(getAdditionalUrlList());
 
         return command;
