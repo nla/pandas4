@@ -1,6 +1,6 @@
 package pandas.collection;
 
-import org.apache.commons.io.FileUtils;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
+@Timed("pandas.collection.TitleRepository")
 public interface TitleRepository extends CrudRepository<Title,Long> {
     @Query("select t from Title t where t.thumbnails is empty " +
             "and (t.titleUrl is not null or t.seedUrl is not null)")
@@ -79,17 +80,41 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "order by coalesce(t.tep.displayTitle, t.name)")
     Page<TitleBrief> findDisplayableTitlesWithNumberNames(@Param("agency") Agency agency, Pageable page);
 
+    interface TitleWorktrayRow extends TitleRef {
+        String getName();
+        String getTitleUrl();
+        Instant getRegDate();
+        User getOwner();
+        User getNominator();
+    }
 
-    List<Title> findByStatusId(long statusId);
-
-    @Query("select t\n" +
-            "from Title t\n" +
-            "where (:agencyId is null or t.agency.id = :agencyId)\n" +
-            "and (:ownerId is null or t.owner.id = :ownerId)\n" +
-            "and t.status = pandas.collection.Status.NOMINATED\n" +
-            "and t.awaitingConfirmation = false\n" +
-            "order by t.regDate desc")
-    Page<Title> worktrayNominated(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+    @Query(value = """
+        select
+          t.id as id,
+          t.name as name,
+          t.titleUrl as titleUrl,
+          t.regDate as regDate,
+          t.owner as owner,
+          nom.user as nominator
+        from Title t
+        left join OwnerHistory nom
+          on nom.title = t
+         and nom.id = (select min(h.id) from OwnerHistory h where h.title = t)
+        where (:agencyId is null or t.agency.id = :agencyId)
+          and (:ownerId is null or t.owner.id = :ownerId)
+          and t.status = pandas.collection.Status.NOMINATED
+          and t.awaitingConfirmation = false
+        order by t.regDate desc
+        """,
+            countQuery = """
+        select count(t)
+        from Title t
+        where (:agencyId is null or t.agency.id = :agencyId)
+          and (:ownerId is null or t.owner.id = :ownerId)
+          and t.status = pandas.collection.Status.NOMINATED
+          and t.awaitingConfirmation = false
+        """)
+    Page<TitleWorktrayRow> worktrayNominated(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("select t from Title t\n" +
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +

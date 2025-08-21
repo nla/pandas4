@@ -3,8 +3,10 @@ package pandas.core;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+
 /**
- * Helpers for formatting numbers for display.
+ * Helpers for formatting numbers and URLs for display.
  */
 @Service
 public class Format {
@@ -30,5 +32,20 @@ public class Format {
         } else {
             return "status-unknown";
         }
+    }
+
+    /**
+     * Returns the site part of a URL. Removing the protocol, www. prefix and path.
+     */
+    public String site(String url) {
+        if (url == null) return null;
+        String host;
+        try {
+            host = URI.create(url).getHost();
+        } catch (IllegalArgumentException ignored) {
+            return url;
+        }
+        if (host.startsWith("www.")) host = host.substring(4);
+        return host;
     }
 }

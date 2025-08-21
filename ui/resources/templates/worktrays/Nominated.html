@@ -19,29 +19,38 @@
         </ol>
     </nav>
 
-    <table th:fragment="table">
+    <table th:fragment="table" class="worktray-table">
         <thead>
         <tr>
-            <th>Registered</th>
             <th align=left>Title</th>
             <th>Nominator</th>
             <th>Owner</th>
+            <th>Registered</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="title: ${nominatedTitles}">
-            <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
             <td>
-                <a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a><br>
-                <a th:href="${title.titleUrl}" th:text="${#strings.abbreviate(title.titleUrl.replaceFirst('^https?://(www\\.)?', ''), 80)}" class="live-url">example.com</a>
+                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
             </td>
-            <td><a th:if="${title.nominator}" th:text="${title.nominator.userid}" th:href="${@link.to(title.nominator)}">jsmith</a></td>
-            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
-            <td>
-                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus='SELECTED')}" class="btn btn-compact">Accept</a>
-                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus='REJECTED')}" class="btn btn-compact btn-secondary">Reject</a>
-                <a th:href="@{/titles/{id}/edit(id=${title.id},setStatus='MONITORED')}" class="btn btn-compact btn-secondary">Monitor</a>
-                <a th:href="@{/titles/{id}/transfer(id=${title.id})}" class="btn btn-compact btn-secondary">Transfer</a>
+            <td><th:block th:if="${title.nominator}" th:text="${title.nominator.userid}" th:href="${@link.to(title.nominator)}">jsmith</th:block></td>
+            <td><th:block th:if="${title.owner}" th:text="${title.owner.userid}">jsmith</th:block></td>
+            <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
+            <td class="worktray-table--actions">
+                <a title="Accept" th:href="${@link.editStatus(title, 'SELECTED')}">
+                    <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#check}"/></svg>
+                </a>
+                <a title="Reject" th:href="${@link.editStatus(title, 'REJECTED')}">
+                    <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#x}"/></svg>
+                </a>
+                <a title="Monitor" th:href="${@link.editStatus(title, 'MONITORED')}">
+                    <svg class="lucide-icon" viewBox="0 0 24 24"><use th:href="@{/assets/lucide.svg#eye}"/></svg>
+                </a>
+                <a title="Transfer" th:href="${@link.transfer(title)}">
+                    <svg class="lucide-icon" viewBox="0 0 24 24"><use th:href="@{/assets/lucide.svg#forward}"/></svg>
+                </a>
             </td>
         </tr>
         </tbody>

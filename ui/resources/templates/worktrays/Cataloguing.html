@@ -19,26 +19,28 @@
         </ol>
     </nav>
 
-    <table th:fragment="table">
+    <table th:fragment="table" class="worktray-table">
         <thead>
         <tr>
-            <th>Site</th>
+            <th align="left">Title</th>
             <th>Registered</th>
-            <th>PI</th>
-            <th align=left>Title</th>
             <th>Status</th>
             <th>Owner</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="title: ${titlesAwaitingCataloguing}">
-            <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
-            <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
-            <td align="right" th:text="${title.pi ?: title.id}">12345</td>
-            <td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a></td>
-            <td th:text="${title.status.name}"></td>
+            <td>
+                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
+            </td>
+            <td><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
+            <td align="center" th:text="${title.status.name}"></td>
             <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
-            <td><a th:href="${@link.edit(title)}">Catalogue</a></td>
+            <td><a title="Catalogue" th:href="${@link.edit(title)}" class="btn btn-action">
+                <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#notebook-pen}"/></svg> Catalogue
+            </a></td>
         </tr>
         </tbody>
     </table>

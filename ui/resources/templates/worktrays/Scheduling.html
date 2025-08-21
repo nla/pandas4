@@ -19,24 +19,24 @@
         </ol>
     </nav>
 
-    <table th:fragment="table">
+    <table th:fragment="table" class="worktray-table">
         <thead>
         <tr>
-            <th>Site</th>
-            <th>Permission Granted</th>
-            <th>PI</th>
+            <th>Perm. Granted</th>
             <th align=left>Title</th>
             <th>Owner</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="title: ${awaitingSchedulingTitles}">
-            <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
             <td align="center"><time th:if="${title.permission?.statusSetDate}" th:text="${dateFormat.format(title.permission.statusSetDate)}">04/02/2021</time></td>
-            <td align="right" th:text="${title.pi ?: title.id}">12345</td>
-            <td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a></td>
+            <td>
+                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
+            </td>
             <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
-            <td><a th:href="${@link.edit(title) + '#gather'}">Schedule</a></td>
+            <td><a class="btn btn-action" th:href="${@link.edit(title) + '#gather'}">Schedule</a></td>
         </tr>
         </tbody>
     </table>

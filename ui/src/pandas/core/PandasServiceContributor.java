@@ -35,6 +35,17 @@ public class PandasServiceContributor implements ServiceContributor {
                                 elapsedNanos, list.size());
                         return list;
                     }
+
+                    @Override
+                    public <R> List<R> list(JdbcOperationQuerySelect jdbcSelect, JdbcParameterBindings jdbcParameterBindings, ExecutionContext executionContext, RowTransformer<R> rowTransformer, Class<R> requestedJavaType, ListResultsConsumer.UniqueSemantic uniqueSemantic, int resultCountEstimate) {
+                        long startNanos = System.nanoTime();
+                        List<R> list = super.list(jdbcSelect, jdbcParameterBindings, executionContext, rowTransformer, requestedJavaType, uniqueSemantic, resultCountEstimate);
+                        long elapsedNanos = System.nanoTime() - startNanos;
+                        RequestLogger.Context context = RequestLogger.context.get();
+                        context.afterSqlExecute(jdbcSelect::getSqlString, () -> executionContext.getQueryIdentifier(""),
+                                elapsedNanos, list.size());
+                        return list;
+                    }
                 };
                 return new JdbcServicesImpl() {
                     @Override

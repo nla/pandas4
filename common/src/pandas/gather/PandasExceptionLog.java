@@ -43,6 +43,9 @@ public class PandasExceptionLog {
     @JdbcTypeCode(Types.LONGVARCHAR)
     private String detail;
 
+    protected PandasExceptionLog() {
+    }
+
     public PandasExceptionLog(Instant date, Instance instance, String summary, String detail, String originator, Long pi, long viewed) {
         this.date = date;
         this.instance = instance;

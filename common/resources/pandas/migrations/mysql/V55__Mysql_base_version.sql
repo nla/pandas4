@@ -401,6 +401,8 @@ create index instance_last_modified_date
 create index instance_date_index
     on instance (current_state_id, title_id, instance_date);
 
+create index instance_state_title_display
+    on instance (current_state_id, title_id, is_displayed);
 
 create table ins_resource
 (

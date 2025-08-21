@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-public class User extends Individual {
+public class User extends Individual implements UserLite {
 
     @Column(name = "AUDIT_CREATE_USERID")
     private Long auditCreateUserid;

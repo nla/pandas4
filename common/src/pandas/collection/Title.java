@@ -47,7 +47,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
         @Index(name = "title_current_owner_id_current_status_id_index", columnList = "current_owner_id, current_status_id"),
         @Index(name = "title_publisher_index", columnList = "publisher_id"),
 })
-public class Title {
+public class Title implements TitleRef {
     public static final Comparator<Title> COMPARE_BY_NAME =
             Comparator.comparing(Title::getName, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER))
                     .thenComparing(Title::getId, Comparator.nullsFirst(Comparator.naturalOrder()));
@@ -771,13 +771,6 @@ public class Title {
 
     public List<OwnerHistory> getOwnerHistories() {
         return ownerHistories;
-    }
-
-    public User getNominator() {
-        if (getOwnerHistories().isEmpty()) {
-            return null;
-        }
-        return getOwnerHistories().get(0).getUser();
     }
 
     public List<ContactEvent> getContactEvents() {

@@ -19,25 +19,30 @@
         </ol>
     </nav>
 
-    <table th:fragment="table">
+    <table th:fragment="table" class="worktray-table">
         <thead>
         <tr>
-            <th>Site</th>
             <th>Registered</th>
-            <th>PI</th>
             <th align=left>Title</th>
             <th>Owner</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="title: ${requestPermissionTitles}">
-            <td align="center"><a th:href="${title.titleUrl}"><i class="icon globe"></i></a></td>
             <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
-            <td align="right" th:text="${title.pi ?: title.id}">12345</td>
-            <td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a></td>
+            <td>
+                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
+            </td>
             <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
-            <td><a th:href="@{titles/{titleId}/contact-events/new(type=2,titleId=${title.id})}">Request Permission</a>  |
-                <a th:href="@{/titles/{id}/transfer(id=${title.id})}">Transfer</a>
+            <td>
+                <a class="btn btn-action" th:href="@{/titles/{titleId}/contact-events/new(type=2,titleId=${title.id})}">
+                    Request permission
+                </a>
+                <a class="btn btn-action" th:href="@{/titles/{id}/transfer(id=${title.id})}">
+                    Transfer
+                </a>
             </td>
         </tr>
         </tbody>

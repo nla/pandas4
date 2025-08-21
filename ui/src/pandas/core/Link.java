@@ -10,6 +10,7 @@ import org.springframework.web.util.UriUtils;
 import pandas.agency.Agency;
 import pandas.agency.AgencySummary;
 import pandas.agency.User;
+import pandas.agency.UserLite;
 import pandas.collection.*;
 import pandas.gather.Instance;
 import pandas.gather.InstanceSeed;
@@ -100,7 +101,7 @@ public class Link {
         return to(user) + "/edit";
     }
 
-    public String edit(Title title) {
+    public String edit(TitleRef title) {
         return to(title) + "/edit";
     }
 
@@ -112,7 +113,11 @@ public class Link {
         return to(title) + "/contact-people/" + contactPerson.getId() + "/edit";
     }
 
-    public String flag(Title title) {
+    public String editStatus(TitleRef title, String status) {
+        return edit(title) + "?setStatus=" + status;
+    }
+
+    public String flag(TitleRef title) {
         return to(title) + "/flag";
     }
 
@@ -140,7 +145,7 @@ public class Link {
         return to(instance) + "/thumbnail";
     }
 
-    public String thumbnail(Title title) {
+    public String thumbnail(TitleRef title) {
         return to(title) + "/thumbnail/image";
     }
 
@@ -150,6 +155,10 @@ public class Link {
 
     public String thumbnail(PreviousGather previousGather, String type) {
         return to(previousGather) + "/thumbnail?type=" + type;
+    }
+
+    public String transfer(TitleRef title) {
+        return to(title) + "/transfer";
     }
 
     public String to(AgencySummary agencySummary) {
@@ -164,7 +173,7 @@ public class Link {
         return link("/collections/" + collection.getId());
     }
 
-    public String to(User user) {
+    public String to(UserLite user) {
         return link("/users/" + encodePathSegment(user.getUserid(), UTF_8));
     }
 
@@ -196,7 +205,7 @@ public class Link {
         return link("/subjects/" + subject.getId());
     }
 
-    public String to(Title title) {
+    public String to(TitleRef title) {
         return link("/titles/" + title.getId());
     }
 
@@ -208,7 +217,7 @@ public class Link {
         return bambooBaseUrl + "/warcs/" + UriUtils.encodePathSegment(filename, UTF_8) + "/details";
     }
 
-    public String unflag(Title title) {
+    public String unflag(TitleRef title) {
         return to(title) + "/unflag";
     }
 }

@@ -228,7 +228,7 @@
                 <label sec:authorize="hasRole('stduser')"><input type=checkbox th:field="*{disappeared}"> No longer
                     online</label>
             </div>
-            <details sec:authorize="hasRole('stduser')"
+            <details id="cataloguing" sec:authorize="hasRole('stduser')"
                      th:open="${form.anbdNumber != null || form.localReference != null || form.localDatabaseNo != null}">
                 <summary>Cataloguing</summary>
                 <fieldset>

@@ -47,19 +47,6 @@
     </nav>
 
     <style>
-        .gathered-table td {
-            border-top: 1px solid #ccc;
-            padding: 4px 8px;
-        }
-
-        .gathered-table th {
-            padding: 4px 8px;
-        }
-
-        .gathered-table td:first-of-type, .gathered-table th:first-of-type {
-            padding: 8px 0;
-        }
-
         .align-left {
             text-align: left;
         }
@@ -112,7 +99,7 @@
         <aside class="filters" th:replace="~{TitleSearch.html :: filters (hideNotCheckbox='true')}">
         </aside>
 
-        <table th:fragment="table" class="gathered-table">
+        <table th:fragment="table" class="worktray-table">
             <thead>
             <tr>
                 <th><input type=checkbox onchange="toggleSelectAll(this)" id="selectAllCheckbox"></th>
