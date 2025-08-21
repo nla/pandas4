@@ -13,7 +13,7 @@ public class BrowsertrixConfig {
     private Long defaultCrawlLimitBytes = 2L * 1024L * 1024L * 1024L;
 
     private Long defaultCrawlLimitSeconds = 12L * 60 * 60;
-    private String version = "webrecorder/browsertrix-crawler:1.6.0";
+    private String version = "webrecorder/browsertrix-crawler:1.7.0";
 
     public String getPodmanOptions() {
         return podmanOptions;
