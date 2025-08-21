@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.8.0
+
 ### New features
 
 * Contact events can now be added to titles and publishers.
@@ -20,6 +22,16 @@
 ### Changes
 
 * Webjar version numbers are no longer hard-coded in templates and are now resolved by webjars-locator-lite.
+
+### Dependency upgrades
+
+- **browsertrix**: 1.6.0 → 1.7.0
+- **commons-compress**: 1.27.1 → 1.28.0
+- **commons-csv**: 1.14.0 → 1.14.1
+- **commons-io**: 2.19.0 → 2.20.0
+- **p6spy-spring-boot-starter**: 1.11.0 → 1.12.0
+- **slim-select**: 2.5.1 → 2.10.0
+- **spring-boot**: 3.5.3 → 3.5.4
 
 ## 4.7.1
 
