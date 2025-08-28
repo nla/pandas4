@@ -113,7 +113,6 @@
         <attributes>
             <id name="id">
                 <column name="STATUS_ID"/>
-                <generated-value strategy="IDENTITY"/>
             </id>
         </attributes>
     </entity>
@@ -279,7 +278,6 @@
         <attributes>
             <id name="id">
                 <column name="STATE_ID"/>
-                <generated-value strategy="IDENTITY"/>
             </id>
         </attributes>
     </entity>
