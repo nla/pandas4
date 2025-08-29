@@ -58,4 +58,10 @@
                 }
             });
     })
+
+    // fix upside down text
+    if (location.hostname === 'www.google.com' && !document.getElementById('pandas-style')) {
+        document.head.insertAdjacentHTML('beforeend',
+            '<style id="pandas-style">.pandas-div{ transform:scaleY(-1); }</style>');
+    }
 }
