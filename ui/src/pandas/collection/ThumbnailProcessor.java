@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 import pandas.browser.Browser;
 import pandas.browser.BrowserPool;
+import pandas.browser.BrowserProperties;
 import pandas.util.DateFormats;
 
 import java.net.URI;
@@ -29,11 +30,11 @@ public class ThumbnailProcessor {
     private final ThumbnailRepository thumbnailRepository;
     private final BrowserPool browserPool;
 
-    public ThumbnailProcessor(HttpClient httpClient, TitleRepository titleRepository, ThumbnailRepository thumbnailRepository) {
+    public ThumbnailProcessor(HttpClient httpClient, TitleRepository titleRepository, ThumbnailRepository thumbnailRepository, BrowserProperties browserProperties) {
         this.httpClient = httpClient;
         this.titleRepository = titleRepository;
         this.thumbnailRepository = thumbnailRepository;
-        this.browserPool = new BrowserPool();
+        this.browserPool = new BrowserPool(browserProperties);
     }
 
     public synchronized void run() {

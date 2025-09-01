@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import pandas.browser.Browser;
 import pandas.browser.BrowserPool;
+import pandas.browser.BrowserProperties;
 import pandas.gather.Instance;
 import pandas.gather.InstanceRepository;
 import pandas.gather.InstanceThumbnail;
@@ -27,17 +28,18 @@ import static java.net.http.HttpRequest.BodyPublishers.noBody;
 @Service
 public class ThumbnailGenerator {
     private final Logger log = LoggerFactory.getLogger(ThumbnailGenerator.class);
-    private final BrowserPool browserPool = new BrowserPool();
+    private final BrowserPool browserPool;
     private final InstanceRepository instanceRepository;
     private final InstanceThumbnailRepository instanceThumbnailRepository;
     private final TransactionTemplate transactionTemplate;
     private final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     private final int timeoutSeconds = 30;
 
-    public ThumbnailGenerator(InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository, TransactionTemplate transactionTemplate) {
+    public ThumbnailGenerator(InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository, TransactionTemplate transactionTemplate, BrowserProperties browserProperties) {
         this.instanceRepository = instanceRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
         this.transactionTemplate = transactionTemplate;
+        browserPool = new BrowserPool(browserProperties);
     }
 
     public void generateLiveThumbnail(Instance instance) {

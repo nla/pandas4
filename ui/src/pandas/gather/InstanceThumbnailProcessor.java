@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.util.UriUtils;
 import pandas.browser.Browser;
 import pandas.browser.BrowserPool;
+import pandas.browser.BrowserProperties;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -35,12 +36,12 @@ public class InstanceThumbnailProcessor {
     private final TransactionTemplate transactionTemplate;
     private final InstanceThumbnailRepository instanceThumbnailRepository;
 
-    public InstanceThumbnailProcessor(HttpClient httpClient, InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository, TransactionTemplate transactionTemplate) {
+    public InstanceThumbnailProcessor(HttpClient httpClient, InstanceRepository instanceRepository, InstanceThumbnailRepository instanceThumbnailRepository, TransactionTemplate transactionTemplate, BrowserProperties browserProperties) {
         this.httpClient = httpClient;
         this.instanceRepository = instanceRepository;
         this.instanceThumbnailRepository = instanceThumbnailRepository;
         this.transactionTemplate = transactionTemplate;
-        this.browserPool = new BrowserPool();
+        this.browserPool = new BrowserPool(browserProperties);
     }
 
     public synchronized void run() {

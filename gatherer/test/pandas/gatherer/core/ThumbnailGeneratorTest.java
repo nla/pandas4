@@ -6,14 +6,13 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pandas.browser.BrowserMissingException;
+import pandas.browser.BrowserProperties;
 import pandas.gather.InstanceThumbnail;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -58,7 +57,8 @@ class ThumbnailGeneratorTest {
     @Test
     public void html() throws Exception {
         try {
-            ThumbnailGenerator generator = new ThumbnailGenerator(null, null, null);
+            ThumbnailGenerator generator = new ThumbnailGenerator(null, null, null,
+                    BrowserProperties.defaults());
             InstanceThumbnail thumbnail = generator.generateThumbnail("http://127.0.0.1:" + server.getAddress().getPort() + "/test.html");
             assertEquals(200, thumbnail.getStatus());
             assertNotNull(thumbnail.getData());
@@ -78,7 +78,7 @@ class ThumbnailGeneratorTest {
         } catch (IOException e) {
             Assumptions.abort("Failed to run gs");
         }
-        ThumbnailGenerator generator = new ThumbnailGenerator(null, null, null);
+        ThumbnailGenerator generator = new ThumbnailGenerator(null, null, null, BrowserProperties.defaults());
         InstanceThumbnail thumbnail = generator.generateThumbnail("http://127.0.0.1:" + server.getAddress().getPort() + "/test.pdf");
         assertEquals(200, thumbnail.getStatus());
         assertNotNull(thumbnail.getData());

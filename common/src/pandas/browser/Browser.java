@@ -18,10 +18,6 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public class Browser implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(Browser.class);
-    private static final List<String> executables = List.of("chromium-browser", "chromium", "google-chrome",
-            "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            "/usr/lib64/chromium-browser/headless_shell");
     private final Process process;
     private final WebSocket websocket;
     private final AtomicLong idSeq = new AtomicLong(0);
@@ -46,9 +42,10 @@ public class Browser implements Closeable {
         }, "Browser shutdown hook"));
     }
 
-    public Browser() throws IOException {
+    public Browser(BrowserProperties properties) throws IOException {
         scheduledExecutor.setRemoveOnCancelPolicy(true);
         Process process = null;
+        List<String> executables = properties.executablesOrDefault();
         for (String executable : executables) {
             try {
                 var cmd = new ArrayList<String>();
@@ -57,7 +54,8 @@ public class Browser implements Closeable {
                 cmd.add("--remote-debugging-port=0");
                 cmd.add("--disable-crash-reporter"); // prevents ownership conflicts over /tmp/Crashpad
                 cmd.add("--disable-blink-features=AutomationControlled"); // makes navigator.webdriver == false
-                if (System.getenv("BROWSER_LOGGING") != null) cmd.addAll(List.of("--enable-logging=stderr", "--v=1"));
+                if (properties.logging()) cmd.addAll(List.of("--enable-logging=stderr", "--v=1"));
+                cmd.addAll(properties.options());
                 process = new ProcessBuilder(cmd)
                         .inheritIO()
                         .redirectError(ProcessBuilder.Redirect.PIPE)

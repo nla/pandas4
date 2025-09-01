@@ -3,13 +3,14 @@ package pandas.render;
 import org.junit.Assume;
 import org.junit.Test;
 import pandas.browser.Browser;
+import pandas.browser.BrowserProperties;
 
 import java.io.IOException;
 
 public class BrowserTest {
     @Test
     public void test() throws IOException {
-        try (Browser browser = new Browser();
+        try (Browser browser = new Browser(BrowserProperties.defaults());
              Browser.Tab tab = browser.createTab()) {
             tab.navigate("http://localhost/");
         } catch (IOException e) {
