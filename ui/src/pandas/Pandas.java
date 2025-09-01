@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import pandas.core.PandasBanner;
 import pandas.core.PandasPermissionEvaluator;
 
 import java.net.http.HttpClient;
@@ -26,6 +27,7 @@ public class Pandas {
         if (System.getenv("OIDC_URL") != null || System.getProperty("OIDC_URL") != null) {
             application.setAdditionalProfiles("openid");
         }
+        application.setBanner(new PandasBanner());
         application.run(args);
     }
 
