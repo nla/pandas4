@@ -32,6 +32,7 @@ public class PywbService implements DisposableBean {
         Files.writeString(working.resolve("config.yaml"), "collections_root: ../collections\nframed_replay: false\n");
         Files.write(working.resolve("templates").resolve("banner.html"), new byte[0]);
 
+        log.info("Starting pywb on http://" + pywbConfig.getBindAddress() + ":" + pywbConfig.getPort());
         try {
             process = new ProcessBuilder("pywb", "-b", pywbConfig.getBindAddress(),
                     "-p", String.valueOf(pywbConfig.getPort()), "--record")

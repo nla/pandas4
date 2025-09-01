@@ -1,4 +1,20 @@
-FROM container-registry.nla.gov.au/nla/ubi8-openjdk-17
+FROM container-registry.nla.gov.au/nla/almalinux-8-minimal
 ARG JAR_FILE=target/pandas4-gatherer.jar
+
+USER root
+
+# Install httrack (Fedora 29 package is compatible with RHEL 8)
+RUN rpm --nodeps -i https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/29/Everything/$(arch)/os/Packages/h/httrack-3.49.2-4.fc29.$(arch).rpm
+
+# Install chromium-headless, java, pywb
+RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
+    microdnf install -y --nodocs python3.11-pip tar gzip java-21-openjdk-headless chromium-headless && \
+    python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    python3 -m pip install --no-cache-dir pywb==2.9.0 && \
+    microdnf clean all
+
+RUN adduser pandas3
+
+USER pandas3
 COPY ${JAR_FILE} pandas4-gatherer.jar
 ENTRYPOINT ["bash", "-c", "exec java ${JAVA_OPTS} -jar pandas4-gatherer.jar"]
