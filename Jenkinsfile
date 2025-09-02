@@ -3,5 +3,5 @@ nlaBuild steps: this,
     applicationName: "pandas-ui",
     jdk: 'JDK 17',
     mavenProfile: 'jenkins',
-    triggerTektonBuild: true
+    triggerTektonBuild: true,
     triggersToFire: 'pandas-ui,pandas-gatherer'
