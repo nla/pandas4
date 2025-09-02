@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+* Removed TypeScript from the build. Switched to JSDoc for type annotations.
+
 ## 4.8.0
 
 ### New features

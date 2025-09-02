@@ -1,8 +1,12 @@
 export {};
 import SlimSelect from "slim-select";
 
-declare var collectionsEndpoint: string;
-declare var updateReasons: () => void; /* defined inline in TitleEdit.html */
+/**
+ * @typedef {import("slim-select").SlimSelect} SlimSelectType
+ */
+
+// declare var collectionsEndpoint: string;
+// declare var updateReasons: () => void; /* defined inline in TitleEdit.html */
 
 new SlimSelect({
     select: '#subjectsToAdd',
@@ -63,9 +67,10 @@ new SlimSelect({
     }
 });
 
-document.querySelectorAll("input[type=checkbox][id^=edit]").forEach((checkbox : HTMLInputElement) => {
+(/** @type {HTMLInputElement[]} */ document.querySelectorAll("input[type=checkbox][id^=edit]")).forEach((checkbox) => {
     const inputId = checkbox.id.substr(4, 1).toLowerCase() + checkbox.id.substr(5);
-    const input = document.getElementById(inputId) as HTMLInputElement;
+    /** @type {HTMLInputElement} */
+    const input = document.getElementById(inputId);
     input.disabled = !checkbox.checked;
     checkbox.addEventListener("change", () => {
         input.disabled = !checkbox.checked;
@@ -78,7 +83,10 @@ document.querySelectorAll("input[type=checkbox][id^=edit]").forEach((checkbox : 
     });
 });
 
-function countSelectedTitles() : number {
+/**
+ * @returns {number}
+ */
+function countSelectedTitles() {
     return document.querySelectorAll("input[name=titles]:checked").length;
 }
 
@@ -87,7 +95,7 @@ function updateTitleCount() {
     document.querySelectorAll(".titleCount").forEach(span => {
         span.textContent = count.toLocaleString();
     });
-    (document.getElementById("actionSave") as HTMLButtonElement).disabled = (count === 0);
+    document.getElementById("actionSave").disabled = (count === 0);
 }
 
 document.querySelectorAll("input[name=titles]").forEach(checkbox => {
@@ -96,8 +104,8 @@ document.querySelectorAll("input[name=titles]").forEach(checkbox => {
     });
 });
 
-(document.getElementById("selectAllTitles") as HTMLInputElement).addEventListener("change", function () {
-    document.querySelectorAll('input[name=titles]').forEach((cb : HTMLInputElement) => cb.checked = this.checked);
+document.getElementById("selectAllTitles").addEventListener("change", function () {
+    document.querySelectorAll('input[name=titles]').forEach((cb) => cb.checked = this.checked);
     updateTitleCount();
 });
 

@@ -1,12 +1,19 @@
 export {};
 import SlimSelect from "slim-select";
 
-declare var collectionId: number | null;
-declare var collectionsEndpoint: string;
+/**
+ * @typedef {import("slim-select").SlimSelect} SlimSelectType
+ */
 
-const inheritSubjectsCheckbox = document.getElementById('inheritSubjects') as HTMLInputElement;
-const parentSelect = document.getElementById('parent') as HTMLSelectElement;
-const subjectsSelect = document.getElementById('subjects') as HTMLSelectElement;
+// declare var collectionId: number | null;
+// declare var collectionsEndpoint: string;
+
+/** @type {HTMLInputElement} */
+const inheritSubjectsCheckbox = document.getElementById('inheritSubjects');
+/** @type {HTMLSelectElement} */
+const parentSelect = document.getElementById('parent')
+/** @type {HTMLSelectElement} */
+const subjectsSelect = document.getElementById('subjects');
 
 const parentSlimSelect = new SlimSelect({
     select: '#parent',
@@ -19,7 +26,12 @@ const parentSlimSelect = new SlimSelect({
         searchFilter: function (option, search) {
             return true; // leave filtering to backend
         },
-        search: function (search: string, _) {
+
+        /**
+         * @param {string} search
+         * @param _
+         */
+        search: function (search, _) {
             return new Promise((resolve, reject) => {
                 if (!search) return reject(false);
                 fetch(collectionsEndpoint + "?q=" + encodeURIComponent(search) + "&size=100")

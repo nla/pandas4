@@ -1,18 +1,22 @@
 export {};
 import SlimSelect from "slim-select";
 
-declare var titleCheckEndpoint: string;
-declare var titleCheckNameEndpoint: string;
-declare var titleCheckSurtsEndpoint: string;
-declare var pageinfoEndpoint: string;
-declare var publisherJsonEndpoint: string;
-declare var publishersEndpoint: string;
-declare var subjectsSuggestEndpoint: string;
-declare var titlesEndpoint: string;
-declare var titlesBasicSearchEndpoint: string;
-declare var collectionsEndpoint: string;
-declare var collectionsSuggestEndpoint: string;
-declare var thisTitleId: number;
+/**
+ * @typedef {import("slim-select").SlimSelect} SlimSelectType
+ */
+
+// declare var titleCheckEndpoint: string;
+// declare var titleCheckNameEndpoint: string;
+// declare var titleCheckSurtsEndpoint: string;
+// declare var pageinfoEndpoint: string;
+// declare var publisherJsonEndpoint: string;
+// declare var publishersEndpoint: string;
+// declare var subjectsSuggestEndpoint: string;
+// declare var titlesEndpoint: string;
+// declare var titlesBasicSearchEndpoint: string;
+// declare var collectionsEndpoint: string;
+// declare var collectionsSuggestEndpoint: string;
+// declare var thisTitleId: number;
 
 const sitePresets = [
     {
@@ -104,7 +108,7 @@ const collectionsSlimSelect = new SlimSelect({
 document.getElementById('collections').addEventListener('change', function (event) {
     // if there's no subjects selected populate the subjects with the ones from the collection
     if (subjectsSlimSelect.getSelected().length === 0) {
-        let target = event.target as HTMLSelectElement;
+        let target = /** @type {HTMLSelectElement} */ event.target;
         let collectionOption = target.options[target.selectedIndex];
         if (collectionOption && collectionOption.dataset.subjects) {
             subjectsSlimSelect.setSelected(collectionOption.dataset.subjects.split(","));
@@ -112,7 +116,8 @@ document.getElementById('collections').addEventListener('change', function (even
     }
 });
 
-let seedUrlsTextArea = document.getElementById("seedUrls") as HTMLTextAreaElement;
+/** @type {HTMLTextAreaElement} */
+let seedUrlsTextArea = document.getElementById("seedUrls");
 
 function escapeHtml(text) {
     var element = document.createElement('p');
@@ -120,12 +125,14 @@ function escapeHtml(text) {
     return element.innerHTML;
 }
 
-let publisherSlimSelect = null as SlimSelect;
+/** @type {SlimSelectType | null} */
+let publisherSlimSelect = null;
 
 // fetch the contact people for the selected publisher
 function refreshPublisherContactPeople(publisherId) {
     console.log("refreshPublisherContactPeople(" + publisherId + ")");
-    let select = document.getElementById("titlePermission.contactPerson") as HTMLSelectElement;
+    /** @type {HTMLSelectElement} */
+    let select = document.getElementById("titlePermission.contactPerson");
     if (!select) {
         console.warn("Couldn't find titlePermission.contactPerson select");
         return;
@@ -204,10 +211,14 @@ if (document.getElementById("publisher")) {
                 publisherSlimSelect.search(publisherState.savedSearch);
             },
             afterChange: function (selectedOptions) {
-                let publisherTypeSelect = document.getElementById("publisherType") as HTMLSelectElement;
-                let publisherIdInput = document.getElementById("publisherId") as HTMLInputElement;
-                let publisherNameInput = document.getElementById("publisherName") as HTMLInputElement;
-                let newPublisherFieldsDiv = document.getElementById("newPublisherFields") as HTMLDivElement;
+                /** @type {HTMLSelectElement} */
+                let publisherTypeSelect = document.getElementById("publisherType");
+                /** @type {HTMLInputElement} */
+                let publisherIdInput = document.getElementById("publisherId");
+                /** @type {HTMLInputElement} */
+                let publisherNameInput = document.getElementById("publisherName");
+                /** @type {HTMLDivElement} */
+                let newPublisherFieldsDiv = document.getElementById("newPublisherFields");
                 let selectedOption = selectedOptions && selectedOptions[0];
                 if (selectedOption && selectedOption.value === "new") {
                     publisherIdInput.value = "";
@@ -247,14 +258,17 @@ if (document.getElementById("publisher")) {
             }
         }
     });
-    let publisherSelectElement = document.querySelector('#publisher') as HTMLSelectElement;
+
+    /** @type {HTMLSelectElement} */
+    let publisherSelectElement = document.querySelector('#publisher');
     refreshPublisherContactPeople(publisherSelectElement.value);
 }
 
 // Hide ABN field for personal publisher type
 function handlePublisherTypeChange() {
     let publisherAbnLabel = document.getElementById("publisherAbn").parentElement;
-    let publisherTypeSelect = document.getElementById("publisherType") as HTMLSelectElement;
+    /** @type {HTMLSelectElement} */
+    let publisherTypeSelect = document.getElementById("publisherType");
     if (publisherTypeSelect.selectedOptions[0].text === "Personal") {
         publisherAbnLabel.style.display = "none";
     } else {
@@ -262,7 +276,14 @@ function handlePublisherTypeChange() {
     }
 }
 
-function createLink(text: string, href: string, target: string, className?: string) {
+/**
+ *
+ * @param {string} text
+ * @param {string} href
+ * @param {string} target
+ * @param {string|null} className
+ */
+function createLink(text, href, target, className) {
     let link = document.createElement("a");
     link.href = href;
     link.innerText = text;
@@ -271,7 +292,8 @@ function createLink(text: string, href: string, target: string, className?: stri
     return link;
 }
 
-let nameInput = document.getElementById("name") as HTMLInputElement;
+/** @type {HTMLInputElement} */
+let nameInput = document.getElementById("name");
 
 function nameChanged() {
     let selected = publisherSlimSelect.getSelected();
@@ -365,11 +387,6 @@ function normalizeSeedUrls() {
     }
 }
 
-interface SubjectSelectData {
-    value: string;
-    text: string;
-}
-
 function getSuggestedSubjectIds() {
     const ids = [];
     var subjectIdsByName = {}
@@ -384,6 +401,13 @@ function getSuggestedSubjectIds() {
     }
     return ids;
 }
+
+/**
+ * @typedef {Object} SubjectSelectData
+ * @property {string} value
+ * @property {string} text
+ */
+
 
 function refreshSuggestedCollections() {
     document.getElementById("suggestedCollections").parentElement.style.display = 'none';
@@ -482,7 +506,8 @@ function seedUrlsChanged() {
                 a.innerText = subject;
                 a.onclick = function() {
                     for (const rawOption of subjectsSlimSelect.getData()) {
-                        const option = rawOption as SubjectSelectData;
+                        /** @type {SubjectSelectData} */
+                        const option = rawOption;
                         if (option.text === subject) {
                             const selected = subjectsSlimSelect.getSelected();
                             selected.push(option.value);
@@ -547,7 +572,12 @@ function seedUrlsChanged() {
         });
 }
 
-function selectValues(slimSelect: SlimSelect, valuesToSelect: string[]) {
+/**
+ *
+ * @param {SlimSelectType} slimSelect
+ * @param {string[]} valuesToSelect
+ */
+function selectValues(slimSelect, valuesToSelect) {
     let values = slimSelect.getSelected();
     for (let value of valuesToSelect) {
         if (!values.includes(value)) {
@@ -557,20 +587,26 @@ function selectValues(slimSelect: SlimSelect, valuesToSelect: string[]) {
     slimSelect.setSelected(values);
 }
 
-function applySitePresets(url : string) {
+/**
+ *
+ * @param {string} url
+ */
+function applySitePresets(url) {
     for (let preset of sitePresets) {
         if (!url.match(preset.urlRegex)) continue;
         console.log("Applying preset: " + JSON.stringify(preset));
 
         if (preset.scope) {
-            let scopeRadio = document.querySelector("input[type=radio][name=scope][value='" + preset.scope + "']") as HTMLInputElement;
+            /** @type {HTMLInputElement} */
+            let scopeRadio = document.querySelector("input[type=radio][name=scope][value='" + preset.scope + "']");
             if (scopeRadio) {
                 scopeRadio.checked = true;
             }
         }
 
         if (preset.gatherMethod) {
-            let gatherMethodSelect = document.getElementById('gatherMethod') as HTMLSelectElement;
+            /** @type {HTMLSelectElement} */
+            let gatherMethodSelect = document.getElementById('gatherMethod');
             gatherMethodSelect.value = preset.gatherMethod.toString();
         }
 
@@ -593,10 +629,12 @@ function applySitePresets(url : string) {
 }
 
 function checkSurts() {
-    let seedUrlsTextArea = document.getElementById('seedUrls') as HTMLTextAreaElement;
+    /** @type {HTMLTextAreaElement} */
+    let seedUrlsTextArea = document.getElementById('seedUrls');
     let seeds = seedUrlsTextArea.value;
     const surtsHint = document.getElementById('surtsHint');
-    let gatherMethodSelect = document.getElementById('gatherMethod') as HTMLSelectElement;
+    /** @type {HTMLSelectElement} */
+    let gatherMethodSelect = document.getElementById('gatherMethod');
     let selectedGatherMethod = gatherMethodSelect.selectedOptions;
     if (!seeds || selectedGatherMethod.length === 0 || selectedGatherMethod[0].text !== 'Heritrix') {
         surtsHint.innerHTML = '';
@@ -604,7 +642,8 @@ function checkSurts() {
     }
     surtsHint.innerHTML = '...';
     const formData = new FormData();
-    let csrfInput = document.querySelector("input[name='_csrf']") as HTMLInputElement;
+    /** @type {HTMLInputElement} */
+    let csrfInput = document.querySelector("input[name='_csrf']");
     formData.append('_csrf', csrfInput.value);
     formData.append('seedUrls', seeds);
     fetch(titleCheckSurtsEndpoint, {method: 'POST', body: formData}).then(response => {
@@ -616,8 +655,14 @@ function checkSurts() {
         .catch(error => console.error("SURT check failed: " + error));
 }
 
-function setInputHidden(id: string, hidden: boolean) {
-    let input = document.getElementById(id) as HTMLInputElement;
+/**
+ *
+ * @param {string} id
+ * @param {boolean} hidden
+ */
+function setInputHidden(id, hidden) {
+    /** @type {HTMLInputElement} */
+    let input = document.getElementById(id);
     if (hidden) {
         input.classList.add('hidden-input');
     } else {
@@ -627,7 +672,8 @@ function setInputHidden(id: string, hidden: boolean) {
 
 // Only show the gather filters field if the HTTrack gather method is selected.
 function showOrHideFilters() {
-    let gatherMethodSelect = document.getElementById('gatherMethod') as HTMLSelectElement;
+    /** @type {HTMLSelectElement} */
+    let gatherMethodSelect = document.getElementById('gatherMethod');
     let selectedGatherMethod = gatherMethodSelect.selectedOptions;
     let gatherMethodName = selectedGatherMethod.length === 0 ? '' : selectedGatherMethod[0].text;
     document.getElementById('filters').parentElement.style.display = gatherMethodName === 'HTTrack' ? 'inherit' : 'none';
@@ -671,7 +717,8 @@ document.getElementById("publisherType").addEventListener("change", handlePublis
 
 // Hide the history details when the "Link as the next in a series" checkbox is checked
 // This ensures the user can't get confused and also try to manually link it.
-let continuesCheckbox = document.getElementById("continuesCheckbox") as HTMLInputElement;
+/** @type {HTMLInputElement} */
+let continuesCheckbox = document.getElementById("continuesCheckbox");
 if (continuesCheckbox) {
     continuesCheckbox.addEventListener("click", function () {
         const checked = continuesCheckbox.checked;
@@ -691,4 +738,4 @@ handlePublisherTypeChange();
 
 // last step: enable the form's submit buttons now that the javascript has loaded
 document.querySelectorAll("button.btn-primary[type=submit][disabled]")
-    .forEach(submitButton => (submitButton as HTMLButtonElement).disabled = false);
+    .forEach(submitButton => submitButton.disabled = false);
