@@ -8,6 +8,8 @@ import org.apache.commons.pool2.impl.EvictionConfig;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 
 public class BrowserPool extends GenericObjectPool<Browser> {
     long maxLifetime = 10L * 60L * 1000L; // kill browser after 10 minutes
@@ -15,12 +17,15 @@ public class BrowserPool extends GenericObjectPool<Browser> {
     public BrowserPool(BrowserProperties properties) {
         super(new Factory(properties));
         setTestOnBorrow(true);
-        setTimeBetweenEvictionRunsMillis(30000);
-        setMinEvictableIdleTimeMillis(30000);
+        setMaxIdle(properties.limit());
+        setMaxTotal(properties.limit());
+        setDurationBetweenEvictionRuns(Duration.ofSeconds(30));
+        setMinEvictableIdleDuration(Duration.ofSeconds(30));
         setEvictionPolicy(new DefaultEvictionPolicy<>() {
             @Override
             public boolean evict(EvictionConfig config, PooledObject<Browser> underTest, int idleCount) {
-                if (System.currentTimeMillis() - underTest.getCreateTime() > maxLifetime) {
+                Instant expiration = underTest.getCreateInstant().plusMillis(maxLifetime);
+                if (Instant.now().isAfter(expiration)) {
                     return true;
                 }
                 return super.evict(config, underTest, idleCount);
