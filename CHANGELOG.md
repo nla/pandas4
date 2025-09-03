@@ -19,6 +19,7 @@
 
 ### Dependency upgrades
 
+- **jsoup**: 1.21.1 → 1.21.2
 - **spring-boot**: 3.5.4 → 3.5.5
 
 ## 4.8.0
