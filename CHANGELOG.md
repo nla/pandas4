@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.9.0 2025-09-03
+
 ### New features
 
 * Added settings for thumbnail generation browser (`executable`, `options`, `limit`).
