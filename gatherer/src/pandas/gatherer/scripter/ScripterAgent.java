@@ -62,7 +62,7 @@ class ScripterAgent implements Runnable {
 							}
 						} catch (Exception e) {
 							log.error("Script failed", e);
-							instanceService.recordFailure(instance.getId(), "Script failed", e.getMessage(), "ScripterAgent");
+							instanceService.recordFailure(instance.getId(), "Script failed", e.getMessage(), "ScripterAgent", null);
 						} finally {
 							scripterManager.instanceFinished(instanceId);
 						}

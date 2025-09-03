@@ -242,7 +242,7 @@ public class GathererIT {
     }
 
     @Test
-//    @Timeout(value = 10)
+    @Timeout(value = 120)
     public void testBrowsertrixCrawl() throws InterruptedException, IOException {
         try {
             Process process = new ProcessBuilder("podman", "version").inheritIO().start();
@@ -250,7 +250,6 @@ public class GathererIT {
         } catch (IOException e) {
             Assumptions.assumeTrue(false, "Error starting podman");
         }
-        Assumptions.assumeTrue(Files.exists(Path.of("/usr/bin/podman")), "podman not installed");
 
         int serverPort = server.getAddress().getPort();
 
@@ -275,15 +274,16 @@ public class GathererIT {
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
         }
         assertEquals(State.GATHERED, instance.getState());
+        assertEquals(0, instance.getGather().getExitStatus());
 
         // archive the instance
         instanceService.updateState(instance.getId(), State.ARCHIVING);
 
         // wait until archiving finishes
-        while (instance.getState().equals(State.ARCHIVING)) {
+        do {
             Thread.sleep(100);
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
-        }
+        } while (instance.getState().equals(State.ARCHIVING));
         assertEquals(State.ARCHIVED, instance.getState());
         assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
 

@@ -60,7 +60,7 @@ public class HttrackGatherer implements Backend {
 	 * Perform the HTTrack gathering process.
 	 */
 	@Override
-	public void gather(Instance instance) throws Exception {
+	public int gather(Instance instance) throws Exception {
 		Path instanceDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
 		List<String> command = instanceService.buildAndSaveHttrackCommand(instance.getId(),
 				httrackConfig.getExecutable().toString(),
@@ -84,19 +84,21 @@ public class HttrackGatherer implements Backend {
 						|| System.currentTimeMillis() > deadline) {
 						httrack.stop();
 						httrack.waitKill(60);
-						return;
+						return -1; // Return -1 for early termination
 					}
 				}
 			} finally {
 				running.remove(httrack);
 			}
 
-			log.info("HTTrack {} returned {}", instance.getHumanId(), httrack.process.exitValue());
+			int exitValue = httrack.process.exitValue();
+			log.info("HTTrack {} returned {}", instance.getHumanId(), exitValue);
 			log.info("Output: {}", Files.readString(logFile.toPath()));
-			if (httrack.process.exitValue() != 0) {
+			if (exitValue != 0) {
 				String output = Files.readString(logFile.toPath());
-				throw new GatherException("HTTrack returned error: " + output);
+				throw new GatherException("HTTrack returned error: " + output, exitValue);
 			}
+			return exitValue;
 		} finally {
 			Files.deleteIfExists(logFile.toPath());
 		}

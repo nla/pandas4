@@ -24,8 +24,8 @@ public class UploadGatherer implements Backend {
 	 * Perform the Upload gathering process. This method is empty for upload gatherer.
 	 */
 	@Override
-	public void gather(Instance instance) {
-		
+	public int gather(Instance instance) {
+        return 0;
 	}
 
 	@Override

@@ -73,6 +73,10 @@
             <th>Time:</th>
             <td th:text="${instance?.gather?.timeHuman}"></td>
         </tr>
+        <tr th:if="${instance?.gather?.exitStatus != null}">
+            <td>Exit status:</td>
+            <td th:text="${instance?.gather?.exitStatusHuman}"></td>
+        </tr>
         <tr>
             <th>Entrypoint URL:</th>
             <td th:text="${instance.tepUrl}"></td>

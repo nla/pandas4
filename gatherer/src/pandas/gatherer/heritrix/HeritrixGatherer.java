@@ -57,7 +57,7 @@ public class HeritrixGatherer implements Backend {
     }
 
     @Override
-    public void gather(Instance instance) throws Exception {
+    public int gather(Instance instance) throws Exception {
         // create heritrix dirs
         Path jobDir = jobDir(instance);
         Files.createDirectories(jobDir);
@@ -77,7 +77,7 @@ public class HeritrixGatherer implements Backend {
                 try {
                     launchJob(jobName, jobDir);
                     monitorJob(jobName, instance);
-                    return;
+                    return 0;
                 } catch (SocketException e) {
                     log.warn("Heritrix is down ({}), job {} is waiting for it to come back", e.getMessage(), jobName);
                     while (!shutdown) {
@@ -93,6 +93,7 @@ public class HeritrixGatherer implements Backend {
                     log.warn("Heritrix is up again, trying to relaunch job {}", jobName);
                 }
             }
+            return -1;
         } finally {
             if (shutdown) {
                 log.info("Letting Heritrix crawl {} continue running after shutdown", jobName);

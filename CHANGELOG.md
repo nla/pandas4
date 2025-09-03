@@ -6,6 +6,7 @@
 
 * Added settings for thumbnail generation browser (`executable`, `options`, `limit`).
 * App startup banner now shows git version info to help identify the build when running on Kubernetes.
+* Exit status for gatherer processes is now recorded.
 
 ### Bug fixes
 

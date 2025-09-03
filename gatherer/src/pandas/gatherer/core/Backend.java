@@ -7,7 +7,7 @@ import java.io.IOException;
 public interface Backend {
     String getGatherMethod();
 
-    void gather(Instance instance) throws Exception;
+    int gather(Instance instance) throws Exception;
 
     void postprocess(Instance instance) throws IOException, InterruptedException;
 

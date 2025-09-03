@@ -34,11 +34,12 @@ public class BrowsertrixGatherer implements Backend {
     private final Repository repository;
     private final ThumbnailGenerator thumbnailGenerator;
     private volatile boolean shutdown;
-    private final static int EXIT_SUCCESS = 0;
-    private final static int EXIT_INTERRUPTED = 11;
-    private final static int EXIT_SIZE_LIMIT = 14;
-    private final static int EXIT_TIME_LIMIT = 15;
-    private final Set<Integer> NORMAL_EXIT_CODES = Set.of(EXIT_SUCCESS, EXIT_INTERRUPTED, EXIT_SIZE_LIMIT, EXIT_TIME_LIMIT);
+    private final Set<Integer> NORMAL_EXIT_CODES = Set.of(
+            BrowsertrixExit.SUCCESS.code(),
+            BrowsertrixExit.FAILED.code(), // incl. DNS lookup failure
+            BrowsertrixExit.SIGNAL_INTERRUPTED.code(),
+            BrowsertrixExit.SIZE_LIMIT.code(),
+            BrowsertrixExit.TIME_LIMIT.code());
     private final static List<String> BEHAVIOR_SCRIPTS = List.of("bsky.js");
     private final static Path BEHAVIORS_DIR = unpackBehaviors();
 
@@ -78,7 +79,7 @@ public class BrowsertrixGatherer implements Backend {
     }
 
     @Override
-    public void gather(Instance instance) throws Exception {
+    public int gather(Instance instance) throws Exception {
         Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
 
         Path pywbDir = pywbService.directoryFor(instance);
@@ -179,7 +180,7 @@ public class BrowsertrixGatherer implements Backend {
             while (!process.waitFor(1, TimeUnit.SECONDS)) {
                 instance = instanceService.refresh(instance);
                 if (shutdown || !instance.getState().equals(State.GATHERING)) {
-                    return;
+                    return -1; // Return -1 for early termination
                 }
             }
 
@@ -187,8 +188,9 @@ public class BrowsertrixGatherer implements Backend {
             log.info(getGatherMethod() + " {} returned {}", instance.getHumanId(), exitValue);
             if (!NORMAL_EXIT_CODES.contains(exitValue)) {
                 System.err.println(Files.readString(logFile));
-                throw new GatherException("Browsertrix exited with status " + exitValue);
+                throw new GatherException("Browsertrix exited with status " + exitValue, exitValue);
             }
+            return exitValue;
         } finally {
             process.destroy();
             if (!process.waitFor(shutdown ? 30 : 120, TimeUnit.SECONDS)) {

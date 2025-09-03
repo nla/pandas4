@@ -79,13 +79,17 @@ public class InstanceService {
      * Log an gather exception and set the instance to failed.
      */
     @Transactional
-    public void recordFailure(long instanceId, String summary, String message, String originator) {
+    public void recordFailure(long instanceId, String summary, String message, String originator, Integer exitStatus) {
         Instant now = Instant.now();
         Instance instance = instanceRepository.getOrThrow(instanceId);
         pandasExceptionLogRepository.save(new PandasExceptionLog(now, instance, summary, message, originator,
                 instance.getTitle().getPi(), 0L));
         instance.changeState(State.FAILED, null, now);
         instanceRepository.save(instance);
+        if (exitStatus != null) {
+            instance.getGather().setExitStatus(exitStatus);
+            instanceGatherRepository.save(instance.getGather());
+        }
     }
 
     @Transactional
@@ -129,11 +133,19 @@ public class InstanceService {
 
     @Transactional
     public void finishGather(long instanceId, Instant startTime) {
+        finishGather(instanceId, startTime, null);
+    }
+
+    @Transactional
+    public void finishGather(long instanceId, Instant startTime, Integer exitStatus) {
         Instant now = Instant.now();
         InstanceGather insGather = instanceGatherRepository.findById(instanceId).orElseThrow();
         insGather.setStart(startTime);
         insGather.setTime(Duration.between(startTime, now).getSeconds() / 60);
         insGather.setFinish(now);
+        if (exitStatus != null) {
+            insGather.setExitStatus(exitStatus);
+        }
         instanceGatherRepository.save(insGather);
     }
 

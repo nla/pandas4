@@ -85,9 +85,9 @@ class Worker implements Runnable {
 						nameThread("G", instance);
 						Instant startTime = Instant.now();
 						thumbnailGenerator.generateLiveThumbnail(instance);
-						backend.gather(instance);
+						int exitStatus = backend.gather(instance);
 						nextState = State.GATHER_PROCESS;
-						saveGatherStatistics(instance, startTime);
+						saveGatherStatistics(instance, startTime, exitStatus);
 						break;
 					case GATHER_PROCESS:
 						nameThread("P", instance);
@@ -122,7 +122,9 @@ class Worker implements Runnable {
 				// there might be an intermittent problem with the database so these
 				// could fail.
 				try {
-					instanceService.recordFailure(instance.getId(), "Failed " + instance.getState(), e.getMessage(), Thread.currentThread().getName());
+                    Integer exitStatus = null;
+                    if (e instanceof GatherException ge) exitStatus = ge.getExitStatus();
+					instanceService.recordFailure(instance.getId(), "Failed " + instance.getState(), e.getMessage(), Thread.currentThread().getName(), exitStatus);
 				} catch (Exception e2) {
 					log.error("Error logging exception to db", e2);
 				}
@@ -146,9 +148,9 @@ class Worker implements Runnable {
 		thread.setName(thread.getName() + " " + stateCode + instance.getTitle().getPi());
 	}
 
-	private void saveGatherStatistics(Instance instance, Instant startTime) {
+	private void saveGatherStatistics(Instance instance, Instant startTime, int exitStatus) {
 		try {
-			instanceService.finishGather(instance.getId(), startTime);
+			instanceService.finishGather(instance.getId(), startTime, exitStatus);
 			if (!instance.isHeritrixMethod()) {
 				FileStats stats = workingArea.instanceStats(instance.getTitle().getPi(), instance.getDateString(), gatherManager::isShutdown);
 				if (gatherManager.isShutdown()) {

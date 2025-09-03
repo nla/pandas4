@@ -44,6 +44,9 @@ public class InstanceGather {
     @Column(name = "GATHER_TIME")
     private Long time;
 
+    @Column(name = "EXIT_STATUS")
+    private Integer exitStatus;
+
     public Long getFiles() {
         return this.files;
     }
@@ -115,6 +118,27 @@ public class InstanceGather {
 
     public void setTime(Long gatherTime) {
         this.time = gatherTime;
+    }
+
+    public Integer getExitStatus() {
+        return this.exitStatus;
+    }
+
+    public String getExitStatusHuman() {
+        if (exitStatus == null) return null;
+        StringBuilder builder = new StringBuilder();
+        builder.append(exitStatus);
+        if (GatherMethod.BROWSERTRIX.equals(instance.getGatherMethodName())) {
+            var exit = BrowsertrixExit.forCode(exitStatus);
+            if (exit != null) {
+                builder.append(" (").append(exit).append(")");
+            }
+        }
+        return builder.toString();
+    }
+
+    public void setExitStatus(Integer exitStatus) {
+        this.exitStatus = exitStatus;
     }
 
     public Long getId() {
