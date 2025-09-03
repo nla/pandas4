@@ -17,6 +17,10 @@
 
 * Removed TypeScript from the build. Switched to JSDoc for type annotations.
 
+### Dependency upgrades
+
+- **spring-boot**: 3.5.4 → 3.5.5
+
 ## 4.8.0
 
 ### New features
