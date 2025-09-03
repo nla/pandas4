@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### New features
+
+* Added settings for thumbnail generation browser (`executable`, `options`, `limit`).
+* App startup banner now shows git version info to help identify the build when running on Kubernetes.
+
+### Bug fixes
+
+* Fixed Google bookmarklet text appearing upside down.
+* Fixed exception populating state and status tables on MySQL.
+
 ### Changes
 
 * Removed TypeScript from the build. Switched to JSDoc for type annotations.
