@@ -21,6 +21,7 @@
 
 - **jsoup**: 1.21.1 → 1.21.2
 - **spring-boot**: 3.5.4 → 3.5.5
+- **zero-allocation-hashing**: 0.27ea0 → 0.27ea1
 
 ## 4.8.0
 
