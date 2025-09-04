@@ -63,7 +63,7 @@ let subjectsSlimSelect = new SlimSelect({
     }
 });
 
-parentSelect.addEventListener('change', function () {
+function handleParentChange() {
     if (parentSelect.value) {
         inheritSubjectsCheckbox.parentElement.classList.remove('hidden-input');
         if (subjectsSelect.selectedOptions.length === 0) {
@@ -74,7 +74,8 @@ parentSelect.addEventListener('change', function () {
         inheritSubjectsCheckbox.parentElement.classList.add('hidden-input');
         subjectsSlimSelect.enable();
     }
-});
+}
+parentSelect.addEventListener('change', handleParentChange);
 
 // Disable the subjects select if the inherit checkbox is checked
 inheritSubjectsCheckbox.addEventListener('change', function () {
@@ -84,12 +85,15 @@ inheritSubjectsCheckbox.addEventListener('change', function () {
         let selectedParentOptions = parentSelect.selectedOptions;
         if (selectedParentOptions.length > 0) {
             let selectedParentOption = selectedParentOptions[0];
-            let parentSubjectIds = selectedParentOption.dataset['subjects'].split(',');
-            subjectsSlimSelect.setSelected(parentSubjectIds);
+            let parentSubjects = selectedParentOption.dataset['subjects'];
+            if (parentSubjects !== undefined) {
+                let parentSubjectIds = parentSubjects.split(',');
+                subjectsSlimSelect.setSelected(parentSubjectIds);
+            }
         }
     } else {
         subjectsSlimSelect.enable();
     }
 });
 
-parentSelect.dispatchEvent(new Event('change'));
+handleParentChange();

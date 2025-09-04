@@ -25,7 +25,7 @@
             </label>
 
             <label style="flex-grow: 1">Parent collection
-                <select th:field="*{parent}">
+                <select th:field="*{parent}" id="parent">
                     <option data-placeholder="true" value=""></option>
                     <option th:if="${form.parent != null}" th:value="${form.parent.id}"
                             th:text="${form.parent.fullName}"
@@ -82,7 +82,10 @@
     </form>
 </main>
 
-<link rel=stylesheet th:href="@{/webjars/slim-select/dist/slimselect.css}">
+<link rel=stylesheet th:href="@{/webjars/slim-select/dist/slimselect.css}" href="https://unpkg.com/slim-select/dist/slimselect.css">
+<script type="importmap" th:remove="all">
+    {"imports": { "slim-select": "https://unpkg.com/slim-select/dist/slimselect.es.js" }}
+</script>
 <script type="importmap" th:inline="javascript">
     {"imports": { "slim-select": [[@{/webjars/slim-select/dist/slimselect.es.js}]] }}
 </script>
