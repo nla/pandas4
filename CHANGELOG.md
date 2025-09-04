@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 4.9.1 2025-09-04
+
+### Bug fixes
+
+* Fix **Parent collection** not populating on the edit collection screen.
+* Fix UnsupportedOperationException on bulk change screen.
+
 ## 4.9.0 2025-09-03
 
 ### New features

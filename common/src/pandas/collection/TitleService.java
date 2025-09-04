@@ -356,10 +356,10 @@ public class TitleService {
 
     @NotNull
     public List<Status> allowedStatusTransitions(List<Title> titles) {
-        List<Status> transitions = titles.stream().map(Title::getStatus).distinct()
+        return titles.stream().map(Title::getStatus).distinct()
                 .flatMap(status -> status.getAllowedTransitions().stream())
-                .distinct().toList();
-        transitions.sort(Comparator.comparing(Status::id));
-        return transitions;
+                .distinct()
+                .sorted(Comparator.comparing(Status::id))
+                .toList();
     }
 }
