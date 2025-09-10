@@ -198,6 +198,10 @@ public class HeritrixClient {
                 callJob(jobName, "action", "teardown");
                 waitForStateCondition(jobName, Objects::isNull, "teardown to complete", teardownTimeout);
                 break;
+            } catch (InterruptedException e) {
+                log.error("Interrupted waiting for teardown to complete", e);
+                Thread.currentThread().interrupt();
+                return;
             } catch (FileNotFoundException e) {
                 log.warn("Job not found for teardown: {}", jobName);
                 return;
@@ -236,7 +240,7 @@ public class HeritrixClient {
      */
     @SuppressWarnings("BusyWait")
     private void waitForStateCondition(String jobName, Predicate<State> condition, String description,
-                                       long timeoutMillis) throws IOException, TimeoutException {
+                                       long timeoutMillis) throws IOException, TimeoutException, InterruptedException {
         long delay = 200;
         long maxDelay = 10000;
         long waitStartTime = System.currentTimeMillis();
@@ -248,12 +252,8 @@ public class HeritrixClient {
                                            jobName + "(state=" + state + ") to " + description);
             }
             log.warn("Heritrix " + jobName + " still " + state + ", waiting " + delay + "ms for " + description);
-            try {
-                Thread.sleep(delay);
-                if (delay < maxDelay) delay *= 2;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            Thread.sleep(delay);
+            if (delay < maxDelay) delay *= 2;
         }
     }
 
