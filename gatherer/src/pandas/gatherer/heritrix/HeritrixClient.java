@@ -20,7 +20,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -34,6 +38,7 @@ public class HeritrixClient {
     private final String password;
     private int pollDelay = 1000;
     private int timeoutMillis = 60000;
+    private final long teardownTimeout = TimeUnit.MINUTES.toMillis(5);
 
     public HeritrixClient(String url, String username, String password) {
         if (!url.endsWith("/")) {
@@ -185,39 +190,13 @@ public class HeritrixClient {
         callJob(jobName, "action", "unpause");
     }
 
-    @SuppressWarnings("BusyWait")
-    void teardownJob(String jobName) throws IOException {
+    void teardownJob(String jobName) throws IOException, TimeoutException {
         log.info("HeritrixClient.teardownJob(\"{}\")", jobName);
         for (int tries = 0; tries < 10; tries++) {
             try {
-                long delay = 100;
-                while (getJob(jobName).crawlControllerState == State.STOPPING) {
-                    log.warn("Teardown requested but Heritrix " + jobName + " STOPPING, waiting " + delay + "ms");
-                    try {
-                        Thread.sleep(delay);
-                        delay *= 2;
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                waitForStateCondition(jobName, state -> state != State.STOPPING, "stop before teardown", teardownTimeout);
                 callJob(jobName, "action", "teardown");
-                long waitStartTime = System.currentTimeMillis();
-                delay = 500;
-                while (true) {
-                    var state = getJob(jobName).crawlControllerState;
-                    if (state == null) break;
-                    if (System.currentTimeMillis() - waitStartTime > 300000) {
-                        log.error("Gave up waiting for teardown of job {} (state={})", jobName, state);
-                        break;
-                    }
-                    log.warn("Still waiting for teardown of job {} (state={}), delaying {}ms", jobName, state, delay);
-                    try {
-                        Thread.sleep(delay);
-                        delay *= 2;
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
+                waitForStateCondition(jobName, Objects::isNull, "teardown to complete", teardownTimeout);
                 break;
             } catch (FileNotFoundException e) {
                 log.warn("Job not found for teardown: {}", jobName);
@@ -225,7 +204,7 @@ public class HeritrixClient {
             } catch (IOException e) {
                 if (e.getMessage().contains("500 for URL")) {
                     try {
-                        Thread.sleep((1 << tries) * 1000);
+                        Thread.sleep((1L << tries) * 1000);
                     } catch (InterruptedException e2) {
                         throw e;
                     }
@@ -244,6 +223,42 @@ public class HeritrixClient {
         return sendGet(uri, Engine.class);
     }
 
+
+    /**
+     * Waits for a job's state to meet a given condition. If the condition is not met within the given timeout,
+     * a {@link TimeoutException} is thrown. Polls quickly initially but exponentially backs off to 10 seconds.
+     *
+     * @param jobName      heritrix job name
+     * @param condition    stops waiting if returns true
+     * @param description  description of the expected state condition (for logging and error reporting)
+     * @throws IOException       if an I/O error occurs while fetching the job state
+     * @throws TimeoutException   if the condition is not met within the allowed timeout period
+     */
+    @SuppressWarnings("BusyWait")
+    private void waitForStateCondition(String jobName, Predicate<State> condition, String description,
+                                       long timeoutMillis) throws IOException, TimeoutException {
+        long delay = 200;
+        long maxDelay = 10000;
+        long waitStartTime = System.currentTimeMillis();
+        while (true) {
+            State state = getJob(jobName).crawlControllerState;
+            if (condition.test(state)) return;
+            if (System.currentTimeMillis() - waitStartTime > timeoutMillis) {
+                throw new TimeoutException("Timed out after waiting " + timeoutMillis + "ms for job " +
+                                           jobName + "(state=" + state + ") to " + description);
+            }
+            log.warn("Heritrix " + jobName + " still " + state + ", waiting " + delay + "ms for " + description);
+            try {
+                Thread.sleep(delay);
+                if (delay < maxDelay) delay *= 2;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // TODO: unify with waitForStateCondition?
+    @SuppressWarnings("BusyWait")
     void waitForStateTransition(String jobName, State allowed, State target) throws IOException, InterruptedException {
         long start = System.currentTimeMillis();
         while (true) {
