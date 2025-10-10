@@ -56,7 +56,6 @@ public class FileSearcherTest {
             writer.write(response);
             requestOffset = writer.position();
             writer.write(request);
-
         }
 
         var index = new FileSearcher(indexDir);

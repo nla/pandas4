@@ -275,7 +275,7 @@
     <script th:if="${deletedInstancesCount > 0}">
         function showHideDeleted() {
             const value = document.getElementById("showDeletedCheckbox").checked ? 'block' : 'none';
-            document.querySelectorAll('.instance-deleted').forEach(el => el.style.display = value);
+            document.querySelectorAll('.instance-DELETED').forEach(el => el.style.display = value);
         }
 
         document.getElementById("showDeletedCheckbox").addEventListener('change', showHideDeleted);

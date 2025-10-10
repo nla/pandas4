@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
-import org.apache.lucene.facet.FacetResult;
-import org.apache.lucene.facet.Facets;
-import org.apache.lucene.facet.FacetsCollector;
-import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.*;
 import org.apache.lucene.facet.sortedset.DefaultSortedSetDocValuesReaderState;
 import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetCounts;
 import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetField;
@@ -23,7 +20,6 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
-import org.jetbrains.annotations.NotNull;
 import org.netpreserve.jwarc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +30,6 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import pandas.util.Strings;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -94,7 +89,6 @@ public class FileSearcher {
         }
     }
 
-    @NotNull
     private ArrayList<Path> scanForUpdatedWarcFiles(Path warcDirectory, Map<String, IndexingState> indexingState) throws IOException {
         var allWarcFiles = Files.walk(warcDirectory)
                 .filter(FileSearcher::isWarcFile)
@@ -162,6 +156,7 @@ public class FileSearcher {
             channel.position(fileState.position);
             var warcReader = new WarcReader(channel);
             var concurrentSet = new ConcurrentSet();
+
             var doc = new Document();
             boolean seenResource = false;
             for (WarcRecord record : warcReader) {
@@ -226,6 +221,38 @@ public class FileSearcher {
             var topDocs = searcher.search(new TermQuery(new Term("responseId", id)), 1);
             if (topDocs.scoreDocs.length == 0) return Optional.empty();
             return Optional.of(new Result(searcher.doc(topDocs.scoreDocs[0].doc)));
+        }
+    }
+
+    public Map<String, Integer> countStatuses() throws IOException {
+        Map rval = new HashMap<String, Number>();
+        try (var indexReader = DirectoryReader.open(directory)) {
+            FacetsCollector facetsCollector = new FacetsCollector();
+            var searcher = new IndexSearcher(indexReader);
+
+            FacetsCollector.search(searcher, new MatchAllDocsQuery(), 10, facetsCollector);
+            Facets facets = new SortedSetDocValuesFacetCounts(
+                    new DefaultSortedSetDocValuesReaderState(indexReader),
+                    facetsCollector
+            );
+
+            FacetResult facetResult = facets.getTopChildren(10, "facet_status");
+            for (int i = 0; i < facetResult.childCount; i++) {
+                LabelAndValue f = facetResult.labelValues[i];
+                rval.put(f.label, f.value);
+            }
+        }
+        return rval;
+    }
+
+    public Optional<Result> getLast() throws IOException {
+        try (var indexReader = DirectoryReader.open(directory)) {
+            Sort sort = new Sort(new SortedNumericSortField("date", SortField.Type.LONG, true));
+            var searcher = new IndexSearcher(indexReader);
+            var topDocs = searcher.search(new MatchAllDocsQuery(), 1, sort);
+
+            return (topDocs.scoreDocs.length == 0) ? Optional.empty()
+                    : Optional.of(new Result(searcher.doc(topDocs.scoreDocs[0].doc)));
         }
     }
 

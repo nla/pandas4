@@ -235,6 +235,13 @@
             </id>
         </attributes>
     </entity>
+    <entity class="pandas.gather.GatherIndicator">
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+        </attributes>
+    </entity>
     <entity class="pandas.gather.InstanceSeed">
         <attributes>
             <id name="id">

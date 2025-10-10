@@ -8,6 +8,7 @@ import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
 import pandas.gatherer.core.*;
 import pandas.gatherer.repository.Repository;
+import pandas.search.FileSearcher;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -166,6 +167,9 @@ public class HeritrixGatherer implements Backend {
         }
         pywbService.reindex(instance);
         thumbnailGenerator.generateReplayThumbnail(instance, pywbService.replayUrlFor(instance));
+
+        Path indexDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString()).resolve("fileindex");
+        (new FileSearcher(indexDir)).indexRecursively(jobDir(instance));
     }
 
     @Override

@@ -445,8 +445,51 @@ public class Instance {
         return Collections.unmodifiableSet(problems);
     }
 
+    // Set of filter indicators within supplied set that meet some condition (e.g. value is above/below some threshold)
+    private Set<GatherFilterIndicator> getIndicatorsInternal(Set<GatherFilterIndicator> filterSet) {
+        var indicators = new HashSet<GatherFilterIndicator>();
+        for (var m: getGather().getIndicators()) {
+            for (var e: GatherFilterIndicator.byIndicatorType(m.getIndicator())) {
+                if (filterSet.contains(e) && e.satisfiedBy(m.getValue())) {
+                    indicators.add(e);
+                }
+            }
+        }
+        return Collections.unmodifiableSet(indicators);
+    }
+
     public Set<String> getProblems() {
         return getProblemsInternal().stream().map(GatherProblem::text).collect(Collectors.toSet());
+    }
+
+    @GenericField(aggregable = Aggregable.YES)
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath({@PropertyValue(propertyName = "gather"), @PropertyValue(propertyName = "indicators")}),
+    })
+    public Set<Long> getPoorIndicators() {
+        return getIndicatorsInternal(GatherFilterIndicator.poorIndicators).stream()
+                .map(p -> (long)p.ordinal())
+                .collect(Collectors.toSet());
+    }
+
+    @GenericField(aggregable = Aggregable.YES)
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath({@PropertyValue(propertyName = "gather"), @PropertyValue(propertyName = "indicators")}),
+    })
+    public Set<Long> getArchivedIndicators() {
+        return getIndicatorsInternal(GatherFilterIndicator.archiveIndicators).stream()
+                .map(p -> (long)p.ordinal())
+                .collect(Collectors.toSet());
+    }
+
+    @GenericField(aggregable = Aggregable.YES)
+    @IndexingDependency(derivedFrom = {
+            @ObjectPath({@PropertyValue(propertyName = "gather"), @PropertyValue(propertyName = "indicators")}),
+    })
+    public Set<Long> getSuccessIndicators() {
+        return getIndicatorsInternal(GatherFilterIndicator.goodIndicators).stream()
+                .map(p -> (long)p.ordinal())
+                .collect(Collectors.toSet());
     }
 
     @GenericField(aggregable = Aggregable.YES)
