@@ -8,6 +8,10 @@ import jakarta.persistence.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -25,6 +29,9 @@ public class InstanceGather {
     @MapsId
     @JsonIgnore
     private Instance instance;
+
+    @OneToMany(mappedBy = "gather", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GatherIndicator> indicators = new ArrayList<>();
 
     @Column(name = "GATHER_FILES")
     private Long files;
@@ -174,5 +181,40 @@ public class InstanceGather {
             builder.append(FileUtils.byteCountToDisplaySize(size));
         }
         return builder.toString();
+    }
+
+    public void setIndicators(List<GatherIndicator> indicators) {
+        this.indicators.clear();
+        this.indicators.addAll(indicators);
+        for (var metric : indicators) {
+            metric.setGather(this);
+        }
+    }
+
+    public GatherIndicator getIndicatorFor(GatherIndicator.IndicatorType type) {
+        if (this.getIndicators() == null || this.getIndicators().isEmpty()) {
+            return null;
+        }
+        return this.getIndicators().stream()
+                .filter(ind -> ind.getIndicator() == type)
+                .findFirst().orElse(null);
+    }
+
+    public List<GatherIndicator> getIndicators() {
+        return indicators == null ? null
+                : indicators.stream()
+                         .sorted(Comparator.comparing(GatherIndicator::getIndicator))
+                         .collect(Collectors.toUnmodifiableList());
+    }
+
+    // "x/y" where x is the gather overall score scaled 0-5; y is the same for archive overall score.
+    public String getSummaryText() {
+        var g = getIndicatorFor(GatherIndicator.IndicatorType.GATHER_VIBE);
+        var a = getIndicatorFor(GatherIndicator.IndicatorType.ARCHIVE_VIBE);
+
+        String gatherText = g == null ? "-" : String.format("%d", Math.round(g.getValue()*5));
+        String archiveText = a == null ? "-" : String.format("%d", Math.round(a.getValue()*5));
+
+        return  String.format("%s/%s", gatherText, archiveText);
     }
 }

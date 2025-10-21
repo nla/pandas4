@@ -73,8 +73,8 @@
         <a th:href="@{/worktrays/{alias}/upload(alias=${alias})}">Show all</a>
     </details>
 
-    <details class="worktray" th:unless="${gatheredInstances.isEmpty()}">
-        <summary>Instances in QA [<span th:text="${gatheredInstances.totalElements}"></span>]</summary>
+    <details class="worktray" th:unless="${gatheredInstances?.isEmpty()}">
+        <summary>Instances in QA [<span th:text="${gatheredInstances?.totalElements}"></span>]</summary>
         <table th:replace="~{worktrays/Gathered :: table}"></table>
         <a th:href="@{/worktrays/{alias}/gathered(alias=${alias})}">Show all</a>
     </details>

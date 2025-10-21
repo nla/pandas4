@@ -16,14 +16,18 @@ class Worker implements Runnable {
 	private final InstanceService instanceService;
 	private final InstanceGatherRepository instanceGatherRepository;
 	private final ThumbnailGenerator thumbnailGenerator;
+	private final GathererIndicatorService gathererIndicatorService;
 
-	Worker(GatherManager gatherManager, InstanceService instanceService, InstanceGatherRepository instanceGatherRepository, WorkingArea workingArea, Backend backend, ThumbnailGenerator thumbnailGenerator) {
+	Worker(GatherManager gatherManager, InstanceService instanceService,
+	       InstanceGatherRepository instanceGatherRepository, WorkingArea workingArea, Backend backend,
+	       ThumbnailGenerator thumbnailGenerator, GathererIndicatorService gathererIndicatorService) {
 		this.gatherManager = gatherManager;
 		this.instanceService = instanceService;
 		this.workingArea = workingArea;
 		this.backend = backend;
 		this.instanceGatherRepository = instanceGatherRepository;
 		this.thumbnailGenerator = thumbnailGenerator;
+		this.gathererIndicatorService = gathererIndicatorService;
 	}
 
 	/**
@@ -92,6 +96,7 @@ class Worker implements Runnable {
 					case GATHER_PROCESS:
 						nameThread("P", instance);
 						backend.postprocess(instance);
+						saveGatherIndicators(instance);
 						nextState = State.GATHERED;
 						break;
 					case ARCHIVING:
@@ -160,6 +165,14 @@ class Worker implements Runnable {
 			}
 		} catch (IOException e) {
 			log.warn("Unable to save gather stats for " + instance.getHumanId(), e);
+		}
+	}
+
+	private void saveGatherIndicators(Instance instance)  {
+		try {
+			instanceService.saveQualityInfo(instance.getGather().getId(), this.gathererIndicatorService.getIndicators(instance));
+		} catch (IOException e) {
+			log.warn("Unable to save gather indicators for {}", instance.getHumanId(), e);
 		}
 	}
 

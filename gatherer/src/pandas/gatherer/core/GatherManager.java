@@ -39,6 +39,7 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 	private final InstanceService instanceService;
 	private final InstanceGatherRepository instanceGatherRepository;
 	private final ThumbnailGenerator thumbnailGenerator;
+	private final GathererIndicatorService gathererIndicatorService;
 	private final Object pollingLock = new Object();
 	private String version;
 	private volatile boolean paused;
@@ -48,11 +49,13 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 
 	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
 						 TitleRepository titleRepository, InstanceService instanceService,
-						 InstanceGatherRepository instanceGatherRepository, List<Backend> backends, ThumbnailGenerator thumbnailGenerator) {
+						 InstanceGatherRepository instanceGatherRepository, List<Backend> backends,
+						 ThumbnailGenerator thumbnailGenerator, GathererIndicatorService gathererIndicatorService) {
 		this.workingArea = workingArea;
 		this.instanceRepository = instanceRepository;
 		this.titleRepository = titleRepository;
 		this.instanceService = instanceService;
+		this.gathererIndicatorService = gathererIndicatorService;
 		this.instanceGatherRepository = instanceGatherRepository;
 		this.thumbnailGenerator = thumbnailGenerator;
 		this.enabledBackends = backends;
@@ -83,9 +86,9 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 	}
 
 	public void startWorkers(Backend backend, int count) {
-	    log.info("Starting {} {} workers", count, backend.getGatherMethod());
+		log.info("Starting {} {} workers", count, backend.getGatherMethod());
 		for (int i = 0; i < count; i++) {
-			Worker worker = new Worker(this, instanceService, instanceGatherRepository, workingArea, backend, thumbnailGenerator);
+			Worker worker = new Worker(this, instanceService, instanceGatherRepository, workingArea, backend, thumbnailGenerator, gathererIndicatorService);
 			Thread thread = new Thread(worker, backend.getGatherMethod() + i);
 			workerThreads.add(thread);
 			thread.start();

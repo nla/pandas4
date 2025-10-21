@@ -188,7 +188,7 @@ public class WorktraysController {
     public String gathered(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
                            @RequestParam MultiValueMap<String, String> params,
                            @PageableDefault(size = 100) Pageable pageable, Model model, HttpServletRequest request) {
-    	User user = userService.getCurrentUser();
+        User user = userService.getCurrentUser();
 
         // if called without parameters, redirect to the last saved sticky parameters
         if (params.isEmpty() && user.getPrefersStickyFilters()) {
@@ -207,7 +207,7 @@ public class WorktraysController {
         stickyParams.remove("sort");
         request.getSession().setAttribute("qaFilterStickyParams",
                 UriComponentsBuilder.newInstance().queryParams(stickyParams).build().getQuery());
-    	
+
         var instances = instanceSearcher.search(State.GATHERED, agencyId, ownerId, params, pageable);
 
         Map<Long, PreviousGather> previousGathers = new HashMap<>();

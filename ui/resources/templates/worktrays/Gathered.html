@@ -83,8 +83,13 @@
         #form {
             display: grid;
             grid-template-areas: "results facets";
-            grid-template-columns: 1fr 200px;
+            grid-template-columns: 1fr 250px;
         }
+
+        .results {
+            height: fit-content;
+        }
+
     </style>
 
     <aside class="alert-info" th:if="${worktrayOwnerName != null}">Showing titles owned by
@@ -99,7 +104,7 @@
         <aside class="filters" th:replace="~{TitleSearch.html :: filters (hideNotCheckbox='true')}">
         </aside>
 
-        <table th:fragment="table" class="worktray-table">
+        <table th:fragment="table" class="worktray-table results">
             <thead>
             <tr>
                 <th><input type=checkbox onchange="toggleSelectAll(this)" id="selectAllCheckbox"></th>
@@ -154,9 +159,20 @@
                         <time th:text="${@dateFormats.shortDate(instance.date)}">31 Aug 2023</time>
                     </a>
                     <br>
-                    <a class="gather-stats" th:if="${instance.gather != null}" th:href="${@link.files(instance)}"
-                       th:classappend="${instance.gather.hasSizeWarning()}?'gather-stats-warning'"
-                       th:text="${instance.gather.stats}">1,234 files <span>10 MB</span></a>
+                    <div class="gather-stats">
+                        <a th:if="${instance.gather != null}" th:href="${@link.files(instance)}"
+                           th:classappend="${instance.gather.hasSizeWarning()}?'gather-stats-warning'"
+                           th:text="${instance.gather.stats}">1,234 files <span>10 MB</span></a>
+                        <span class="tooltip">
+                            (<span th:text="${instance.gather.summaryText} ?: '-'">(4/-)</span>)
+                            <div class="hovertext">
+                                <div th:each="gatherInd: ${instance.gather.indicators}">
+                                    <span th:text="${gatherInd.indicator.label}">HTTP 200's (proportion)</span>:
+                                    <span th:text="${#numbers.formatPercent(gatherInd.value,1,0)}">65%</span>
+                                </div>
+                            </div>
+                        </span>
+                    </div>
                 </td>
                 <td class="qa-detailed-view" style="text-align: center; vertical-align: top">
                     <a th:href="${instance.title.getPrimarySeedUrl()}" target="_blank"><img

@@ -1,5 +1,7 @@
 package pandas.gather;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +10,7 @@ import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.util.Strings;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -18,6 +21,7 @@ import static pandas.gather.State.FAILED;
 
 @Service
 public class InstanceService {
+    private static final Logger log = LoggerFactory.getLogger(InstanceService.class);
     private final InstanceRepository instanceRepository;
     private final TitleRepository titleRepository;
     private final StateHistoryRepository stateHistoryReposistory;
@@ -179,6 +183,13 @@ public class InstanceService {
             instance.retryAfterFailure(currentUser, now);
         }
         instanceRepository.saveAll(instances);
+    }
+
+    @Transactional
+    public void saveQualityInfo(long instanceId, List<GatherIndicator> qualityScores) throws IOException {
+        Instance instance = instanceRepository.getOrThrow(instanceId);
+        instance.getGather().setIndicators(qualityScores);
+        instanceRepository.save(instance);
     }
 
     @Transactional

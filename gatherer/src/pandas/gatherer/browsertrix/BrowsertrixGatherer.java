@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import pandas.gather.*;
 import pandas.gatherer.core.*;
 import pandas.gatherer.repository.Repository;
+import pandas.search.FileSearcher;
 import pandas.util.Strings;
 
 import java.io.IOException;
@@ -214,6 +215,9 @@ public class BrowsertrixGatherer implements Backend {
     public void postprocess(Instance instance) throws IOException {
         pywbService.reindex(instance);
         thumbnailGenerator.generateReplayThumbnail(instance, pywbService.replayUrlFor(instance));
+
+        Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
+        (new FileSearcher(workingDir.resolve("fileindex"))).indexRecursively(workingDir);
     }
 
     @Override

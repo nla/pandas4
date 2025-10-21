@@ -2,6 +2,7 @@ package pandas.gather;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.hibernate.search.mapper.orm.Search;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +29,6 @@ import pandas.util.Requests;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -235,9 +235,8 @@ public class InstanceController {
                         @RequestParam MultiValueMap<String, String> params,
                         @PageableDefault(size = 100, sort = "date") Pageable pageable,
                         Model model) throws IOException, ParseException {
-        FileSearcher index = buildFileIndex(instance);
-        FileSearcher.Results results;
-        results = index.search(q, params, pageable);
+        FileSearcher index = getOrBuildFileIndex(instance);
+        FileSearcher.Results results = index.search(q, params, pageable);
 
         model.addAttribute("instance", instance);
         model.addAttribute("results", results);
@@ -249,7 +248,7 @@ public class InstanceController {
     public String file(@PathVariable("instanceId") Instance instance,
                        @PathVariable("fileId") String fileId,
                        Model model) throws IOException, ParseException {
-        FileSearcher index = buildFileIndex(instance);
+        FileSearcher index = getOrBuildFileIndex(instance);
         var result = index.searchById(fileId).orElseThrow(NotFoundException::new);
         Path warc = config.getWorkingDir(instance).resolve(result.warcFile());
 
@@ -260,14 +259,18 @@ public class InstanceController {
     }
 
     @NotNull
-    private FileSearcher buildFileIndex(Instance instance) throws IOException {
-        Path indexDir = config.getDataPath().resolve("fileindex").resolve(instance.getHumanId());
-        var index = new FileSearcher(indexDir);
-        FileSearcher.Results results;
-        index.indexRecursively(config.getWorkingDir(instance));
+    private FileSearcher getOrBuildFileIndex(Instance instance) throws IOException {
+
+        // use the index created at gather time if present, otherwise create
+        Path indexDir = config.getWorkingDir(instance).resolve("fileindex");
+        FileSearcher index = new FileSearcher(indexDir);
+        try {
+            index.getLast();
+        } catch (IndexNotFoundException infe) {
+            index.indexRecursively(config.getWorkingDir(instance));
+        }
         return index;
     }
-
 
     public record Hit(String url) {
     }
