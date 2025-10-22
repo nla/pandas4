@@ -16,6 +16,7 @@
 ### Dependency upgrades
 
 - **agrona**: 2.2.4 → 2.3.0
+- **commons-compress**: 1.28.0 → removed
 - **guava**: 33.4.8-jre → 33.5.0-jre
 - **postgresql**: 42.7.7 → 42.7.8
 - **slim-select**: 2.10.0 → 2.12.1
