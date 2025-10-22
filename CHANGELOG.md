@@ -16,6 +16,7 @@
 ### Dependency upgrades
 
 - **agrona**: 2.2.4 → 2.3.0
+- **guava**: 33.4.8-jre → 33.5.0-jre
 - **spring-boot**: 3.5.5 → 3.5.6
 
 ## 4.9.1 2025-09-04
