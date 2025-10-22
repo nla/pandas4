@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### New features
+
+- Gather indicators (gather quality metrics) are now computed and stored at gather time: [#68](https://github.com/nla/pandas4/pull/68) 
+  - proportion of HTTP 2XX, 403, 5XX responses
+  - file size change / decrease against archived
+  - thumbnail image diff (live/archived) (perceptual hashing)
+- QA worktray filters for success and problem indicators.
+- QA screen displays the gather indicators plus two 'overall' metrics:
+  - 'gather' based on just this gather 
+  - 'archived' including comparison to last archived gather
+
+### Dependency upgrades
+
+- **spring-boot**: 3.5.5 → 3.5.6
+
 ## 4.9.1 2025-09-04
 
 ### Bug fixes
