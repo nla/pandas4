@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.10.0 2025-10-22
+
 ### New features
 
 - Gather indicators (gather quality metrics) are now computed and stored at gather time: [#68](https://github.com/nla/pandas4/pull/68) 
