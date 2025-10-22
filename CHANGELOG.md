@@ -15,6 +15,7 @@
 
 ### Dependency upgrades
 
+- **agrona**: 2.2.4 → 2.3.0
 - **spring-boot**: 3.5.5 → 3.5.6
 
 ## 4.9.1 2025-09-04
