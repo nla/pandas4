@@ -13,6 +13,10 @@
   - 'gather' based on just this gather 
   - 'archived' including comparison to last archived gather
 
+### Bug fixes
+
+- Added a timeout when waiting for Heritrix job to finish stopping before teardown
+
 ### Dependency upgrades
 
 - **agrona**: 2.2.4 → 2.3.0
