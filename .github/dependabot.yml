@@ -10,4 +10,4 @@ updates:
           - "patch"
           - "minor"
     ignore:
-      dependency-name: "com.googlecode.flyway:flyway-core"
+      - dependency-name: "com.googlecode.flyway:flyway-core"
