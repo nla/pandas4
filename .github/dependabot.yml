@@ -9,3 +9,5 @@ updates:
         update-types:
           - "patch"
           - "minor"
+    ignore:
+      dependency-name: "com.googlecode.flyway:flyway-core"
