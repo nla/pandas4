@@ -27,12 +27,6 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.11
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
       - name: Install httrack and ghostscript
         run: |
           sudo apt-get update
@@ -44,5 +38,4 @@ jobs:
       - name: Build with Maven
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar package --file pom.xml -Dsonar.projectKey=nla_pandas4
+        run: mvn -B verify package --file pom.xml
