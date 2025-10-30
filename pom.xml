@@ -15,7 +15,7 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <hibernate.search.version>7.2.4.Final</hibernate.search.version>
         <lucene.version>9.11.1</lucene.version>
-        <spring.version>3.5.6</spring.version>
+        <spring.version>3.5.7</spring.version>
         <sonar.organization>nla</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
@@ -25,7 +25,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.18.0</version>
+                <version>2.19.1</version>
                 <configuration>
                     <ruleSet>
                         <ignoreVersions>
