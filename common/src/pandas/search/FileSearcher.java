@@ -188,7 +188,10 @@ public class FileSearcher {
                     try {
                         type = response.http().contentType().subtype();
                     } catch (IllegalArgumentException e) {
-                        type = "octet-stream";
+                        type = null;
+                    }
+                    if (type == null || type.isBlank()) {
+                        type = "unknown";
                     }
                     doc.add(new StringField("status", String.valueOf(response.http().status()), Field.Store.YES));
                     doc.add(new SortedSetDocValuesFacetField("facet_status", String.valueOf(response.http().status())));
