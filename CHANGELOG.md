@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 4.10.1 2025-11-04
+
+### Bug fixes
+
+- FileSearcher: Fixed IllegalArgumentException when a Content-Type has a blank subtype.  
+
 ## 4.10.0 2025-10-22
 
 ### New features
