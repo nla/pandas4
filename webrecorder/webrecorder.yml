@@ -11,22 +11,49 @@
     - name: Create a virtualenv for webrecorder
       shell:
         cmd: |
-          python3 -m venv /opt/webrecorder
-          /opt/webrecorder/bin/pip install --upgrade pip
+          python3.11 -m venv /opt/webrecorder
+          /opt/webrecorder/bin/pip3.11 install --upgrade pip
         creates: /opt/webrecorder
 
-    - name: Install pywb and gunicorn using pip inside the virtualenv
-      pip:
-        name:
-          - pywb==2.7.4
-          - gunicorn
-        virtualenv: /opt/webrecorder
-        virtualenv_python: python3
+    - name: Install pywb and uwsgi using pip inside the virtualenv
+      shell:
+        cmd: |
+          /opt/webrecorder/bin/pip3.11 install pywb==2.9.1 uwsgi
 
-    - name: Copy pywb configuration filse
+    - name: Ensure wr collections dir exists
+      file:
+        path: /opt/webrecorder/pywb/collections/wr
+        state: directory
+
+    # oauth2-proxy
+
+    - name: Install oauth2-proxy
+      shell: "curl -sL https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.5.0/oauth2-proxy-v7.5.0.linux-amd64.tar.gz | tar -zxv -C /opt/webrecorder/bin --strip-components 1"
+
+    - name: Generate oauth2-proxy secret
+      shell: "dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_'"
+      register: cookie_secret
+
+    - name: Ensure etc dir exists before copying secret
+      file:
+        path: /opt/webrecorder/etc
+        state: directory
+
+    - name: Copy oauth2-proxy config file with secret
+      template:
+        src: oauth2-proxy.cfg
+        dest: /opt/webrecorder/etc/oauth2-proxy.cfg
+      vars:
+        cookieSecret: "{{ cookie_secret.stdout }}"
+
+    # Customisation
+
+    - name: Copy pywb configuration files
       copy:
           src: pywb/
           dest: /opt/webrecorder/pywb/
+
+    # fapolicyd
 
     - name: Install fapolicyd policy for webrecorder
       copy:
@@ -42,18 +69,32 @@
         state: restarted
       when: fapolicyd.changed
 
+    # pywb and oauth2-proxy systemd
+
     - name: Install webrecorder-pywb systemd service
       copy:
         src: systemd/webrecorder-pywb.service
         dest: /etc/systemd/system/webrecorder-pywb.service
       register: webrecorder_pywb
 
+    - name: Install webrecorder-oauth2-proxy systemd service
+      copy:
+        src: systemd/webrecorder-oauth2-proxy.service
+        dest: /etc/systemd/system/webrecorder-oauth2-proxy.service
+      register: webrecorder_oauth2_proxy
+
     - name: Reload systemd daemon
       systemd:
           daemon_reload: yes
-      when: webrecorder_pywb.changed
+      when: webrecorder_pywb.changed or webrecorder_oauth2_proxy.changed
 
     - name: Enable webrecorder-pywb systemd service
       systemd:
           name: webrecorder-pywb
           enabled: yes
+
+    - name: Enable webrecorder-oauth2-proxy systemd service
+      systemd:
+          name: webrecorder-oauth2-proxy
+          enabled: yes
+
