@@ -1,7 +1,19 @@
 ---
+
+# Deploy pywb 2.9.1 on python 3.11 to /opt/webrecorder.
+# Additional config required:
+# - edit secret in /opt/webrecorder/etc/oauth2-proxy.cfg
+# - start webrecorder-pywb.service / webrecorder-oath2-proxy.service units
+
 - hosts: all
   become: yes
   become_method: sudo
+
+  vars:
+    proxy_env:
+      http_proxy: "{{ http_proxy }}"
+      https_proxy: "{{ https_proxy }}"
+
   tasks:
     - name: Install 'Development Tools' package group
       yum:
@@ -19,16 +31,25 @@
       shell:
         cmd: |
           /opt/webrecorder/bin/pip3.11 install pywb==2.9.1 uwsgi
+      environment: "{{ proxy_env }}"
 
     - name: Ensure wr collections dir exists
       file:
         path: /opt/webrecorder/pywb/collections/wr
         state: directory
 
+    - name: Create archive symlink
+      file:
+        dest: /opt/webrecorder/pywb/collections/wr/archive
+        src: /heritrix/webrecorder/warcs
+        force: yes
+        state: link
+
     # oauth2-proxy
 
     - name: Install oauth2-proxy
       shell: "curl -sL https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v7.5.0/oauth2-proxy-v7.5.0.linux-amd64.tar.gz | tar -zxv -C /opt/webrecorder/bin --strip-components 1"
+      environment: "{{ proxy_env }}"
 
     - name: Generate oauth2-proxy secret
       shell: "dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_'"
