@@ -8,9 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import pandas.agency.UserService;
+import pandas.gatherer.BlockingTask;
 
 import java.time.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static pandas.gather.State.*;
 
@@ -36,6 +39,7 @@ public class GatherQueueController {
     @GetMapping("/queue")
     public String gatherQueue(Model model) {
         var statusFuture = gathererClient.statusAsync();
+        var conflictsFuture = gathererClient.conflictsAsync();
         Instant endOfToday = LocalDateTime.of(LocalDate.now(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant();
         var gatheringStates = List.of(GATHERING, GATHER_PAUSE, GATHER_PROCESS,
                 ARCHIVING, DELETING);
@@ -44,6 +48,7 @@ public class GatherQueueController {
         model.addAttribute("failedInstances", listFailedInstances());
         var status = statusFuture.join().replace("pandas-gatherer ", "");
         model.addAttribute("gathererStatus", status);
+        model.addAttribute("conflicts", conflictsFuture.join());
         return "gather/GatherQueue";
     }
 

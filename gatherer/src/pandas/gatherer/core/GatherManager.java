@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.gather.*;
+import pandas.gatherer.BlockingTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +25,10 @@ import java.util.concurrent.*;
 @Component
 public class GatherManager implements AutoCloseable, SmartLifecycle {
 	private static final Logger log = LoggerFactory.getLogger(GatherManager.class);
-	private final Map<Long, String> currentlyGatheringTitles = new ConcurrentHashMap<>(); // pi -> thread name
+	private final Map<Long, BlockingTask> currentlyGatheringTitles = new ConcurrentHashMap<>(); // pi -> thread name
 	private final Map<Long, String> currentInstances = new ConcurrentHashMap<>(); // instance id -> thread name
-	private final Map<String, String> currentlyGatheringHosts = new ConcurrentHashMap<>(); // site -> thread name
+	private final Map<String, BlockingTask> currentlyGatheringHosts = new ConcurrentHashMap<>(); // site -> thread name
+    private Map<Long, BlockingTask> conflicts = new HashMap<>();
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private final List<Backend> enabledBackends;
 	private final Config config;
@@ -47,7 +49,7 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 	private ScheduledFuture<?> updateGatherStatsTask;
 	private long lastSpaceWarningTime = 0;
 
-	public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
+    public GatherManager(Config config, WorkingArea workingArea, InstanceRepository instanceRepository,
 						 TitleRepository titleRepository, InstanceService instanceService,
 						 InstanceGatherRepository instanceGatherRepository, List<Backend> backends,
 						 ThumbnailGenerator thumbnailGenerator, GathererIndicatorService gathererIndicatorService) {
@@ -104,7 +106,9 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 			return null;
 		}
 		synchronized (pollingLock) {
-			// first consider incomplete instances
+            var blockedTitles = new HashMap<Long, BlockingTask>();
+
+            // first consider incomplete instances
 			for (Instance instance : instanceRepository.findIncomplete(gatherMethod)) {
 				String primarySeedHost = instance.getTitle().getPrimarySeedHost();
 				if (primarySeedHost == null) {
@@ -112,18 +116,24 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 					primarySeedHost = "unknown";
 				}
 
-				if (currentlyGatheringTitles.containsKey(instance.getTitle().getId())) {
-					continue;
-				}
+                {
+                    var blocker = currentlyGatheringTitles.get(instance.getTitle().getId());
+                    if (blocker != null) {
+                        blockedTitles.put(instance.getTitle().getId(), blocker);
+                        continue;
+                    }
+                }
 
 				if (instance.getState().isGatheringOrCreation()) {
-					if (currentlyGatheringHosts.containsKey(primarySeedHost)) {
+                    var blocker = currentlyGatheringHosts.get(primarySeedHost);
+					if (blocker != null) {
+                        blockedTitles.put(instance.getTitle().getId(), blocker);
 						continue;
 					}
-					currentlyGatheringHosts.put(primarySeedHost, threadName);
+					currentlyGatheringHosts.put(primarySeedHost, new BlockingTask(threadName, instance, "same host"));
 				}
 
-				currentlyGatheringTitles.put(instance.getTitle().getId(), threadName);
+				currentlyGatheringTitles.put(instance.getTitle().getId(), new BlockingTask(threadName, instance, "same title"));
 				return instance;
 			}
 
@@ -159,27 +169,37 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
                         // oh well
                     }
                 }
-				if (!currentlyGatheringTitles.containsKey(title.getId()) &&
-					!currentlyGatheringHosts.containsKey(primarySeedHost) &&
-					(ipAddress == null || !currentlyGatheringHosts.containsKey(ipAddress))) {
-					currentlyGatheringTitles.put(title.getId(), threadName);
-					currentlyGatheringHosts.put(primarySeedHost, threadName);
-					if (ipAddress != null) currentlyGatheringHosts.put(ipAddress, threadName);
-					return instanceService.createInstance(gatherMethod, title);
-				}
-			}
 
+
+                // Check if this title is blocked by a currently gathering instance.
+                var blocker = currentlyGatheringTitles.get(title.getId());
+                if (blocker == null) blocker = currentlyGatheringHosts.get(primarySeedHost);
+                if (blocker == null && ipAddress != null) blocker = currentlyGatheringHosts.get(ipAddress);
+                if (blocker != null) {
+                    blockedTitles.put(title.getId(), blocker);
+                    continue;
+                }
+
+                Instance instance = instanceService.createInstance(gatherMethod, title);
+                currentlyGatheringTitles.put(title.getId(), new BlockingTask(threadName, instance, "same title"));
+                currentlyGatheringHosts.put(primarySeedHost, new BlockingTask(threadName, instance, "same host"));
+                if (ipAddress != null) currentlyGatheringHosts.put(ipAddress, new BlockingTask(threadName, instance, "same IP address"));
+                this.conflicts = blockedTitles;
+                return instance;
+            }
+
+            this.conflicts = blockedTitles;
 			return null;
 		}
 	}
 
-	/**
+    /**
 	 * Gatherers should notify the manager when they are finished by calling this method. The
 	 * manager can then delegate another instance of this title.
 	 */
 	void gathererFinished(String threadName) {
-		currentlyGatheringTitles.entrySet().removeIf(e -> threadName.equals(e.getValue()));
-		currentlyGatheringHosts.entrySet().removeIf(e -> threadName.equals(e.getValue()));
+		currentlyGatheringTitles.entrySet().removeIf(e -> threadName.equals(e.getValue().threadName()));
+		currentlyGatheringHosts.entrySet().removeIf(e -> threadName.equals(e.getValue().threadName()));
 		currentInstances.entrySet().removeIf(e -> threadName.equals(e.getValue()));
 	}
 
@@ -289,7 +309,15 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 		return paused;
 	}
 
-	public Set<Long> getCurrentTitles() {
+    /**
+     * Returns a map of titles that are temporarily blocked for gathering because there's a conflicting task already
+     * active.
+     */
+    public Map<Long, BlockingTask> getConflicts() {
+        return conflicts;
+    }
+
+    public Set<Long> getCurrentTitles() {
 		return Collections.unmodifiableSet(currentlyGatheringTitles.keySet());
 	}
 
