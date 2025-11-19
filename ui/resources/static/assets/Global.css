@@ -365,6 +365,7 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
 
 .btn-group {
     display: inline-flex;
+    position: relative;
 }
 
 .btn-group .btn {
@@ -395,7 +396,7 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
 .split-menu {
     position: absolute;
     top: 100%;          /* directly below the buttons */
-    right: 8px;           /* align with the right edge of the split button group */
+    right: 0;           /* align with the right edge of the split button group */
     margin-top: -4px;    /* small gap; tweak as desired */
     background: var(--color-white);
     border: 1px solid var(--color-light-grey);
@@ -404,6 +405,7 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
     padding: 4px;
     display: none;
     z-index: 200;
+    width: max-content;
 }
 
 .split-menu .btn {

@@ -123,10 +123,12 @@ public class InstanceController {
     }
 
     @PostMapping("/instances/delete")
-    public String deleteSelected(@RequestParam("instance") List<Instance> instances) {
+    public String deleteSelected(@RequestParam("instance") List<Instance> instances,
+                                 @RequestParam(value = "ceaseTitle", defaultValue = "false") boolean ceaseTitle,
+                                 @RequestParam(value = "regatherWith", required = false) String regatherWith) {
         var user = userService.getCurrentUser();
         for (var instance : instances) {
-            instanceService.delete(instance.getId(), userService.getCurrentUser(), false, null);
+            instanceService.delete(instance.getId(), user, ceaseTitle, regatherWith);
         }
         return "redirect:" + Requests.backlinkOrDefault("/instances");
     }
