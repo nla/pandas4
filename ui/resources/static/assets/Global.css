@@ -382,6 +382,43 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
     border-right: 1px solid #333;
 }
 
+/* Row of buttons next to each other (not merged) */
+.btn-toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/*
+ * Button Groups: Split Menu
+ */
+.split-menu {
+    position: absolute;
+    top: 100%;          /* directly below the buttons */
+    right: 8px;           /* align with the right edge of the split button group */
+    margin-top: -4px;    /* small gap; tweak as desired */
+    background: var(--color-white);
+    border: 1px solid var(--color-light-grey);
+    border-radius: .2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    padding: 4px;
+    display: none;
+    z-index: 200;
+}
+
+.split-menu .btn {
+    display: block;
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    margin: 2px 0;
+}
+
+.btn-group .split-toggle {
+    min-width: 32px;
+    padding: 0 8px;
+}
+
 /*
  * Badges
  */

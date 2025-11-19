@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.agency.User;
+import pandas.collection.Status;
 import pandas.collection.Title;
 import pandas.collection.TitleRepository;
 import pandas.util.Strings;
@@ -28,14 +29,16 @@ public class InstanceService {
     private final InstanceGatherRepository instanceGatherRepository;
     private final InstanceResourceRepository instanceResourceRepository;
     private final PandasExceptionLogRepository pandasExceptionLogRepository;
+    private final GatherMethodRepository gatherMethodRepository;
 
-    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository) {
+    public InstanceService(InstanceRepository instanceRepository, TitleRepository titleRepository, StateHistoryRepository stateHistoryReposistory, InstanceGatherRepository instanceGatherRepository, InstanceResourceRepository instanceResourceRepository, PandasExceptionLogRepository pandasExceptionLogRepository, GatherMethodRepository gatherMethodRepository) {
         this.instanceRepository = instanceRepository;
         this.titleRepository = titleRepository;
         this.stateHistoryReposistory = stateHistoryReposistory;
         this.instanceGatherRepository = instanceGatherRepository;
         this.instanceResourceRepository = instanceResourceRepository;
         this.pandasExceptionLogRepository = pandasExceptionLogRepository;
+        this.gatherMethodRepository = gatherMethodRepository;
     }
 
     @Transactional
@@ -162,8 +165,22 @@ public class InstanceService {
 
     @PreAuthorize("hasPermission(#instanceId, 'Instance', 'edit')")
     @Transactional
-    public void delete(long instanceId, User currentUser) {
+    public void delete(long instanceId, User currentUser, boolean ceaseTitle, String regatherWith) {
         var instance = instanceRepository.getOrThrow(instanceId);
+        if (ceaseTitle) {
+            var title = instance.getTitle();
+            title.setStatus(Status.CEASED);
+            title.setDisappeared(true);
+            titleRepository.save(title);
+        } else if (regatherWith != null) {
+            var title = instance.getTitle();
+            var gather = title.getGather();
+            var gatherMethod = gatherMethodRepository.findByName(regatherWith)
+                    .orElseThrow(() -> new IllegalArgumentException("unknown gather method: " + regatherWith));
+            gather.setMethod(gatherMethod);
+            gather.addOneoffDate(Instant.now());
+            titleRepository.save(title);
+        }
         instance.delete(currentUser, Instant.now());
         instanceRepository.save(instance);
     }

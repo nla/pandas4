@@ -88,6 +88,11 @@ public class InstanceController {
         model.addAttribute("worktray", worktray);
         List<Instance> recentGathers = instanceRepository.findRecentGathers(instance.getTitle(), PageRequest.of(0, 5));
         model.addAttribute("previousInstances", recentGathers.isEmpty() ? recentGathers : recentGathers.subList(1, recentGathers.size()));
+        if (instance.getGatherMethodName().equals(GatherMethod.BROWSERTRIX)) {
+            model.addAttribute("regatherMethodName", GatherMethod.HERITRIX);
+        } else {
+            model.addAttribute("regatherMethodName", GatherMethod.BROWSERTRIX);
+        }
 
         if (worktray != null) {
             Agency agency = agencyRepository.findByAlias(worktray).orElse(null);
@@ -107,8 +112,10 @@ public class InstanceController {
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     public String delete(@PathVariable("id") Instance instance,
                          @RequestParam(value = "nextInstance", required = false) Long nextInstance,
-                         @RequestParam(value = "worktray", required = false) String worktray) {
-        instanceService.delete(instance.getId(), userService.getCurrentUser());
+                         @RequestParam(value = "worktray", required = false) String worktray,
+                         @RequestParam(value = "ceaseTitle", defaultValue = "false") boolean ceaseTitle,
+                         @RequestParam(value = "regatherWith", required = false) String regatherWith) {
+        instanceService.delete(instance.getId(), userService.getCurrentUser(), ceaseTitle, regatherWith);
         if (nextInstance != null) {
             return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
         }
@@ -119,7 +126,7 @@ public class InstanceController {
     public String deleteSelected(@RequestParam("instance") List<Instance> instances) {
         var user = userService.getCurrentUser();
         for (var instance : instances) {
-            instanceService.delete(instance.getId(), userService.getCurrentUser());
+            instanceService.delete(instance.getId(), userService.getCurrentUser(), false, null);
         }
         return "redirect:" + Requests.backlinkOrDefault("/instances");
     }

@@ -60,12 +60,79 @@
                    class="btn btn-secondary" th:title="'Go to Next Instance (Ctrl+Right)'" data-keybind="Ctrl+ArrowRight">❭</a>
                 <button th:unless="${nextInstance}" class="btn btn-secondary" disabled>❭</button>
             </nav>
-            <nav>
+            <nav class="btn-toolbar">
                 <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:href="${@link.edit(instance.title)}"
                    class="btn btn-secondary"><i class="icon edit"></i> Edit Title</a>
-                <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
-                        class="btn btn-danger float-right" onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"
-                        title="Delete Instance (Ctrl+Delete)" data-keybind="Ctrl+Delete"><i class="icon delete"></i>Delete</button>
+                <span class="btn-group" sec:authorize="hasPermission(#vars.instance.title, 'edit')">
+                    <!-- Primary delete -->
+                    <button type="submit"
+                            th:formaction="@{|/instances/${instance.id}/delete|}"
+                            class="btn btn-danger"
+                            onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"
+                            title="Delete Instance (Ctrl+Delete)"
+                            data-keybind="Ctrl+Delete">
+                        <i class="icon delete"></i>Delete
+                    </button>
+
+                    <!-- Delete split toggle -->
+                    <button id="deleteSplitToggle"
+                            type="button"
+                            class="btn btn-danger btn-compact split-toggle"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-label="More delete options">
+                        ▾
+                    </button>
+
+                    <!-- Delete split menu -->
+                    <div class="split-menu" id="deleteSplitMenu">
+                        <button type="submit"
+                                th:formaction="@{|/instances/${instance.id}/delete?regatherWith=${regatherMethodName}|}"
+                                class="btn btn-danger btn-block"
+                                onclick="return confirm('Delete this instance and regather? Deletes cannot be undone.');">
+                            Delete and Regather with <th:block th:text="${regatherMethodName}">Browsertrix</th:block>
+                        </button>
+                        <button type="submit"
+                                th:formaction="@{|/instances/${instance.id}/delete?ceaseTitle=true|}"
+                                class="btn btn-danger btn-block"
+                                onclick="return confirm('Delete this instance and mark the title as ceased (disappeared)? Deletes cannot be undone.');">
+                            Delete and Cease Title (Disappeared)
+                        </button>
+                    </div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const toggle = document.getElementById("deleteSplitToggle");
+                            const menu = document.getElementById("deleteSplitMenu");
+
+                            if (!toggle || !menu) return;
+
+                            function closeMenu() {
+                                menu.style.display = "none";
+                                toggle.setAttribute("aria-expanded", "false");
+                            }
+
+                            toggle.addEventListener("click", function (e) {
+                                e.stopPropagation();
+                                const isOpen = menu.style.display === "block";
+                                if (isOpen) {
+                                    closeMenu();
+                                } else {
+                                    menu.style.display = "block";
+                                    toggle.setAttribute("aria-expanded", "true");
+                                }
+                            });
+
+                            document.addEventListener("click", function () {
+                                closeMenu();
+                            });
+
+                            menu.addEventListener("click", function (e) {
+                                // allow clicking buttons without closing before submit
+                                e.stopPropagation();
+                            });
+                        });
+                    </script>
+                </span>
             </nav>
         </header>
     </form>
