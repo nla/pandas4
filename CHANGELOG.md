@@ -2,9 +2,17 @@
 
 ## Unreleased
 
+### New features
+
+- Added delete and regather/cease buttons to QA screens.
+
 ### Bug fixes
 
 - TitleEdit: Fixed reason field not appearing when ceasing or rejecting a title.
+
+### Dependency upgrades
+
+- **browsertrix-crawler**: 1.7.0 → 1.9.1
 
 ## 4.10.1 2025-11-04
 
