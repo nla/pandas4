@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug fixes
+
+- TitleEdit: Fixed reason field not appearing when ceasing or rejecting a title.
+
 ## 4.10.1 2025-11-04
 
 ### Bug fixes

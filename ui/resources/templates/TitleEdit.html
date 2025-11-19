@@ -103,7 +103,7 @@
                         <option hidden value=""></option>
                         <option th:each="reason: ${@reasonRepository.findAllByOrderByName()}" hidden
                                 th:text="${reason.name}" th:value="${reason.id}"
-                                th:data-status="${reason.status.id}"></option>
+                                th:data-status="${reason.status}"></option>
                     </select>
                     <script>
                         function updateReasons() {
@@ -111,7 +111,7 @@
 
                             let reasonSelect = document.getElementById("reason");
                             let statusSelect = document.getElementById("status");
-                            let statusId = statusSelect.value;
+                            let status = statusSelect.value;
                             reasonSelect.parentElement.style.display = 'none';
                             reasonSelect.value = "";
 
@@ -121,14 +121,14 @@
                             }
 
                             // if the selected status is the current status, hide the reason field
-                            if (statusId === statusSelect.dataset.current) {
+                            if (status === statusSelect.dataset.current) {
                                 return;
                             }
 
                             // otherwise show only the relevant options
                             for (let i = 0; i < reasonSelect.options.length; i++) {
                                 let option = reasonSelect.options[i];
-                                if (option.dataset.status === statusId) {
+                                if (option.dataset.status === status) {
                                     option.hidden = false;
                                     reasonSelect.parentElement.style.display = '';
                                     if (option.text === 'Other') {
