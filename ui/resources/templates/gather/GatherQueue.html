@@ -67,6 +67,16 @@
             font-size: 80%;
             color: #666;
         }
+
+        .conflict {
+            color: #d37101;
+            font-size: 80%;
+            font-variant: all-small-caps;
+        }
+
+        .conflict a {
+            color: #d37101;
+        }
     </style>
 </head>
 <body>
@@ -123,11 +133,11 @@
                         <span th:text="${gather.title.owner.userid}">ckent</span>
                         <span th:text="${gather.title.agency?.organisation?.alias}">NLA</span>
                     </span>
-                    <span class="conflict" th:with="blocker = ${conflicts.get(gather.title.id)}" th:if="${blocker != null}">
+                    <div class="conflict" th:with="blocker = ${conflicts.get(gather.title.id)}" th:if="${blocker != null}">
                         Waiting for <a th:href="${@link.to(blocker)}" th:text="${blocker.titleName()}"
                                       class="title-link">Fishes of Australia</a>
                                     (<th:block th:text="${blocker.reason()}">same host</th:block>)
-                    </span>
+                    </div>
                 </td>
                 <td align="center">
                     <span th:text="${gather.method.name}" class="gather-method">Heritrix</span><br>

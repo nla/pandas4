@@ -15,10 +15,15 @@
         <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="../TitleView.html"
            class="title-link">Fishes of Australia</a><br>
         <span class="title-details">
-                    <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
-                    <span th:text="${instance.title.owner.userid}">ckent</span>
-                    <span th:text="${instance.title.agency?.organisation?.alias}">NLA</span>
-                </span>
+            <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
+            <span th:text="${instance.title.owner.userid}">ckent</span>
+            <span th:text="${instance.title.agency?.organisation?.alias}">NLA</span>
+        </span>
+        <div class="conflict" th:with="blocker = ${conflicts.get(gather.title.id)}" th:if="${blocker != null}">
+            Waiting for <a th:href="${@link.to(blocker)}" th:text="${blocker.titleName()}"
+                           class="title-link">Fishes of Australia</a>
+            (<th:block th:text="${blocker.reason()}">same host</th:block>)
+        </div>
     </td>
     <td align="center">
         <span th:text="${instance.gatherMethodName}" class="gather-method">Heritrix</span><br>
