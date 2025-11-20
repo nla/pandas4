@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.11.0 2025-11-20
+
 ### New features
 
 - Added delete and regather/cease buttons to QA screens.
