@@ -28,7 +28,7 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
 	private final Map<Long, BlockingTask> currentlyGatheringTitles = new ConcurrentHashMap<>(); // pi -> thread name
 	private final Map<Long, String> currentInstances = new ConcurrentHashMap<>(); // instance id -> thread name
 	private final Map<String, BlockingTask> currentlyGatheringHosts = new ConcurrentHashMap<>(); // site -> thread name
-    private Map<Long, BlockingTask> conflicts = new HashMap<>();
+    private final Map<String, Map<Long, BlockingTask>> conflicts = new ConcurrentHashMap<>(); // gatehrMethod -> titleId -> blocker
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private final List<Backend> enabledBackends;
 	private final Config config;
@@ -184,14 +184,14 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
                 currentlyGatheringTitles.put(title.getId(), new BlockingTask(threadName, instance, "same title"));
                 currentlyGatheringHosts.put(primarySeedHost, new BlockingTask(threadName, instance, "same host"));
                 if (ipAddress != null) currentlyGatheringHosts.put(ipAddress, new BlockingTask(threadName, instance, "same IP address"));
-                this.conflicts = blockedTitles;
+                this.conflicts.put(gatherMethod, blockedTitles);
                 return instance;
             }
 
-            this.conflicts = blockedTitles;
-			return null;
-		}
-	}
+            this.conflicts.put(gatherMethod, blockedTitles);
+            return null;
+        }
+    }
 
     /**
 	 * Gatherers should notify the manager when they are finished by calling this method. The
@@ -314,7 +314,13 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
      * active.
      */
     public Map<Long, BlockingTask> getConflicts() {
-        return conflicts;
+        synchronized (pollingLock) {
+            Map<Long, BlockingTask> allConflicts = new HashMap<>();
+            for (Map<Long, BlockingTask> map : conflicts.values()) {
+                allConflicts.putAll(map);
+            }
+            return allConflicts;
+        }
     }
 
     public Set<Long> getCurrentTitles() {
