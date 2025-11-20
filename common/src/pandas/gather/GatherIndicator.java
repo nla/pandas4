@@ -60,16 +60,16 @@ public class GatherIndicator {
         UNMAPPED("Unmapped (Unused)"),
 
         // within (intra) crawl indicators
+        HTTP_2XX("HTTP 2XXs (proportion)"),
         HTTP_403("HTTP 403s (proportion)"),
         HTTP_5XX("HTTP 5XXs (proportion)"),
-        HTTP_2XX("HTTP 2XXs (proportion)"),
+        HTTP_5XX_403("HTTP 5XXs and 403s (proportion)"),
         HTTP_LAST_BAD("Final HTTP response was bad"),
 
-        // comparison to live site
+        // Against live, archived, and combo
         LIVE_THUMB_HASH("Live thumbnail difference"),
-
-        // comparison to last archived
         ARCHIVED_THUMB_HASH("Archive thumbnail difference"),
+        THUMB_HASH("Thumbnail difference"),
 
         //  increase / decrease
         ARCHIVED_FILE_SIZE_CHANGE("Archived file size change"),
@@ -81,7 +81,7 @@ public class GatherIndicator {
 
         // Combined indicators
         GATHER_VIBE("Overall (gather)"),
-        ARCHIVE_VIBE("Overall (archived)")
+        ARCHIVE_VIBE("Overall (archived)"),
         ;
 
         public final String label;

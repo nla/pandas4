@@ -47,8 +47,6 @@ public class InstanceSearcher {
                         gatherScheduleRepository::findAllById, GatherSchedule::getId, GatherSchedule::getName),
                 new EntityFacet<>("Gather Problem", "problem", "problemIds",
                         GatherProblem::findAllById, GatherProblem::id, GatherProblem::text),
-                new EntityFacet<>("Against Archived", "archive", "archivedIndicators",
-                        GatherFilterIndicator::findAllById, GatherFilterIndicator::id, GatherFilterIndicator::text),
                 new EntityFacet<>("Success Indicators", "good", "successIndicators",
                         GatherFilterIndicator::findAllById, GatherFilterIndicator::id, GatherFilterIndicator::text),
                 new EntityFacet<>("Problem Indicators", "poor", "poorIndicators",

@@ -476,17 +476,16 @@ public class Instance {
     @IndexingDependency(derivedFrom = {
             @ObjectPath({@PropertyValue(propertyName = "gather"), @PropertyValue(propertyName = "indicators")}),
     })
-    public Set<Long> getArchivedIndicators() {
-        return getIndicatorsInternal(GatherFilterIndicator.archiveIndicators).stream()
-                .map(p -> (long)p.ordinal())
-                .collect(Collectors.toSet());
-    }
-
-    @GenericField(aggregable = Aggregable.YES)
-    @IndexingDependency(derivedFrom = {
-            @ObjectPath({@PropertyValue(propertyName = "gather"), @PropertyValue(propertyName = "indicators")}),
-    })
     public Set<Long> getSuccessIndicators() {
+        var poorIndicators = getIndicatorsInternal(GatherFilterIndicator.poorIndicators);
+
+        // if the FILE_SIZE_SMALL poor indicator is present, don't return *any* good indicators.  To aid workflow.
+        if (poorIndicators.stream()
+                .filter(ind -> ind.equals(GatherFilterIndicator.FILE_SIZE_SMALL))
+                .findFirst().isPresent()) {
+            return new HashSet<>();
+        }
+
         return getIndicatorsInternal(GatherFilterIndicator.goodIndicators).stream()
                 .map(p -> (long)p.ordinal())
                 .collect(Collectors.toSet());

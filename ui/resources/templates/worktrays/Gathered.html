@@ -164,11 +164,17 @@
                            th:classappend="${instance.gather.hasSizeWarning()}?'gather-stats-warning'"
                            th:text="${instance.gather.stats}">1,234 files <span>10 MB</span></a>
                         <span class="tooltip">
-                            (<span th:text="${instance.gather.summaryText} ?: '-'">(4/-)</span>)
+                            (<span th:text="${instance.gather.summaryText} ?: '-'">(✭5✦1)</span>)
                             <div class="hovertext">
-                                <div th:each="gatherInd: ${instance.gather.indicators}">
-                                    <span th:text="${gatherInd.indicator.label}">HTTP 200's (proportion)</span>:
-                                    <span th:text="${#numbers.formatPercent(gatherInd.value,1,0)}">65%</span>
+                                <div th:each="gatherInd: ${@worktraysController.getSummaryIndicatorsForGather(instance.gather)}">
+                                    <span th:text="${@worktraysController.formatGatherIndicator(gatherInd)}">Overall (gather)</span>
+                                </div>
+                                <div class="debug">
+                                    <hr>
+                                    <div th:each="gatherInd: ${instance.gather.indicators}">
+                                        <span th:text="${gatherInd.indicator.label}">Overall (gather)</span>:
+                                        <span th:text="${#numbers.formatPercent(gatherInd.value,1,0)}">93% (✭5)</span>
+                                    </div>
                                 </div>
                             </div>
                         </span>
