@@ -5,6 +5,7 @@
 ### New features
 
 - Added delete and regather/cease buttons to QA screens.
+- Gather queue now indicates when a gather is waiting to start until another with the same host or IP address has finished.
 
 ### Bug fixes
 

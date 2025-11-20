@@ -11,7 +11,7 @@
             <img th:src="${@link.thumbnail(instance, 'LIVE')}" width=67 height=50>
         </a>
     </td>
-    <td>
+    <td th:with="blocker = ${conflicts.get(instance.title.id)}" >
         <a th:href="${@link.to(instance.title)}" th:text="${instance.title.name}" href="../TitleView.html"
            class="title-link">Fishes of Australia</a><br>
         <span class="title-details">
@@ -19,8 +19,8 @@
             <span th:text="${instance.title.owner.userid}">ckent</span>
             <span th:text="${instance.title.agency?.organisation?.alias}">NLA</span>
         </span>
-        <div class="conflict" th:with="blocker = ${conflicts.get(gather.title.id)}" th:if="${blocker != null}">
-            Waiting for <a th:href="${@link.to(blocker)}" th:text="${blocker.titleName()}"
+        <div class="conflict" th:if="${blocker != null && blocker.instanceId() != instance.id}">
+            Waiting for <a th:href="${@link.toInstance(blocker.instanceId())}" th:text="${blocker.titleName()}"
                            class="title-link">Fishes of Australia</a>
             (<th:block th:text="${blocker.reason()}">same host</th:block>)
         </div>
