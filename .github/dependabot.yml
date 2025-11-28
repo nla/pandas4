@@ -11,3 +11,6 @@ updates:
           - "minor"
     ignore:
       - dependency-name: "com.googlecode.flyway:flyway-core"
+      # jandex-maven-plugin index version needs to be supported by jandex version used by hibernate search
+      - dependency-name: "io.smallrye:jandex-maven-plugin"
+        versions: [">=3.3.0"]
