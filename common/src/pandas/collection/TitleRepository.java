@@ -193,12 +193,21 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     List<Title> findByTitleUrlIn(List<String> urls);
 
-    @Query("select distinct t from Title t\n" +
-            " join t.statusHistories sh\n" +
-            " where sh.user = :nominator and " +
-           "       sh.status in (pandas.collection.Status.NOMINATED, pandas.collection.Status.SELECTED)\n and " +
-           "       sh.startDate > :dateLimit " +
-            " order by t.regDate desc")
+    // A title can be created directly in a permission_* status so we look for either nominated/selected event
+    // explicitly, or the initial status having been a permission_* one.
+    @Query("""
+         select distinct t from Title t
+         join t.statusHistories sh
+         where sh.user = :nominator
+         and (sh.status in (pandas.collection.Status.NOMINATED, pandas.collection.Status.SELECTED)
+              or (sh.status in (pandas.collection.Status.PERMISSION_REQUESTED,
+                                pandas.collection.Status.PERMISSION_GRANTED,
+                                pandas.collection.Status.PERMISSION_DENIED,
+                                pandas.collection.Status.PERMISSION_IMPOSSIBLE)
+                  and not exists (select 1 from t.statusHistories sh2 where sh2.startDate < sh.startDate)))
+         and sh.startDate > :dateLimit
+         order by t.regDate desc
+    """)
     List<Title> findByNominatorOrSelector(@Param("nominator") User nominator, @Param("dateLimit") Instant dateLimit);
 
     @Query("select t from Title t\n" +
