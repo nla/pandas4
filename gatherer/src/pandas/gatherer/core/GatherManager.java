@@ -314,13 +314,11 @@ public class GatherManager implements AutoCloseable, SmartLifecycle {
      * active.
      */
     public Map<Long, BlockingTask> getConflicts() {
-        synchronized (pollingLock) {
-            Map<Long, BlockingTask> allConflicts = new HashMap<>();
-            for (Map<Long, BlockingTask> map : conflicts.values()) {
-                allConflicts.putAll(map);
-            }
-            return allConflicts;
+        Map<Long, BlockingTask> allConflicts = new HashMap<>();
+        for (Map<Long, BlockingTask> map : conflicts.values()) {
+            allConflicts.putAll(map);
         }
+        return allConflicts;
     }
 
     public Set<Long> getCurrentTitles() {
