@@ -737,5 +737,5 @@ if (nameInput.value) nameChanged();
 handlePublisherTypeChange();
 
 // last step: enable the form's submit buttons now that the javascript has loaded
-document.querySelectorAll("button.btn-primary[type=submit][disabled]")
+document.querySelectorAll("button[type=submit][disabled]")
     .forEach(submitButton => submitButton.disabled = false);
