@@ -72,6 +72,11 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
             "and i.title.owner.id = :ownerId")
     long countGatheredWorktray(@Param("ownerId") Long ownerId);
 
+    @Query("select count(*) from Instance i\n" +
+            "where i.state = pandas.gather.State.GATHERED\n" +
+            "and i.title.agency.id = :agencyId")
+    long countGatheredWorktrayByAgency(@Param("agencyId") Long agencyId);
+
     @Query("""
         select i from Instance i
         where i.state = pandas.gather.State.GATHERED

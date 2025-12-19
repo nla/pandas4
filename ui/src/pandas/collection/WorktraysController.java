@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 @Controller
 public class WorktraysController {
-    private static final String LAST_ALIAS = WorktraysController.class.getName() + ".lastAlias";
+    public static final String LAST_ALIAS = WorktraysController.class.getName() + ".lastAlias";
 
     private final TitleRepository titleRepository;
     private final InstanceRepository instanceRepository;
