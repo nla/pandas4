@@ -118,7 +118,7 @@
                                 <artifactItem>
                                     <groupId>org.archive.heritrix</groupId>
                                     <artifactId>heritrix</artifactId>
-                                    <version>3.9.0</version>
+                                    <version>3.13.0</version>
                                     <classifier>dist</classifier>
                                     <type>tar.gz</type>
                                 </artifactItem>
