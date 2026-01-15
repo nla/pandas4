@@ -41,7 +41,7 @@
         <fieldset>
             <legend>Transfer to</legend>
             <label>New agency
-                <select name=newAgency onchange="location.replace('?newAgency=' + this.value)">
+                <select name=newAgency onchange="location.replace('?newAgency=' + encodeURIComponent(this.value))">
                     <option th:each="agency : ${allAgencies}" th:text="${agency.name}" th:value="${agency.id}"
                             th:selected="${agency.id == newAgency.id}"></option>
                 </select>
