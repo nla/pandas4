@@ -337,7 +337,11 @@
             <script>
                 function updateCeasedWarning() {
                     // show a gather warning if the status is ceased
-                    let selectedStatus = document.getElementById("status").selectedOptions[0].text;
+                    let statusSelect = document.getElementById("status");
+                    if (!statusSelect.selectedOptions || statusSelect.selectedOptions.length === 0) {
+                        return; // No option selected yet
+                    }
+                    let selectedStatus = statusSelect.selectedOptions[0].text;
                     let isCeasedOrRejected = selectedStatus === "ceased" || selectedStatus === "rejected";
                     document.getElementById("ceasedWarning").style.display = isCeasedOrRejected ? 'block' : 'none';
                     document.querySelectorAll(".disable-when-ceased").forEach(element => element.disabled = isCeasedOrRejected);
@@ -394,6 +398,9 @@
                 </div>
                 <script>
                     document.getElementById('gatherSchedule').addEventListener('change', function() {
+                        if (!this.selectedOptions || this.selectedOptions.length === 0) {
+                            return; // No option selected yet
+                        }
                         let option = this.selectedOptions[0];
                         if (!option || !option.dataset.nextdate) {
                             document.getElementById('scheduledDateLabel').style.display = 'none';
@@ -481,6 +488,9 @@
 
                         // if gather method is changed to a method unsupported by current profile, select default profile
                         gatherMethodSelect.addEventListener("change", function(event) {
+                            if (!profileSelect.selectedOptions || profileSelect.selectedOptions.length === 0) {
+                                return; // No profile selected yet
+                            }
                             let profileGatherMethodId = profileSelect.selectedOptions[0].dataset.gathermethod;
                             if (profileGatherMethodId && profileGatherMethodId !== gatherMethodSelect.value) {
                                 for (let option of profileSelect.options) {
