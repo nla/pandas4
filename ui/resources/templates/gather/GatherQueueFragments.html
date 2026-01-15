@@ -6,6 +6,10 @@
 <body>
 
 <tr th:fragment="instanceRow(instance, actions)">
+    <td sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')">
+        <input type="checkbox" class="selectedFailedInstancesCheckbox" name="instance" th:value="${instance.id}"
+               onchange="updateFailedSelected()" form="failed-form">
+    </td>
     <td>
         <a th:href="${instance.gatheredUrl}" href="http://example.com/">
             <img th:src="${@link.thumbnail(instance, 'LIVE')}" width=67 height=50>

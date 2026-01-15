@@ -153,14 +153,22 @@
 
     <section>
         <h2>Failed</h2>
-        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:action="@{/queue/retry-all}" method="post">
-            <button type="submit" class="btn-danger">Retry all</button>
-        </form>
-        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:action="@{/queue/delete-all-failed}" method="post">
-            <button type="submit" class="btn-danger">Delete all</button>
+        <form id="failed-form" sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:if="${!failedInstances.isEmpty()}" method="post">
+            <button type="submit" class="btn-danger selected-action-failed" th:formaction="@{/queue/retry-selected}">Retry selected</button>
+            <button type="submit" class="btn-danger selected-action-failed" th:formaction="@{/queue/delete-selected}">Delete selected</button>
         </form>
 
-        <table>
+        <span th:if="${failedInstances.isEmpty()}">No failed instances.</span>
+        <table th:if="${!failedInstances.isEmpty()}" class="table gather-queue-table">
+            <thead>
+                <tr>
+                    <th sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')">
+                        <input type="checkbox" onchange="toggleSelectAllFailed(this)" id="selectAllFailedCheckbox">
+                    </th>
+                    <th colspan="3"></th>
+                </tr>
+            </thead>
+            <tbody>
             <th:block th:each="instance: ${failedInstances}">
                 <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions})}">
                     <td class="failed-gather-actions">
@@ -173,6 +181,7 @@
                     </td>
                 </tr>
                 <tr>
+                    <td sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')"></td>
                     <td></td>
                     <td colspan="3">
                         <div style="background: #ffdddd; padding: 4px; margin-bottom: 4px" th:each="exception: ${instance.exceptions}">
@@ -184,11 +193,54 @@
                     </td>
                 </tr>
             </th:block>
+            </tbody>
         </table>
     </section>
 
     <script th:src="@{/webjars/timeago.js/dist/timeago.min.js}"></script>
     <script>
         timeago.render(document.querySelectorAll('time'));
+
+        function countFailedSelected() {
+            return document.querySelectorAll(".selectedFailedInstancesCheckbox:checked").length;
+        }
+
+        function updateFailedSelected() {
+            let selectAllCheckbox = document.getElementById("selectAllFailedCheckbox");
+            if (!selectAllCheckbox) return;
+            
+            let totalCount = document.querySelectorAll(".selectedFailedInstancesCheckbox").length;
+            let selectedCount = countFailedSelected();
+
+            if (selectedCount === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (selectedCount >= totalCount) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = true;
+            }
+
+            // Enable/disable action buttons
+            let actionButtons = document.querySelectorAll("button.selected-action-failed");
+            if (selectedCount > 0) {
+                actionButtons.forEach(btn => btn.disabled = false);
+            } else {
+                actionButtons.forEach(btn => btn.disabled = true);
+            }
+        }
+
+        function toggleSelectAllFailed(selectAllCheckbox) {
+            document.querySelectorAll('.selectedFailedInstancesCheckbox').forEach(el =>
+                el.checked = selectAllCheckbox.checked);
+            updateFailedSelected();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFailedSelected();
+        });
     </script>
 </main>

@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import pandas.agency.User;
 import pandas.agency.UserService;
 import pandas.gatherer.BlockingTask;
 
@@ -81,9 +82,38 @@ public class GatherQueueController {
         return "redirect:/queue";
     }
 
+    @PostMapping("/queue/retry-selected")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
+    @Transactional
+    public String retrySelected(@RequestParam("instance") List<Long> instanceIds) {
+        User currentUser = userService.getCurrentUser();
+        Instant now = Instant.now();
+        for (Long instanceId : instanceIds) {
+            Instance instance = instanceRepository.getOrThrow(instanceId);
+            instance.retryAfterFailure(currentUser, now);
+            instanceRepository.save(instance);
+        }
+        return "redirect:/queue";
+    }
+
     @PostMapping("/queue/delete-all-failed")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
     public String deleteAllFailed() {
         instanceService.deleteAllFailed(userService.getCurrentUser());
+        return "redirect:/queue";
+    }
+
+    @PostMapping("/queue/delete-selected")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
+    @Transactional
+    public String deleteSelected(@RequestParam("instance") List<Long> instanceIds) {
+        User currentUser = userService.getCurrentUser();
+        Instant now = Instant.now();
+        for (Long instanceId : instanceIds) {
+            Instance instance = instanceRepository.getOrThrow(instanceId);
+            instance.delete(currentUser, now);
+            instanceRepository.save(instance);
+        }
         return "redirect:/queue";
     }
 
