@@ -34,7 +34,7 @@ class PywbServiceTest {
         try {
             Title title = new Title();
             title.setPi(123L);
-            Instance instance = new Instance(title, Instant.parse("1987-08-30T12:00:00Z"), null);
+            Instance instance = new Instance(title, Instant.parse("1987-08-30T12:00:00Z"), "Heritrix");
             instance.setTepUrl("http://example.org/");
             String url = pywbService.replayUrlFor(instance);
             var connection = (HttpURLConnection) new URL(url).openConnection();
