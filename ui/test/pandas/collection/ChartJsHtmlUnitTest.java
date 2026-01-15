@@ -49,6 +49,7 @@ class ChartJsHtmlUnitTest extends IntegrationTest {
         webClient.getOptions().setJavaScriptEnabled(true);
         webClient.getOptions().setCssEnabled(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        // Allow script errors as Chart.js uses defer attribute which can cause timing issues in HTMLUnit
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.setJavaScriptTimeout(10000);
 
