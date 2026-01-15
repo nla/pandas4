@@ -153,7 +153,7 @@
 
     <section>
         <h2>Failed</h2>
-        <form id="failed-form" sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" method="post">
+        <form id="failed-form" sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:if="${!failedInstances.isEmpty()}" method="post">
             <button type="submit" class="btn-danger selected-action-failed" th:formaction="@{/queue/retry-selected}">Retry selected</button>
             <button type="submit" class="btn-danger selected-action-failed" th:formaction="@{/queue/delete-selected}">Delete selected</button>
         </form>
