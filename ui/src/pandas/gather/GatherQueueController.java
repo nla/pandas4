@@ -86,6 +86,9 @@ public class GatherQueueController {
     @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
     @Transactional
     public String retrySelected(@RequestParam("instance") List<Long> instanceIds) {
+        if (instanceIds.isEmpty()) {
+            return "redirect:/queue";
+        }
         User currentUser = userService.getCurrentUser();
         Instant now = Instant.now();
         for (Long instanceId : instanceIds) {
@@ -107,6 +110,9 @@ public class GatherQueueController {
     @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
     @Transactional
     public String deleteSelected(@RequestParam("instance") List<Long> instanceIds) {
+        if (instanceIds.isEmpty()) {
+            return "redirect:/queue";
+        }
         User currentUser = userService.getCurrentUser();
         Instant now = Instant.now();
         for (Long instanceId : instanceIds) {

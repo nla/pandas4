@@ -159,7 +159,6 @@
         </form>
 
         <span th:if="${failedInstances.isEmpty()}">No failed instances.</span>
-        <form method="post">
         <table th:if="${!failedInstances.isEmpty()}" class="table gather-queue-table">
             <thead>
                 <tr>
@@ -196,7 +195,6 @@
             </th:block>
             </tbody>
         </table>
-        </form>
     </section>
 
     <script th:src="@{/webjars/timeago.js/dist/timeago.min.js}"></script>
