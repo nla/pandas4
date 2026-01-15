@@ -59,7 +59,7 @@ mvn test
 ## Security
 
 - Use OpenID Connect for authentication
-- Sanitize HTML using OWASP Java HTML Sanitizer
+- Sanitize user-generated HTML content using OWASP Java HTML Sanitizer
 - Be mindful of security in web archiving contexts (handling external content)
 
 ## Dependencies
@@ -79,4 +79,3 @@ mvn test
 
 - Update README.md for major feature changes
 - Document configuration environment variables
-- Include JavaDoc for public APIs
