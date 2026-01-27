@@ -1,4 +1,4 @@
-FROM container-registry.nla.gov.au/nla/almalinux-8-minimal
+FROM container-registry.prod.nla.gov.au/quay/almalinuxorg/9-minimal
 ARG JAR_FILE=target/pandas4-gatherer.jar
 ARG PANDAS_UID=206
 ARG PANDAS_GID=230
@@ -9,11 +9,12 @@ USER root
 RUN rpm --nodeps -i https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/29/Everything/$(arch)/os/Packages/h/httrack-3.49.2-4.fc29.$(arch).rpm
 
 # Install chromium-headless, java, pywb
-RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
-    microdnf install -y --nodocs python3.11-pip tar gzip java-21-openjdk-headless chromium-headless && \
-    python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    python3 -m pip install --no-cache-dir pywb==2.9.0 && \
+RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+    microdnf install -y --nodocs python3.12-pip tar gzip java-21-openjdk-headless chromium-headless && \
     microdnf clean all
+
+RUN pip3.12 install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip3.12 install --no-cache-dir pywb==2.10.0b1
 
 RUN groupadd --gid ${PANDAS_GID} pandas && \
     useradd --gid ${PANDAS_GID} --uid ${PANDAS_UID} pandas3
