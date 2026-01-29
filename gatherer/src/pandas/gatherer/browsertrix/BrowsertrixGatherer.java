@@ -2,7 +2,6 @@ package pandas.gatherer.browsertrix;
 
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -427,24 +426,39 @@ public class BrowsertrixGatherer implements Backend {
         if (version != null) return version;
 
         if (config.isKubeEnabled()) {
-            String podName = "browsertrix-version-check-" + UUID.randomUUID();
-            Pod pod = kubeClient.pods().inNamespace(config.getKubeNamespace()).resource(new PodBuilder()
-                    .withNewMetadata().withName(podName).endMetadata()
+            String jobId = "browsertrix-version-check-" + UUID.randomUUID();
+            kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).resource(new JobBuilder()
+                    .withNewMetadata().withName(jobId).endMetadata()
                     .withNewSpec()
-                    .withRestartPolicy("Never")
-                    .addNewContainer()
-                    .withName("version-check")
-                    .withImage(config.getImage())
-                    .withArgs("crawl", "--version")
-                    .endContainer()
-                    .endSpec()
-                    .build()).create();
+                    .withBackoffLimit(0)
+                    .withNewTemplate()
+                        .withNewSpec()
+                            .withRestartPolicy("Never")
+                            .addNewContainer()
+                                .withName("version-check")
+                                .withImage(config.getImage())
+                                .withArgs("crawl", "--version")
+                            .endContainer()
+                        .endSpec()
+                    .endTemplate()
+                .endSpec()
+                .build()).create();
             try {
-                kubeClient.pods().inNamespace(config.getKubeNamespace()).withName(podName).waitUntilReady(1, TimeUnit.MINUTES);
-                version = kubeClient.pods().inNamespace(config.getKubeNamespace()).withName(podName).getLog();
+                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId)
+                        .waitUntilCondition(j -> j.getStatus() != null &&
+                                (j.getStatus().getSucceeded() != null && j.getStatus().getSucceeded() > 0 ||
+                                 j.getStatus().getFailed() != null && j.getStatus().getFailed() > 0),
+                                2, TimeUnit.MINUTES);
+
+                var pods = kubeClient.pods().inNamespace(config.getKubeNamespace()).withLabel("job-name", jobId).list().getItems();
+                if (!pods.isEmpty()) {
+                    version = kubeClient.pods().inNamespace(config.getKubeNamespace()).withName(pods.get(0).getMetadata().getName()).getLog();
+                } else {
+                    throw new IOException("No pod found for version check job " + jobId);
+                }
                 return version;
             } finally {
-                kubeClient.pods().inNamespace(config.getKubeNamespace()).withName(podName).delete();
+                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
             }
         }
 
