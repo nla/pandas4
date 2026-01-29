@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-import io.fabric8.kubernetes.client.dsl.LogWatch;
+import io.fabric8.kubernetes.client.dsl.ScalableResource;
 import org.apache.commons.io.file.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,7 +224,7 @@ public class BrowsertrixGatherer implements Backend {
     }
 
     private int gatherKube(Instance instance, Path workingDir) throws IOException, GatherException {
-        String jobId = "pandas-instance-" + instance.getId();
+        String jobId = "browsertrix-crawl-" + instance.getId();
         Path logFile = workingDir.resolve("stdio.log");
 
         // Copy behaviors to the working directory so the job can access them
@@ -236,7 +236,8 @@ public class BrowsertrixGatherer implements Backend {
             }
         }
 
-        Job job = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).get();
+        var jobResource = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId);
+        Job job = jobResource.get();
         if (job == null) {
             log.info("Starting browsertrix-crawler job {} for instance {}", jobId, instance.getHumanId());
             String subPath = workingArea.getPath().relativize(workingDir).toString();
@@ -277,7 +278,7 @@ public class BrowsertrixGatherer implements Backend {
             return monitorKubeJob(instance, jobId, logFile);
         } finally {
             if (instanceService.refresh(instance).getState() != State.GATHERING) {
-                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
+                jobResource.delete();
             }
         }
     }
@@ -297,8 +298,9 @@ public class BrowsertrixGatherer implements Backend {
             }
         }
 
+        ScalableResource<Job> resource = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId);
         while (true) {
-            Job job = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).get();
+            Job job = resource.get();
             if (job == null) {
                 log.warn("Job {} disappeared", jobId);
                 return -1;
@@ -312,17 +314,19 @@ public class BrowsertrixGatherer implements Backend {
             if (job.getStatus() != null && job.getStatus().getCompletionTime() != null) {
                 int exitCode = getExitCode(jobId);
                 log.info("Job {} finished with exit code {}", jobId, exitCode);
+                saveKubeJobLog(logFile, resource);
                 if (!NORMAL_EXIT_CODES.contains(exitCode)) {
+                    log.warn("Job log: {}", resource.tailingLines(5).getLog());
+                    resource.delete();
                     throw new GatherException("Browsertrix exited with status " + exitCode, exitCode);
                 }
-//                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
+                resource.delete();
                 return exitCode;
             }
 
             if (job.getStatus() != null && job.getStatus().getFailed() != null && job.getStatus().getFailed() > 0) {
                 int exitCode = getExitCode(jobId);
                 log.info("Job {} failed with exit code {}", jobId, exitCode);
-//                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
                 throw new GatherException("Browsertrix job failed", exitCode);
             }
 
@@ -336,6 +340,15 @@ public class BrowsertrixGatherer implements Backend {
             } catch (InterruptedException e) {
                 return -1;
             }
+        }
+    }
+
+    private static void saveKubeJobLog(Path logFile, ScalableResource<Job> resource) throws IOException {
+        try (var in = resource.getLogInputStream();
+             var out = Files.newOutputStream(logFile, APPEND)) {
+            in.transferTo(out);
+        } catch (Exception e) {
+            log.error("Error saving job log to {}", logFile, e);
         }
     }
 
