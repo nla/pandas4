@@ -243,7 +243,9 @@ public class BrowsertrixGatherer implements Backend {
             String subPath = workingArea.getPath().relativize(workingDir).toString();
 
             Job jobTemplate;
-            try (InputStream is = BrowsertrixGatherer.class.getResourceAsStream("/kube-job.yaml")) {
+            try (InputStream is = config.getKubeJobConfig() != null
+                    ? Files.newInputStream(config.getKubeJobConfig())
+                    : BrowsertrixGatherer.class.getResourceAsStream("/kube-job.yaml")) {
                 if (is == null) throw new IOException("kube-job.yaml not found");
                 jobTemplate = kubeClient.batch().v1().jobs().load(is).item();
             }

@@ -3,6 +3,8 @@ package pandas.gatherer.browsertrix;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.file.Path;
+
 @Configuration
 @ConfigurationProperties(prefix = "browsertrix")
 public class BrowsertrixConfig {
@@ -17,6 +19,7 @@ public class BrowsertrixConfig {
 
     private boolean kubeEnabled = false;
     private String kubeNamespace;
+    private Path kubeJobConfig;
 
     public String getPodmanOptions() {
         return podmanOptions;
@@ -80,5 +83,13 @@ public class BrowsertrixConfig {
 
     public void setKubeNamespace(String kubeNamespace) {
         this.kubeNamespace = kubeNamespace;
+    }
+
+    public Path getKubeJobConfig() {
+        return kubeJobConfig;
+    }
+
+    public void setKubeJobConfig(Path kubeJobConfig) {
+        this.kubeJobConfig = kubeJobConfig;
     }
 }
