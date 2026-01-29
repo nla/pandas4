@@ -13,7 +13,10 @@ public class BrowsertrixConfig {
     private Long defaultCrawlLimitBytes = 2L * 1024L * 1024L * 1024L;
 
     private Long defaultCrawlLimitSeconds = 12L * 60 * 60;
-    private String version = "webrecorder/browsertrix-crawler:1.9.2";
+    private String image = "webrecorder/browsertrix-crawler:1.9.2";
+
+    private boolean kubeEnabled = false;
+    private String kubeNamespace;
 
     public String getPodmanOptions() {
         return podmanOptions;
@@ -56,10 +59,26 @@ public class BrowsertrixConfig {
     }
 
     public String getImage() {
-        return version;
+        return image;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public boolean isKubeEnabled() {
+        return kubeEnabled;
+    }
+
+    public void setKubeEnabled(boolean kubeEnabled) {
+        this.kubeEnabled = kubeEnabled;
+    }
+
+    public String getKubeNamespace() {
+        return kubeNamespace;
+    }
+
+    public void setKubeNamespace(String kubeNamespace) {
+        this.kubeNamespace = kubeNamespace;
     }
 }

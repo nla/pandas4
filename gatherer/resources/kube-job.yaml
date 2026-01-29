@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: browsertrix-crawl-12345 # filled in by the app
+  labels:
+    pandas/instance-id: 12345 # filled in by the app
+
+spec:
+  # app will normally delete the job after checking exit code
+  # but this ensures if something happens the kubernetes resource will be cleaned up eventually
+  ttlSecondsAfterFinished: 3600
+
+  template:
+    spec:
+      restartPolicy: Never
+
+      volumes:
+        - name: working-area
+          nfs:
+            server: isilon.nla.gov.au
+            path: /isi/pandora-devel/working
+
+      securityContext:
+        runAsUser: 230 # pandas3 user
+        supplementalGroups: [203] # pandora group
+
+      containers:
+        - name: crawler
+          image: "container-registry.prod.nla.gov.au/docker/webrecofder/browsertrix-crawler:1.9.2"
+          args: [] # filled in by the app
+          workingDir: "/working/12345/20210915-120000" # filled in by the app
+
+          volumeMounts:
+            - name: working-area
+              mountPath: /working
