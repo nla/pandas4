@@ -297,47 +297,44 @@ public class BrowsertrixGatherer implements Backend {
             }
         }
 
-        try (LogWatch logWatch = kubeClient.pods().inNamespace(config.getKubeNamespace()).withName(pod.getMetadata().getName())
-                .watchLog(Files.newOutputStream(logFile, APPEND, CREATE))) {
-            while (true) {
-                Job job = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).get();
-                if (job == null) {
-                    log.warn("Job {} disappeared", jobId);
-                    return -1;
-                }
+        while (true) {
+            Job job = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).get();
+            if (job == null) {
+                log.warn("Job {} disappeared", jobId);
+                return -1;
+            }
 
-                if (job.getMetadata().getDeletionTimestamp() != null) {
-                    log.info("Job {} is being deleted", jobId);
-                    return -1;
-                }
+            if (job.getMetadata().getDeletionTimestamp() != null) {
+                log.info("Job {} is being deleted", jobId);
+                return -1;
+            }
 
-                if (job.getStatus() != null && job.getStatus().getCompletionTime() != null) {
-                    int exitCode = getExitCode(jobId);
-                    log.info("Job {} finished with exit code {}", jobId, exitCode);
-                    if (!NORMAL_EXIT_CODES.contains(exitCode)) {
-                        throw new GatherException("Browsertrix exited with status " + exitCode, exitCode);
-                    }
-                    kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
-                    return exitCode;
+            if (job.getStatus() != null && job.getStatus().getCompletionTime() != null) {
+                int exitCode = getExitCode(jobId);
+                log.info("Job {} finished with exit code {}", jobId, exitCode);
+                if (!NORMAL_EXIT_CODES.contains(exitCode)) {
+                    throw new GatherException("Browsertrix exited with status " + exitCode, exitCode);
                 }
+//                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
+                return exitCode;
+            }
 
-                if (job.getStatus() != null && job.getStatus().getFailed() != null && job.getStatus().getFailed() > 0) {
-                    int exitCode = getExitCode(jobId);
-                    log.info("Job {} failed with exit code {}", jobId, exitCode);
-                    kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
-                    throw new GatherException("Browsertrix job failed", exitCode);
-                }
+            if (job.getStatus() != null && job.getStatus().getFailed() != null && job.getStatus().getFailed() > 0) {
+                int exitCode = getExitCode(jobId);
+                log.info("Job {} failed with exit code {}", jobId, exitCode);
+//                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
+                throw new GatherException("Browsertrix job failed", exitCode);
+            }
 
-                instance = instanceService.refresh(instance);
-                if (shutdown || !instance.getState().equals(State.GATHERING)) {
-                    return -1;
-                }
+            instance = instanceService.refresh(instance);
+            if (shutdown || !instance.getState().equals(State.GATHERING)) {
+                return -1;
+            }
 
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    return -1;
-                }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                return -1;
             }
         }
     }
