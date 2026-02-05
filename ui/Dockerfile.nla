@@ -1,4 +1,11 @@
-FROM container-registry.nla.gov.au/nla/ubi8-openjdk-17
+FROM container-registry.prod.nla.gov.au/quay/almalinuxorg/10-minimal
+
+# Install chromium-headless + java
+RUN microdnf install -y --nodocs --setopt=install_weak_deps=0 epel-release java-25-openjdk-headless && \
+    microdnf install -y --nodocs --setopt=install_weak_deps=0 chromium-headless && \
+    microdnf clean all
+
 ARG JAR_FILE=target/pandas-admin.jar
 COPY ${JAR_FILE} pandas-admin.jar
-ENTRYPOINT ["bash", "-c", "exec java ${JAVA_OPTS} -jar pandas-admin.jar"]
+
+CMD java -jar pandas-admin.jar
