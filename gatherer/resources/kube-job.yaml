@@ -26,7 +26,7 @@ spec:
 
       containers:
         - name: crawler
-          image: "container-registry.prod.nla.gov.au/docker/webrecofder/browsertrix-crawler:1.9.2"
+          image: "container-registry.prod.nla.gov.au/docker/webrecorder/browsertrix-crawler:1.11.2"
           args: [] # filled in by the app
           workingDir: "/working/12345/20210915-120000" # filled in by the app
 
