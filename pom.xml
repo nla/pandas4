@@ -171,6 +171,9 @@
                     <url>https://dev.nla.gov.au/nexus/content/repositories/nla-public-snapshots/</url>
                 </snapshotRepository>
             </distributionManagement>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
         </profile>
     </profiles>
 </project>
