@@ -9,7 +9,7 @@ USER root
 RUN rpm --nodeps -i https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/29/Everything/$(arch)/os/Packages/h/httrack-3.49.2-4.fc29.$(arch).rpm
 
 # Install chromium-headless, java, pywb
-RUN rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+RUN microdnf install -y --nodocs --setopt=install_weak_deps=0 epel-release && \
     microdnf install -y --nodocs python3.12-pip tar gzip java-21-openjdk-headless chromium-headless && \
     microdnf clean all
 
