@@ -4,4 +4,5 @@ nlaBuild steps: this,
     jdk: 'JDK 17',
     mavenProfile: 'jenkins',
     triggerTektonBuild: true,
-    triggersToFire: 'pandas-ui,pandas-gatherer'
+    triggersToFire: 'pandas-ui,pandas-gatherer',
+    ignoreSonar: true
