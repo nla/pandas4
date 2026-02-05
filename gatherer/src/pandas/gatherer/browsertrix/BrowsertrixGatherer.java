@@ -29,8 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.*;
 
 @Component
 public class BrowsertrixGatherer implements Backend {
@@ -345,7 +344,7 @@ public class BrowsertrixGatherer implements Backend {
 
     private static void saveKubeJobLog(Path logFile, ScalableResource<Job> resource) throws IOException {
         try (var in = resource.getLogInputStream();
-             var out = Files.newOutputStream(logFile, APPEND)) {
+             var out = Files.newOutputStream(logFile, APPEND, CREATE, WRITE)) {
             in.transferTo(out);
         } catch (Exception e) {
             log.error("Error saving job log to {}", logFile, e);
