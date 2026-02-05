@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @Profile("!test")
@@ -31,6 +34,7 @@ import java.util.List;
 public class SearchScheduler {
     private static final Logger log = LoggerFactory.getLogger(SearchScheduler.class);
 
+    private final AtomicBoolean stopping = new AtomicBoolean(false);
     private final EntityManagerFactory entityManagerFactory;
     private final Path rootDir;
     private long lastTitleId = -1;
@@ -41,6 +45,11 @@ public class SearchScheduler {
     public SearchScheduler(EntityManagerFactory entityManagerFactory, @Value("${spring.jpa.properties.hibernate.search.backend.directory.root}") Path rootDir) {
         this.entityManagerFactory = entityManagerFactory;
         this.rootDir = rootDir;
+    }
+
+    @EventListener(ContextClosedEvent.class)
+    public void onClose() {
+        stopping.set(true);
     }
 
     @PostConstruct
@@ -97,7 +106,7 @@ public class SearchScheduler {
                     .sort(f -> f.field("id").desc()).fetch(1).hits();
             lastCollectionId = hits.isEmpty() ? -1 : hits.get(0).getId();
         }
-        while (true) {
+        while (!stopping.get()) {
             entityManager.getTransaction().begin();
             try {
                 @SuppressWarnings("unchecked")
@@ -135,7 +144,7 @@ public class SearchScheduler {
             log.info("Resuming incremental title indexing from {}, {}", lastIndexedTitleDate, lastTitleId);
         }
 
-        while (true) {
+        while (!stopping.get()) {
             entityManager.getTransaction().begin();
             try {
                 @SuppressWarnings("unchecked")
@@ -168,7 +177,7 @@ public class SearchScheduler {
         ;
     }
 
-    private static class InstanceIndexer {
+    private class InstanceIndexer {
         Instant lastDate;
         long lastId;
 
@@ -188,7 +197,7 @@ public class SearchScheduler {
                 log.info("Resuming incremental instance indexing from {}, {}", lastDate, lastId);
             }
 
-            while (true) {
+            while (!stopping.get()) {
                 entityManager.getTransaction().begin();
                 try {
                     @SuppressWarnings("unchecked")
