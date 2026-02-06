@@ -179,6 +179,11 @@
             <version>${hibernate.search.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.hibernate.search</groupId>
+            <artifactId>hibernate-search-backend-elasticsearch</artifactId>
+            <version>${hibernate.search.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-misc</artifactId>
             <version>${lucene.version}</version>
