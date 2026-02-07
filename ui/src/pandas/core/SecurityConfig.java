@@ -113,6 +113,7 @@ public class SecurityConfig {
         http.csrf(c -> c.ignoringRequestMatchers("/titles/check"));
         var auth = http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/health/**").permitAll()
                 .requestMatchers("/titles/check").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/login").permitAll()
