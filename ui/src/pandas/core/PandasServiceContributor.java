@@ -8,7 +8,7 @@ import org.hibernate.service.spi.ServiceContributor;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.hibernate.sql.exec.internal.JdbcSelectExecutorStandardImpl;
 import org.hibernate.sql.exec.spi.ExecutionContext;
-import org.hibernate.sql.exec.spi.JdbcOperationQuerySelect;
+import org.hibernate.sql.exec.spi.JdbcSelect;
 import org.hibernate.sql.exec.spi.JdbcParameterBindings;
 import org.hibernate.sql.exec.spi.JdbcSelectExecutor;
 import org.hibernate.sql.results.spi.ListResultsConsumer;
@@ -25,7 +25,7 @@ public class PandasServiceContributor implements ServiceContributor {
             public JdbcServices initiateService(Map<String, Object> configurationValues, ServiceRegistryImplementor registry) {
                 JdbcSelectExecutorStandardImpl instance = new JdbcSelectExecutorStandardImpl() {
                     @Override
-                    public <R> List<R> list(JdbcOperationQuerySelect jdbcSelect, JdbcParameterBindings jdbcParameterBindings, ExecutionContext executionContext, RowTransformer<R> rowTransformer, Class<R> domainResultType, ListResultsConsumer.UniqueSemantic uniqueSemantic) {
+                    public <R> List<R> list(JdbcSelect jdbcSelect, JdbcParameterBindings jdbcParameterBindings, ExecutionContext executionContext, RowTransformer<R> rowTransformer, Class<R> domainResultType, ListResultsConsumer.UniqueSemantic uniqueSemantic) {
                         long startNanos = System.nanoTime();
                         List<R> list = super.list(jdbcSelect, jdbcParameterBindings, executionContext, rowTransformer, domainResultType, uniqueSemantic);
                         long elapsedNanos = System.nanoTime() - startNanos;
@@ -37,7 +37,7 @@ public class PandasServiceContributor implements ServiceContributor {
                     }
 
                     @Override
-                    public <R> List<R> list(JdbcOperationQuerySelect jdbcSelect, JdbcParameterBindings jdbcParameterBindings, ExecutionContext executionContext, RowTransformer<R> rowTransformer, Class<R> requestedJavaType, ListResultsConsumer.UniqueSemantic uniqueSemantic, int resultCountEstimate) {
+                    public <R> List<R> list(JdbcSelect jdbcSelect, JdbcParameterBindings jdbcParameterBindings, ExecutionContext executionContext, RowTransformer<R> rowTransformer, Class<R> requestedJavaType, ListResultsConsumer.UniqueSemantic uniqueSemantic, int resultCountEstimate) {
                         long startNanos = System.nanoTime();
                         List<R> list = super.list(jdbcSelect, jdbcParameterBindings, executionContext, rowTransformer, requestedJavaType, uniqueSemantic, resultCountEstimate);
                         long elapsedNanos = System.nanoTime() - startNanos;
