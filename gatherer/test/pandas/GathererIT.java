@@ -44,6 +44,7 @@ import static pandas.gather.InstanceThumbnail.Type.REPLAY;
         "heritrix.url = https://localhost:18443/engine",
         "heritrix.password = password",
         "bamboo.crawlSeriesId = 1",
+        "browsertrix.transformLocalhostUrls = true",
         "spring.jpa.hibernate.ddl-auto=create-drop"})
 @ContextConfiguration(initializers = GathererIT.Initializer.class)
 public class GathererIT {

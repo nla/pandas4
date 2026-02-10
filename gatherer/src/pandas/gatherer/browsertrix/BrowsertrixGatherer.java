@@ -161,10 +161,10 @@ public class BrowsertrixGatherer implements Backend {
 
     /**
      * Transform localhost URLs to host.containers.internal for podman containers.
-     * This is necessary on MacOS because the container runs in a VM.
+     * This is necessary for integration tests because the container localhost is not the host localhost.
      */
     private List<String> transformSeedsForContainer(List<String> args) {
-        if (!System.getProperty("os.name").equals("Mac OS X")) {
+        if (!config.isTransformLocalhostUrls()) {
             return args;
         }
         var transformed = new ArrayList<String>();

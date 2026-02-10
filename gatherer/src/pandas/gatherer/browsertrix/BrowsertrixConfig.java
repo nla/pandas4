@@ -20,6 +20,7 @@ public class BrowsertrixConfig {
     private boolean kubeEnabled = false;
     private String kubeNamespace;
     private Path kubeJobConfig;
+    private boolean transformLocalhostUrls = false;
 
     public String getPodmanOptions() {
         return podmanOptions;
@@ -91,5 +92,13 @@ public class BrowsertrixConfig {
 
     public void setKubeJobConfig(Path kubeJobConfig) {
         this.kubeJobConfig = kubeJobConfig;
+    }
+
+    public boolean isTransformLocalhostUrls() {
+        return transformLocalhostUrls;
+    }
+
+    public void setTransformLocalhostUrls(boolean transformLocalhostUrls) {
+        this.transformLocalhostUrls = transformLocalhostUrls;
     }
 }
