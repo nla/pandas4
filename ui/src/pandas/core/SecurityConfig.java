@@ -30,7 +30,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.AgencyRepository;
 import pandas.agency.User;
@@ -78,7 +77,6 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http,
                                             HttpSessionSecurityContextRepository httpSessionSecurityContextRepository) throws Exception {
-        http.securityMatcher("/login/check-session-reply").headers().frameOptions().sameOrigin().and().securityMatcher("/**");
         if (config.getAutologin() != null) {
             PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
             provider.setPreAuthenticatedUserDetailsService(pandasUserDetailsService);
@@ -86,13 +84,12 @@ public class SecurityConfig {
         }
         if (oidcIssuerUri != null) {
             System.out.println("setting user service");
-            http.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService())
-                    .and().loginPage("/login")
-                    .and().logout().logoutUrl("/logout");
-            http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+            http.oauth2Login(oauth2 -> oauth2
+                    .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService()))
+                    .loginPage("/login"));
+            http.logout(logout -> logout.logoutUrl("/logout"));
         } else {
-            DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-            authProvider.setUserDetailsService(pandasUserDetailsService);
+            DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(pandasUserDetailsService);
             authProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
             http.authenticationProvider(authProvider);
         }
@@ -110,7 +107,7 @@ public class SecurityConfig {
             //filter.setAuthenticationManager(authenticationManager());
             http.addFilterBefore(filter, AnonymousAuthenticationFilter.class);
         }
-        http.csrf(c -> c.ignoringRequestMatchers("/titles/check"));
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/titles/check"));
         var auth = http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/health/**").permitAll()
@@ -123,21 +120,22 @@ public class SecurityConfig {
                 .requestMatchers("/whoami").permitAll()
                 .anyRequest().hasAnyRole("infouser"));
         if (oidcIssuerUri != null && clientRegistrationRepository != null) {
-            auth.logout().logoutSuccessHandler((request, response, authentication) -> {
+            auth.logout(logout -> logout.logoutSuccessHandler((request, response, authentication) -> {
                 OidcClientInitiatedLogoutSuccessHandler handler = new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
                 handler.setPostLogoutRedirectUri(ServletUriComponentsBuilder.fromContextPath(request).build().toUriString());
                 handler.onLogoutSuccess(request, response, authentication);
-            });
+            }));
         }
         if (oidcIssuerUri == null && config.getAutologin() == null) {
-                auth.formLogin().defaultSuccessUrl("/")
-                    .and().httpBasic().realmName("PANDAS");
+            auth.formLogin(form -> form.defaultSuccessUrl("/"));
+            auth.httpBasic(httpBasic -> httpBasic.realmName("PANDAS"));
         }
 
         // This is the same as the default, but the sudo function needs a reference to
         // httpSessionSecurityContextRepository, so we construct it ourselves and stash it in a bean.
-        http.securityContext().securityContextRepository(new DelegatingSecurityContextRepository(
-                new RequestAttributeSecurityContextRepository(), httpSessionSecurityContextRepository));
+        http.securityContext(ctx ->
+                ctx.securityContextRepository(new DelegatingSecurityContextRepository(
+                new RequestAttributeSecurityContextRepository(), httpSessionSecurityContextRepository)));
 
         return http.build();
     }
@@ -218,4 +216,3 @@ public class SecurityConfig {
         };
     }
 }
-
