@@ -2,7 +2,8 @@ package pandas;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
+// OAuth2ClientProperties has been removed in Spring Boot 4
+// import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 @Configuration
 @ConditionalOnProperty("OIDC_URL")
 @PropertySource("classpath:application-oauth.properties")
-@EnableConfigurationProperties(OAuth2ClientProperties.class)
+// @EnableConfigurationProperties(OAuth2ClientProperties.class)
 //@Import(OAuth2ClientAutoConfiguration.class)
 public class PandasOAuthConfig {
 
