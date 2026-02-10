@@ -2,7 +2,7 @@ package pandas.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryDependsOnPostProcessor;
+import org.springframework.boot.jpa.autoconfigure.EntityManagerFactoryDependsOnPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.support.DatabaseStartupValidator;

@@ -17,10 +17,11 @@ public class PandasSocial {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
+        http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(r -> r.anyRequest().permitAll());
         http.oauth2Login(Customizer.withDefaults());
-        http.oauth2Client();
+        // oauth2Client() requires a lambda in Spring Security 7, using empty lambda for default configuration
+        http.oauth2Client(oauth2 -> {});
         return http.build();
     }
 }
