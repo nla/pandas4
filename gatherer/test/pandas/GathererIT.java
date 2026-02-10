@@ -94,13 +94,21 @@ public class GathererIT {
             }
         });
         server.createContext("/bamboo/crawls/1/artifacts/", exchange -> {
-            if (exchange.getRequestMethod().equals("PUT")) {
+            if (exchange.getRequestMethod().equals("HEAD")) {
+                exchange.sendResponseHeaders(404, -1);
+            } else if (exchange.getRequestMethod().equals("PUT")) {
                 exchange.sendResponseHeaders(200, -1);
+            } else {
+                exchange.sendResponseHeaders(405, -1);
             }
         });
         server.createContext("/bamboo/crawls/1/warcs/", exchange -> {
-            if (exchange.getRequestMethod().equals("PUT")) {
+            if (exchange.getRequestMethod().equals("HEAD")) {
+                exchange.sendResponseHeaders(404, -1);
+            } else if (exchange.getRequestMethod().equals("PUT")) {
                 exchange.sendResponseHeaders(200, -1);
+            } else {
+                exchange.sendResponseHeaders(405, -1);
             }
         });
         server.start();
@@ -244,6 +252,7 @@ public class GathererIT {
     @Test
     @Timeout(value = 120)
     public void testBrowsertrixCrawl() throws InterruptedException, IOException {
+        Instance instance = null;
         try {
             Process process = new ProcessBuilder("podman", "version").inheritIO().start();
             Assumptions.assumeTrue(process.waitFor() == 0, "'podman version' exited with non-zero status");
@@ -251,42 +260,53 @@ public class GathererIT {
             Assumptions.assumeTrue(false, "Error starting podman");
         }
 
-        int serverPort = server.getAddress().getPort();
+        try {
+            int serverPort = server.getAddress().getPort();
 
-        TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
-        form.setName("Browsertrix title");
-        form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.BROWSERTRIX).orElseThrow());
-        form.setSeedUrls("http://127.0.0.1:" + serverPort + "/target/");
-        form.setOneoffDates(List.of(Instant.now()));
-        Title title = titleService.save(form, null);
+            TitleEditForm form = titleService.newTitleForm(Set.of(), Set.of());
+            form.setName("Browsertrix title");
+            form.setGatherMethod(gatherMethodRepository.findByName(GatherMethod.BROWSERTRIX).orElseThrow());
+            form.setSeedUrls("http://127.0.0.1:" + serverPort + "/target/");
+            form.setOneoffDates(List.of(Instant.now()));
+            Title title = titleService.save(form, null);
 
-        // wait for instance to be created
-        List<Instance> instances = instanceRepository.findByTitle(title);
-        while (instances.isEmpty()) {
-            Thread.sleep(100);
-            instances = instanceRepository.findByTitle(title);
+            // wait for instance to be created
+            List<Instance> instances = instanceRepository.findByTitle(title);
+            while (instances.isEmpty()) {
+                Thread.sleep(100);
+                instances = instanceRepository.findByTitle(title);
+            }
+            instance = instances.get(0);
+
+            // wait until gathering finishes
+            while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState())) {
+                Thread.sleep(100);
+                instance = instanceRepository.findById(instance.getId()).orElseThrow();
+            }
+            assertEquals(State.GATHERED, instance.getState());
+            assertEquals(0, instance.getGather().getExitStatus());
+
+            // archive the instance
+            instanceService.updateState(instance.getId(), State.ARCHIVING);
+
+            // wait until archiving finishes
+            do {
+                Thread.sleep(100);
+                instance = instanceRepository.findById(instance.getId()).orElseThrow();
+            } while (instance.getState().equals(State.ARCHIVING));
+            assertEquals(State.ARCHIVED, instance.getState());
+            assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
+        } finally {
+            if (instance != null) {
+                Path stdioLog = tempDir.resolve("working")
+                        .resolve(Long.toString(instance.getPi()))
+                        .resolve(instance.getDateString())
+                        .resolve("stdio.log");
+                if (Files.exists(stdioLog)) {
+                    System.err.println("Browsertrix stdio:\n" + Files.readString(stdioLog));
+                }
+            }
         }
-        Instance instance = instances.get(0);
-
-        // wait until gathering finishes
-        while (Set.of(State.GATHERING, State.CREATION, State.GATHER_PROCESS).contains(instance.getState())) {
-            Thread.sleep(100);
-            instance = instanceRepository.findById(instance.getId()).orElseThrow();
-        }
-        assertEquals(State.GATHERED, instance.getState());
-        assertEquals(0, instance.getGather().getExitStatus());
-
-        // archive the instance
-        instanceService.updateState(instance.getId(), State.ARCHIVING);
-
-        // wait until archiving finishes
-        do {
-            Thread.sleep(100);
-            instance = instanceRepository.findById(instance.getId()).orElseThrow();
-        } while (instance.getState().equals(State.ARCHIVING));
-        assertEquals(State.ARCHIVED, instance.getState());
-        assertTrue(instanceThumbnailRepository.existsByInstanceAndType(instance, LIVE));
-
     }
 
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {

@@ -159,6 +159,27 @@ public class BrowsertrixGatherer implements Backend {
         return args;
     }
 
+    /**
+     * Transform localhost URLs to host.containers.internal for podman containers.
+     * This is necessary on MacOS because the container runs in a VM.
+     */
+    private List<String> transformSeedsForContainer(List<String> args) {
+        if (!System.getProperty("os.name").equals("Mac OS X")) {
+            return args;
+        }
+        var transformed = new ArrayList<String>();
+        for (int i = 0; i < args.size(); i++) {
+            String arg = args.get(i);
+            if (i > 0 && "--url".equals(args.get(i - 1))) {
+                // Transform localhost/127.0.0.1 to host.containers.internal
+                arg = arg.replace("://localhost:", "://host.containers.internal:")
+                         .replace("://127.0.0.1:", "://host.containers.internal:");
+            }
+            transformed.add(arg);
+        }
+        return transformed;
+    }
+
     @Override
     public int gather(Instance instance) throws Exception {
         Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
@@ -183,12 +204,12 @@ public class BrowsertrixGatherer implements Backend {
 
         var command = new ArrayList<>(List.of("podman", "run", "--rm",
                 "-v", workingDir + ":/crawls/",
-                "-v", BEHAVIORS_DIR + ":/behaviors/:z"));
+                "-v", BEHAVIORS_DIR + ":/crawls/.behaviors/:z"));
         if (config.getPodmanOptions() != null) {
             command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
         }
         command.add(config.getImage());
-        command.addAll(buildCrawlerArguments(instance));
+        command.addAll(transformSeedsForContainer(buildCrawlerArguments(instance)));
 
         Files.writeString(logFile, encodeShellCommandForLogging(command) + "\n", APPEND, CREATE);
         log.info("Executing {}", String.join(" ", command));
