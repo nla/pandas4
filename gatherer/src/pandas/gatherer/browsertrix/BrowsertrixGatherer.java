@@ -164,9 +164,6 @@ public class BrowsertrixGatherer implements Backend {
      * This is necessary for integration tests because the container localhost is not the host localhost.
      */
     private List<String> transformSeedsForContainer(List<String> args) {
-        if (!config.isTransformLocalhostUrls()) {
-            return args;
-        }
         var transformed = new ArrayList<String>();
         for (int i = 0; i < args.size(); i++) {
             String arg = args.get(i);
@@ -202,14 +199,22 @@ public class BrowsertrixGatherer implements Backend {
     private int gatherPodman(Instance instance, Path workingDir) throws IOException, InterruptedException, GatherException {
         Path logFile = workingDir.resolve("stdio.log");
 
+        List<String> args = buildCrawlerArguments(instance);
         var command = new ArrayList<>(List.of("podman", "run", "--rm",
                 "-v", workingDir + ":/crawls/",
                 "-v", BEHAVIORS_DIR + ":/crawls/.behaviors/:z"));
+        if (config.isTransformLocalhostUrls()) {
+            if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                command.add("--network=host");
+            } else {
+                args = transformSeedsForContainer(args);
+            }
+        }
         if (config.getPodmanOptions() != null) {
             command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
         }
         command.add(config.getImage());
-        command.addAll(transformSeedsForContainer(buildCrawlerArguments(instance)));
+        command.addAll(args);
 
         Files.writeString(logFile, encodeShellCommandForLogging(command) + "\n", APPEND, CREATE);
         log.info("Executing {}", String.join(" ", command));
