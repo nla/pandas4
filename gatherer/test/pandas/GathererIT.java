@@ -241,6 +241,7 @@ public class GathererIT {
         instanceService.updateState(instance.getId(), State.ARCHIVING);
 
         // wait until archiving finishes
+        instance = instanceRepository.findById(instance.getId()).orElseThrow();
         while (instance.getState().equals(State.ARCHIVING)) {
             Thread.sleep(100);
             instance = instanceRepository.findById(instance.getId()).orElseThrow();
