@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{_delivery.html :: head('Search - PANDORA')}"></head>
+<style th:inline="text">
+.search-input {
+    width: 60%;
+}
+.year-hint {
+    font-size: 90%;
+    color: #555;
+    height: 1.2em;
+}
+.year-histogram {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 120px;
+    padding: 6px 0;
+}
+.histogram-bar,
+.histogram-bar:hover,
+.histogram-bar:focus,
+.histogram-bar:active {
+    background: transparent !important;
+    text-decoration: none;
+    color: inherit;
+}
+.histogram-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 14px;
+    text-decoration: none;
+}
+.histogram-bar-fill {
+    display: block;
+    width: 10px;
+}
+.histogram-bar-year {
+    margin-top: 4px;
+    font-size: 10px;
+    color: #555;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+.results-title {
+    font-weight: bold;
+}
+.result-item {
+    margin: 0 0 16px 0;
+}
+.result-url-line {
+    color: #006621;
+    font-size: 90%;
+}
+.result-favicon {
+    vertical-align: text-bottom;
+    width: 16px;
+    height: 16px;
+}
+.more-link {
+    margin-left: 8px;
+    font-size: 90%;
+}
+.snapshot-range {
+    margin-left: 8px;
+    font-size: 90%;
+    color: #555;
+}
+.snippet-line {
+    margin: 4px 0 0 0;
+}
+.snippet-date {
+    color: #555;
+}
+.pagination-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+p {
+    text-align: left;
+}
+</style>
+
+<body>
+
+<th:block th:replace="~{_delivery.html :: body}"></th:block>
+
+<div id="content">
+    <div id="contentBreadcrumbs">
+        <a th:href="@{|${prefix}/|}">Home</a>
+        &lt;
+        <span class="selectedTitle">Search</span>
+    </div>
+
+    <div class="itemnavigation">
+        <h2>Search</h2>
+    </div>
+
+    <div class="itemlist">
+        <form method="get" th:action="@{/search}">
+            <input type="search" name="q" th:value="${q}" size="60" class="search-input">
+            <input type="hidden" name="yearFrom" th:if="${selectedYearFrom != null}" th:value="${selectedYearFrom}">
+            <input type="hidden" name="yearTo" th:if="${selectedYearTo != null}" th:value="${selectedYearTo}">
+            <input type="hidden" name="deliveryUrl" th:if="${deliveryUrlFilter != null}" th:value="${deliveryUrlFilter}">
+            <input type="submit" value="Search">
+        </form>
+    </div>
+
+    <p th:if="${error}" th:text="${error}">Search backend unavailable.</p>
+
+    <th:block th:if="${q != null}">
+        <div class="itemlist" th:if="${!yearCounts.isEmpty()}">
+            <div id="yearHint" class="year-hint"></div>
+            <div id="yearHistogram"
+                 th:attr="data-q=${q},data-year-from=${selectedYearFrom},data-year-to=${selectedYearTo},data-delivery-url=${deliveryUrlFilter}"
+                 class="year-histogram">
+                <a th:each="yc : ${yearCounts}"
+                   th:href="@{/search(q=${q},yearFrom=${yc.year},yearTo=${yc.year},deliveryUrl=${deliveryUrlFilter})}"
+                   th:attr="data-year=${yc.year},data-count=${yc.count}"
+                   class="histogram-bar"
+                   >
+                    <span class="histogram-bar-fill"
+                          th:style="|background:${selectedYearFrom != null and selectedYearTo != null and yc.year >= selectedYearFrom and yc.year <= selectedYearTo ? '#4a7' : '#9ab8aa'}; height:${yearScaleMax == 0 ? 0 : (T(java.lang.Math).sqrt(yc.count) * 90.0 / yearScaleMax)}px;|"></span>
+                    <span th:text="${yc.year}" class="histogram-bar-year"></span>
+                </a>
+            </div>
+            <script>
+                (function () {
+                    var histogram = document.getElementById('yearHistogram');
+                    var hint = document.getElementById('yearHint');
+                    if (!histogram) return;
+                    var dragging = false;
+                    var startYear = null;
+                    var currentYear = null;
+                    function setHint(text) {
+                        if (!hint) return;
+                        hint.textContent = text || '';
+                    }
+                    function barYear(el) {
+                        return parseInt(el.getAttribute('data-year'), 10);
+                    }
+                    function barCount(el) {
+                        return parseInt(el.getAttribute('data-count'), 10);
+                    }
+                    function setActiveRange(minYear, maxYear) {
+                        var links = histogram.querySelectorAll('a[data-year]');
+                        links.forEach(function (link) {
+                            var year = barYear(link);
+                            var bar = link.firstElementChild;
+                            if (!bar) return;
+                            if (year >= minYear && year <= maxYear) {
+                                bar.style.background = '#4a7';
+                            } else {
+                                bar.style.background = '#9ab8aa';
+                            }
+                        });
+                    }
+                    function showBarHint(link) {
+                        if (!link) return;
+                        var year = barYear(link);
+                        var count = barCount(link);
+                        setHint(year + ': ' + count);
+                    }
+                    function navigateRange(minYear, maxYear) {
+                        var q = histogram.getAttribute('data-q') || '';
+                        var deliveryUrl = histogram.getAttribute('data-delivery-url');
+                        var url = '/search?q=' + encodeURIComponent(q) +
+                                '&yearFrom=' + encodeURIComponent(minYear) +
+                                '&yearTo=' + encodeURIComponent(maxYear);
+                        if (deliveryUrl) {
+                            url += '&deliveryUrl=' + encodeURIComponent(deliveryUrl);
+                        }
+                        window.location.assign(url);
+                    }
+                    histogram.addEventListener('mousedown', function (event) {
+                        var link = event.target.closest('a[data-year]');
+                        if (!link) return;
+                        dragging = true;
+                        startYear = barYear(link);
+                        currentYear = startYear;
+                        setActiveRange(startYear, startYear);
+                        showBarHint(link);
+                        event.preventDefault();
+                    });
+                    histogram.addEventListener('mousemove', function (event) {
+                        var link = event.target.closest('a[data-year]');
+                        if (!link) return;
+                        showBarHint(link);
+                    });
+                    histogram.addEventListener('mouseover', function (event) {
+                        if (!dragging) return;
+                        var link = event.target.closest('a[data-year]');
+                        if (!link) return;
+                        currentYear = barYear(link);
+                        var minYear = Math.min(startYear, currentYear);
+                        var maxYear = Math.max(startYear, currentYear);
+                        setActiveRange(minYear, maxYear);
+                        showBarHint(link);
+                    });
+                    document.addEventListener('mouseup', function () {
+                        if (!dragging) return;
+                        dragging = false;
+                        var minYear = Math.min(startYear, currentYear);
+                        var maxYear = Math.max(startYear, currentYear);
+                        navigateRange(minYear, maxYear);
+                    });
+                    histogram.addEventListener('mouseleave', function () {
+                        if (!dragging) setHint('');
+                    });
+                })();
+            </script>
+        </div>
+
+        <div class="itemnavigation">
+            <h2>Results <em th:text="'(' + ${#numbers.formatInteger(numFound, 0, 'COMMA')} + ')'">(0)</em></h2>
+        </div>
+
+        <div class="itemnavigation" th:if="${totalPages > 1}">
+            <div class="pagination-row">
+                <a th:if="${page > 1}"
+                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}">Previous</a>
+                <span th:text="'Page ' + ${page} + ' of ' + ${totalPages}">Page 1 of 1</span>
+                <a th:if="${page < totalPages}"
+                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}">Next</a>
+            </div>
+        </div>
+
+        <div class="itemlist">
+            <p th:if="${numFound == 0}">(none)</p>
+            <div th:if="${numFound > 0}">
+                <div th:each="group : ${groups}">
+                    <div th:each="doc : ${group.doclist.docs}" class="result-item">
+                        <div>
+                            <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] != null}"
+                               th:href="@{|https://webarchive.nla.gov.au/awa/${doc['archiveDate']}/${doc['deliveryUrl']}|}"
+                               th:text="${doc['displayTitle'] != null ? doc['displayTitle'] : (doc['title'] != null ? doc['title'] : doc['deliveryUrl'])}"
+                               class="results-title">Result</a>
+                            <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] == null}"
+                               th:href="${doc['deliveryUrl']}"
+                               th:text="${doc['displayTitle'] != null ? doc['displayTitle'] : (doc['title'] != null ? doc['title'] : doc['deliveryUrl'])}"
+                               class="results-title">Result</a>
+                            <span th:if="${doc['deliveryUrl'] == null}"
+                                  th:text="${doc['title'] != null ? doc['title'] : doc['id']}">Result</span>
+                        </div>
+                        <div class="result-url-line">
+                            <img th:if="${doc['archiveDate'] != null and doc['host'] != null}"
+                                 th:src="@{|https://web.archive.org.au/awa/${doc['archiveDate']}im_/http://${doc['host']}/favicon.ico|}"
+                                 alt="" onerror="this.style.display='none'"
+                                 class="result-favicon">
+                            <span th:text="${doc['displayUrl'] != null ? doc['displayUrl'] : (doc['deliveryUrl'] != null ? doc['deliveryUrl'] : doc['url'])}">url</span>
+                            <a th:if="${doc['site'] != null and siteFilter == null}"
+                               th:href="@{/search(q=${q + ' site:' + doc['site']},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo})}"
+                               class="more-link"
+                               th:text="'More from this site (' + ${#numbers.formatInteger(group.doclist.numFound, 0, 'COMMA')} + ')'">More</a>
+                            <a th:if="${doc['deliveryUrl'] != null and siteFilter != null and deliveryUrlFilter == null and group.doclist.numFound > 1}"
+                               th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${doc['deliveryUrl']})}"
+                               class="more-link"
+                               th:text="'Other versions (' + ${#numbers.formatInteger(group.doclist.numFound, 0, 'COMMA')} + ')'">Other versions</a>
+                            <span th:if="${group.doclist.numFound > 1 and deliveryUrlRanges != null and group.groupValue != null and deliveryUrlRanges[group.groupValue] != null}"
+                                  th:text="${deliveryUrlRanges[group.groupValue]}" class="snapshot-range">range</span>
+                        </div>
+                        <th:block th:with="docId=${doc['id']}">
+                            <th:block th:if="${highlights.get(docId) != null}">
+                                <p class="snippet-line">
+                                    <span th:if="${doc['displayDate'] != null}" th:text="${doc['displayDate']} + ' — '"
+                                          class="snippet-date"></span>
+                                    <span th:each="snippet, iter : ${highlights.get(docId)}">
+                                        <th:block th:if="${iter.index > 0}"> </th:block>
+                                        <span th:utext="${snippet}"></span>
+                                    </span>
+                                </p>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="itemnavigation" th:if="${totalPages > 1}">
+            <div class="pagination-row">
+                <a th:if="${page > 1}"
+                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}">Previous</a>
+                <span th:text="'Page ' + ${page} + ' of ' + ${totalPages}">Page 1 of 1</span>
+                <a th:if="${page < totalPages}"
+                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}">Next</a>
+            </div>
+        </div>
+    </th:block>
+</div>
+</body>
