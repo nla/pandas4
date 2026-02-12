@@ -65,6 +65,7 @@ public class SearchController {
             model.addAttribute("groups", List.of());
             model.addAttribute("highlights", Map.of());
             model.addAttribute("totalPages", 1);
+            addPaginationModel(model, 1, currentPage);
             return "Search";
         }
 
@@ -80,21 +81,29 @@ public class SearchController {
                 model.addAttribute("numFound", 0L);
                 model.addAttribute("groups", List.of());
                 model.addAttribute("highlights", Map.of());
+                model.addAttribute("titleHighlights", Map.of());
                 model.addAttribute("yearCounts", yearCounts);
                 model.addAttribute("yearMaxCount", 0L);
                 model.addAttribute("yearScaleMax", 0.0);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("deliveryUrlRanges", Map.of());
+                addPaginationModel(model, 1, currentPage);
             } else {
                 String groupField = siteFilter == null ? "site" : "deliveryUrl";
                 boolean groupedEnabled = deliveryUrlFilter == null;
                 var grouped = groupedEnabled && response.grouped != null ? response.grouped.get(groupField) : null;
                 Map<String, List<String>> highlights = new HashMap<>();
+                Map<String, List<String>> titleHighlights = new HashMap<>();
                 if (response.highlighting != null) {
                     for (var entry : response.highlighting.entrySet()) {
-                        var fulltext = entry.getValue().get("fulltext");
+                        var fields = entry.getValue();
+                        var fulltext = fields.get("fulltext");
                         if (fulltext != null) {
                             highlights.put(entry.getKey(), fulltext);
+                        }
+                        var title = fields.get("title");
+                        if (title != null) {
+                            titleHighlights.put(entry.getKey(), title);
                         }
                     }
                 }
@@ -112,6 +121,7 @@ public class SearchController {
                 model.addAttribute("numFound", numFound);
                 model.addAttribute("groups", groups);
                 model.addAttribute("highlights", highlights);
+                model.addAttribute("titleHighlights", titleHighlights);
                 model.addAttribute("yearCounts", yearCounts);
                 model.addAttribute("yearMaxCount", yearCounts.stream().mapToLong(YearCount::count).max().orElse(0L));
                 model.addAttribute("yearScaleMax", yearCounts.stream()
@@ -120,6 +130,7 @@ public class SearchController {
                         .orElse(0.0));
                 model.addAttribute("totalPages", totalPages);
                 model.addAttribute("deliveryUrlRanges", deliveryUrlRanges);
+                addPaginationModel(model, totalPages, currentPage);
             }
         } catch (Exception e) {
             model.addAttribute("error", "Search backend unavailable.");
@@ -131,6 +142,8 @@ public class SearchController {
             model.addAttribute("yearScaleMax", 0.0);
             model.addAttribute("totalPages", 1);
             model.addAttribute("deliveryUrlRanges", Map.of());
+            model.addAttribute("titleHighlights", Map.of());
+            addPaginationModel(model, 1, currentPage);
         }
         return "Search";
     }
@@ -188,6 +201,16 @@ public class SearchController {
     private static String truncate(String value, int maxLength) {
         if (value == null || value.length() <= maxLength) return value;
         return value.substring(0, maxLength - 3) + "...";
+    }
+
+    private static void addPaginationModel(Model model, int totalPages, int currentPage) {
+        int window = 2;
+        int start = Math.max(1, currentPage - window);
+        int end = Math.min(totalPages, currentPage + window);
+        model.addAttribute("pageStart", start);
+        model.addAttribute("pageEnd", end);
+        model.addAttribute("showLeadingEllipsis", start > 2);
+        model.addAttribute("showTrailingEllipsis", end < totalPages - 1);
     }
 
     private static void processDocs(List<Map<String, Object>> docs) {
@@ -385,7 +408,7 @@ public class SearchController {
                             .queryParam("sort", "score desc, date asc")
                             .queryParam("fl", FL_FIELDS)
                             .queryParam("hl", "true")
-                            .queryParam("hl.fl", "fulltext")
+                            .queryParam("hl.fl", "fulltext,title")
                             .queryParam("hl.fragsize", "400")
                             .queryParam("hl.snippets", "1")
                             .queryParam("hl.simple.pre", "<strong>")

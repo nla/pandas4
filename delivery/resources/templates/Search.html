@@ -5,6 +5,9 @@
 .search-input {
     width: 60%;
 }
+.search-form {
+    margin: 8px 0 12px 0;
+}
 .year-hint {
     font-size: 90%;
     color: #555;
@@ -16,6 +19,7 @@
     gap: 6px;
     height: 120px;
     padding: 6px 0;
+    margin-bottom: 12px;
 }
 .histogram-bar,
 .histogram-bar:hover,
@@ -62,6 +66,24 @@
     margin-left: 8px;
     font-size: 90%;
 }
+.filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border: 1px solid #c9d0dc;
+    border-radius: 12px;
+    background: #f4f6fa;
+    color: #24428b;
+    font-size: 90%;
+    margin: 0 0 8px 0;
+}
+.filter-pill a {
+    color: #24428b;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 2px 6px;
+}
 .snapshot-range {
     margin-left: 8px;
     font-size: 90%;
@@ -74,9 +96,52 @@
     color: #555;
 }
 .pagination-row {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+.pagination-count {
+    color: #555;
+    text-align: left;
+}
+.pagination-block {
+    margin: 0 0 12px 0;
+}
+.pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.pagination a {
+    text-decoration: none;
+    padding: 2px 6px;
+    border: 1px solid #c9d0dc;
+    border-radius: 3px;
+    color: #24428b;
+}
+.pagination a:hover {
+    background: #eef2f8;
+}
+.pagination .disabled {
+    color: #9aa3b2;
+    border-color: #e2e6ec;
+}
+.pagination .nav {
+    border-color: #b8c3d6;
+    font-weight: bold;
+}
+.pagination .current {
+    font-weight: bold;
+    background: #24428b;
+    color: #fff;
+    border-color: #24428b;
+    padding: 2px 8px;
+}
+.pagination .ellipsis {
+    color: #7a8699;
+    padding: 0 2px;
 }
 p {
     text-align: left;
@@ -99,7 +164,7 @@ p {
     </div>
 
     <div class="itemlist">
-        <form method="get" th:action="@{/search}">
+        <form method="get" th:action="@{/search}" class="search-form">
             <input type="search" name="q" th:value="${q}" size="60" class="search-input">
             <input type="hidden" name="yearFrom" th:if="${selectedYearFrom != null}" th:value="${selectedYearFrom}">
             <input type="hidden" name="yearTo" th:if="${selectedYearTo != null}" th:value="${selectedYearTo}">
@@ -111,6 +176,12 @@ p {
     <p th:if="${error}" th:text="${error}">Search backend unavailable.</p>
 
     <th:block th:if="${q != null}">
+        <div th:if="${selectedYearFrom != null or selectedYearTo != null}">
+            <span class="filter-pill">
+                <span th:text="'Year: ' + ${(selectedYearFrom != null ? selectedYearFrom : '*')} + ' - ' + ${(selectedYearTo != null ? selectedYearTo : '*')}">Year</span>
+                <a th:href="@{/search(q=${q},deliveryUrl=${deliveryUrlFilter})}">x</a>
+            </span>
+        </div>
         <div class="itemlist" th:if="${!yearCounts.isEmpty()}">
             <div id="yearHint" class="year-hint"></div>
             <div id="yearHistogram"
@@ -161,7 +232,7 @@ p {
                         if (!link) return;
                         var year = barYear(link);
                         var count = barCount(link);
-                        setHint(year + ': ' + count);
+                        setHint(year + ': ' + count.toLocaleString());
                     }
                     function navigateRange(minYear, maxYear) {
                         var q = histogram.getAttribute('data-q') || '';
@@ -213,17 +284,31 @@ p {
             </script>
         </div>
 
-        <div class="itemnavigation">
-            <h2>Results <em th:text="'(' + ${#numbers.formatInteger(numFound, 0, 'COMMA')} + ')'">(0)</em></h2>
-        </div>
-
-        <div class="itemnavigation" th:if="${totalPages > 1}">
+        <div class="pagination-block" th:if="${totalPages > 1}">
             <div class="pagination-row">
-                <a th:if="${page > 1}"
-                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}">Previous</a>
-                <span th:text="'Page ' + ${page} + ' of ' + ${totalPages}">Page 1 of 1</span>
-                <a th:if="${page < totalPages}"
-                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}">Next</a>
+                <span class="pagination-count"
+                      th:text="${#numbers.formatInteger(numFound, 0, 'COMMA')} + ' web page snapshots'">0 web page snapshots</span>
+                <span class="pagination">
+                    <a th:if="${page > 1}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}"
+                       rel="prev" class="nav">Previous</a>
+                    <span th:if="${page == 1}" class="disabled">Previous</span>
+                    <a th:if="${pageStart > 1}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=1)}">1</a>
+                    <span th:if="${showLeadingEllipsis}" class="ellipsis">…</span>
+                    <th:block th:each="p : ${#numbers.sequence(pageStart, pageEnd)}">
+                        <span th:if="${p == page}" th:text="${p}" aria-current="page" class="current">1</span>
+                        <a th:if="${p != page}"
+                           th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${p})}"
+                           th:text="${p}">1</a>
+                    </th:block>
+                    <span th:if="${showTrailingEllipsis}" class="ellipsis">…</span>
+                    <a th:if="${page < totalPages}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}"
+                       rel="next" class="nav">Next</a>
+                    <span th:if="${page == totalPages}" class="disabled">Next</span>
+                </span>
+                <span></span>
             </div>
         </div>
 
@@ -232,18 +317,28 @@ p {
             <div th:if="${numFound > 0}">
                 <div th:each="group : ${groups}">
                     <div th:each="doc : ${group.doclist.docs}" class="result-item">
-                        <div>
-                            <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] != null}"
-                               th:href="@{|https://webarchive.nla.gov.au/awa/${doc['archiveDate']}/${doc['deliveryUrl']}|}"
-                               th:text="${doc['displayTitle'] != null ? doc['displayTitle'] : (doc['title'] != null ? doc['title'] : doc['deliveryUrl'])}"
-                               class="results-title">Result</a>
-                            <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] == null}"
-                               th:href="${doc['deliveryUrl']}"
-                               th:text="${doc['displayTitle'] != null ? doc['displayTitle'] : (doc['title'] != null ? doc['title'] : doc['deliveryUrl'])}"
-                               class="results-title">Result</a>
-                            <span th:if="${doc['deliveryUrl'] == null}"
-                                  th:text="${doc['title'] != null ? doc['title'] : doc['id']}">Result</span>
-                        </div>
+                        <th:block th:with="docId=${doc['id']}">
+                            <div>
+                                <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] != null and titleHighlights.get(docId) != null}"
+                                   th:href="@{|https://webarchive.nla.gov.au/awa/${doc['archiveDate']}/${doc['deliveryUrl']}|}"
+                                   th:utext="${titleHighlights.get(docId)[0]}"
+                                   class="results-title">Result</a>
+                                <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] != null and titleHighlights.get(docId) == null}"
+                                   th:href="@{|https://webarchive.nla.gov.au/awa/${doc['archiveDate']}/${doc['deliveryUrl']}|}"
+                                   th:text="${doc['displayTitle'] != null ? doc['displayTitle'] : (doc['title'] != null ? doc['title'] : doc['deliveryUrl'])}"
+                                   class="results-title">Result</a>
+                                <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] == null and titleHighlights.get(docId) != null}"
+                                   th:href="${doc['deliveryUrl']}"
+                                   th:utext="${titleHighlights.get(docId)[0]}"
+                                   class="results-title">Result</a>
+                                <a th:if="${doc['deliveryUrl'] != null and doc['archiveDate'] == null and titleHighlights.get(docId) == null}"
+                                   th:href="${doc['deliveryUrl']}"
+                                   th:text="${doc['displayTitle'] != null ? doc['displayTitle'] : (doc['title'] != null ? doc['title'] : doc['deliveryUrl'])}"
+                                   class="results-title">Result</a>
+                                <span th:if="${doc['deliveryUrl'] == null}"
+                                      th:text="${doc['title'] != null ? doc['title'] : doc['id']}">Result</span>
+                            </div>
+                        </th:block>
                         <div class="result-url-line">
                             <img th:if="${doc['archiveDate'] != null and doc['host'] != null}"
                                  th:src="@{|https://web.archive.org.au/awa/${doc['archiveDate']}im_/http://${doc['host']}/favicon.ico|}"
@@ -262,29 +357,46 @@ p {
                                   th:text="${deliveryUrlRanges[group.groupValue]}" class="snapshot-range">range</span>
                         </div>
                         <th:block th:with="docId=${doc['id']}">
-                            <th:block th:if="${highlights.get(docId) != null}">
-                                <p class="snippet-line">
-                                    <span th:if="${doc['displayDate'] != null}" th:text="${doc['displayDate']} + ' — '"
-                                          class="snippet-date"></span>
+                            <p class="snippet-line">
+                                <span th:if="${doc['displayDate'] != null}" th:text="'Archived ' + ${doc['displayDate']} + ' — '"
+                                      class="snippet-date"></span>
+                                <span th:if="${highlights.get(docId) != null}">
                                     <span th:each="snippet, iter : ${highlights.get(docId)}">
                                         <th:block th:if="${iter.index > 0}"> </th:block>
                                         <span th:utext="${snippet}"></span>
                                     </span>
-                                </p>
-                            </th:block>
+                                </span>
+                            </p>
                         </th:block>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="itemnavigation" th:if="${totalPages > 1}">
+        <div class="pagination-block" th:if="${totalPages > 1}">
             <div class="pagination-row">
-                <a th:if="${page > 1}"
-                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}">Previous</a>
-                <span th:text="'Page ' + ${page} + ' of ' + ${totalPages}">Page 1 of 1</span>
-                <a th:if="${page < totalPages}"
-                   th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}">Next</a>
+                <span class="pagination-count"></span>
+                <span class="pagination">
+                    <a th:if="${page > 1}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}"
+                       rel="prev" class="nav">Previous</a>
+                    <span th:if="${page == 1}" class="disabled">Previous</span>
+                    <a th:if="${pageStart > 1}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=1)}">1</a>
+                    <span th:if="${showLeadingEllipsis}" class="ellipsis">…</span>
+                    <th:block th:each="p : ${#numbers.sequence(pageStart, pageEnd)}">
+                        <span th:if="${p == page}" th:text="${p}" aria-current="page" class="current">1</span>
+                        <a th:if="${p != page}"
+                           th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${p})}"
+                           th:text="${p}">1</a>
+                    </th:block>
+                    <span th:if="${showTrailingEllipsis}" class="ellipsis">…</span>
+                    <a th:if="${page < totalPages}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}"
+                       rel="next" class="nav">Next</a>
+                    <span th:if="${page == totalPages}" class="disabled">Next</span>
+                </span>
+                <span></span>
             </div>
         </div>
     </th:block>
