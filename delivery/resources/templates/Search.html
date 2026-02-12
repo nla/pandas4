@@ -292,7 +292,7 @@ p {
                     <a th:if="${page > 1}"
                        th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}"
                        rel="prev" class="nav">Previous</a>
-                    <span th:if="${page == 1}" class="disabled">Previous</span>
+                    <span th:if="${page == 1}"></span>
                     <a th:if="${pageStart > 1}"
                        th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=1)}">1</a>
                     <span th:if="${showLeadingEllipsis}" class="ellipsis">…</span>
@@ -306,7 +306,7 @@ p {
                     <a th:if="${page < totalPages}"
                        th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}"
                        rel="next" class="nav">Next</a>
-                    <span th:if="${page == totalPages}" class="disabled">Next</span>
+                    <span th:if="${page == totalPages}"></span>
                 </span>
                 <span></span>
             </div>
@@ -380,7 +380,7 @@ p {
                     <a th:if="${page > 1}"
                        th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}"
                        rel="prev" class="nav">Previous</a>
-                    <span th:if="${page == 1}" class="disabled">Previous</span>
+                    <span th:if="${page == 1}"></span>
                     <a th:if="${pageStart > 1}"
                        th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=1)}">1</a>
                     <span th:if="${showLeadingEllipsis}" class="ellipsis">…</span>
@@ -394,7 +394,7 @@ p {
                     <a th:if="${page < totalPages}"
                        th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page+1})}"
                        rel="next" class="nav">Next</a>
-                    <span th:if="${page == totalPages}" class="disabled">Next</span>
+                    <span th:if="${page == totalPages}"></span>
                 </span>
                 <span></span>
             </div>

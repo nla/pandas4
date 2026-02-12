@@ -26,6 +26,7 @@ public class SearchController {
     private static final String FL_FIELDS = "id,url,deliveryUrl,date,decade,year,site,host,title,searchCategory";
     private static final String EDISMAX_QF = "id^100.0 host^8 urlText^6.0 title^10.0 linkText1^2.5 linkText2^2.0 linkText3^1.0 linkText4^0.5 h1^1.0 metadata^0.5 fulltext^0.2";
     private static final String EDISMAX_PF = "id^100.0 host^10 urlText^8.0 title^20.0 linkText1^5.0 linkText2^4.0 linkText3^2.0 linkText4^1.0 h1^1.5 metadata^1 fulltext^1";
+    private static final String BASE_FILTER = "-discoverable:false AND -searchCategory:none";
     private static final DateTimeFormatter ARCHIVE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
     private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH).withZone(ZoneOffset.UTC);
     private static final Logger log = LoggerFactory.getLogger(SearchController.class);
@@ -259,10 +260,11 @@ public class SearchController {
                     var builder = uriBuilder
                             .queryParam("q", query)
                             .queryParam("defType", "edismax")
+                            .queryParam("q.op", "AND")
                             .queryParam("qf", EDISMAX_QF)
                             .queryParam("pf", EDISMAX_PF)
                             .queryParam("ps", "2")
-                            .queryParam("mm", "2<75%")
+                            .queryParam("mm", "0%")
                             .queryParam("tie", "0.1")
                             .queryParam("rows", DEFAULT_ROWS)
                             .queryParam("fl", "deliveryUrl,date")
@@ -271,6 +273,7 @@ public class SearchController {
                             .queryParam("group.limit", 1)
                             .queryParam("group.sort", sort)
                             .queryParam("group.offset", (page - 1) * DEFAULT_ROWS)
+                            .queryParam("fq", BASE_FILTER)
                             .queryParam("wt", "json");
                     if (yearFrom != null || yearTo != null) {
                         String rangeStart = yearFrom == null ? "*" : yearFrom.toString();
@@ -354,16 +357,18 @@ public class SearchController {
                         var builder = uriBuilder
                                 .queryParam("q", query)
                                 .queryParam("defType", "edismax")
+                                .queryParam("q.op", "AND")
                                 .queryParam("qf", EDISMAX_QF)
                                 .queryParam("pf", EDISMAX_PF)
                                 .queryParam("ps", "2")
-                                .queryParam("mm", "2<75%")
+                                .queryParam("mm", "0%")
                                 .queryParam("tie", "0.1")
                                 .queryParam("rows", 100)
                                 .queryParam("fl", "id")
                                 .queryParam("group", "true")
                                 .queryParam("group.field", "year")
                                 .queryParam("sort", "year asc")
+                                .queryParam("fq", BASE_FILTER)
                                 .queryParam("wt", "json");
                         if (site != null) {
                             builder = builder.queryParam("fq", "site:" + site);
@@ -399,10 +404,11 @@ public class SearchController {
                     var builder = uriBuilder
                             .queryParam("q", query)
                             .queryParam("defType", "edismax")
+                            .queryParam("q.op", "AND")
                             .queryParam("qf", EDISMAX_QF)
                             .queryParam("pf", EDISMAX_PF)
                             .queryParam("ps", "2")
-                            .queryParam("mm", "2<75%")
+                            .queryParam("mm", "0%")
                             .queryParam("tie", "0.1")
                             .queryParam("rows", DEFAULT_ROWS)
                             .queryParam("sort", "score desc, date asc")
@@ -413,6 +419,7 @@ public class SearchController {
                             .queryParam("hl.snippets", "1")
                             .queryParam("hl.simple.pre", "<strong>")
                             .queryParam("hl.simple.post", "</strong>")
+                            .queryParam("fq", BASE_FILTER)
                             .queryParam("wt", "json");
                     if (deliveryUrl != null) {
                         builder = builder.queryParam("start", (page - 1) * DEFAULT_ROWS);
