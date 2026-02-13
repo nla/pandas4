@@ -15,7 +15,7 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <hibernate.search.version>7.2.4.Final</hibernate.search.version>
         <lucene.version>9.11.1</lucene.version>
-        <spring.version>3.5.6</spring.version>
+        <spring.version>4.0.2</spring.version>
         <sonar.organization>nla</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
