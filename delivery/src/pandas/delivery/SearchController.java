@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import pandas.collection.Title;
 import pandas.collection.TitleBrief;
 
@@ -33,6 +34,54 @@ public class SearchController {
     private static final String EDISMAX_QF = "id^100.0 host^8 urlText^6.0 title^10.0 linkText1^2.5 linkText2^2.0 linkText3^1.0 linkText4^0.5 h1^1.0 metadata^0.5 fulltext^0.2";
     private static final String EDISMAX_PF = "id^100.0 host^10 urlText^8.0 title^20.0 linkText1^5.0 linkText2^4.0 linkText3^2.0 linkText4^1.0 h1^1.5 metadata^1 fulltext^1";
     private static final String BASE_FILTER = "-discoverable:false AND -searchCategory:none";
+    private static final List<String> NEWS_HOSTS = List.of(
+            "abc.net.au",
+            "news.com.au",
+            "theaustralian.com.au",
+            "smh.com.au",
+            "theage.com.au",
+            "afr.com",
+            "9news.com.au",
+            "7news.com.au",
+            "skynews.com.au",
+            "dailytelegraph.com.au",
+            "heraldsun.com.au",
+            "couriermail.com.au",
+            "adelaidenow.com.au",
+            "perthnow.com.au",
+            "brisbanetimes.com.au",
+            "watoday.com.au",
+            "canberratimes.com.au",
+            "ntnews.com.au",
+            "examiner.com.au",
+            "themercury.com.au",
+            "illawarramercury.com.au",
+            "newcastleherald.com.au",
+            "theadvocate.com.au",
+            "centralwesterndaily.com.au",
+            "westernadvocate.com.au",
+            "ballaratcourier.com.au",
+            "bendigoadvertiser.com.au",
+            "bordermail.com.au",
+            "thechronicle.com.au",
+            "townsvillebulletin.com.au",
+            "cairnspost.com.au",
+            "goldcoastbulletin.com.au",
+            "geelongadvertiser.com.au",
+            "warrnamboolstandard.com.au",
+            "standard.net.au",
+            "riverinenews.com.au",
+            "theleader.com.au",
+            "mandurahmail.com.au",
+            "albanyadvertiser.com.au",
+            "greatsouthernherald.com.au",
+            "northwesttelegraph.com.au",
+            "echonews.com.au",
+            "naracoortenews.com.au",
+            "seymourtelegraph.com.au",
+            "sheppnews.com.au",
+            "theguardian.com"
+    );
     private static final DateTimeFormatter ARCHIVE_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(ZoneOffset.UTC);
     private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH).withZone(ZoneOffset.UTC);
     private static final Logger log = LoggerFactory.getLogger(SearchController.class);
@@ -59,21 +108,25 @@ public class SearchController {
                          @RequestParam(name = "yearTo", required = false) Integer yearTo,
                          @RequestParam(name = "site", required = false) String site,
                          @RequestParam(name = "deliveryUrl", required = false) String deliveryUrl,
+                         @RequestParam(name = "lens", required = false) String lens,
                          @RequestParam(name = "page", required = false) Integer page,
                          Model model) {
         long requestStart = System.nanoTime();
         query = Strings.emptyToNull(query);
         site = Strings.emptyToNull(site);
         deliveryUrl = Strings.emptyToNull(deliveryUrl);
+        lens = Strings.emptyToNull(lens);
         String extractedSite = extractSiteFilter(query);
         final String searchQuery = query;
         final String siteFilter = site != null ? site : extractedSite;
         final String deliveryUrlFilter = deliveryUrl;
+        final String lensFilter = buildLensFilter(lens);
         model.addAttribute("q", query);
         model.addAttribute("selectedYearFrom", yearFrom);
         model.addAttribute("selectedYearTo", yearTo);
         model.addAttribute("siteFilter", siteFilter);
         model.addAttribute("deliveryUrlFilter", deliveryUrlFilter);
+        model.addAttribute("lens", lens);
         int currentPage = page == null || page < 1 ? 1 : page;
         model.addAttribute("page", currentPage);
         model.addAttribute("prefix", "");
@@ -90,9 +143,9 @@ public class SearchController {
 
         try {
             List<TitleBrief> titleMatches = searchTitles(searchQuery);
-            var searchFuture = CompletableFuture.supplyAsync(() -> fetchSearchResults(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, currentPage));
-            var yearCountsFuture = CompletableFuture.supplyAsync(() -> fetchYearCounts(searchQuery, siteFilter, deliveryUrlFilter));
-            var rangeFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDateRanges(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, currentPage));
+            var searchFuture = CompletableFuture.supplyAsync(() -> fetchSearchResults(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, lensFilter, currentPage));
+            var yearCountsFuture = CompletableFuture.supplyAsync(() -> fetchYearCounts(searchQuery, siteFilter, deliveryUrlFilter, lensFilter));
+            var rangeFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDateRanges(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, lensFilter, currentPage));
             SolrResponse response = searchFuture.join();
             List<YearCount> yearCounts = yearCountsFuture.join();
             Map<String, String> deliveryUrlRanges = rangeFuture.join();
@@ -284,10 +337,10 @@ public class SearchController {
         }
     }
 
-    private Map<String, String> fetchDeliveryUrlDateRanges(String query, Integer yearFrom, Integer yearTo, String site, String deliveryUrl, int page) {
+    private Map<String, String> fetchDeliveryUrlDateRanges(String query, Integer yearFrom, Integer yearTo, String site, String deliveryUrl, String lensFilter, int page) {
         if (site == null || deliveryUrl != null) return Map.of();
-        var ascFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDates(query, yearFrom, yearTo, site, page, "date asc"));
-        var descFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDates(query, yearFrom, yearTo, site, page, "date desc"));
+        var ascFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDates(query, yearFrom, yearTo, site, lensFilter, page, "date asc"));
+        var descFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDates(query, yearFrom, yearTo, site, lensFilter, page, "date desc"));
         Map<String, String> earliest = ascFuture.join();
         Map<String, String> latest = descFuture.join();
         Map<String, String> ranges = new HashMap<>();
@@ -300,7 +353,7 @@ public class SearchController {
         return ranges;
     }
 
-    private Map<String, String> fetchDeliveryUrlDates(String query, Integer yearFrom, Integer yearTo, String site, int page, String sort) {
+    private Map<String, String> fetchDeliveryUrlDates(String query, Integer yearFrom, Integer yearTo, String site, String lensFilter, int page, String sort) {
         final String[] urlHolder = new String[1];
         SolrResponse response = webClient.get()
                 .uri(uriBuilder -> {
@@ -322,6 +375,9 @@ public class SearchController {
                             .queryParam("group.offset", (page - 1) * DEFAULT_ROWS)
                             .queryParam("fq", BASE_FILTER)
                             .queryParam("wt", "json");
+                    if (lensFilter != null) {
+                        builder = builder.queryParam("fq", lensFilter);
+                    }
                     if (yearFrom != null || yearTo != null) {
                         String rangeStart = yearFrom == null ? "*" : yearFrom.toString();
                         String rangeEnd = yearTo == null ? "*" : yearTo.toString();
@@ -373,6 +429,25 @@ public class SearchController {
         return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
+    private static String buildLensFilter(String lens) {
+        if (lens == null) return null;
+        return switch (lens) {
+            case "education" -> "hostReversed:ua.ude.*";
+            case "government" -> "hostReversed:ua.vog.*";
+            case "news" -> buildNewsFilter();
+            case "documents" -> "(searchCategory:pdf OR searchCategory:document OR searchCategory:spreadsheet)";
+            case "presentations" -> "searchCategory:presentation";
+            default -> null;
+        };
+    }
+
+    private static String buildNewsFilter() {
+        String hostFilters = NEWS_HOSTS.stream()
+                .map(domain -> "site:" + domain)
+                .collect(Collectors.joining(" OR "));
+        return "(" + hostFilters + ")";
+    }
+
     private static String extractSiteFilter(String query) {
         if (query == null) return null;
         var tokens = query.split("\\s+");
@@ -396,7 +471,7 @@ public class SearchController {
     }
 
 
-    private List<YearCount> fetchYearCounts(String query, String site, String deliveryUrl) {
+    private List<YearCount> fetchYearCounts(String query, String site, String deliveryUrl, String lensFilter) {
         try {
             final String[] urlHolder = new String[1];
             SolrResponse response = webClient.get()
@@ -417,6 +492,9 @@ public class SearchController {
                                 .queryParam("sort", "year asc")
                                 .queryParam("fq", BASE_FILTER)
                                 .queryParam("wt", "json");
+                        if (lensFilter != null) {
+                            builder = builder.queryParam("fq", lensFilter);
+                        }
                         if (site != null) {
                             builder = builder.queryParam("fq", "site:" + site);
                         }
@@ -444,7 +522,7 @@ public class SearchController {
         }
     }
 
-    private SolrResponse fetchSearchResults(String query, Integer yearFrom, Integer yearTo, String site, String deliveryUrl, int page) {
+    private SolrResponse fetchSearchResults(String query, Integer yearFrom, Integer yearTo, String site, String deliveryUrl, String lensFilter, int page) {
         final String[] urlHolder = new String[1];
         SolrResponse response = webClient.get()
                 .uri(uriBuilder -> {
@@ -468,6 +546,9 @@ public class SearchController {
                             .queryParam("hl.simple.post", "</strong>")
                             .queryParam("fq", BASE_FILTER)
                             .queryParam("wt", "json");
+                    if (lensFilter != null) {
+                        builder = builder.queryParam("fq", lensFilter);
+                    }
                     if (deliveryUrl != null) {
                         builder = builder.queryParam("start", (page - 1) * DEFAULT_ROWS);
                     } else if (site == null) {
