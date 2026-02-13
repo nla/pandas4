@@ -17,6 +17,11 @@
     color: #555;
     height: 1.2em;
 }
+.year-normalize {
+    font-size: 90%;
+    color: #555;
+    margin-bottom: 6px;
+}
 .year-histogram {
     display: flex;
     align-items: flex-end;
@@ -181,6 +186,7 @@ p {
             <input type="hidden" name="yearFrom" th:if="${selectedYearFrom != null}" th:value="${selectedYearFrom}">
             <input type="hidden" name="yearTo" th:if="${selectedYearTo != null}" th:value="${selectedYearTo}">
             <input type="hidden" name="deliveryUrl" th:if="${deliveryUrlFilter != null}" th:value="${deliveryUrlFilter}">
+            <input type="hidden" name="normalizeYear" th:if="${normalizeYear}" value="true">
             <input type="submit" value="Search">
         </form>
     </div>
@@ -198,21 +204,35 @@ p {
         <div th:if="${selectedYearFrom != null or selectedYearTo != null}">
             <span class="filter-pill">
                 <span th:text="'Year: ' + ${(selectedYearFrom != null ? selectedYearFrom : '*')} + ' - ' + ${(selectedYearTo != null ? selectedYearTo : '*')}">Year</span>
-                <a th:href="@{/search(q=${q},deliveryUrl=${deliveryUrlFilter},lens=${lens})}">x</a>
+                <a th:href="@{/search(q=${q},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear})}">x</a>
             </span>
         </div>
         <div class="itemlist" th:if="${!yearCounts.isEmpty()}">
+            <div class="year-normalize">
+                <form method="get" th:action="@{/search}">
+                    <input type="hidden" name="q" th:value="${q}">
+                    <input type="hidden" name="yearFrom" th:if="${selectedYearFrom != null}" th:value="${selectedYearFrom}">
+                    <input type="hidden" name="yearTo" th:if="${selectedYearTo != null}" th:value="${selectedYearTo}">
+                    <input type="hidden" name="deliveryUrl" th:if="${deliveryUrlFilter != null}" th:value="${deliveryUrlFilter}">
+                    <input type="hidden" name="lens" th:if="${lens != null}" th:value="${lens}">
+                    <label>
+                        <input type="checkbox" name="normalizeYear" value="true" th:checked="${normalizeYear}"
+                               onchange="this.form.submit()">
+                        Normalize by year totals
+                    </label>
+                </form>
+            </div>
             <div id="yearHint" class="year-hint"></div>
             <div id="yearHistogram"
-                 th:attr="data-q=${q},data-year-from=${selectedYearFrom},data-year-to=${selectedYearTo},data-delivery-url=${deliveryUrlFilter},data-lens=${lens}"
+                 th:attr="data-q=${q},data-year-from=${selectedYearFrom},data-year-to=${selectedYearTo},data-delivery-url=${deliveryUrlFilter},data-lens=${lens},data-normalize-year=${normalizeYear}"
                  class="year-histogram">
                 <a th:each="yc : ${yearCounts}"
-                   th:href="@{/search(q=${q},yearFrom=${yc.year},yearTo=${yc.year},deliveryUrl=${deliveryUrlFilter},lens=${lens})}"
+                   th:href="@{/search(q=${q},yearFrom=${yc.year},yearTo=${yc.year},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear})}"
                    th:attr="data-year=${yc.year},data-count=${yc.count}"
                    class="histogram-bar"
                    >
                     <span class="histogram-bar-fill"
-                          th:style="|background:${selectedYearFrom != null and selectedYearTo != null and yc.year >= selectedYearFrom and yc.year <= selectedYearTo ? '#4a7' : '#9ab8aa'}; height:${yearScaleMax == 0 ? 0 : (T(java.lang.Math).sqrt(yc.count) * 90.0 / yearScaleMax)}px;|"></span>
+                          th:style="|background:${selectedYearFrom != null and selectedYearTo != null and yc.year >= selectedYearFrom and yc.year <= selectedYearTo ? '#4a7' : '#9ab8aa'}; height:${yearBarHeights[yc.year] != null ? yearBarHeights[yc.year] : 0}px;|"></span>
                     <span th:text="${yc.year}" class="histogram-bar-year"></span>
                 </a>
             </div>
@@ -257,6 +277,7 @@ p {
                         var q = histogram.getAttribute('data-q') || '';
                         var deliveryUrl = histogram.getAttribute('data-delivery-url');
                         var lens = histogram.getAttribute('data-lens');
+                        var normalizeYear = histogram.getAttribute('data-normalize-year');
                         var url = '/search?q=' + encodeURIComponent(q) +
                                 '&yearFrom=' + encodeURIComponent(minYear) +
                                 '&yearTo=' + encodeURIComponent(maxYear);
@@ -265,6 +286,9 @@ p {
                         }
                         if (lens) {
                             url += '&lens=' + encodeURIComponent(lens);
+                        }
+                        if (normalizeYear === 'true') {
+                            url += '&normalizeYear=true';
                         }
                         window.location.assign(url);
                     }
@@ -313,21 +337,21 @@ p {
                       th:text="'Found ' + ${#numbers.formatInteger(numFound, 0, 'COMMA')} + ' web page snapshots in ' + ${elapsedSeconds} + 's'">Found 0 web page snapshots in 0.0s</span>
                 <span class="pagination">
                     <a th:if="${page > 1}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=${page-1})}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=${page-1})}"
                        rel="prev" class="nav">Previous</a>
                     <span th:if="${page == 1}"></span>
                     <a th:if="${pageStart > 1}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=1)}">1</a>
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=1)}">1</a>
                     <span th:if="${showLeadingEllipsis}" class="ellipsis">…</span>
                     <th:block th:each="p : ${#numbers.sequence(pageStart, pageEnd)}">
                         <span th:if="${p == page}" th:text="${p}" aria-current="page" class="current">1</span>
                         <a th:if="${p != page}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=${p})}"
-                       th:text="${p}">1</a>
+                           th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=${p})}"
+                           th:text="${p}">1</a>
                     </th:block>
                     <span th:if="${showTrailingEllipsis}" class="ellipsis">…</span>
                     <a th:if="${page < totalPages}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=${page+1})}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=${page+1})}"
                        rel="next" class="nav">Next</a>
                     <span th:if="${page == totalPages}"></span>
                 </span>
@@ -369,11 +393,11 @@ p {
                                  class="result-favicon">
                             <span th:text="${doc['displayUrl'] != null ? doc['displayUrl'] : (doc['deliveryUrl'] != null ? doc['deliveryUrl'] : doc['url'])}">url</span>
                             <a th:if="${doc['site'] != null and siteFilter == null}"
-                               th:href="@{/search(q=${q + ' site:' + doc['site']},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},lens=${lens})}"
+                               th:href="@{/search(q=${q + ' site:' + doc['site']},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},lens=${lens},normalizeYear=${normalizeYear})}"
                                class="more-link"
                                th:text="'More from this site (' + ${#numbers.formatInteger(group.doclist.numFound, 0, 'COMMA')} + ')'">More</a>
                             <a th:if="${doc['deliveryUrl'] != null and siteFilter != null and deliveryUrlFilter == null and group.doclist.numFound > 1}"
-                               th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${doc['deliveryUrl']},lens=${lens})}"
+                               th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${doc['deliveryUrl']},lens=${lens},normalizeYear=${normalizeYear})}"
                                class="more-link"
                                th:text="'Other versions (' + ${#numbers.formatInteger(group.doclist.numFound, 0, 'COMMA')} + ')'">Other versions</a>
                             <span th:if="${group.doclist.numFound > 1 and deliveryUrlRanges != null and group.groupValue != null and deliveryUrlRanges[group.groupValue] != null}"
@@ -401,21 +425,21 @@ p {
                 <span class="pagination-count"></span>
                 <span class="pagination">
                     <a th:if="${page > 1}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=${page-1})}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=${page-1})}"
                        rel="prev" class="nav">Previous</a>
                     <span th:if="${page == 1}"></span>
                     <a th:if="${pageStart > 1}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=1)}">1</a>
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=1)}">1</a>
                     <span th:if="${showLeadingEllipsis}" class="ellipsis">…</span>
                     <th:block th:each="p : ${#numbers.sequence(pageStart, pageEnd)}">
                         <span th:if="${p == page}" th:text="${p}" aria-current="page" class="current">1</span>
                         <a th:if="${p != page}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=${p})}"
-                       th:text="${p}">1</a>
+                           th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=${p})}"
+                           th:text="${p}">1</a>
                     </th:block>
                     <span th:if="${showTrailingEllipsis}" class="ellipsis">…</span>
                     <a th:if="${page < totalPages}"
-                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},page=${page+1})}"
+                       th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},lens=${lens},normalizeYear=${normalizeYear},page=${page+1})}"
                        rel="next" class="nav">Next</a>
                     <span th:if="${page == totalPages}"></span>
                 </span>

@@ -34,6 +34,7 @@ public class SearchController {
     private static final String EDISMAX_QF = "id^100.0 host^8 urlText^6.0 title^10.0 linkText1^2.5 linkText2^2.0 linkText3^1.0 linkText4^0.5 h1^1.0 metadata^0.5 fulltext^0.2";
     private static final String EDISMAX_PF = "id^100.0 host^10 urlText^8.0 title^20.0 linkText1^5.0 linkText2^4.0 linkText3^2.0 linkText4^1.0 h1^1.5 metadata^1 fulltext^1";
     private static final String BASE_FILTER = "-discoverable:false AND -searchCategory:none";
+    private static final String TERMS_URL = "http://wa-solr-prd-1.nla.gov.au:10017/solr/webarchive/terms?terms=true&terms.fl=year&terms.limit=1000&wt=json";
     private static final List<String> NEWS_HOSTS = List.of(
             "abc.net.au",
             "news.com.au",
@@ -109,6 +110,7 @@ public class SearchController {
                          @RequestParam(name = "site", required = false) String site,
                          @RequestParam(name = "deliveryUrl", required = false) String deliveryUrl,
                          @RequestParam(name = "lens", required = false) String lens,
+                         @RequestParam(name = "normalizeYear", defaultValue = "false") boolean normalizeYear,
                          @RequestParam(name = "page", required = false) Integer page,
                          Model model) {
         long requestStart = System.nanoTime();
@@ -127,6 +129,7 @@ public class SearchController {
         model.addAttribute("siteFilter", siteFilter);
         model.addAttribute("deliveryUrlFilter", deliveryUrlFilter);
         model.addAttribute("lens", lens);
+        model.addAttribute("normalizeYear", normalizeYear);
         int currentPage = page == null || page < 1 ? 1 : page;
         model.addAttribute("page", currentPage);
         model.addAttribute("prefix", "");
@@ -145,9 +148,13 @@ public class SearchController {
             List<TitleBrief> titleMatches = searchTitles(searchQuery);
             var searchFuture = CompletableFuture.supplyAsync(() -> fetchSearchResults(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, lensFilter, currentPage));
             var yearCountsFuture = CompletableFuture.supplyAsync(() -> fetchYearCounts(searchQuery, siteFilter, deliveryUrlFilter, lensFilter));
+            CompletableFuture<Map<Integer, Long>> totalsFuture = normalizeYear
+                    ? CompletableFuture.supplyAsync(this::fetchYearTotals)
+                    : CompletableFuture.completedFuture(Map.of());
             var rangeFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDateRanges(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, lensFilter, currentPage));
             SolrResponse response = searchFuture.join();
             List<YearCount> yearCounts = yearCountsFuture.join();
+            Map<Integer, Long> yearTotals = totalsFuture.join();
             Map<String, String> deliveryUrlRanges = rangeFuture.join();
             log.info("deliveryUrlRanges keys: {}", deliveryUrlRanges.keySet());
             if (response == null) {
@@ -156,8 +163,7 @@ public class SearchController {
                 model.addAttribute("highlights", Map.of());
                 model.addAttribute("titleHighlights", Map.of());
                 model.addAttribute("yearCounts", yearCounts);
-                model.addAttribute("yearMaxCount", 0L);
-                model.addAttribute("yearScaleMax", 0.0);
+                model.addAttribute("yearBarHeights", Map.of());
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("deliveryUrlRanges", Map.of());
                 model.addAttribute("titleMatches", titleMatches);
@@ -197,11 +203,7 @@ public class SearchController {
                 model.addAttribute("highlights", highlights);
                 model.addAttribute("titleHighlights", titleHighlights);
                 model.addAttribute("yearCounts", yearCounts);
-                model.addAttribute("yearMaxCount", yearCounts.stream().mapToLong(YearCount::count).max().orElse(0L));
-                model.addAttribute("yearScaleMax", yearCounts.stream()
-                        .mapToDouble(yearCount -> Math.sqrt(yearCount.count()))
-                        .max()
-                        .orElse(0.0));
+                model.addAttribute("yearBarHeights", computeYearBarHeights(yearCounts, yearTotals, normalizeYear));
                 model.addAttribute("totalPages", totalPages);
                 model.addAttribute("deliveryUrlRanges", deliveryUrlRanges);
                 model.addAttribute("titleMatches", titleMatches);
@@ -215,8 +217,7 @@ public class SearchController {
             model.addAttribute("groups", List.of());
             model.addAttribute("highlights", Map.of());
             model.addAttribute("yearCounts", List.of());
-            model.addAttribute("yearMaxCount", 0L);
-            model.addAttribute("yearScaleMax", 0.0);
+            model.addAttribute("yearBarHeights", Map.of());
             model.addAttribute("totalPages", 1);
             model.addAttribute("deliveryUrlRanges", Map.of());
             model.addAttribute("titleHighlights", Map.of());
@@ -232,6 +233,11 @@ public class SearchController {
         public Map<String, SolrGroupedResult> grouped;
         public Map<String, Map<String, List<String>>> highlighting;
         public SolrResponseHeader responseHeader;
+    }
+
+    public static class TermsResponse {
+        public SolrResponseHeader responseHeader;
+        public Map<String, Map<String, Long>> terms;
     }
 
     public static class SolrResult {
@@ -335,6 +341,74 @@ public class SearchController {
                 doc.put("displayUrl", truncate(urlString, 300));
             }
         }
+    }
+
+    private static Map<Integer, Double> computeYearBarHeights(List<YearCount> yearCounts, Map<Integer, Long> yearTotals, boolean normalizeYear) {
+        if (yearCounts.isEmpty()) return Map.of();
+        Map<Integer, Double> values = new HashMap<>();
+        for (var yearCount : yearCounts) {
+            if (yearCount.year() == null) continue;
+            double value;
+            if (normalizeYear) {
+                long total = yearTotals.getOrDefault(yearCount.year(), 0L);
+                value = total == 0L ? 0.0 : yearCount.count() / (double) total;
+            } else {
+                value = Math.sqrt(yearCount.count());
+            }
+            values.put(yearCount.year(), value);
+        }
+        if (normalizeYear) {
+            double cap = computePercentileCap(values, 0.95, 2010);
+            if (cap > 0.0) {
+                for (var entry : values.entrySet()) {
+                    if (entry.getValue() > cap) {
+                        entry.setValue(cap);
+                    }
+                }
+            }
+        }
+        double max = values.values().stream().mapToDouble(v -> v).max().orElse(0.0);
+        if (max == 0.0) return Map.of();
+        Map<Integer, Double> heights = new HashMap<>();
+        for (var entry : values.entrySet()) {
+            heights.put(entry.getKey(), entry.getValue() * 90.0 / max);
+        }
+        return heights;
+    }
+
+    private static double computePercentileCap(Map<Integer, Double> values, double percentile, int excludeYear) {
+        if (values == null || values.isEmpty()) return 0.0;
+        List<Double> sorted = values.entrySet().stream()
+                .filter(entry -> entry.getKey() != excludeYear)
+                .map(Map.Entry::getValue)
+                .filter(v -> v != null && v > 0.0)
+                .sorted()
+                .toList();
+        if (sorted.isEmpty()) return 0.0;
+        int index = (int) Math.floor((sorted.size() - 1) * percentile);
+        return sorted.get(index);
+    }
+
+    private Map<Integer, Long> fetchYearTotals() {
+        TermsResponse response = webClient.get()
+                .uri(TERMS_URL)
+                .retrieve()
+                .bodyToMono(TermsResponse.class)
+                .block();
+        Integer qtime = response != null && response.responseHeader != null ? response.responseHeader.QTime : null;
+        log.info("Solr terms QTime_ms: {} URL: {}", qtime, TERMS_URL);
+        if (response == null || response.terms == null) return Map.of();
+        Map<String, Long> yearTerms = response.terms.get("year");
+        if (yearTerms == null) return Map.of();
+        Map<Integer, Long> totals = new HashMap<>();
+        for (var entry : yearTerms.entrySet()) {
+            try {
+                totals.put(Integer.parseInt(entry.getKey()), entry.getValue());
+            } catch (NumberFormatException ignored) {
+                // ignore non-year keys
+            }
+        }
+        return totals;
     }
 
     private Map<String, String> fetchDeliveryUrlDateRanges(String query, Integer yearFrom, Integer yearTo, String site, String deliveryUrl, String lensFilter, int page) {
