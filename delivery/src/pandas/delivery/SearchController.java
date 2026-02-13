@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import pandas.util.Strings;
 import org.hibernate.search.mapper.orm.Search;
 
@@ -43,7 +44,13 @@ public class SearchController {
 
     public SearchController(@Value("${SOLR_SELECT_URL:http://wa-solr-prd-1.nla.gov.au:10017/solr/webarchive/select}") String solrSelectUrl) {
         log.info("Solr select URL: {}", solrSelectUrl);
-        this.webClient = WebClient.builder().baseUrl(solrSelectUrl).build();
+        ExchangeStrategies strategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(32 * 1024 * 1024))
+                .build();
+        this.webClient = WebClient.builder()
+                .baseUrl(solrSelectUrl)
+                .exchangeStrategies(strategies)
+                .build();
     }
 
     @GetMapping("/search")
@@ -146,6 +153,7 @@ public class SearchController {
                 addPaginationModel(model, totalPages, currentPage);
             }
         } catch (Exception e) {
+            log.warn("Search failed", e);
             model.addAttribute("error", "Search backend unavailable.");
             model.addAttribute("numFound", 0L);
             model.addAttribute("groups", List.of());
