@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
 import pandas.util.Strings;
+import org.hibernate.search.mapper.orm.Search;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import pandas.collection.Title;
+import pandas.collection.TitleBrief;
 
 @Controller
 public class SearchController {
@@ -32,6 +37,9 @@ public class SearchController {
     private static final Logger log = LoggerFactory.getLogger(SearchController.class);
 
     private final WebClient webClient;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public SearchController(@Value("${SOLR_SELECT_URL:http://wa-solr-prd-1.nla.gov.au:10017/solr/webarchive/select}") String solrSelectUrl) {
         log.info("Solr select URL: {}", solrSelectUrl);
@@ -66,11 +74,13 @@ public class SearchController {
             model.addAttribute("groups", List.of());
             model.addAttribute("highlights", Map.of());
             model.addAttribute("totalPages", 1);
+            model.addAttribute("titleMatches", List.of());
             addPaginationModel(model, 1, currentPage);
             return "Search";
         }
 
         try {
+            List<TitleBrief> titleMatches = searchTitles(searchQuery);
             var searchFuture = CompletableFuture.supplyAsync(() -> fetchSearchResults(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, currentPage));
             var yearCountsFuture = CompletableFuture.supplyAsync(() -> fetchYearCounts(searchQuery, siteFilter, deliveryUrlFilter));
             var rangeFuture = CompletableFuture.supplyAsync(() -> fetchDeliveryUrlDateRanges(searchQuery, yearFrom, yearTo, siteFilter, deliveryUrlFilter, currentPage));
@@ -88,6 +98,7 @@ public class SearchController {
                 model.addAttribute("yearScaleMax", 0.0);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("deliveryUrlRanges", Map.of());
+                model.addAttribute("titleMatches", titleMatches);
                 addPaginationModel(model, 1, currentPage);
             } else {
                 String groupField = siteFilter == null ? "site" : "deliveryUrl";
@@ -131,6 +142,7 @@ public class SearchController {
                         .orElse(0.0));
                 model.addAttribute("totalPages", totalPages);
                 model.addAttribute("deliveryUrlRanges", deliveryUrlRanges);
+                model.addAttribute("titleMatches", titleMatches);
                 addPaginationModel(model, totalPages, currentPage);
             }
         } catch (Exception e) {
@@ -144,6 +156,7 @@ public class SearchController {
             model.addAttribute("totalPages", 1);
             model.addAttribute("deliveryUrlRanges", Map.of());
             model.addAttribute("titleHighlights", Map.of());
+            model.addAttribute("titleMatches", List.of());
             addPaginationModel(model, 1, currentPage);
         }
         return "Search";
@@ -202,6 +215,23 @@ public class SearchController {
     private static String truncate(String value, int maxLength) {
         if (value == null || value.length() <= maxLength) return value;
         return value.substring(0, maxLength - 3) + "...";
+    }
+
+    private List<TitleBrief> searchTitles(String query) {
+        if (query == null) return List.of();
+        var result = Search.session(entityManager).search(Title.class)
+                .select(f -> f.composite()
+                        .from(f.id(),
+                                f.field("pi", Long.class),
+                                f.field("name", String.class))
+                        .as((id, pi, name) -> new TitleBrief((Long) id, pi, name, null)))
+                .where((f, b) -> {
+                    b.add(f.match().field("deliverable").matching(true));
+                    b.add(f.simpleQueryString().fields("name", "titleUrl", "seedUrl")
+                            .matching(query));
+                })
+                .fetch(0, 5);
+        return result.hits();
     }
 
     private static void addPaginationModel(Model model, int totalPages, int currentPage) {

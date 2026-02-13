@@ -176,6 +176,13 @@ p {
     <p th:if="${error}" th:text="${error}">Search backend unavailable.</p>
 
     <th:block th:if="${q != null}">
+        <div th:if="${!titleMatches.isEmpty()}" class="itemlist">
+            <ul>
+                <li th:each="title : ${titleMatches}">
+                    <a th:href="@{/tep/{pi}(pi=${title.pi})}" th:text="${title.name}">Title</a>
+                </li>
+            </ul>
+        </div>
         <div th:if="${selectedYearFrom != null or selectedYearTo != null}">
             <span class="filter-pill">
                 <span th:text="'Year: ' + ${(selectedYearFrom != null ? selectedYearFrom : '*')} + ' - ' + ${(selectedYearTo != null ? selectedYearTo : '*')}">Year</span>
