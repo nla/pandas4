@@ -61,6 +61,7 @@ public class SearchController {
                          @RequestParam(name = "deliveryUrl", required = false) String deliveryUrl,
                          @RequestParam(name = "page", required = false) Integer page,
                          Model model) {
+        long requestStart = System.nanoTime();
         query = Strings.emptyToNull(query);
         site = Strings.emptyToNull(site);
         deliveryUrl = Strings.emptyToNull(deliveryUrl);
@@ -82,6 +83,7 @@ public class SearchController {
             model.addAttribute("highlights", Map.of());
             model.addAttribute("totalPages", 1);
             model.addAttribute("titleMatches", List.of());
+            model.addAttribute("elapsedSeconds", "0.0");
             addPaginationModel(model, 1, currentPage);
             return "Search";
         }
@@ -150,6 +152,7 @@ public class SearchController {
                 model.addAttribute("totalPages", totalPages);
                 model.addAttribute("deliveryUrlRanges", deliveryUrlRanges);
                 model.addAttribute("titleMatches", titleMatches);
+                model.addAttribute("elapsedSeconds", formatElapsedSeconds(requestStart));
                 addPaginationModel(model, totalPages, currentPage);
             }
         } catch (Exception e) {
@@ -165,6 +168,7 @@ public class SearchController {
             model.addAttribute("deliveryUrlRanges", Map.of());
             model.addAttribute("titleHighlights", Map.of());
             model.addAttribute("titleMatches", List.of());
+            model.addAttribute("elapsedSeconds", formatElapsedSeconds(requestStart));
             addPaginationModel(model, 1, currentPage);
         }
         return "Search";
@@ -223,6 +227,11 @@ public class SearchController {
     private static String truncate(String value, int maxLength) {
         if (value == null || value.length() <= maxLength) return value;
         return value.substring(0, maxLength - 3) + "...";
+    }
+
+    private static String formatElapsedSeconds(long startNanos) {
+        double seconds = (System.nanoTime() - startNanos) / 1_000_000_000.0;
+        return String.format(Locale.ENGLISH, "%.1f", seconds);
     }
 
     private List<TitleBrief> searchTitles(String query) {

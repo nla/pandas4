@@ -295,7 +295,7 @@ p {
         <div class="pagination-block" th:if="${totalPages > 1}">
             <div class="pagination-row">
                 <span class="pagination-count"
-                      th:text="${#numbers.formatInteger(numFound, 0, 'COMMA')} + ' web page snapshots'">0 web page snapshots</span>
+                      th:text="'Found ' + ${#numbers.formatInteger(numFound, 0, 'COMMA')} + ' web page snapshots in ' + ${elapsedSeconds} + 's'">Found 0 web page snapshots in 0.0s</span>
                 <span class="pagination">
                     <a th:if="${page > 1}"
                        th:href="@{/search(q=${q},yearFrom=${selectedYearFrom},yearTo=${selectedYearTo},deliveryUrl=${deliveryUrlFilter},page=${page-1})}"
