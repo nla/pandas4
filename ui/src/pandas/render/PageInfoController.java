@@ -190,8 +190,10 @@ public class PageInfoController {
         prompt.append("\n</website>");
         try {
             var request = llm.newRequest(prompt.toString());
-            request.guidedJson = Map.of("type", "array", "items", Map.of("enum", subjects));
-            request.temperature = 0.0;
+            request.structuredOutputs = new LLMClient.StructuredOutputs(
+                    Map.of("type", "array", "items", Map.of("enum", subjects))
+            );
+            request.temperature = null;
             request.maxTokens = 100;
             String chat = llm.chat(request).message();
             LinkedHashSet<String> suggestions = new ObjectMapper().readValue(chat, new TypeReference<>() {
