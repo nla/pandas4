@@ -54,7 +54,7 @@
                 <label for=editStatus>Status:</label>
                 <span>
                     <select id=status th:field="*{status}" onchange="updateReasons()">
-                        <option th:each="status: ${statusList}" th:text="${status.name}" th:value="${status.id}">
+                        <option th:each="status: ${statusList}" th:text="${status.name}" th:value="${status}">
                             rejected
                         </option>
                     </select>
