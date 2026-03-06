@@ -1,6 +1,54 @@
 # PANDAS Changelog
 
-## Unreleased
+## 4.12.0 2026-03-03
+
+### New features
+
+- Kubernetes support:
+  - Added Elasticsearch backend for Hibernate Search
+  - Added Kubernetes support to BrowsertrixGatherer
+  - Updated container image to AlmaLinux 9 and Python 3.12.
+- Delivery: proof of concept search interface
+- Gather Queue: Added checkbox selection for retry/delete operations.
+- Added health endpoint and its sub-paths.
+
+### Bug fixes
+
+- FileSearcher: Fixed IllegalArgumentException when a Content-Type has a blank subtype.
+- Added a timeout when waiting for Heritrix job to finish stopping before teardown.
+- Fixed GathererIT.testBrowsertrixCrawl and testHttrackCrawl.
+- Fixed TitleEdit: reason field not appearing when ceasing or rejecting a title.
+- Fixed exception reading large JSON responses in delivery.
+- Fixed GatherManager synchronization issue, preventing timeouts in the Gather Queue.
+- Fixed issue with the `Save and add another` button in TitleEdit.
+- Removed unnecessary isEmpty checks in the gather queue.
+- Fixed gather method NPE in PywbServiceTest.
+- Fixed LLMClient compatibility with newer vllm.
+- Fixed bulk title edit exception introduced by Status enum changes.
+
+### Dependency upgrades
+
+- **agrona**: 2.2.4 → 2.4.0
+- **commons-io**: 2.20.0 → 2.21.0
+- **org.apache.maven.plugins:maven-compiler-plugin**: 3.10.1 → 3.14.1
+- **org.apache.maven.plugins:maven-dependency-plugin**: 3.6.0 → 3.9.0
+- **org.apache.maven.plugins:maven-failsafe-plugin**: 2.22.2 → 3.5.4
+- **org.apache.maven.plugins:maven-jar-plugin**: 3.2.0 → 3.5.0
+- **org.apache.maven.plugins:maven-release-plugin**: 3.1.1 → 3.2.0
+- **org.codehaus.mojo:versions-maven-plugin**: 2.18.0 → 2.20.1
+- **org.jetbrains:annotations**: 26.0.2-1 → 26.1.0
+- **org.jsoup:jsoup**: 1.21.2 → 1.22.1
+- **org.netpreserve:jwarc**: 0.32.0 →  0.35.0
+- **org.postgresql:postgresql**: 42.7.7 → 42.7.10
+- **org.webjars:datatables**: 2.3.2 → 2.3.7
+- **org.webjars:chartjs**: 3.5.1 → 4.4.3
+- **org.webjars.npm:cropperjs**: 1.5.7 → 2.1.0
+- **com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer**: 20240325.1 → 20260101.1
+- **org.archive.heritrix:heritrix**: 3.6.0 → 3.14.0
+- **io.smallrye:jandex-maven-plugin**: 3.1.2 → 3.2.7
+- **slim-select**: 2.10.0 → 2.12.1
+- **spring-boot**: 3.5.5 → 3.5.6
+- **browsertrix-crawler**: 1.9.1 → 1.11.2
 
 ## 4.11.0 2025-11-20
 
