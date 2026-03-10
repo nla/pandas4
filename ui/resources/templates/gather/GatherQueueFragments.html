@@ -5,8 +5,8 @@
 </head>
 <body>
 
-<tr th:fragment="instanceRow(instance, actions)">
-    <td sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')">
+<tr th:fragment="instanceRow(instance, actions, showFailedSelection)">
+    <td th:if="${showFailedSelection}" sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')">
         <input type="checkbox" class="selectedFailedInstancesCheckbox" name="instance" th:value="${instance.id}"
                onchange="updateFailedSelected()" form="failed-form">
     </td>

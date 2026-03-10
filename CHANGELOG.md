@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.12.1 2026-03-10
+
+### Bug fixes
+
+- Gather Queue: 'Failed' instance selection checkboxes were unexpectedly showing up 'Gathering' section
+
 ## 4.12.0 2026-03-03
 
 ### New features

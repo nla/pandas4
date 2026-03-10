@@ -105,7 +105,7 @@
     <form method=post th:action="@{/queue}">
     <table class="table gather-queue-table">
         <th:block th:each="instance: ${gatheringInstances}">
-            <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .actions})}">
+            <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .actions}, false)}">
                 <td class="actions">
                     <button sec:authorize="hasPermission(#vars.instance.title, 'edit')"
                             th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i
@@ -170,7 +170,7 @@
             </thead>
             <tbody>
             <th:block th:each="instance: ${failedInstances}">
-                <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions})}">
+                <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions}, true)}">
                     <td class="failed-gather-actions">
                         <form th:if="${instance.stateBeforeFailure != null && instance.stateBeforeFailure.canBeRetried()}"
                               th:action="@{/queue/retry(instance=${instance.id})}" method="post"
