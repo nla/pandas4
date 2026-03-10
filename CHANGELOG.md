@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.12.2 2026-03-10
+
+### Bug fixes
+
+- Gather Queue: Fixed 403 error due to missing CSRF token for the retry/deleted selected action. 
+
 ## 4.12.1 2026-03-10
 
 ### Bug fixes
