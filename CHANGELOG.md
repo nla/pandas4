@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.12.3 2026-03-13
+
+### Bug fixes
+
+- Fixed titles still gathering on schedule after 'Delete and Cease' button is pressed.
+
 ## 4.12.2 2026-03-10
 
 ### Bug fixes
