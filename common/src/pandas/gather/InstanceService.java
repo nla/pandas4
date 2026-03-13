@@ -169,7 +169,7 @@ public class InstanceService {
         var instance = instanceRepository.getOrThrow(instanceId);
         if (ceaseTitle) {
             var title = instance.getTitle();
-            title.setStatus(Status.CEASED);
+            title.changeStatus(Status.CEASED, null, currentUser, Instant.now());
             title.setDisappeared(true);
             titleRepository.save(title);
         } else if (regatherWith != null) {

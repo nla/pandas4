@@ -492,10 +492,6 @@ public class Title implements TitleRef {
         return status;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     public Reason getStatusReason() {
         if (getStatusHistories().isEmpty()) return null;
         return getStatusHistories().get(getStatusHistories().size() - 1).getReason();
@@ -978,7 +974,7 @@ public class Title implements TitleRef {
 
     public void changeStatus(Status newStatus, Reason reason, User user, Instant changeDate) {
         if (newStatus.equals(status)) return;
-        setStatus(newStatus);
+        this.status = newStatus;
 
         // Validate reason is applicable for current status
         if (reason != null && !reason.getStatus().equals(this.status)) {
@@ -994,6 +990,11 @@ public class Title implements TitleRef {
 
         // Create new status history record
         statusHistories.add(new StatusHistory(this, status, reason, changeDate, user));
+
+        // Setting to ceased or rejected disables scheduling so we need to recalculate the next gather date
+        if (gather != null) {
+            gather.calculateNextGatherDate();
+        }
     }
 
     /**
