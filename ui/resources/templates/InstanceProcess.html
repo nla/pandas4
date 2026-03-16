@@ -63,7 +63,8 @@
             <nav class="btn-toolbar">
                 <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:href="${@link.edit(instance.title)}"
                    class="btn btn-secondary"><i class="icon edit"></i> Edit Title</a>
-                <span class="btn-group" sec:authorize="hasPermission(#vars.instance.title, 'edit')">
+                <span class="btn-group" sec:authorize="hasPermission(#vars.instance.title, 'edit')"
+                      th:if="${instance.canDelete()}">
                     <!-- Primary delete -->
                     <button type="submit"
                             th:formaction="@{|/instances/${instance.id}/delete|}"
@@ -173,8 +174,14 @@
         </div>
     </nav>
 
+    <div class="alert-error" th:if="${!instance.state.isGathered()}">
+        This instance <th:strong th:text="${instance.state.wording}">has been archived</th:strong>.
+        <a th:if="${instance.state.isArchived()}" th:href="${@link.delivery(instance)}"
+           target="_blank">View in Trove</a>
+    </div>
 
-    <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center">
+    <div th:if="${instance.state.isGathered()}"
+         style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center">
         <nav class="btn-group">
             <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance)}" target=replay-frame
                title="Homepage (H)" data-keybind="h"><i class="icon home"></i></a>
@@ -229,7 +236,7 @@
         }, false);
     </script>
 
-    <div style="flex-grow: 1; display: flex; overflow: hidden">
+    <div th:if="${instance.state.isGathered()}" style="flex-grow: 1; display: flex; overflow: hidden">
         <iframe th:src="${qaUrl}" name="replay-frame"
                 style="flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"
                 sandbox="allow-forms allow-pointer-lock allow-popups allow-scripts allow-downloads

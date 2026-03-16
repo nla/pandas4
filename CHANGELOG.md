@@ -1,10 +1,11 @@
 # PANDAS Changelog
 
-## 4.12.3 2026-03-13
+## 4.12.3 2026-03-16
 
 ### Bug fixes
 
 - Fixed titles still gathering on schedule after 'Delete and Cease' button is pressed.
+- Added an explanatory error to the instance QA screen when the instance has already been archived.
 
 ## 4.12.2 2026-03-10
 
