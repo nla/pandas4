@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.13.0 2026-03-19
+
+### New features
+
+- Added persistent identifier linking to delivery to the collection view screen
+
 ## 4.12.3 2026-03-16
 
 ### Bug fixes

@@ -29,6 +29,12 @@ public class Link {
     @Value("${pandas.deliveryBaseUrl:https://webarchive.nla.gov.au/awa/}")
     private String deliveryBaseUrl = "https://webarchive.nla.gov.au/awa/";
 
+    @Value("${pandas.collectionIdentifierBaseUrl:https://nla.gov.au/nla.arc-c}")
+    private String collectionIdentifierBaseUrl = "https://nla.gov.au/nla.arc-c";
+
+    @Value("${pandas.titleIdentifierBaseUrl:https://nla.gov.au/nla.arc-}")
+    private String titleIdentifierBaseUrl = "https://nla.gov.au/nla.arc-";
+
     @Value("${pandas.webdavBaseUrl:https://pandas.nla.gov.au/dav/}")
     private String webdavBaseUrl;
 
@@ -75,6 +81,14 @@ public class Link {
 
     public String delivery(Issue issue) {
         return delivery(issue.getDate(), issue.getDeliveryUrl());
+    }
+
+    public String identifier(Collection collection) {
+        return collectionIdentifierBaseUrl + collection.getId();
+    }
+
+    public String identifier(Title title) {
+        return titleIdentifierBaseUrl + title.getPi();
     }
 
     public String webdav(Instance instance) {

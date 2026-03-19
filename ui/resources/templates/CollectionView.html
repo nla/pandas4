@@ -73,6 +73,10 @@
     </table>
 
     <section class="card card-body">
+        <div>
+            <a class="identifier-link" th:href="${@link.identifier(collection)}" th:text="'nla.arc-c' + ${collection.id}" target="_blank" rel="noopener">nla.arc-c13662</a>
+        </div>
+        <br>
         <table th:unless="${collection.subjects.isEmpty()}" class="table table-responsive table-borderless table-sm">
             <tr>
                 <th>Subjects:</th>
