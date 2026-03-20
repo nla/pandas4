@@ -1,5 +1,12 @@
 package pandas.gatherer.browsertrix;
 
+import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.batch.v1.Job;
+import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.dsl.ScalableResource;
 import org.apache.commons.io.file.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.*;
 
 @Component
 public class BrowsertrixGatherer implements Backend {
@@ -34,6 +40,7 @@ public class BrowsertrixGatherer implements Backend {
     private final WorkingArea workingArea;
     private final Repository repository;
     private final ThumbnailGenerator thumbnailGenerator;
+    private final KubernetesClient kubeClient;
     private volatile boolean shutdown;
     private final Set<Integer> NORMAL_EXIT_CODES = Set.of(
             BrowsertrixExit.SUCCESS.code(),
@@ -43,6 +50,7 @@ public class BrowsertrixGatherer implements Backend {
             BrowsertrixExit.TIME_LIMIT.code());
     private final static List<String> BEHAVIOR_SCRIPTS = List.of("bsky.js");
     private final static Path BEHAVIORS_DIR = unpackBehaviors();
+    private String version;
 
     private static Path unpackBehaviors() {
         try {
@@ -72,6 +80,7 @@ public class BrowsertrixGatherer implements Backend {
         this.workingArea = workingArea;
         this.repository = repository;
         this.thumbnailGenerator = thumbnailGenerator;
+        this.kubeClient = config.isKubeEnabled() ? new KubernetesClientBuilder().build() : null;
     }
 
     @Override
@@ -79,47 +88,27 @@ public class BrowsertrixGatherer implements Backend {
         return GatherMethod.BROWSERTRIX;
     }
 
-    @Override
-    public int gather(Instance instance) throws Exception {
-        Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
-
-        Path pywbDir = pywbService.directoryFor(instance);
-        if (!Files.isSymbolicLink(pywbDir)) {
-            if (Files.isDirectory(pywbDir)) PathUtils.deleteDirectory(pywbDir);
-            Files.deleteIfExists(pywbDir);
-            Files.createDirectories(pywbDir.getParent());
-            Files.createSymbolicLink(pywbDir, workingDir.resolve("collections").resolve(instance.getBrowsertrixCollectionName()).toAbsolutePath());
-        }
-
-        Path logFile = workingDir.resolve("stdio.log");
-
-        int depth = -1;
-
+    private List<String> buildCrawlerArguments(Instance instance) {
         TitleGather titleGather = instance.getTitle().getGather();
+        int depth = -1;
         Scope scope = titleGather.getScope();
         if (scope != null && scope.getDepth() != null) {
             depth = scope.getDepth();
         }
 
-        var command = new ArrayList<>(List.of("podman", "run", "--rm",
-                "-v", workingDir + ":/crawls/",
-                "-v", BEHAVIORS_DIR + ":/behaviors/:z"));
-        if (config.getPodmanOptions() != null) {
-            command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
-        }
-        command.addAll(List.of(config.getImage(),
-                "crawl", "--id", instance.getHumanId(), "-c", instance.getBrowsertrixCollectionName(), "--combinewarc",
+        var args = new ArrayList<String>();
+        args.addAll(List.of("crawl", "--id", instance.getHumanId(), "-c", instance.getBrowsertrixCollectionName(), "--combinewarc",
                 "--logging", "none",
                 "--saveState", "always",
-                "--customBehaviors", "/behaviors/",
+                "--customBehaviors", "./.behaviors/",
                 "--depth", String.valueOf(depth)));
 
         if (scope != null && scope.isIncludeSubdomains()) {
-            command.add("--scopeType");
-            command.add("domain");
+            args.add("--scopeType");
+            args.add("domain");
         } else {
-            command.add("--scopeType");
-            command.add("prefix");
+            args.add("--scopeType");
+            args.add("prefix");
         }
 
         long timeLimit = titleGather.getCrawlTimeLimitSeconds();
@@ -136,38 +125,97 @@ public class BrowsertrixGatherer implements Backend {
             }
 
             if (profile.getBrowsertrixConfig() != null && !profile.getBrowsertrixConfig().isBlank()) {
-                command.addAll(Strings.shellSplit(profile.getBrowsertrixConfig()));
+                args.addAll(Strings.shellSplit(profile.getBrowsertrixConfig()));
             }
         }
 
-        command.add("--timeLimit");
-        command.add(String.valueOf(timeLimit));
+        args.add("--timeLimit");
+        args.add(String.valueOf(timeLimit));
 
-        command.add("--sizeLimit");
-        command.add(String.valueOf(sizeLimit));
-
+        args.add("--sizeLimit");
+        args.add(String.valueOf(sizeLimit));
 
         if (!Strings.isNullOrBlank(config.getUserAgentSuffix())) {
-            command.add("--userAgentSuffix");
-            command.add(config.getUserAgentSuffix());
+            args.add("--userAgentSuffix");
+            args.add(config.getUserAgentSuffix());
         }
 
         // include external pdf files
-        command.add("--include");
-        command.add("^https?://[^?#]+\\.pdf$");
+        args.add("--include");
+        args.add("^https?://[^?#]+\\.pdf$");
 
         // include linked google docs
-        command.add("--include");
-        command.add("^https://docs\\.google\\.com/(?:document|spreadsheets|presentation|drawings|form|file)/d/[^/]+/edit$");
+        args.add("--include");
+        args.add("^https://docs\\.google\\.com/(?:document|spreadsheets|presentation|drawings|form|file)/d/[^/]+/edit$");
 
         for (var seed : instance.getTitle().getAllSeeds()) {
             if (!seed.startsWith("http://") && !seed.startsWith("https://")) {
                 log.warn("Ignoring non http/https seed: {}", seed);
                 continue;
             }
-            command.add("--url");
-            command.add(seed);
+            args.add("--url");
+            args.add(seed);
         }
+        return args;
+    }
+
+    /**
+     * Transform localhost URLs to host.containers.internal for podman containers.
+     * This is necessary for integration tests because the container localhost is not the host localhost.
+     */
+    private List<String> transformSeedsForContainer(List<String> args) {
+        var transformed = new ArrayList<String>();
+        for (int i = 0; i < args.size(); i++) {
+            String arg = args.get(i);
+            if (i > 0 && "--url".equals(args.get(i - 1))) {
+                // Transform localhost/127.0.0.1 to host.containers.internal
+                arg = arg.replace("://localhost:", "://host.containers.internal:")
+                         .replace("://127.0.0.1:", "://host.containers.internal:");
+            }
+            transformed.add(arg);
+        }
+        return transformed;
+    }
+
+    @Override
+    public int gather(Instance instance) throws Exception {
+        Path workingDir = workingArea.getInstanceDir(instance.getTitle().getPi(), instance.getDateString());
+
+        Path pywbDir = pywbService.directoryFor(instance);
+        if (!Files.isSymbolicLink(pywbDir)) {
+            if (Files.isDirectory(pywbDir)) PathUtils.deleteDirectory(pywbDir);
+            Files.deleteIfExists(pywbDir);
+            Files.createDirectories(pywbDir.getParent());
+            Files.createSymbolicLink(pywbDir, workingDir.resolve("collections").resolve(instance.getBrowsertrixCollectionName()).toAbsolutePath());
+        }
+
+        if (config.isKubeEnabled()) {
+            return gatherKube(instance, workingDir);
+        } else {
+            return gatherPodman(instance, workingDir);
+        }
+    }
+
+    private int gatherPodman(Instance instance, Path workingDir) throws IOException, InterruptedException, GatherException {
+        Path logFile = workingDir.resolve("stdio.log");
+
+        List<String> args = buildCrawlerArguments(instance);
+        var command = new ArrayList<>(List.of("podman", "run", "--rm",
+                "-v", workingDir + ":/crawls/",
+                "-v", BEHAVIORS_DIR + ":/crawls/.behaviors/:z"));
+        if (config.isTransformLocalhostUrls()) {
+            if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                command.add("--network=host");
+            } else {
+                args = transformSeedsForContainer(args);
+            }
+        }
+        if (config.getPodmanOptions() != null) {
+            command.addAll(Arrays.asList(config.getPodmanOptions().split(" ")));
+        }
+        command.add(config.getImage());
+        command.addAll(args);
+
         Files.writeString(logFile, encodeShellCommandForLogging(command) + "\n", APPEND, CREATE);
         log.info("Executing {}", String.join(" ", command));
 
@@ -198,6 +246,147 @@ public class BrowsertrixGatherer implements Backend {
                 process.destroyForcibly();
             }
         }
+    }
+
+    private int gatherKube(Instance instance, Path workingDir) throws IOException, GatherException {
+        String jobId = "browsertrix-crawl-" + instance.getId();
+        Path logFile = workingDir.resolve("stdio.log");
+
+        // Copy behaviors to the working directory so the job can access them
+        Path behaviorDir = workingDir.resolve(".behaviors");
+        if (!Files.exists(behaviorDir)) {
+            Files.createDirectories(behaviorDir);
+            for (String script : BEHAVIOR_SCRIPTS) {
+                Files.copy(BEHAVIORS_DIR.resolve(script), behaviorDir.resolve(script));
+            }
+        }
+
+        var jobResource = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId);
+        Job job = jobResource.get();
+        if (job == null) {
+            log.info("Starting browsertrix-crawler job {} for instance {}", jobId, instance.getHumanId());
+            String subPath = workingArea.getPath().relativize(workingDir).toString();
+
+            Job jobTemplate;
+            try (InputStream is = config.getKubeJobConfig() != null
+                    ? Files.newInputStream(config.getKubeJobConfig())
+                    : BrowsertrixGatherer.class.getResourceAsStream("/kube-job.yaml")) {
+                if (is == null) throw new IOException("kube-job.yaml not found");
+                jobTemplate = kubeClient.batch().v1().jobs().load(is).item();
+            }
+
+            var container = jobTemplate.getSpec().getTemplate().getSpec().getContainers().get(0);
+            String mountPath = container.getVolumeMounts().get(0).getMountPath();
+
+            job = new JobBuilder(jobTemplate)
+                    .editMetadata()
+                        .withName(jobId)
+                        .addToLabels("pandas/instance-id", instance.getId().toString())
+                    .endMetadata()
+                    .editSpec()
+                        .editTemplate()
+                            .editSpec()
+                                .editFirstContainer()
+                                    .withArgs(buildCrawlerArguments(instance))
+                                    .withWorkingDir(mountPath + "/" + subPath)
+                                .endContainer()
+                            .endSpec()
+                        .endTemplate()
+                    .endSpec()
+                    .build();
+            kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).resource(job).create();
+        } else {
+            log.info("Resuming monitoring of browsertrix-crawler job {} for instance {}", jobId, instance.getHumanId());
+        }
+
+        try {
+            return monitorKubeJob(instance, jobId, logFile);
+        } finally {
+            if (instanceService.refresh(instance).getState() != State.GATHERING) {
+                jobResource.delete();
+            }
+        }
+    }
+
+    private int monitorKubeJob(Instance instance, String jobId, Path logFile) throws IOException, GatherException {
+        Pod pod = null;
+        while (pod == null) {
+            var pods = kubeClient.pods().inNamespace(config.getKubeNamespace()).withLabel("job-name", jobId).list().getItems();
+            if (!pods.isEmpty()) {
+                pod = pods.get(pods.size() - 1);
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return -1;
+                }
+            }
+        }
+
+        ScalableResource<Job> resource = kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId);
+        while (true) {
+            Job job = resource.get();
+            if (job == null) {
+                log.warn("Job {} disappeared", jobId);
+                return -1;
+            }
+
+            if (job.getMetadata().getDeletionTimestamp() != null) {
+                log.info("Job {} is being deleted", jobId);
+                return -1;
+            }
+
+            if (job.getStatus() != null && job.getStatus().getCompletionTime() != null) {
+                int exitCode = getExitCode(jobId);
+                log.info("Job {} finished with exit code {}", jobId, exitCode);
+                saveKubeJobLog(logFile, resource);
+                if (!NORMAL_EXIT_CODES.contains(exitCode)) {
+                    log.warn("Job log: {}", resource.tailingLines(5).getLog());
+                    resource.delete();
+                    throw new GatherException("Browsertrix exited with status " + exitCode, exitCode);
+                }
+                resource.delete();
+                return exitCode;
+            }
+
+            if (job.getStatus() != null && job.getStatus().getFailed() != null && job.getStatus().getFailed() > 0) {
+                int exitCode = getExitCode(jobId);
+                log.info("Job {} failed with exit code {}", jobId, exitCode);
+                throw new GatherException("Browsertrix job failed", exitCode);
+            }
+
+            instance = instanceService.refresh(instance);
+            if (shutdown || !instance.getState().equals(State.GATHERING)) {
+                return -1;
+            }
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                return -1;
+            }
+        }
+    }
+
+    private static void saveKubeJobLog(Path logFile, ScalableResource<Job> resource) throws IOException {
+        try (var in = resource.getLogInputStream();
+             var out = Files.newOutputStream(logFile, APPEND, CREATE, WRITE)) {
+            in.transferTo(out);
+        } catch (Exception e) {
+            log.error("Error saving job log to {}", logFile, e);
+        }
+    }
+
+    private int getExitCode(String jobId) {
+        var pods = kubeClient.pods().inNamespace(config.getKubeNamespace()).withLabel("job-name", jobId).list().getItems();
+        if (pods.isEmpty()) return -1;
+        Pod pod = pods.get(pods.size() - 1);
+        if (pod.getStatus() == null || pod.getStatus().getContainerStatuses() == null || pod.getStatus().getContainerStatuses().isEmpty()) return -1;
+        ContainerStatus status = pod.getStatus().getContainerStatuses().get(0);
+        if (status.getState() != null && status.getState().getTerminated() != null) {
+            return status.getState().getTerminated().getExitCode();
+        }
+        return -1;
     }
 
     private static final Pattern SHELL_SPECIAL_CHAR = Pattern.compile("[|&;<>()$`\\\\\"' \t\r\n*?\\[#~=%]");
@@ -268,13 +457,53 @@ public class BrowsertrixGatherer implements Backend {
     }
 
     @Override
-    public String version() throws IOException {
+    public synchronized String version() throws IOException {
+        if (version != null) return version;
+
+        if (config.isKubeEnabled()) {
+            String jobId = "browsertrix-version-check-" + UUID.randomUUID();
+            kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).resource(new JobBuilder()
+                    .withNewMetadata().withName(jobId).endMetadata()
+                    .withNewSpec()
+                    .withBackoffLimit(0)
+                    .withNewTemplate()
+                        .withNewSpec()
+                            .withRestartPolicy("Never")
+                            .addNewContainer()
+                                .withName("version-check")
+                                .withImage(config.getImage())
+                                .withArgs("crawl", "--version")
+                            .endContainer()
+                        .endSpec()
+                    .endTemplate()
+                .endSpec()
+                .build()).create();
+            try {
+                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId)
+                        .waitUntilCondition(j -> j.getStatus() != null &&
+                                (j.getStatus().getSucceeded() != null && j.getStatus().getSucceeded() > 0 ||
+                                 j.getStatus().getFailed() != null && j.getStatus().getFailed() > 0),
+                                2, TimeUnit.MINUTES);
+
+                var pods = kubeClient.pods().inNamespace(config.getKubeNamespace()).withLabel("job-name", jobId).list().getItems();
+                if (!pods.isEmpty()) {
+                    version = kubeClient.pods().inNamespace(config.getKubeNamespace()).withName(pods.get(0).getMetadata().getName()).getLog();
+                } else {
+                    throw new IOException("No pod found for version check job " + jobId);
+                }
+                return version;
+            } finally {
+                kubeClient.batch().v1().jobs().inNamespace(config.getKubeNamespace()).withName(jobId).delete();
+            }
+        }
+
         Process process = new ProcessBuilder("podman", "run", "--rm", config.getImage(), "crawl", "--version")
                 .inheritIO()
                 .redirectOutput(ProcessBuilder.Redirect.PIPE)
                 .start();
         try {
-            return new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            version = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            return version;
         } finally {
             process.destroy();
             try {

@@ -11,15 +11,78 @@
 <nav th:replace="~{_layout.html :: sidebar (activeItem='QA')}"></nav>
 <main>
     <header>
-        <nav>
+        <nav class="btn-toolbar">
             <button class="btn btn-primary selected-action" form=form type=submit
                     th:formaction="@{/instances/archive}"><i class="icon archive"></i>Archive
             </button>
-            <button class="btn btn-danger selected-action" form=form type=submit
-                    th:formaction="@{/instances/delete}"
-                    onclick="return confirm('Are you certain you wish to delete ' + countSelected() + ' instances? This cannot be undone.');"
-            ><i class="icon delete"></i>Delete
+            <span class="btn-group">
+                <button class="btn btn-danger selected-action" form=form type=submit
+                        th:formaction="@{/instances/delete}"
+                        onclick="return confirm('Are you certain you wish to delete ' + countSelected() + ' instances? This cannot be undone.');"
+                ><i class="icon delete"></i>Delete
+
+                <!-- Delete split toggle -->
+                <button id="deleteSplitToggle" type="button" class="btn btn-danger btn-compact split-toggle selected-action"
+                        aria-haspopup="true" aria-expanded="false" aria-label="More delete options">
+                    ▾
+                </button>
+
+                <!-- Delete split menu -->
+                <div class="split-menu" id="deleteSplitMenu">
+                    <button form=form type="submit"
+                            th:formaction="@{/instances/delete(regatherWith='Browsertrix')}"
+                            class="btn btn-danger btn-block"
+                            onclick="return confirm('Delete ' + countSelected() + ' instances and regather? Deletes cannot be undone.');">
+                        Delete and Regather with Browsertrix
+                    </button>
+                     <button form=form type="submit"
+                             th:formaction="@{/instances/delete(regatherWith='Heritrix')}"
+                             class="btn btn-danger btn-block"
+                             onclick="return confirm('Delete ' + countSelected() + ' instances and regather? Deletes cannot be undone.');">
+                        Delete and Regather with Heritrix
+                    </button>
+                    <button form=form type="submit"
+                            th:formaction="@{/instances/delete?ceaseTitle=true}"
+                            class="btn btn-danger btn-block"
+                            onclick="return confirm('Delete ' + countSelected() + ' instances and mark their titles as ceased (disappeared)? Deletes cannot be undone.');">
+                        Delete and Cease Titles (Disappeared)
+                    </button>
+                </div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const toggle = document.getElementById("deleteSplitToggle");
+                        const menu = document.getElementById("deleteSplitMenu");
+
+                        if (!toggle || !menu) return;
+
+                        function closeMenu() {
+                            menu.style.display = "none";
+                            toggle.setAttribute("aria-expanded", "false");
+                        }
+
+                        toggle.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            const isOpen = menu.style.display === "block";
+                            if (isOpen) {
+                                closeMenu();
+                            } else {
+                                menu.style.display = "block";
+                                toggle.setAttribute("aria-expanded", "true");
+                            }
+                        });
+
+                        document.addEventListener("click", function () {
+                            closeMenu();
+                        });
+
+                        menu.addEventListener("click", function (e) {
+                            // allow clicking buttons without closing before submit
+                            e.stopPropagation();
+                        });
+                    });
+                </script>
             </button>
+            </span>
             <button sec:authorize="hasAuthority('PRIV_BULK_EDIT_TITLES')" class="btn btn-secondary selected-action"
                     form=form type=submit
                     th:formaction="@{/instances/bulkchange}" style="margin-left: 32px">Bulk Change

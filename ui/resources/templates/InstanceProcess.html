@@ -60,12 +60,80 @@
                    class="btn btn-secondary" th:title="'Go to Next Instance (Ctrl+Right)'" data-keybind="Ctrl+ArrowRight">❭</a>
                 <button th:unless="${nextInstance}" class="btn btn-secondary" disabled>❭</button>
             </nav>
-            <nav>
+            <nav class="btn-toolbar">
                 <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:href="${@link.edit(instance.title)}"
                    class="btn btn-secondary"><i class="icon edit"></i> Edit Title</a>
-                <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" type="submit" th:formaction="@{|/instances/${instance.id}/delete|}"
-                        class="btn btn-danger float-right" onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"
-                        title="Delete Instance (Ctrl+Delete)" data-keybind="Ctrl+Delete"><i class="icon delete"></i>Delete</button>
+                <span class="btn-group" sec:authorize="hasPermission(#vars.instance.title, 'edit')"
+                      th:if="${instance.canDelete()}">
+                    <!-- Primary delete -->
+                    <button type="submit"
+                            th:formaction="@{|/instances/${instance.id}/delete|}"
+                            class="btn btn-danger"
+                            onclick="return confirm('Are you certain you wish to delete this instance? This cannot be undone.');"
+                            title="Delete Instance (Ctrl+Delete)"
+                            data-keybind="Ctrl+Delete">
+                        <i class="icon delete"></i>Delete
+                    </button>
+
+                    <!-- Delete split toggle -->
+                    <button id="deleteSplitToggle"
+                            type="button"
+                            class="btn btn-danger btn-compact split-toggle"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-label="More delete options">
+                        ▾
+                    </button>
+
+                    <!-- Delete split menu -->
+                    <div class="split-menu" id="deleteSplitMenu">
+                        <button type="submit"
+                                th:formaction="@{|/instances/${instance.id}/delete?regatherWith=${regatherMethodName}|}"
+                                class="btn btn-danger btn-block"
+                                onclick="return confirm('Delete this instance and regather? Deletes cannot be undone.');">
+                            Delete and Regather with <th:block th:text="${regatherMethodName}">Browsertrix</th:block>
+                        </button>
+                        <button type="submit"
+                                th:formaction="@{|/instances/${instance.id}/delete?ceaseTitle=true|}"
+                                class="btn btn-danger btn-block"
+                                onclick="return confirm('Delete this instance and mark the title as ceased (disappeared)? Deletes cannot be undone.');">
+                            Delete and Cease Title (Disappeared)
+                        </button>
+                    </div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const toggle = document.getElementById("deleteSplitToggle");
+                            const menu = document.getElementById("deleteSplitMenu");
+
+                            if (!toggle || !menu) return;
+
+                            function closeMenu() {
+                                menu.style.display = "none";
+                                toggle.setAttribute("aria-expanded", "false");
+                            }
+
+                            toggle.addEventListener("click", function (e) {
+                                e.stopPropagation();
+                                const isOpen = menu.style.display === "block";
+                                if (isOpen) {
+                                    closeMenu();
+                                } else {
+                                    menu.style.display = "block";
+                                    toggle.setAttribute("aria-expanded", "true");
+                                }
+                            });
+
+                            document.addEventListener("click", function () {
+                                closeMenu();
+                            });
+
+                            menu.addEventListener("click", function (e) {
+                                // allow clicking buttons without closing before submit
+                                e.stopPropagation();
+                            });
+                        });
+                    </script>
+                </span>
             </nav>
         </header>
     </form>
@@ -106,8 +174,14 @@
         </div>
     </nav>
 
+    <div class="alert-error" th:if="${!instance.state.isGathered()}">
+        This instance <th:strong th:text="${instance.state.wording}">has been archived</th:strong>.
+        <a th:if="${instance.state.isArchived()}" th:href="${@link.delivery(instance)}"
+           target="_blank">View in Trove</a>
+    </div>
 
-    <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center">
+    <div th:if="${instance.state.isGathered()}"
+         style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center">
         <nav class="btn-group">
             <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance)}" target=replay-frame
                title="Homepage (H)" data-keybind="h"><i class="icon home"></i></a>
@@ -162,7 +236,7 @@
         }, false);
     </script>
 
-    <div style="flex-grow: 1; display: flex; overflow: hidden">
+    <div th:if="${instance.state.isGathered()}" style="flex-grow: 1; display: flex; overflow: hidden">
         <iframe th:src="${qaUrl}" name="replay-frame"
                 style="flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"
                 sandbox="allow-forms allow-pointer-lock allow-popups allow-scripts allow-downloads

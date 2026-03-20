@@ -4,22 +4,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import pandas.core.Config;
+import pandas.gatherer.BlockingTask;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @Service
 public class GathererClient {
     private final static Logger log = LoggerFactory.getLogger(GathererClient.class);
     private final Config config;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public GathererClient(Config config) {
         this.config = config;
@@ -28,11 +38,31 @@ public class GathererClient {
     public CompletableFuture<String> statusAsync() {
         String gathererUrl = config.getGathererUrl();
         if (gathererUrl == null) return CompletableFuture.completedFuture("Gatherer not configured");
-        return httpClient.sendAsync(HttpRequest.newBuilder(URI.create(gathererUrl)).build(), HttpResponse.BodyHandlers.ofString())
+        return httpClient.sendAsync(HttpRequest.newBuilder(URI.create(gathererUrl))
+                        .timeout(Duration.ofSeconds(5))
+                        .build(), HttpResponse.BodyHandlers.ofString())
                 .thenApply(body -> body.statusCode() != 200 ? "Error " + body.statusCode()  :
                         body.body().replaceFirst("(?s)<.*", ""))
                 .completeOnTimeout("Gatherer not responding", 5, TimeUnit.SECONDS)
                 .exceptionally(ex -> "Error contacting gatherer: " + ex);
+    }
+
+    public CompletableFuture<Map<Long, BlockingTask>> conflictsAsync() {
+        String gathererUrl = config.getGathererUrl();
+        if (gathererUrl == null) return CompletableFuture.completedFuture(Collections.emptyMap());
+        return httpClient.sendAsync(HttpRequest.newBuilder(makeUri("/conflicts"))
+                        .timeout(Duration.ofSeconds(5))
+                        .build(), HttpResponse.BodyHandlers.ofString())
+                .thenApply(response -> {
+                    try {
+                        if (response.statusCode() != 200) return Collections.emptyMap();
+                        return objectMapper.readValue(response.body(), new TypeReference<>() {
+                        });
+                    } catch (Exception e) {
+                        log.error("Error parsing gatherer response", e);
+                        return Collections.emptyMap();
+                    }
+                });
     }
 
     public void pause() {

@@ -160,52 +160,57 @@ public class FileSearcher {
             var doc = new Document();
             boolean seenResource = false;
             for (WarcRecord record : warcReader) {
-                if (!concurrentSet.checkAndAdd(record)) {
-                    if (seenResource) {
-                        indexWriter.addDocument(facetsConfig.build(doc));
-                        documentsAdded++;
+                try {
+                    if (!concurrentSet.checkAndAdd(record)) {
+                        if (seenResource) {
+                            indexWriter.addDocument(facetsConfig.build(doc));
+                            documentsAdded++;
+                        }
+                        doc.clear();
+                        seenResource = false;
                     }
-                    doc.clear();
-                    seenResource = false;
-                }
 
-                if (record instanceof WarcMetadata) {
-                    doc.add(new StoredField("metadataOffset", warcReader.position()));
-                } else if (record instanceof WarcRequest request && request.contentType().equals(MediaType.HTTP_REQUEST)) {
-                    doc.add(new StringField("method", request.http().method(), Field.Store.YES));
-                    doc.add(new StoredField("requestOffset", warcReader.position()));
-                } else if (record instanceof WarcResponse response && response.contentType().equals(MediaType.HTTP_RESPONSE)) {
-                    seenResource = true;
-                    var host = response.targetURI().getHost();
-                    doc.add(new StringField("responseId", Strings.removePrefix("urn:uuid:", response.id().toString()), Field.Store.YES));
-                    doc.add(new StoredField("responseOffset", warcReader.position()));
-                    doc.add(new StoredField("warcFile", warcDirectory.relativize(path).toString()));
-                    doc.add(new LongPoint("date", response.date().toEpochMilli()));
-                    doc.add(new SortedNumericDocValuesField("date", response.date().toEpochMilli()));
-                    doc.add(new StoredField("date", response.date().toEpochMilli()));
-                    doc.add(new TextField("url", response.target(), Field.Store.YES));
-                    String type;
-                    try {
-                        type = response.http().contentType().subtype();
-                    } catch (IllegalArgumentException e) {
-                        type = null;
+                    if (record instanceof WarcMetadata) {
+                        doc.add(new StoredField("metadataOffset", warcReader.position()));
+                    } else if (record instanceof WarcRequest request && request.contentType().equals(MediaType.HTTP_REQUEST)) {
+                        doc.add(new StringField("method", request.http().method(), Field.Store.YES));
+                        doc.add(new StoredField("requestOffset", warcReader.position()));
+                    } else if (record instanceof WarcResponse response && response.contentType().equals(MediaType.HTTP_RESPONSE)) {
+                        seenResource = true;
+                        var host = response.targetURI().getHost();
+                        doc.add(new StringField("responseId", Strings.removePrefix("urn:uuid:", response.id().toString()), Field.Store.YES));
+                        doc.add(new StoredField("responseOffset", warcReader.position()));
+                        doc.add(new StoredField("warcFile", warcDirectory.relativize(path).toString()));
+                        doc.add(new LongPoint("date", response.date().toEpochMilli()));
+                        doc.add(new SortedNumericDocValuesField("date", response.date().toEpochMilli()));
+                        doc.add(new StoredField("date", response.date().toEpochMilli()));
+                        doc.add(new TextField("url", response.target(), Field.Store.YES));
+                        String type;
+                        try {
+                            type = response.http().contentType().subtype();
+                        } catch (IllegalArgumentException e) {
+                            type = null;
+                        }
+                        if (type == null || type.isBlank()) {
+                            type = "unknown";
+                        }
+                        doc.add(new StringField("status", String.valueOf(response.http().status()), Field.Store.YES));
+                        doc.add(new SortedSetDocValuesFacetField("facet_status", String.valueOf(response.http().status())));
+                        doc.add(new StoredField("size", response.http().body().size()));
+                        doc.add(new NumericDocValuesField("size", response.http().body().size()));
+                        doc.add(new StringField("type", type, Field.Store.YES));
+                        doc.add(new SortedSetDocValuesFacetField("facet_type", type));
+                        doc.add(new TextField("host", host, Field.Store.YES));
+                        doc.add(new SortedSetDocValuesFacetField("facet_host", host));
+                        response.payloadDigest().ifPresent(digest ->
+                                doc.add(new TextField(digest.algorithm(), digest.base32(), Field.Store.YES)));
+                        doc.add(new StoredField("position", warcReader.position()));
                     }
-                    if (type == null || type.isBlank()) {
-                        type = "unknown";
-                    }
-                    doc.add(new StringField("status", String.valueOf(response.http().status()), Field.Store.YES));
-                    doc.add(new SortedSetDocValuesFacetField("facet_status", String.valueOf(response.http().status())));
-                    doc.add(new StoredField("size", response.http().body().size()));
-                    doc.add(new NumericDocValuesField("size", response.http().body().size()));
-                    doc.add(new StringField("type", type, Field.Store.YES));
-                    doc.add(new SortedSetDocValuesFacetField("facet_type", type));
-                    doc.add(new TextField("host", host, Field.Store.YES));
-                    doc.add(new SortedSetDocValuesFacetField("facet_host", host));
-                    response.payloadDigest().ifPresent(digest ->
-                            doc.add(new TextField(digest.algorithm(), digest.base32(), Field.Store.YES)));
-                    doc.add(new StoredField("position", warcReader.position()));
+                } catch (Exception e) {
+                    log.warn("Skipping record at position {}: {}", warcReader.position(), e.getMessage());
                 }
                 fileState.position = warcReader.position();
+
             }
             if (seenResource) {
                 indexWriter.addDocument(facetsConfig.build(doc));

@@ -8,9 +8,8 @@ public class Reason {
     @Column(name = "REASON_ID", nullable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "STATUS_ID")
-    private StatusEntity status;
+    @Column(name = "STATUS_ID")
+    private Status status;
 
     @Column(name = "REASON", nullable = false, length = 512)
     private String name;
@@ -31,11 +30,11 @@ public class Reason {
         this.id = id;
     }
 
-    public StatusEntity getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(StatusEntity status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 }

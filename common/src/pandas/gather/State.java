@@ -10,30 +10,32 @@ import java.util.Map;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 
 public enum State {
-    ARCHIVED(1),
-    AWAIT_GATHER(2),
-    CHECKED(3),
-    CHECKING(4),
-    CREATION(5),
-    DELETED(6),
-    DELETING(7),
-    GATHER_PAUSE(8),
-    GATHER_PROCESS(9),
-    GATHERED(10),
-    GATHERING(12),
-    ARCHIVING(13),
-    FAILED(14);
+    ARCHIVED(1, "has been archived"),
+    AWAIT_GATHER(2, "is awaiting gathering"),
+    CHECKED(3, "has been problem checked"),
+    CHECKING(4, "is being problem checking"),
+    CREATION(5, "is being created"),
+    DELETED(6, "has been deleted"),
+    DELETING(7, "is being deleted"),
+    GATHER_PAUSE(8, "is paused during gathering"),
+    GATHER_PROCESS(9, "is post-processing"),
+    GATHERED(10, "has been gathered"),
+    GATHERING(12, "is gathering"),
+    ARCHIVING(13, "is archiving"),
+    FAILED(14, "is in a failed state");
 
     private static final Map<Integer, State> byId = Arrays.stream(State.values())
             .collect(toUnmodifiableMap(State::id, state -> state));
 
     private final int id;
+    private final String wording;
 
     @GenericField(aggregable = Aggregable.YES)
     private final String stateName = camelCase(name());
 
-    State(int id) {
+    State(int id, String wording) {
         this.id = id;
+        this.wording = wording;
     }
 
     public int id() {
@@ -92,6 +94,10 @@ public enum State {
 
     public String getStateName() {
         return stateName;
+    }
+
+    public String getWording() {
+        return wording;
     }
 
     @Converter(autoApply = true)

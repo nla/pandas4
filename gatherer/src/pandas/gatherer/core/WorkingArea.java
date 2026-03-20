@@ -13,6 +13,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.ProcessBuilder.Redirect.INHERIT;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -20,6 +21,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @Component
 public class WorkingArea {
     private static final Logger log = LoggerFactory.getLogger(WorkingArea.class);
+    private static final AtomicBoolean freeSpaceWarned = new AtomicBoolean(false);
     private final Path workingdir;
     private final Path toDeleteDir;
 
@@ -270,12 +272,14 @@ public class WorkingArea {
         File file = workingdir.toFile();
         long totalSpace = file.getTotalSpace();
         long freeSpace = file.getFreeSpace();
-    
+
         if (totalSpace == 0) {
-            log.warn("Unable to calculate free space percentage. Total space is 0.");
+            if (freeSpaceWarned.compareAndSet(false, true)) {
+                log.warn("Unable to calculate free space percentage. Total space is 0.");
+            }
             return 50.0;
         }
-    
+
         return ((double) freeSpace / totalSpace) * 100;
     }
 

@@ -6,6 +6,7 @@
     <title>Gather Queue - PANDAS</title>
     <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+
     <style>
         .gather-queue-table {
             border-collapse: collapse;
@@ -67,6 +68,16 @@
             font-size: 80%;
             color: #666;
         }
+
+        .conflict {
+            color: #d37101;
+            font-size: 80%;
+            font-variant: all-small-caps;
+        }
+
+        .conflict a {
+            color: #d37101;
+        }
     </style>
 </head>
 <body>
@@ -94,7 +105,7 @@
     <form method=post th:action="@{/queue}">
     <table class="table gather-queue-table">
         <th:block th:each="instance: ${gatheringInstances}">
-            <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .actions})}">
+            <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .actions}, false)}">
                 <td class="actions">
                     <button sec:authorize="hasPermission(#vars.instance.title, 'edit')"
                             th:formaction="@{|/instances/${instance.id}/stop|}" class="btn btn-secondary"><i
@@ -115,7 +126,7 @@
                         <img th:src="${@link.thumbnail(gather.title)}" width=67 height=50>
                     </a>
                 </td>
-                <td>
+                <td th:with="blocker = ${conflicts.get(gather.title.id)}">
                     <a th:href="${@link.to(gather.title)}" th:text="${gather.title.name}" href="../TitleView.html"
                        class="title-link">Fishes of Australia</a><br>
                     <span class="title-details">
@@ -123,6 +134,11 @@
                         <span th:text="${gather.title.owner.userid}">ckent</span>
                         <span th:text="${gather.title.agency?.organisation?.alias}">NLA</span>
                     </span>
+                    <div class="conflict" th:if="${blocker != null}">
+                        Waiting for <a th:href="${@link.toInstance(blocker.instanceId())}" th:text="${blocker.titleName()}"
+                                      class="title-link">Fishes of Australia</a>
+                                    (<th:block th:text="${blocker.reason()}">same host</th:block>)
+                    </div>
                 </td>
                 <td align="center">
                     <span th:text="${gather.method.name}" class="gather-method">Heritrix</span><br>
@@ -137,16 +153,24 @@
 
     <section>
         <h2>Failed</h2>
-        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:action="@{/queue/retry-all}" method="post">
-            <button type="submit" class="btn-danger">Retry all</button>
-        </form>
-        <form sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:action="@{/queue/delete-all-failed}" method="post">
-            <button type="submit" class="btn-danger">Delete all</button>
+        <form id="failed-form" sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')" th:if="${!failedInstances.isEmpty()}" method="post" th:action="@{/queue/retry-selected}">
+            <button type="submit" class="btn-danger selected-action-failed">Retry selected</button>
+            <button type="submit" class="btn-danger selected-action-failed" th:formaction="@{/queue/delete-selected}">Delete selected</button>
         </form>
 
-        <table>
+        <span th:if="${failedInstances.isEmpty()}">No failed instances.</span>
+        <table th:if="${!failedInstances.isEmpty()}" class="table gather-queue-table">
+            <thead>
+                <tr>
+                    <th sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')">
+                        <input type="checkbox" onchange="toggleSelectAllFailed(this)" id="selectAllFailedCheckbox">
+                    </th>
+                    <th colspan="3"></th>
+                </tr>
+            </thead>
+            <tbody>
             <th:block th:each="instance: ${failedInstances}">
-                <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions})}">
+                <tr th:replace="~{gather/GatherQueueFragments.html :: instanceRow(${instance}, ~{ :: .failed-gather-actions}, true)}">
                     <td class="failed-gather-actions">
                         <form th:if="${instance.stateBeforeFailure != null && instance.stateBeforeFailure.canBeRetried()}"
                               th:action="@{/queue/retry(instance=${instance.id})}" method="post"
@@ -157,6 +181,7 @@
                     </td>
                 </tr>
                 <tr>
+                    <td sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')"></td>
                     <td></td>
                     <td colspan="3">
                         <div style="background: #ffdddd; padding: 4px; margin-bottom: 4px" th:each="exception: ${instance.exceptions}">
@@ -168,11 +193,54 @@
                     </td>
                 </tr>
             </th:block>
+            </tbody>
         </table>
     </section>
 
     <script th:src="@{/webjars/timeago.js/dist/timeago.min.js}"></script>
     <script>
         timeago.render(document.querySelectorAll('time'));
+
+        function countFailedSelected() {
+            return document.querySelectorAll(".selectedFailedInstancesCheckbox:checked").length;
+        }
+
+        function updateFailedSelected() {
+            let selectAllCheckbox = document.getElementById("selectAllFailedCheckbox");
+            if (!selectAllCheckbox) return;
+            
+            let totalCount = document.querySelectorAll(".selectedFailedInstancesCheckbox").length;
+            let selectedCount = countFailedSelected();
+
+            if (selectedCount === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (selectedCount >= totalCount) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = true;
+            }
+
+            // Enable/disable action buttons
+            let actionButtons = document.querySelectorAll("button.selected-action-failed");
+            if (selectedCount > 0) {
+                actionButtons.forEach(btn => btn.disabled = false);
+            } else {
+                actionButtons.forEach(btn => btn.disabled = true);
+            }
+        }
+
+        function toggleSelectAllFailed(selectAllCheckbox) {
+            document.querySelectorAll('.selectedFailedInstancesCheckbox').forEach(el =>
+                el.checked = selectAllCheckbox.checked);
+            updateFailedSelected();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFailedSelected();
+        });
     </script>
 </main>

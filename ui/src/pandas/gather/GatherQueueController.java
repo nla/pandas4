@@ -7,10 +7,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import pandas.agency.User;
 import pandas.agency.UserService;
+import pandas.gatherer.BlockingTask;
 
 import java.time.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static pandas.gather.State.*;
 
@@ -36,6 +40,7 @@ public class GatherQueueController {
     @GetMapping("/queue")
     public String gatherQueue(Model model) {
         var statusFuture = gathererClient.statusAsync();
+        var conflictsFuture = gathererClient.conflictsAsync();
         Instant endOfToday = LocalDateTime.of(LocalDate.now(), LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant();
         var gatheringStates = List.of(GATHERING, GATHER_PAUSE, GATHER_PROCESS,
                 ARCHIVING, DELETING);
@@ -44,6 +49,7 @@ public class GatherQueueController {
         model.addAttribute("failedInstances", listFailedInstances());
         var status = statusFuture.join().replace("pandas-gatherer ", "");
         model.addAttribute("gathererStatus", status);
+        model.addAttribute("conflicts", conflictsFuture.join());
         return "gather/GatherQueue";
     }
 
@@ -76,9 +82,38 @@ public class GatherQueueController {
         return "redirect:/queue";
     }
 
+    @PostMapping("/queue/retry-selected")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
+    @Transactional
+    public String retrySelected(@RequestParam("instance") List<Long> instanceIds) {
+        User currentUser = userService.getCurrentUser();
+        Instant now = Instant.now();
+        for (Long instanceId : instanceIds) {
+            Instance instance = instanceRepository.getOrThrow(instanceId);
+            instance.retryAfterFailure(currentUser, now);
+            instanceRepository.save(instance);
+        }
+        return "redirect:/queue";
+    }
+
     @PostMapping("/queue/delete-all-failed")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
     public String deleteAllFailed() {
         instanceService.deleteAllFailed(userService.getCurrentUser());
+        return "redirect:/queue";
+    }
+
+    @PostMapping("/queue/delete-selected")
+    @PreAuthorize("hasAuthority('PRIV_CONTROL_GATHERER')")
+    @Transactional
+    public String deleteSelected(@RequestParam("instance") List<Long> instanceIds) {
+        User currentUser = userService.getCurrentUser();
+        Instant now = Instant.now();
+        for (Long instanceId : instanceIds) {
+            Instance instance = instanceRepository.getOrThrow(instanceId);
+            instance.delete(currentUser, now);
+            instanceRepository.save(instance);
+        }
         return "redirect:/queue";
     }
 

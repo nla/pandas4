@@ -37,13 +37,34 @@ public class LLMClient {
     public static class Request {
         public String model;
         public List<Message> messages;
-        public Object guidedJson;
-        public double temperature;
+        public StructuredOutputs structuredOutputs;
+        public ChatTemplateKwargs chatTemplateKwargs = new ChatTemplateKwargs(false);
+        public Double temperature;
         public Integer maxTokens;
-        public Request(String model, String message, Object guidedJson) {
+        public Request(String model, String message, Object jsonSchema) {
             this.model = model;
             this.messages = List.of(new Message("user", message));
-            this.guidedJson = guidedJson;
+            this.structuredOutputs = jsonSchema == null ? null : new StructuredOutputs(jsonSchema);
+        }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonNaming(SnakeCaseStrategy.class)
+    public static class ChatTemplateKwargs {
+        public boolean enableThinking;
+
+        public ChatTemplateKwargs(boolean enableThinking) {
+            this.enableThinking = enableThinking;
+        }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonNaming(SnakeCaseStrategy.class)
+    public static class StructuredOutputs {
+        public Object json;
+
+        public StructuredOutputs(Object json) {
+            this.json = json;
         }
     }
 
@@ -89,6 +110,7 @@ public class LLMClient {
         log.info("LLM request: {}", requestBody);
         var httpRequestBuilder = HttpRequest.newBuilder(config.url().resolve("v1/chat/completions"))
                 .POST(BodyPublishers.ofString(requestBody))
+                .header("Content-Type", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
                 .timeout(Duration.ofSeconds(30));
         if (config.apiKey() != null) {

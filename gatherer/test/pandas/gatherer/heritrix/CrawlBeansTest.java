@@ -42,7 +42,6 @@ public class CrawlBeansTest {
         // ensure the xmlns attribute isn't clobbered
         assertTrue(config.contains("<beans xmlns="));
         assertTrue(config.contains("metadata.robotsPolicyName=ignore\n"));
-        System.out.println(config);
     }
 
     @Test

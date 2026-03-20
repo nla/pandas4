@@ -31,7 +31,14 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
               pandas.gather.State.GATHER_PROCESS,
               pandas.gather.State.DELETING,
               pandas.gather.State.ARCHIVING)
-            and i.gatherMethodName = ?1""")
+            and i.gatherMethodName = ?1
+            order by case
+                when i.state = pandas.gather.State.DELETING then 0
+                when i.state = pandas.gather.State.ARCHIVING then 1
+                when i.state = pandas.gather.State.GATHER_PROCESS then 2
+                when i.state = pandas.gather.State.GATHERING then 3
+                else 4
+            end, i.date""")
     List<Instance> findIncomplete(String gatherMethodName);
 
     @Query("select i from Instance i where not exists (select it from InstanceThumbnail it where it.instanceId = i.id) " +
@@ -71,6 +78,11 @@ public interface InstanceRepository extends CrudRepository<Instance,Long>, JpaSp
             "where i.state = pandas.gather.State.GATHERED\n" +
             "and i.title.owner.id = :ownerId")
     long countGatheredWorktray(@Param("ownerId") Long ownerId);
+
+    @Query("select count(*) from Instance i\n" +
+            "where i.state = pandas.gather.State.GATHERED\n" +
+            "and i.title.agency.id = :agencyId")
+    long countGatheredWorktrayByAgency(@Param("agencyId") Long agencyId);
 
     @Query("""
         select i from Instance i

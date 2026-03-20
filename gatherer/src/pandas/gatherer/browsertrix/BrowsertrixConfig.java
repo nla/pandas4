@@ -3,6 +3,8 @@ package pandas.gatherer.browsertrix;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.file.Path;
+
 @Configuration
 @ConfigurationProperties(prefix = "browsertrix")
 public class BrowsertrixConfig {
@@ -13,7 +15,12 @@ public class BrowsertrixConfig {
     private Long defaultCrawlLimitBytes = 2L * 1024L * 1024L * 1024L;
 
     private Long defaultCrawlLimitSeconds = 12L * 60 * 60;
-    private String version = "webrecorder/browsertrix-crawler:1.7.0";
+    private String image = "webrecorder/browsertrix-crawler:1.11.2";
+
+    private boolean kubeEnabled = false;
+    private String kubeNamespace;
+    private Path kubeJobConfig;
+    private boolean transformLocalhostUrls = false;
 
     public String getPodmanOptions() {
         return podmanOptions;
@@ -56,10 +63,42 @@ public class BrowsertrixConfig {
     }
 
     public String getImage() {
-        return version;
+        return image;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public boolean isKubeEnabled() {
+        return kubeEnabled;
+    }
+
+    public void setKubeEnabled(boolean kubeEnabled) {
+        this.kubeEnabled = kubeEnabled;
+    }
+
+    public String getKubeNamespace() {
+        return kubeNamespace;
+    }
+
+    public void setKubeNamespace(String kubeNamespace) {
+        this.kubeNamespace = kubeNamespace;
+    }
+
+    public Path getKubeJobConfig() {
+        return kubeJobConfig;
+    }
+
+    public void setKubeJobConfig(Path kubeJobConfig) {
+        this.kubeJobConfig = kubeJobConfig;
+    }
+
+    public boolean isTransformLocalhostUrls() {
+        return transformLocalhostUrls;
+    }
+
+    public void setTransformLocalhostUrls(boolean transformLocalhostUrls) {
+        this.transformLocalhostUrls = transformLocalhostUrls;
     }
 }

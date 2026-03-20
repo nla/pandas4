@@ -31,12 +31,14 @@
         <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"><a
                 th:href="@{/worktrays/gathered}"
                 th:classappend="${activeItem == 'QA'}? 'active'"
-                href=worktrays/Gathered.html>
+                href=worktrays/Gathered.html
+                th:with="qaCount = ${@sidebarService.qaCount(#ctx.session)}">
             <i class="icon fact_check"></i>
             QA
-            <th:block th:with="count = ${@instanceRepository.countGatheredWorktray(@userService.currentUser.id)}">
-                <span style="margin-left: auto" th:if="${count > 0}" class="instance-count" th:text="${count}"></span>
-            </th:block>
+            <span style="margin-left: auto"
+                  th:if="${qaCount > 0}"
+                  class="instance-count"
+                  th:text="${@sidebarService.qaLabel(#ctx.session) + ' ' + qaCount}"></span>
         </a>
         <li><a th:href="@{/titles}" th:classappend="${activeItem == 'Titles'}? 'active'"
                href=TitleSearch.html>

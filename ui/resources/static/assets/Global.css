@@ -63,6 +63,10 @@ a:visited[rel~=external] {
     color: #ae18ae;
 }
 
+.identifier-link {
+    color: var(--color-black);
+}
+
 h1, h2 {
     font-weight: 400;
 }
@@ -365,6 +369,7 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
 
 .btn-group {
     display: inline-flex;
+    position: relative;
 }
 
 .btn-group .btn {
@@ -380,6 +385,44 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
     border-top-right-radius: .2rem;
     border-bottom-right-radius: .2rem;
     border-right: 1px solid #333;
+}
+
+/* Row of buttons next to each other (not merged) */
+.btn-toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/*
+ * Button Groups: Split Menu
+ */
+.split-menu {
+    position: absolute;
+    top: 100%;          /* directly below the buttons */
+    right: 0;           /* align with the right edge of the split button group */
+    margin-top: -4px;    /* small gap; tweak as desired */
+    background: var(--color-white);
+    border: 1px solid var(--color-light-grey);
+    border-radius: .2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    padding: 4px;
+    display: none;
+    z-index: 200;
+    width: max-content;
+}
+
+.split-menu .btn {
+    display: block;
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+    margin: 2px 0;
+}
+
+.btn-group .split-toggle {
+    min-width: 32px;
+    padding: 0 8px;
 }
 
 /*
@@ -992,4 +1035,3 @@ button.title-flag:active:after, button.title-flag.active:after {
 .tooltip:hover .hovertext {
     visibility: visible;
 }
-
