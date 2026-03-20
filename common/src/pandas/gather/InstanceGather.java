@@ -8,7 +8,9 @@ import jakarta.persistence.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
@@ -213,6 +215,6 @@ public class InstanceGather {
         String gatherText = gather == null ? "" : String.format("✭%d", Math.round(gather.getValue()*5));
         String archiveText = archive == null ? "" : String.format("✦%d", Math.round(archive.getValue()*5));
 
-        return  String.format("%s%s", gatherText, archiveText);
+        return String.join(" ", gatherText, archiveText);
     }
 }

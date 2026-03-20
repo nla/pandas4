@@ -81,8 +81,7 @@ public class GatherIndicator {
 
         // Combined indicators
         GATHER_VIBE("Overall (gather)"),
-        ARCHIVE_VIBE("Overall (archived)"),
-        ;
+        ARCHIVE_VIBE("Overall (archived)");
 
         public final String label;
 
