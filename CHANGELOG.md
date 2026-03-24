@@ -1,5 +1,23 @@
 # PANDAS Changelog
 
+## 4.13.1 2026-02-24
+
+### Bug fixes
+
+- Improved QA indicators to better reflect workflow:
+  - Reorganized indicators into two categories: 'Success Indicators' and 'Problem Indicators'.
+  - Created a combined 403 and 5xx HTTP response (proportion).
+  - All success indicators are now removed if the gather is small.
+  - Combined thumbnail image similarity measures.
+- Improved display of QA indicators:
+  - Added star ratings with explanatory hover text.
+  - Only selected indicators are now shown by default, with others hidden.
+- Fixed NLA Logo on the login screen.
+
+### Removals
+
+- Removed experimental QA button
+
 ## 4.13.0 2026-03-19
 
 ### New features
