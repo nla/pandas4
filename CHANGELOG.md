@@ -18,6 +18,10 @@
 
 - Removed experimental QA button
 
+### Dependency upgrades
+
+- **spring-boot**: 3.5.6 → 3.5.12
+
 ## 4.13.0 2026-03-19
 
 ### New features
