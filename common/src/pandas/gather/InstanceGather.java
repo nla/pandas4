@@ -207,14 +207,14 @@ public class InstanceGather {
                          .collect(Collectors.toUnmodifiableList());
     }
 
-    // "x/y" where x is the gather overall score scaled 0-5; y is the same for archive overall score.
+    // "(✭x✦y)" where x is the gather overall score scaled 0-5; y is the same for archive overall score.
     public String getSummaryText() {
-        var g = getIndicatorFor(GatherIndicator.IndicatorType.GATHER_VIBE);
-        var a = getIndicatorFor(GatherIndicator.IndicatorType.ARCHIVE_VIBE);
+        var gather = getIndicatorFor(GatherIndicator.IndicatorType.GATHER_VIBE);
+        var archive = getIndicatorFor(GatherIndicator.IndicatorType.ARCHIVE_VIBE);
 
-        String gatherText = g == null ? "-" : String.format("%d", Math.round(g.getValue()*5));
-        String archiveText = a == null ? "-" : String.format("%d", Math.round(a.getValue()*5));
+        String gatherText = gather == null ? "" : String.format("✭%d", Math.round(gather.getValue()*5));
+        String archiveText = archive == null ? "" : String.format("✦%d", Math.round(archive.getValue()*5));
 
-        return  String.format("%s/%s", gatherText, archiveText);
+        return String.join(" ", gatherText, archiveText);
     }
 }

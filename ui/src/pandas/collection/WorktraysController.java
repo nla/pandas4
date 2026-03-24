@@ -1,9 +1,7 @@
 package pandas.collection;
 
-import io.micrometer.core.annotation.Timed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -45,6 +43,15 @@ public class WorktraysController {
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
     private final StateRepository stateRepository;
+
+    private static final List<GatherIndicator.IndicatorType> SUMMARY_INDICATORS = List.of(
+        GatherIndicator.IndicatorType.GATHER_VIBE,
+        GatherIndicator.IndicatorType.ARCHIVE_VIBE,
+        GatherIndicator.IndicatorType.HTTP_2XX,
+        GatherIndicator.IndicatorType.HTTP_403,
+        GatherIndicator.IndicatorType.HTTP_5XX,
+        GatherIndicator.IndicatorType.HTTP_LAST_BAD
+    );
 
     public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, InstanceSearcher instanceSearcher, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, ReportRepository reportRepository, StateRepository stateRepository) {
         this.titleRepository = titleRepository;
@@ -218,6 +225,28 @@ public class WorktraysController {
         model.addAttribute("filters", instances.getFacets());
 
         return "worktrays/Gathered";
+    }
+
+    public String formatGatherIndicator(GatherIndicator ind) {
+
+        if (ind.getIndicator() == GatherIndicator.IndicatorType.HTTP_LAST_BAD) {
+            return ind.getValue() < 0.5 ? "(Last HTTP response was good)" : "(Last HTTP response was bad)";
+        }
+
+        var fivePointSuffix = switch (ind.getIndicator()) {
+            case GATHER_VIBE -> String.format(" (✭%d)", Math.round(ind.getValue()*5));
+            case ARCHIVE_VIBE -> String.format(" (✦%d)", Math.round(ind.getValue()*5));
+            default -> "";
+        };
+
+        return String.format("%s: %1.0f%%%s", ind.getIndicator().label, ind.getValue()*100, fivePointSuffix);
+    }
+
+    public List<GatherIndicator> getSummaryIndicatorsForGather(InstanceGather gather) {
+        return SUMMARY_INDICATORS.stream()
+                .map(gather::getIndicatorFor)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     <T,R> FacetResults buildFilter(String name, String param, java.util.Collection<T> items,

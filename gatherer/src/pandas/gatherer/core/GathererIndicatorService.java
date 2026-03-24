@@ -82,9 +82,12 @@ public class GathererIndicatorService {
         );
 
         // finally - composite indicators
+        var unModifiableResults = Collections.unmodifiableList(result);
         addIfComputable(result,
-                () -> new GatherIndicator(GatherIndicator.IndicatorType.GATHER_VIBE, scoreIntraVibe(Collections.unmodifiableList(result))),
-                () -> new GatherIndicator(GatherIndicator.IndicatorType.ARCHIVE_VIBE, scoreArchivedVibe(Collections.unmodifiableList(result)))
+                () -> new GatherIndicator(GatherIndicator.IndicatorType.GATHER_VIBE, scoreIntraVibe(unModifiableResults)),
+                () -> new GatherIndicator(GatherIndicator.IndicatorType.ARCHIVE_VIBE, scoreArchivedVibe(unModifiableResults)),
+                () -> new GatherIndicator(GatherIndicator.IndicatorType.THUMB_HASH, scoreCombinedThumbnailDifference(unModifiableResults)),
+                () -> new GatherIndicator(GatherIndicator.IndicatorType.HTTP_5XX_403, scoreCombined5xx403(unModifiableResults))
         );
 
         return result;
@@ -258,6 +261,50 @@ public class GathererIndicatorService {
         }
 
         return cumulativeScore/cumulativeWeight;
+    }
+
+    public GatherIndicator getIndicatorFor(List<GatherIndicator> indicators, GatherIndicator.IndicatorType indicatorType) {
+        if (indicators == null || indicators.isEmpty()) {
+            return null;
+        }
+        return indicators.stream()
+                .filter(ind -> ind.getIndicator() == indicatorType)
+                .findFirst().orElse(null);
+    }
+
+    // proportion that are 403 or 5xx
+    public float scoreCombined5xx403(List<GatherIndicator> indicators) {
+        var ind403 = getIndicatorFor(indicators, GatherIndicator.IndicatorType.HTTP_403);
+        var ind5xx = getIndicatorFor(indicators, GatherIndicator.IndicatorType.HTTP_5XX);
+
+        return (ind403 == null ? 0 : ind403.getValue()) + (ind5xx == null ? 0 : ind5xx.getValue());
+    }
+
+    public float scoreCombinedThumbnailDifference(List<GatherIndicator> indicators) {
+
+        long weight = 0, cumulativeWeight = 0;
+        float score = 0, cumulativeScore = 0;  // 0 is "bad", 1 is "good"
+
+        for (GatherIndicator ind : indicators) {
+            switch (ind.getIndicator()) {
+                case ARCHIVED_THUMB_HASH, LIVE_THUMB_HASH -> {
+                    weight = 1;
+                    score = ind.getValue();
+                }
+                default -> {
+                    weight = 0;
+                    score = 0;
+                }
+            }
+            cumulativeScore += weight * score;
+            cumulativeWeight += weight;
+        }
+
+        if (cumulativeWeight == 0) {
+            throw new IllegalArgumentException("Can't calculate combined thumbnail diff - no indicators present");
+        }
+
+        return cumulativeScore / cumulativeWeight;
     }
 
     private void addIfComputable(List<GatherIndicator> indicators, Callable<GatherIndicator>... inds)  {

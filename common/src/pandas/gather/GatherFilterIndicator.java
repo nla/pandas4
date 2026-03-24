@@ -16,15 +16,20 @@ public enum GatherFilterIndicator {
     MANY_5XX_RESPONSES (GatherIndicator.IndicatorType.HTTP_5XX,      "Many HTTP 5XXs", v -> v > 0.4),
     MANY_403_RESPONSES (GatherIndicator.IndicatorType.HTTP_403,      "Many HTTP 403s", v -> v > 0.4),
     LAST_RESPONSE_BAD  (GatherIndicator.IndicatorType.HTTP_LAST_BAD, "Bad final HTTP response", v -> v > 0.5),
+    MANY_5XX_403_RESPONSES (GatherIndicator.IndicatorType.HTTP_5XX_403, "Many HTTP 5XXs or 403s", v -> v > 0.4),
 
     // less than 1M
     FILE_SIZE_SMALL  (GatherIndicator.IndicatorType.FILE_SIZE_10M, "Too small", v -> v < 0.1),
 
     // thumbnails - against live and archived
-    CRAWL_VS_LIVE_THUMB_DIFF     (GatherIndicator.IndicatorType.LIVE_THUMB_HASH,     "Thumbnail differs", v -> v > 0.3),
-    CRAWL_VS_ARCHIVED_THUMB_DIFF (GatherIndicator.IndicatorType.ARCHIVED_THUMB_HASH, "Thumbnail differs", v -> v > 0.3),
-    CRAWL_VS_LIVE_THUMB_SIM      (GatherIndicator.IndicatorType.LIVE_THUMB_HASH,     "Thumbnail similar", v -> v < 0.3),
-    CRAWL_VS_ARCHIVED_THUMB_SIM  (GatherIndicator.IndicatorType.ARCHIVED_THUMB_HASH, "Thumbnail similar", v -> v < 0.3),
+    CRAWL_VS_LIVE_THUMB_DIFF     (GatherIndicator.IndicatorType.LIVE_THUMB_HASH,     "Live thumbnail differs", v -> v > 0.3),
+    CRAWL_VS_ARCHIVED_THUMB_DIFF (GatherIndicator.IndicatorType.ARCHIVED_THUMB_HASH, "Archived thumbnail differs", v -> v > 0.3),
+    CRAWL_VS_LIVE_THUMB_SIM      (GatherIndicator.IndicatorType.LIVE_THUMB_HASH,     "Live thumbnail similar", v -> v < 0.3),
+    CRAWL_VS_ARCHIVED_THUMB_SIM  (GatherIndicator.IndicatorType.ARCHIVED_THUMB_HASH, "Archived thumbnail similar", v -> v < 0.3),
+
+    // thumbnails - experimental combo
+    CRAWL_THUMB_DIFF (GatherIndicator.IndicatorType.THUMB_HASH, "Thumbnail differs", v -> v > 0.3),
+    CRAWL_THUMB_SIM  (GatherIndicator.IndicatorType.THUMB_HASH, "Thumbnail similar", v -> v < 0.3),
 
     // similar to archived
     FILE_SIZE_SIMILAR    (GatherIndicator.IndicatorType.ARCHIVED_FILE_SIZE_CHANGE,   "Similar size", v -> v < 0.2),
@@ -41,20 +46,14 @@ public enum GatherFilterIndicator {
     ;
 
     public static Set<GatherFilterIndicator> goodIndicators = Set.of(
-            MANY_2XX_RESPONSES, CRAWL_VS_LIVE_THUMB_SIM,
-            PREVIOUSLY_ARCHIVED
-    );
-
-    public static Set<GatherFilterIndicator> archiveIndicators = Set.of(
-            FILE_SIZE_DECREASED, MANY_GOOD_DECREASED,
-            CRAWL_VS_ARCHIVED_THUMB_DIFF, CRAWL_VS_ARCHIVED_THUMB_SIM,
-            FILE_SIZE_SIMILAR, OVERALL_LOW_ARCHIVED, OVERALL_HIGH_ARCHIVED
+            MANY_2XX_RESPONSES,
+            PREVIOUSLY_ARCHIVED, FILE_SIZE_SIMILAR,
+            OVERALL_HIGH_ARCHIVED
     );
 
     public static Set<GatherFilterIndicator> poorIndicators = Set.of(
-            LAST_RESPONSE_BAD, MANY_5XX_RESPONSES, MANY_403_RESPONSES,
-            CRAWL_VS_LIVE_THUMB_DIFF, CRAWL_VS_ARCHIVED_THUMB_DIFF,
-            FILE_SIZE_SMALL, OVERALL_LOW_GATHER
+            LAST_RESPONSE_BAD, MANY_5XX_403_RESPONSES, FILE_SIZE_SMALL,
+            FILE_SIZE_DECREASED, MANY_GOOD_DECREASED, OVERALL_LOW_GATHER, OVERALL_LOW_ARCHIVED
     );
 
     private final String text;
