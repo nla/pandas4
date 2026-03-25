@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## 4.13.2 2026-03-25
+
+### Bug fixes
+
+- Corrected QA replay URL for pywb client side replay mode.
+
 ## 4.13.1 2026-02-24
 
 ### Bug fixes
