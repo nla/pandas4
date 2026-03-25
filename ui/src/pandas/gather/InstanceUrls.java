@@ -41,7 +41,7 @@ public class InstanceUrls {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9]+/[0-9-]+/", "/");
         }
-        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/mp_/" +
+        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/" +
                 instance.getTepUrlAbsolute();
     }
 
@@ -51,7 +51,7 @@ public class InstanceUrls {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + url.replaceFirst("^https?://", "/");
         }
-        return qaReplayBase(instance) + "/mp_/" + url;
+        return qaReplayBase(instance) + "/" + url;
     }
 
     @NotNull
