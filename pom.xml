@@ -86,8 +86,19 @@
         <url>https://github.com/nla/pandas4</url>
         <connection>scm:git:git@github.com:nla/pandas4</connection>
         <developerConnection>scm:git:git@github.com:nla/pandas4</developerConnection>
-      <tag>v4.12.1</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>nla-public-releases</id>
+            <url>https://dev.nla.gov.au/nexus/content/repositories/nla-public/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nla-public-snapshots</id>
+            <url>https://dev.nla.gov.au/nexus/content/repositories/nla-public-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <licenses>
         <license>
@@ -161,16 +172,6 @@
     <profiles>
         <profile>
             <id>jenkins</id>
-            <distributionManagement>
-                <repository>
-                    <id>nla-public-releases</id>
-                    <url>https://dev.nla.gov.au/nexus/content/repositories/nla-public/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>nla-public-snapshots</id>
-                    <url>https://dev.nla.gov.au/nexus/content/repositories/nla-public-snapshots/</url>
-                </snapshotRepository>
-            </distributionManagement>
             <properties>
                 <skipTests>true</skipTests>
             </properties>
