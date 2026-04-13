@@ -15,8 +15,8 @@ public enum GatherFilterIndicator {
     MANY_2XX_RESPONSES (GatherIndicator.IndicatorType.HTTP_2XX,      "Many HTTP 2XXs", v -> v > 0.5),
     MANY_5XX_RESPONSES (GatherIndicator.IndicatorType.HTTP_5XX,      "Many HTTP 5XXs", v -> v > 0.4),
     MANY_403_RESPONSES (GatherIndicator.IndicatorType.HTTP_403,      "Many HTTP 403s", v -> v > 0.4),
-    LAST_RESPONSE_BAD  (GatherIndicator.IndicatorType.HTTP_LAST_BAD, "Bad final HTTP response", v -> v > 0.5),
-    MANY_5XX_403_RESPONSES (GatherIndicator.IndicatorType.HTTP_5XX_403, "Many HTTP 5XXs or 403s", v -> v > 0.4),
+    LAST_RESPONSE_BAD  (GatherIndicator.IndicatorType.HTTP_LAST_BAD, "Bad final HTTP resp", v -> v > 0.5),
+    MANY_5XX_403_RESPONSES (GatherIndicator.IndicatorType.HTTP_5XX_403, "Many HTTP 5XX/403s", v -> v > 0.4),
 
     // less than 1M
     FILE_SIZE_SMALL  (GatherIndicator.IndicatorType.FILE_SIZE_10M, "Too small", v -> v < 0.1),
@@ -33,17 +33,16 @@ public enum GatherFilterIndicator {
 
     // similar to archived
     FILE_SIZE_SIMILAR    (GatherIndicator.IndicatorType.ARCHIVED_FILE_SIZE_CHANGE,   "Similar size", v -> v < 0.2),
-    FILE_SIZE_DECREASED  (GatherIndicator.IndicatorType.ARCHIVED_FILE_SIZE_DECREASE, "Too small",  v -> v > 0.3),
+    FILE_SIZE_DECREASED  (GatherIndicator.IndicatorType.ARCHIVED_FILE_SIZE_DECREASE, "Size decreased", v -> v > 0.3),
     MANY_GOOD_DECREASED  (GatherIndicator.IndicatorType.ARCHIVED_HTTP_GOOD_DECREASE, "Too few HTTP 2XXs", v -> v > 0.3),
 
     // files / count
-    OVERALL_LOW_GATHER    (GatherIndicator.IndicatorType.GATHER_VIBE,  "Low confidence",   v -> v < 0.5),
-    OVERALL_HIGH_GATHER   (GatherIndicator.IndicatorType.GATHER_VIBE,  "High confidence",  v -> v > 0.9),
-    OVERALL_LOW_ARCHIVED  (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Low confidence",   v -> v < 0.7),
-    OVERALL_HIGH_ARCHIVED (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "High confidence",  v -> v > 0.8),
-    OVERALL_V_HIGH_ARCHIVED (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Very high confidence", v -> v > 0.9),
-    PREVIOUSLY_ARCHIVED   (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Previously archived",    v -> true),
-    ;
+    OVERALL_LOW_GATHER    (GatherIndicator.IndicatorType.GATHER_VIBE,  "Low conf (gathered)",  v -> v < 0.5),
+    OVERALL_HIGH_GATHER   (GatherIndicator.IndicatorType.GATHER_VIBE,  "High conf (gathered)", v -> v > 0.9),
+    OVERALL_LOW_ARCHIVED  (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Low conf (archived)",  v -> v < 0.6),
+    OVERALL_HIGH_ARCHIVED (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "High conf (archived)", v -> v > 0.8),
+    OVERALL_V_HIGH_ARCHIVED (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "V high conf (archived)", v -> v > 0.9),
+    PREVIOUSLY_ARCHIVED   (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Previously archived",  v -> true);
 
     public static Set<GatherFilterIndicator> goodIndicators = Set.of(
             MANY_2XX_RESPONSES,
