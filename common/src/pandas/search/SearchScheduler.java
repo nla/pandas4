@@ -129,6 +129,8 @@ public class SearchScheduler {
             } catch (Exception e) {
                 entityManager.getTransaction().rollback();
                 throw e;
+            } finally {
+                entityManager.clear();
             }
         }
 
@@ -172,6 +174,8 @@ public class SearchScheduler {
             } catch (Exception e) {
                 entityManager.getTransaction().rollback();
                 throw e;
+            } finally {
+                entityManager.clear();
             }
         }
         ;
@@ -225,6 +229,8 @@ public class SearchScheduler {
                 } catch (Exception e) {
                     entityManager.getTransaction().rollback();
                     throw e;
+                } finally {
+                    entityManager.clear();
                 }
             }
         }
