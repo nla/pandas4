@@ -63,6 +63,28 @@
                 </li>
             </ul>
             </p>
+
+            <p th:unless="${period.transferredToUser.isEmpty()}" th:with="count = ${period.transferredToUser.size()}">
+                Received <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
+                <th:block th:text="${count == 1 ? 'title' : 'titles'}">titles</th:block>:
+                <ul>
+                    <li th:each="oh : ${period.transferredToUser}">
+                        <a th:href="${@link.to(oh.title)}" th:text="${oh.title.name}"></a>
+                        <span th:text="'(from ' + ${oh.transferrer.userid} + ')'">(from userid)</span>
+                    </li>
+                </ul>
+            </p>
+
+            <p th:unless="${period.transferredFromUser.isEmpty()}" th:with="count = ${period.transferredFromUser.size()}">
+                Transferred <th:block th:text="${count == 1 ? 'a' : count}">3</th:block>
+                <th:block th:text="${count == 1 ? 'title' : 'titles'}">titles</th:block>:
+                <ul>
+                    <li th:each="oh : ${period.transferredFromUser}">
+                        <a th:href="${@link.to(oh.title)}" th:text="${oh.title.name}"></a>
+                        <span th:text="'(to ' + ${oh.user.userid} + ')'">(to userid)</span>
+                    </li>
+                </ul>
+            </p>
         </th:block>
     </section>
 
