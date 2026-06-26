@@ -12,9 +12,59 @@
 <main>
     <header>
         <nav class="btn-toolbar">
-            <button class="btn btn-primary selected-action" form=form type=submit
-                    th:formaction="@{/instances/archive}"><i class="icon archive"></i>Archive
-            </button>
+            <span class="btn-group">
+                <button class="btn btn-primary selected-action" form=form type=submit
+                        th:formaction="@{/instances/archive}"><i class="icon archive"></i>Archive
+                </button>
+
+                <!-- Archive split toggle -->
+                <button id="archiveSplitToggle" type="button" class="btn btn-primary btn-compact split-toggle selected-action"
+                        aria-haspopup="true" aria-expanded="false" aria-label="More archive options">
+                    ▾
+                </button>
+
+                <!-- Archive split menu -->
+                <div class="split-menu" id="archiveSplitMenu">
+                    <button form=form type="submit"
+                            th:formaction="@{/instances/archive?ceaseTitle=true}"
+                            class="btn btn-primary btn-block"
+                            onclick="return confirm('Archive ' + countSelected() + ' instances and mark their titles as ceased (disappeared)?');">
+                        Archive and Cease Titles (Disappeared)
+                    </button>
+                </div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const toggle = document.getElementById("archiveSplitToggle");
+                        const menu = document.getElementById("archiveSplitMenu");
+
+                        if (!toggle || !menu) return;
+
+                        function closeMenu() {
+                            menu.style.display = "none";
+                            toggle.setAttribute("aria-expanded", "false");
+                        }
+
+                        toggle.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            const isOpen = menu.style.display === "block";
+                            if (isOpen) {
+                                closeMenu();
+                            } else {
+                                menu.style.display = "block";
+                                toggle.setAttribute("aria-expanded", "true");
+                            }
+                        });
+
+                        document.addEventListener("click", function () {
+                            closeMenu();
+                        });
+
+                        menu.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                        });
+                    });
+                </script>
+            </span>
             <span class="btn-group">
                 <button class="btn btn-danger selected-action" form=form type=submit
                         th:formaction="@{/instances/delete}"

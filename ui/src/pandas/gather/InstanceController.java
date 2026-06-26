@@ -168,8 +168,9 @@ public class InstanceController {
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     public String archive(@PathVariable("id") Instance instance,
                           @RequestParam(value = "nextInstance", required = false) Long nextInstance,
-                          @RequestParam(value = "worktray", required = false) String worktray) {
-        instanceService.archive(instance, userService.getCurrentUser());
+                          @RequestParam(value = "worktray", required = false) String worktray,
+                          @RequestParam(value = "ceaseTitle", defaultValue = "false") boolean ceaseTitle) {
+        instanceService.archive(instance, userService.getCurrentUser(), ceaseTitle);
         if (nextInstance != null) {
             return "redirect:/instances/" + nextInstance + "/process?worktray=" + worktray;
         }
@@ -184,10 +185,11 @@ public class InstanceController {
     }
 
     @PostMapping("/instances/archive")
-    public String archiveSelected(@RequestParam("instance") List<Instance> instances) {
+    public String archiveSelected(@RequestParam("instance") List<Instance> instances,
+                                  @RequestParam(value = "ceaseTitle", defaultValue = "false") boolean ceaseTitle) {
         var user = userService.getCurrentUser();
         for (var instance : instances) {
-            instanceService.archive(instance, user);
+            instanceService.archive(instance, user, ceaseTitle);
         }
         return "redirect:" + Requests.backlinkOrDefault("/instances");
     }
