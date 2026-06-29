@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 
@@ -29,13 +31,20 @@ public class DashboardController {
     private final UserRepository userRepository;
     private final TitleRepository titleRepository;
     private final StateHistoryRepository stateHistoryRepository;
+    private final OwnerHistoryRepository ownerHistoryRepository;
     private final UserService userService;
 
-    public DashboardController(CollectionRepository collectionRepository, UserRepository userRepository, TitleRepository titleRepository, StateHistoryRepository stateHistoryRepository, UserService userService) {
+    public DashboardController(CollectionRepository collectionRepository,
+                               UserRepository userRepository,
+                               TitleRepository titleRepository,
+                               StateHistoryRepository stateHistoryRepository,
+                               OwnerHistoryRepository ownerHistoryRepository,
+                               UserService userService) {
         this.collectionRepository = collectionRepository;
         this.userRepository = userRepository;
         this.titleRepository = titleRepository;
         this.stateHistoryRepository = stateHistoryRepository;
+        this.ownerHistoryRepository = ownerHistoryRepository;
         this.userService = userService;
     }
 
@@ -96,6 +105,31 @@ public class DashboardController {
             }
         }
 
+        { // partition titles transferred to the user (user is the new owner)
+            var periodIterator = activityPeriods.iterator();
+            ActivityPeriod period = periodIterator.next();
+            outer: for (var oh : ownerHistoryRepository.findByUserAndDateAfterOrderByDateDesc(user, dateLimit)) {
+                if (oh.getTransferrer() == null) continue;
+                while (oh.getDate().isBefore(period.instant)) {
+                    if (!periodIterator.hasNext()) break outer;
+                    period = periodIterator.next();
+                }
+                period.transferredToUser.add(oh);
+            }
+        }
+
+        { // partition titles transferred from the user (user is the transferrer)
+            var periodIterator = activityPeriods.iterator();
+            ActivityPeriod period = periodIterator.next();
+            outer: for (var oh : ownerHistoryRepository.findByTransferrerAndDateAfterOrderByDateDesc(user, dateLimit)) {
+                while (oh.getDate().isBefore(period.instant)) {
+                    if (!periodIterator.hasNext()) break outer;
+                    period = periodIterator.next();
+                }
+                period.transferredFromUser.add(oh);
+            }
+        }
+
         activityPeriods.removeIf(ActivityPeriod::isEmpty);
 
         model.addAttribute("activityPeriods", activityPeriods);
@@ -134,6 +168,8 @@ public class DashboardController {
         public final List<Title> websites = new ArrayList<>();
         public final List<Collection> collections = new ArrayList<>();
         public final List<InstanceEvent> instancesArchived = new ArrayList<>();
+        public final List<OwnerHistory> transferredToUser = new ArrayList<>();
+        public final List<OwnerHistory> transferredFromUser = new ArrayList<>();
 
         public ActivityPeriod(String name, LocalDate startDate) {
             this.name = name;
@@ -141,7 +177,8 @@ public class DashboardController {
         }
 
         public boolean isEmpty() {
-            return websites.isEmpty() && collections.isEmpty() && instancesArchived.isEmpty();
+            return websites.isEmpty() && collections.isEmpty() && instancesArchived.isEmpty()
+                    && transferredToUser.isEmpty() && transferredFromUser.isEmpty();
         }
     }
 
