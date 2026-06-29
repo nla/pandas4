@@ -118,7 +118,7 @@ public class InstanceService {
 
     @PreAuthorize("hasPermission(#instance.title, 'edit')")
     @Transactional
-    public void archive(Instance instance, User user) {
+    public void archive(Instance instance, User user, boolean ceaseTitle) {
         instance = instanceRepository.findById(instance.getId()).orElseThrow(() -> new IllegalStateException("instance doesn't exist"));
         if (instance.getState().isArchivedOrArchiving()) return;
         if (!instance.canArchive()) throw new IllegalStateException("can't archive instance in state " + instance.getState());
@@ -128,6 +128,12 @@ public class InstanceService {
         // display the new instance immediately
         Title title = instance.getTitle();
         instance.setIsDisplayed(true);
+
+        if (ceaseTitle) {
+            title.changeStatus(Status.CEASED, null, user, Instant.now());
+            title.setDisappeared(true);
+            titleRepository.save(title);
+        }
 
         instanceRepository.save(instance);
 

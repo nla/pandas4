@@ -17,6 +17,36 @@ document.addEventListener('keyup', ev => {
     }
 });
 
+// Split-button toggle menus
+document.querySelectorAll('.split-toggle').forEach(function (toggle) {
+    const menu = toggle.nextElementSibling;
+    if (!menu || !menu.classList.contains('split-menu')) return;
+
+    function closeMenu() {
+        menu.style.display = "none";
+        toggle.setAttribute("aria-expanded", "false");
+    }
+
+    toggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const isOpen = menu.style.display === "block";
+        if (isOpen) {
+            closeMenu();
+        } else {
+            menu.style.display = "block";
+            toggle.setAttribute("aria-expanded", "true");
+        }
+    });
+
+    document.addEventListener("click", function () {
+        closeMenu();
+    });
+
+    menu.addEventListener("click", function (e) {
+        e.stopPropagation();
+    });
+});
+
 document.querySelectorAll('.title-flag').forEach(function (flagButton) {
    flagButton.addEventListener('click', function(event) {
        let formData = new FormData();

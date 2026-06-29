@@ -40,11 +40,31 @@
         <input th:if="${worktray}" type=hidden name=worktray th:value="${worktray}">
         <header>
             <nav>
-                <button sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canArchive()}"
-                        th:formaction="@{|/instances/${instance.id}/archive|}" type=submit
-                        class="btn btn-primary" title="Archive (Ctrl+Enter)" data-keybind="Ctrl+Enter">
-                    <i class="icon archive"></i> Archive
-                </button>
+                <span class="btn-group" sec:authorize="hasPermission(#vars.instance.title, 'edit')"
+                      th:if="${instance.canArchive()}">
+                    <button type="submit"
+                            th:formaction="@{|/instances/${instance.id}/archive|}"
+                            class="btn btn-primary" title="Archive (Ctrl+Enter)" data-keybind="Ctrl+Enter">
+                        <i class="icon archive"></i> Archive
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-primary btn-compact split-toggle"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-label="More archive options">
+                        ▾
+                    </button>
+
+                    <div class="split-menu">
+                        <button type="submit"
+                                th:formaction="@{|/instances/${instance.id}/archive?ceaseTitle=true|}"
+                                class="btn btn-primary btn-block"
+                                onclick="return confirm('Archive this instance and mark the title as ceased (disappeared)?');">
+                            Archive and Cease Title (Disappeared)
+                        </button>
+                    </div>
+                </span>
                 <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:if="${instance.canFindAndReplace()}"
                    th:href="@{|/instances/${instance.id}/find-and-replace|}"
                    class="btn btn-secondary">Find &amp; Replace</a>
@@ -76,8 +96,7 @@
                     </button>
 
                     <!-- Delete split toggle -->
-                    <button id="deleteSplitToggle"
-                            type="button"
+                    <button type="button"
                             class="btn btn-danger btn-compact split-toggle"
                             aria-haspopup="true"
                             aria-expanded="false"
@@ -86,7 +105,7 @@
                     </button>
 
                     <!-- Delete split menu -->
-                    <div class="split-menu" id="deleteSplitMenu">
+                    <div class="split-menu">
                         <button type="submit"
                                 th:formaction="@{|/instances/${instance.id}/delete?regatherWith=${regatherMethodName}|}"
                                 class="btn btn-danger btn-block"
@@ -100,39 +119,6 @@
                             Delete and Cease Title (Disappeared)
                         </button>
                     </div>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            const toggle = document.getElementById("deleteSplitToggle");
-                            const menu = document.getElementById("deleteSplitMenu");
-
-                            if (!toggle || !menu) return;
-
-                            function closeMenu() {
-                                menu.style.display = "none";
-                                toggle.setAttribute("aria-expanded", "false");
-                            }
-
-                            toggle.addEventListener("click", function (e) {
-                                e.stopPropagation();
-                                const isOpen = menu.style.display === "block";
-                                if (isOpen) {
-                                    closeMenu();
-                                } else {
-                                    menu.style.display = "block";
-                                    toggle.setAttribute("aria-expanded", "true");
-                                }
-                            });
-
-                            document.addEventListener("click", function () {
-                                closeMenu();
-                            });
-
-                            menu.addEventListener("click", function (e) {
-                                // allow clicking buttons without closing before submit
-                                e.stopPropagation();
-                            });
-                        });
-                    </script>
                 </span>
             </nav>
         </header>
