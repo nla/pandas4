@@ -77,7 +77,7 @@
 
     <ul class="hide-when-sidebar-collapsed">
         <li sec:authorize="hasAuthority('PRIV_VIEW_GATHER_QUEUE')"><a th:href="@{/queue}" th:classappend="${activeItem == 'Gather Queue'}? 'active'">Gather Queue</a>
-        <li><a th:href="@{/statistics}">Statistics</a>
+        <li><a th:href="@{/reports}">Reports</a>
         <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies</a>
         <li sec:authorize="hasRole('stduser')"><a href="https://webrecorder.archive.org.au/">Webrecorder</a>
         <li sec:authorize="hasRole('panadmin')"><a href="https://pandas.nla.gov.au/bamboo/">Bamboo</a>

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriUtils;
-import pandas.agency.AgencyRepository;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -22,12 +21,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Controller
 public class StatisticsController {
     private final JdbcTemplate db;
-    private final AgencyRepository agencyRepository;
     private final TitleRepository titleRepository;
 
-    public StatisticsController(JdbcTemplate db, AgencyRepository agencyRepository, TitleRepository titleRepository) {
+    public StatisticsController(JdbcTemplate db, TitleRepository titleRepository) {
         this.db = db;
-        this.agencyRepository = agencyRepository;
         this.titleRepository = titleRepository;
     }
 
@@ -201,18 +198,5 @@ public class StatisticsController {
         model.addAttribute("rows", titleRepository.countBySubject(start, end));
         model.addAttribute("totals", List.of(titleRepository.countByRegDateBetween(start, end)));
         return "StatisticsView";
-    }
-
-    @GetMapping("/statistics/agency-archiving")
-    public String agencyArchiving(
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
-            Model model) {
-        Instant startInstant = startDate == null ? null : startDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-        Instant endInstant = endDate == null ? null : endDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-        model.addAttribute("stats", agencyRepository.archivingStats(startInstant, endInstant));
-        model.addAttribute("startDate", startDate);
-        model.addAttribute("endDate", endDate);
-        return "StatisticsAgencyArchiving";
     }
 }

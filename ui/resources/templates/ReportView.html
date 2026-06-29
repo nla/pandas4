@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${report.name()} + ' - PANDAS'">Report - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .report-params { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin: 12px 0 24px; }
+        .report-params > label { display: flex; flex-direction: column; font-size: 0.85em; gap: 4px; }
+        .report-params select[name="agency"] { min-width: 16rem; max-width: 24rem; }
+        /* Date controls grouped together; the presets are clearly shortcuts that fill From/To. */
+        .date-group { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px;
+            border: 1px solid var(--color-light-grey); border-radius: 6px; padding: 6px 12px 10px; margin: 0; }
+        .date-group > legend { font-size: 0.78em; color: #666; padding: 0 4px; }
+        .date-group label { display: flex; flex-direction: column; font-size: 0.85em; gap: 4px; }
+        .report-presets { display: flex; flex-direction: column; gap: 4px; }
+        .report-presets > .caption { font-size: 0.78em; color: #666; }
+        .report-presets > .selects { display: flex; gap: 6px; }
+        .report-presets select { font-size: 0.85em; }
+        .report-actions { display: flex; gap: 8px; align-items: flex-end; }
+        /* Reports align by cell type, not column position: override Global.css's positional rule
+           that right-aligns columns 2 and 3 (intended for the numeric statistics tables). */
+        .statistics-table td:nth-child(2), .statistics-table td:nth-child(3) { text-align: start; }
+        .statistics-table td.number { text-align: right; font-variant-numeric: tabular-nums; }
+        .statistics-table td.date { white-space: nowrap; }
+        .statistics-table tr.total td { font-weight: bold; }
+        .report-section { margin-top: 24px; }
+    </style>
+</head>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
+<main>
+    <header></header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/reports}" href="ReportIndex.html">Reports</a></li>
+            <li class="active"><span th:text="${report.name()}">Report</span><span
+                    th:if="${view.subheading()}" style="color: #666"
+                    th:text="' (' + ${view.subheading()} + ')'"></span></li>
+        </ol>
+    </nav>
+
+    <form class="report-params" method="get" th:action="@{/reports/{slug}(slug=${report.slug()})}">
+        <label th:if="${report.hasAgency()}">Agency
+            <select name="agency">
+                <option value="">All agencies</option>
+                <option th:each="a : ${agencies}" th:value="${a.id}" th:text="${a.organisation.name}"
+                        th:selected="${params.agencyId != null and params.agencyId == a.id}"></option>
+            </select>
+        </label>
+        <label th:if="${report.hasPublisherType()}">Publisher type
+            <select name="publisherType">
+                <option value="">All publisher types</option>
+                <option th:each="pt : ${publisherTypes}" th:value="${pt.id}" th:text="${pt.name}"
+                        th:selected="${params.publisherTypeId != null and params.publisherTypeId == pt.id}"></option>
+            </select>
+        </label>
+
+        <fieldset th:if="${report.hasPeriod()}" class="date-group">
+            <legend>Date range</legend>
+            <label>From
+                <input type="date" name="startDate" th:value="${params.periodStart}">
+            </label>
+            <label>To
+                <input type="date" name="endDate" th:value="${params.periodEnd}">
+            </label>
+            <div class="report-presets" th:data-future="${report.futurePeriod()}">
+                <span class="caption">Quick set</span>
+                <span class="selects">
+                    <select onchange="applyMonthPreset(this)" aria-label="Month"><option value="" selected>Month…</option></select>
+                    <select onchange="applyQuarterPreset(this)" aria-label="Quarter"><option value="" selected>Quarter…</option></select>
+                    <select onchange="applyYearPreset(this, 'fy')" aria-label="Financial year"><option value="" selected>Financial year…</option></select>
+                    <select onchange="applyYearPreset(this, 'cy')" aria-label="Calendar year"><option value="" selected>Calendar year…</option></select>
+                </span>
+            </div>
+        </fieldset>
+
+        <label th:if="${report.hasDetails()}" style="flex-direction: row; align-items: center; gap: 6px">
+            <input type="checkbox" name="details" value="true" th:checked="${params.showDetails()}"> Show details
+        </label>
+
+        <div class="report-actions">
+            <button type="submit" class="btn">Run report</button>
+            <a class="btn btn-secondary"
+               th:href="@{/reports/{slug}.csv(slug=${report.slug()},agency=${params.agencyId},startDate=${params.periodStart},endDate=${params.periodEnd},details=${params.showDetails()},publisherType=${params.publisherTypeId})}">
+                Download CSV</a>
+        </div>
+    </form>
+
+    <script>
+        // Populate the month, financial-year and calendar-year pickers. Forward-looking reports (e.g.
+        // scheduled gathers) list future dates; the rest list past dates back to the start of the archive.
+        (function () {
+            const presets = document.querySelector('.report-presets');
+            if (!presets) return;
+            const mo = presets.querySelector('select[aria-label="Month"]');
+            const qu = presets.querySelector('select[aria-label="Quarter"]');
+            const fy = presets.querySelector('select[aria-label="Financial year"]');
+            const cy = presets.querySelector('select[aria-label="Calendar year"]');
+            const future = presets.dataset.future === 'true';
+            const now = new Date();
+            const year = now.getFullYear();
+
+            // 24 months, going forward for future-oriented reports, otherwise back.
+            const step = future ? 1 : -1;
+            for (let d = new Date(year, now.getMonth(), 1), i = 0; i < 24; i++, d.setMonth(d.getMonth() + step)) {
+                const value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                mo.add(new Option(d.toLocaleString(undefined, {month: 'long', year: 'numeric'}), value));
+            }
+
+            // 8 calendar quarters, labelled by month span (e.g. "Jan–Mar 2025").
+            for (let d = new Date(year, Math.floor(now.getMonth() / 3) * 3, 1), i = 0; i < 8; i++, d.setMonth(d.getMonth() + step * 3)) {
+                const q = Math.floor(d.getMonth() / 3) + 1;
+                const startName = d.toLocaleString(undefined, {month: 'short'});
+                const endName = new Date(d.getFullYear(), d.getMonth() + 2, 1).toLocaleString(undefined, {month: 'short'});
+                qu.add(new Option(startName + '–' + endName + ' ' + d.getFullYear(), d.getFullYear() + '-Q' + q));
+            }
+
+            const currentFyStart = now.getMonth() >= 6 ? year : year - 1; // FY runs 1 Jul – 30 Jun
+            const fyYears = future ? range(currentFyStart, currentFyStart + 10) : range(currentFyStart, 1996);
+            for (const s of fyYears) {
+                fy.add(new Option(s + '–' + String((s + 1) % 100).padStart(2, '0'), s)); // e.g. 2025–26
+            }
+            const cyYears = future ? range(year, year + 10) : range(year, 1996);
+            for (const y of cyYears) {
+                cy.add(new Option(y, y));
+            }
+
+            function range(from, to) {
+                const out = [], dir = from <= to ? 1 : -1;
+                for (let v = from; dir > 0 ? v <= to : v >= to; v += dir) out.push(v);
+                return out;
+            }
+        })();
+
+        // Apply the chosen year as a From/To range and re-run the report. Submitting the form
+        // (rather than building a link) preserves the other selected filters automatically.
+        function applyYearPreset(sel, kind) {
+            if (!sel.value) return;
+            const y = parseInt(sel.value, 10);
+            const start = kind === 'fy' ? (y + '-07-01') : (y + '-01-01');
+            const end = kind === 'fy' ? ((y + 1) + '-06-30') : (y + '-12-31');
+            runRange(sel, start, end);
+        }
+
+        // Apply the chosen month (value "YYYY-MM") as a From/To range covering the whole month.
+        function applyMonthPreset(sel) {
+            if (!sel.value) return;
+            const [y, m] = sel.value.split('-').map(Number); // m is 1-based
+            const lastDay = new Date(y, m, 0).getDate();
+            runRange(sel, sel.value + '-01', sel.value + '-' + String(lastDay).padStart(2, '0'));
+        }
+
+        // Apply the chosen quarter (value "YYYY-Qn") as a From/To range covering its three months.
+        function applyQuarterPreset(sel) {
+            if (!sel.value) return;
+            const [y, q] = sel.value.split('-Q').map(Number);
+            const startMonth = (q - 1) * 3 + 1; // 1-based first month
+            const endMonth = startMonth + 2;
+            const lastDay = new Date(y, endMonth, 0).getDate();
+            const start = y + '-' + String(startMonth).padStart(2, '0') + '-01';
+            const end = y + '-' + String(endMonth).padStart(2, '0') + '-' + String(lastDay).padStart(2, '0');
+            runRange(sel, start, end);
+        }
+
+        function runRange(sel, start, end) {
+            const form = sel.closest('form');
+            form.querySelector('input[name=startDate]').value = start;
+            form.querySelector('input[name=endDate]').value = end;
+            form.submit();
+        }
+    </script>
+
+    <p th:if="${view.sections().isEmpty()}"><em>No data for the selected parameters.</em></p>
+
+    <section class="report-section" th:each="section : ${view.sections()}">
+        <h3 th:if="${section.title()}" th:text="${section.title()}">Section</h3>
+        <table class="statistics-table" th:each="table : ${section.tables()}">
+            <thead>
+                <tr>
+                    <td th:each="column : ${table.columns()}" th:text="${column}"></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${table.rows()}" th:classappend="${row.total()}? 'total'">
+                    <td th:each="cell : ${row.cells()}" th:classappend="${cell.cssClass()} ?: ''">
+                        <a th:if="${cell.href() != null}" th:href="@{${cell.href()}}" th:text="${cell.text()}"></a>
+                        <span th:unless="${cell.href() != null}" th:text="${cell.text()}"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</html>

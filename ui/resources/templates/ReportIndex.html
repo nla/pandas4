@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+</head>
+<nav th:replace="~{_layout.html :: sidebar}"></nav>
+<main>
+    <header></header>
+
+    <nav class=breadcrumb>
+        <ol>
+            <li class="active" style="font-weight: bold">Reports</li>
+        </ol>
+    </nav>
+
+    <h2>Reports</h2>
+    <ul>
+        <li th:each="report : ${reports}" style="margin-bottom: 8px">
+            <a th:href="@{/reports/{slug}(slug=${report.slug()})}" th:text="${report.name()}">Report</a>
+            <div style="color: #666" th:if="${report.description()}" th:text="${report.description()}"></div>
+        </li>
+    </ul>
+
+    <h3>Statistics</h3>
+    <ul>
+        <li><a th:href="@{/statistics}">Archive overview</a></li>
+        <li><a th:href="@{/statistics/new-titles-by-subject}">New titles by subject (by year)</a></li>
+        <li><a th:href="@{/statistics/url-snapshots-by-content-type}">URL snapshots by content type</a></li>
+        <li><a th:href="@{/statistics/url-snapshots-by-year}">URL snapshots by year</a></li>
+    </ul>
+</main>
+</html>
