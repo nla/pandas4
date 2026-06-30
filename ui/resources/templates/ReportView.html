@@ -14,7 +14,8 @@
             border: 1px solid var(--color-light-grey); border-radius: 6px; padding: 6px 12px 10px; margin: 0; }
         .date-group > legend { font-size: 0.78em; color: #666; padding: 0 4px; }
         .date-group label { display: flex; flex-direction: column; font-size: 0.85em; gap: 4px; }
-        .report-presets { display: flex; flex-direction: column; gap: 4px; }
+        .report-presets { display: flex; flex-direction: column; gap: 4px;
+            border-left: 1px solid var(--color-light-grey); padding-left: 14px; }
         .report-presets > .caption { font-size: 0.78em; color: #666; }
         .report-presets > .selects { display: flex; gap: 6px; }
         .report-presets select { font-size: 0.85em; }
@@ -30,7 +31,12 @@
 </head>
 <nav th:replace="~{_layout.html :: sidebar}"></nav>
 <main>
-    <header></header>
+    <header>
+        <a class="btn btn-primary"
+           th:href="@{/reports/{slug}.csv(slug=${report.slug()},agency=${params.agencyId},startDate=${params.periodStart},endDate=${params.periodEnd},details=${params.showDetails()},publisherType=${params.publisherTypeId})}">
+            Export CSV
+        </a>
+    </header>
 
     <nav class=breadcrumb>
         <ol>
@@ -42,31 +48,37 @@
     </nav>
 
     <form class="report-params" method="get" th:action="@{/reports/{slug}(slug=${report.slug()})}">
-        <label th:if="${report.hasAgency()}">Agency
-            <select name="agency">
-                <option value="">All agencies</option>
-                <option th:each="a : ${agencies}" th:value="${a.id}" th:text="${a.organisation.name}"
-                        th:selected="${params.agencyId != null and params.agencyId == a.id}"></option>
-            </select>
-        </label>
-        <label th:if="${report.hasPublisherType()}">Publisher type
-            <select name="publisherType">
-                <option value="">All publisher types</option>
-                <option th:each="pt : ${publisherTypes}" th:value="${pt.id}" th:text="${pt.name}"
-                        th:selected="${params.publisherTypeId != null and params.publisherTypeId == pt.id}"></option>
-            </select>
-        </label>
+        <fieldset class="date-group" th:if="${report.hasAgency() or report.hasPublisherType() or report.hasDetails()}">
+            <legend>Options</legend>
+            <label th:if="${report.hasAgency()}">Agency
+                <select name="agency" onchange="this.form.submit()">
+                    <option value="">All agencies</option>
+                    <option th:each="a : ${agencies}" th:value="${a.id}" th:text="${a.organisation.name}"
+                            th:selected="${params.agencyId != null and params.agencyId == a.id}"></option>
+                </select>
+            </label>
+            <label th:if="${report.hasPublisherType()}" onchange="this.form.submit()">Publisher type
+                <select name="publisherType">
+                    <option value="">All publisher types</option>
+                    <option th:each="pt : ${publisherTypes}" th:value="${pt.id}" th:text="${pt.name}"
+                            th:selected="${params.publisherTypeId != null and params.publisherTypeId == pt.id}"></option>
+                </select>
+            </label>
+            <label th:if="${report.hasDetails()}" style="flex-direction: row; align-items: center; gap: 6px" onchange="this.form.submit()">
+                <input type="checkbox" name="details" value="true" th:checked="${params.showDetails()}"> Show details
+            </label>
+        </fieldset>
 
         <fieldset th:if="${report.hasPeriod()}" class="date-group">
             <legend>Date range</legend>
             <label>From
-                <input type="date" name="startDate" th:value="${params.periodStart}">
+                <input type="date" name="startDate" th:value="${params.periodStart}" onchange="this.form.submit()">
             </label>
             <label>To
-                <input type="date" name="endDate" th:value="${params.periodEnd}">
+                <input type="date" name="endDate" th:value="${params.periodEnd}" onchange="this.form.submit()">
             </label>
             <div class="report-presets" th:data-future="${report.futurePeriod()}">
-                <span class="caption">Quick set</span>
+                <label>Quick set</label>
                 <span class="selects">
                     <select onchange="applyMonthPreset(this)" aria-label="Month"><option value="" selected>Month…</option></select>
                     <select onchange="applyQuarterPreset(this)" aria-label="Quarter"><option value="" selected>Quarter…</option></select>
@@ -76,16 +88,7 @@
             </div>
         </fieldset>
 
-        <label th:if="${report.hasDetails()}" style="flex-direction: row; align-items: center; gap: 6px">
-            <input type="checkbox" name="details" value="true" th:checked="${params.showDetails()}"> Show details
-        </label>
-
-        <div class="report-actions">
-            <button type="submit" class="btn">Run report</button>
-            <a class="btn btn-secondary"
-               th:href="@{/reports/{slug}.csv(slug=${report.slug()},agency=${params.agencyId},startDate=${params.periodStart},endDate=${params.periodEnd},details=${params.showDetails()},publisherType=${params.publisherTypeId})}">
-                Download CSV</a>
-        </div>
+        <button type="submit" style="visibility: hidden; position: absolute; top: -1000px">Submit</button>
     </form>
 
     <script>
