@@ -250,6 +250,8 @@ body > main > header, main > form > header {
  */
 
 .btn, button {
+    font: inherit;
+    font-family: -apple-system, sans-serif;
     border-radius: .2rem;
     padding: 0 15px;
     color: var(--color-white);
