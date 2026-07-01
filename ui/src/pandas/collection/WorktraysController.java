@@ -19,7 +19,6 @@ import pandas.agency.*;
 import pandas.core.NotFoundException;
 import pandas.core.Privileges;
 import pandas.gather.*;
-import pandas.report.ReportRepository;
 import pandas.search.FacetEntry;
 import pandas.search.FacetResults;
 
@@ -41,7 +40,6 @@ public class WorktraysController {
     private final UserService userService;
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
-    private final ReportRepository reportRepository;
     private final StateRepository stateRepository;
 
     private static final List<GatherIndicator.IndicatorType> SUMMARY_INDICATORS = List.of(
@@ -53,14 +51,13 @@ public class WorktraysController {
         GatherIndicator.IndicatorType.HTTP_LAST_BAD
     );
 
-    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, InstanceSearcher instanceSearcher, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, ReportRepository reportRepository, StateRepository stateRepository) {
+    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, InstanceSearcher instanceSearcher, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, StateRepository stateRepository) {
         this.titleRepository = titleRepository;
         this.instanceRepository = instanceRepository;
         this.instanceSearcher = instanceSearcher;
         this.userService = userService;
         this.agencyRepository = agencyRepository;
         this.userRepository = userRepository;
-        this.reportRepository = reportRepository;
         this.stateRepository = stateRepository;
     }
 
@@ -133,9 +130,6 @@ public class WorktraysController {
         archived(agencyId, ownerId, pageable, model);
         // Catalogue
         cataloguing(agencyId, ownerId, pageable, model);
-        // Reports
-        reportsRequested(agencyId, ownerId, pageable, model);
-        reportsGenerated(agencyId, ownerId, pageable, model);
         return "worktrays/All";
     }
 
@@ -274,17 +268,5 @@ public class WorktraysController {
     public String cataloguing(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
         model.addAttribute("titlesAwaitingCataloguing", titleRepository.worktrayAwaitingCataloguing(agencyId, ownerId, pageable));
         return "worktrays/Cataloguing";
-    }
-
-    @GetMapping("/worktrays/{alias}/reports-requested")
-    public String reportsRequested(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
-        model.addAttribute("requestedReports", reportRepository.worktrayRequested(agencyId, ownerId, pageable));
-        return "worktrays/ReportsRequested";
-    }
-
-    @GetMapping("/worktrays/{alias}/reports-generated")
-    public String reportsGenerated(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
-        model.addAttribute("generatedReports", reportRepository.worktrayGenerated(agencyId, ownerId, pageable));
-        return "worktrays/ReportsGenerated";
     }
 }

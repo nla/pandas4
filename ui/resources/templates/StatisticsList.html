@@ -13,14 +13,14 @@
 
     <nav class=breadcrumb>
         <ol>
-            <li class="active" style="font-weight: bold">Statistics</li>
+            <li style="font-weight: bold"><a th:href="@{/reports}" href="ReportIndex.html">Reports</a></li>
+            <li class="active">Archive overview</li>
         </ol>
     </nav>
 
     <h3>Titles</h3>
 
     <ul>
-        <li><a th:href="@{/statistics/agency-archiving}">Titles archived by agency</a></li>
         <li><a th:href="@{/statistics/new-titles-by-subject}">New Titles by Subject (by Year)</a>
     </ul>
 

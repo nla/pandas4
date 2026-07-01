@@ -95,18 +95,4 @@
         <a th:href="@{/worktrays/{alias}/cataloguing(alias=${alias})}">Show all</a>
     </details>
 
-    <h4>Reports</h4>
-
-    <details class="worktray" th:unless="${requestedReports.isEmpty()}">
-        <summary>Requested Reports [<span th:text="${requestedReports.totalElements}"></span>]</summary>
-        <table th:replace="~{worktrays/ReportsRequested :: table}"></table>
-        <a th:href="@{/worktrays/{alias}/reports-requested(alias=${alias})}">Show all</a>
-    </details>
-
-    <details class="worktray" th:unless="${generatedReports.isEmpty()}">
-        <summary>Generated Reports [<span th:text="${generatedReports.totalElements}"></span>]</summary>
-        <table th:replace="~{worktrays/ReportsGenerated :: table}"></table>
-        <a th:href="@{/worktrays/{alias}/reports-generated(alias=${alias})}">Show all</a>
-    </details>
-
 </main>
