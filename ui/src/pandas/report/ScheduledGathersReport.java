@@ -2,6 +2,8 @@ package pandas.report;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Component;
+import pandas.agency.Agency;
+import pandas.agency.AgencyRepository;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -19,11 +21,11 @@ import java.util.Map;
 @Component
 public class ScheduledGathersReport implements ReportDefinition {
     private final EntityManager em;
-    private final ReportSupport support;
+    private final AgencyRepository agencyRepository;
 
-    public ScheduledGathersReport(EntityManager em, ReportSupport support) {
+    public ScheduledGathersReport(EntityManager em, AgencyRepository agencyRepository) {
         this.em = em;
-        this.support = support;
+        this.agencyRepository = agencyRepository;
     }
 
     @Override
@@ -56,13 +58,18 @@ public class ScheduledGathersReport implements ReportDefinition {
         return true;
     }
 
+    @Override
+    public boolean hasDetails() {
+        return true;
+    }
+
     private record GatherRow(long agencyId, Long titleId, Long pi, String name, LocalDate date, String schedule,
                              String method, String owner) {
     }
 
     @Override
     public ReportView generate(ReportParams params) {
-        Map<Long, String> agencies = support.agencies(params.agencyId());
+        Map<Long, String> agencies = agencies(params.agencyId());
 
         // Scheduled gathers are typically in the future, so default the upper bound far ahead rather
         // than to "now" when no period end is given.
@@ -91,7 +98,7 @@ public class ScheduledGathersReport implements ReportDefinition {
                 byAgency.computeIfAbsent(agencyId, k -> new ArrayList<>()).add(new GatherRow(
                         agencyId, (Long) r[1], (Long) r[2], (String) r[3],
                         date == null ? null : LocalDate.ofInstant(date, ZoneId.systemDefault()),
-                        (String) r[5], (String) r[6], (String) r[7]));
+                        schedule((String) r[5]), (String) r[6], (String) r[7]));
             }
         }
         byAgency.values().forEach(list -> list.sort(Comparator.comparing(
@@ -112,6 +119,19 @@ public class ScheduledGathersReport implements ReportDefinition {
             sections.add(new Section(entry.getValue() + " (" + gathers.size() + ")",
                     new Table(List.of("PI", "Title", "Gather Date", "Schedule", "Method", "Owner"), rows)));
         }
-        return new ReportView(name(), params.periodSubheading(), sections);
+        return new ReportView(name() + " (details)", params.periodSubheading(), sections);
+    }
+
+    private Map<Long, String> agencies(Long only) {
+        Map<Long, String> result = new LinkedHashMap<>();
+        for (Agency agency : agencyRepository.findAllOrdered()) {
+            if (only != null && !only.equals(agency.getId())) continue;
+            result.put(agency.getId(), agency.getOrganisation().getName());
+        }
+        return result;
+    }
+
+    private static String schedule(String schedule) {
+        return "None".equals(schedule) ? "Once" : schedule;
     }
 }

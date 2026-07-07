@@ -65,9 +65,10 @@ public interface AgencyRepository extends CrudRepository<Agency, Long>, PagingAn
               i.title.agency.organisation.name as name,
               count(distinct i.title.id) as titles,
               count(*) as instances,
-              sum(i.gather.files) as files,
-              sum(i.gather.size) as size
+              sum(g.files) as files,
+              sum(g.size) as size
             from Instance i
+            left join i.gather g
             where i.state = pandas.gather.State.ARCHIVED
               and (i.date >= :startDate or cast(:startDate as date) is null)
               and (i.date <= :endDate or cast(:endDate as date) is null)

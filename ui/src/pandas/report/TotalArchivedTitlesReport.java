@@ -45,7 +45,7 @@ public class TotalArchivedTitlesReport implements ReportDefinition {
     @Override
     public ReportView generate(ReportParams params) {
         Instant start = params.periodStart() == null ? null : params.startOrEpoch();
-        Instant end = params.periodEnd() == null ? null : params.endOrNow();
+        Instant end = params.periodEnd() == null ? Instant.now() : params.endOrNow();
 
         var stats = new ArrayList<>(agencyRepository.archivingStats(start, end));
         stats.removeIf(s -> config.isExcluded(s.getId()));

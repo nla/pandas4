@@ -108,37 +108,60 @@ public class StatisticsByStatusReport implements ReportDefinition {
             contacts.computeIfAbsent((Long) r[0], k -> new long[2])[index] += (Long) r[2];
         }
 
-        Map<Long, long[]> archiving = new LinkedHashMap<>(); // [titles, instances]
+        Map<Long, Long> newArchiving = new LinkedHashMap<>();
         for (Object[] r : em.createQuery("""
-                select t.agency.id, count(distinct t.id), count(distinct i.id)
-                from StateHistory sh join sh.instance i join i.title t
-                where sh.state = :archived and sh.startDate >= :start and sh.startDate < :end
+                select t.agency.id, count(distinct t.id)
+                from Title t left join t.legacyTepRelation legacyTep left join t.tep tep
+                where (legacyTep is not null or tep is not null)
+                  and ((legacyTep is not null and legacyTep.displayDate >= :start and legacyTep.displayDate < :end)
+                    or (tep is not null and tep.displayDate >= :start and tep.displayDate < :end))
                 group by t.agency.id
                 """, Object[].class)
-                .setParameter("archived", State.ARCHIVED)
                 .setParameter("start", from).setParameter("end", to).getResultList()) {
-            archiving.put((Long) r[0], new long[]{(Long) r[1], (Long) r[2]});
+            newArchiving.put((Long) r[0], (Long) r[1]);
         }
+
+        InstanceActivity instanceActivity = instanceActivity(from, to);
 
         List<Section> sections = new ArrayList<>();
         for (var entry : agencies.entrySet()) {
             Long agencyId = entry.getKey();
             boolean hasData = selection.containsKey(agencyId) || collectionAdds.containsKey(agencyId)
-                    || contacts.containsKey(agencyId) || archiving.containsKey(agencyId);
+                    || contacts.containsKey(agencyId) || newArchiving.containsKey(agencyId)
+                    || instanceActivity.hasData(agencyId);
             if (!hasData) continue;
 
             List<Table> tables = new ArrayList<>();
             tables.add(selectionTable(selection.getOrDefault(agencyId, Map.of())));
 
             long[] contact = contacts.getOrDefault(agencyId, new long[2]);
-            long[] arch = archiving.getOrDefault(agencyId, new long[2]);
-            List<Row> activity = List.of(
-                    Row.of(Cell.text("Titles added to a collection"), Cell.number(collectionAdds.getOrDefault(agencyId, 0L))),
-                    Row.of(Cell.text("Initiated publisher contacts"), Cell.number(contact[0])),
-                    Row.of(Cell.text("Permissions granted"), Cell.number(contact[1])),
-                    Row.of(Cell.text("New titles archived"), Cell.number(arch[0])),
-                    Row.of(Cell.text("Instances archived"), Cell.number(arch[1])));
-            tables.add(new Table(List.of("Activity", "Count"), activity));
+            tables.add(new Table(List.of("Collection", ""),
+                    List.of(Row.of(Cell.text("Titles added to a collection"), Cell.number(collectionAdds.getOrDefault(agencyId, 0L))))));
+            tables.add(new Table(List.of("Publisher Contact", ""),
+                    List.of(Row.of(Cell.text("Initiated publisher contacts"), Cell.number(contact[0])),
+                            Row.of(Cell.text("Permissions granted"), Cell.number(contact[1])))));
+            tables.add(new Table(List.of("New Archiving", ""),
+                    List.of(Row.of(Cell.text("New titles successfully archived"),
+                            Cell.number(newArchiving.getOrDefault(agencyId, 0L))))));
+
+            long gathered = instanceActivity.gathered.getOrDefault(agencyId, 0L);
+            long gatheredFirst = instanceActivity.gatheredFirst.getOrDefault(agencyId, 0L);
+            long gatheredAndArchived = instanceActivity.gatheredAndArchived.getOrDefault(agencyId, 0L);
+            long gatheredAndArchivedFirst = instanceActivity.gatheredAndArchivedFirst.getOrDefault(agencyId, 0L);
+            long gatheredNotArchived = instanceActivity.gatheredNotArchived.getOrDefault(agencyId, 0L);
+            long gatheredNotArchivedFirst = instanceActivity.gatheredNotArchivedFirst.getOrDefault(agencyId, 0L);
+            tables.add(new Table(List.of("Re-archiving", ""),
+                    List.of(Row.of(Cell.text("Instances re-gathered"), Cell.number(gathered - gatheredFirst)),
+                            Row.of(Cell.text("Instances successfully re-gathered and published"),
+                                    Cell.number(gatheredAndArchived - gatheredAndArchivedFirst)),
+                            Row.of(Cell.text("Instances gathered but not published"),
+                                    Cell.number(gatheredNotArchived - gatheredNotArchivedFirst)))));
+
+            tables.add(new Table(List.of("Processing", ""),
+                    List.of(Row.of(Cell.text("Serial instances processed"),
+                                    Cell.number(instanceActivity.archivedSerial.getOrDefault(agencyId, 0L))),
+                            Row.of(Cell.text("All instances processed"),
+                                    Cell.number(instanceActivity.archived.getOrDefault(agencyId, 0L))))));
 
             sections.add(new Section(entry.getValue(), tables));
         }
@@ -160,6 +183,107 @@ public class StatisticsByStatusReport implements ReportDefinition {
         }
         rows.add(selectionRow("Total", columnTotals, true));
         return new Table(List.of("", "Selected", "Rejected", "Monitored", "Total"), rows);
+    }
+
+    @SuppressWarnings("unchecked")
+    private InstanceActivity instanceActivity(Instant start, Instant end) {
+        InstanceActivity activity = new InstanceActivity();
+        for (Object[] r : (List<Object[]>) em.createNativeQuery("""
+                select t.agency_id,
+                  count(distinct i.instance_id),
+                  count(distinct case when f.name = 'Serial' then i.instance_id end)
+                from state_history sh
+                join instance i on i.instance_id = sh.instance_id
+                join title t on t.title_id = i.title_id
+                left join format f on f.format_id = t.format_id
+                where sh.state_id = :archived
+                  and sh.start_date >= :start
+                  and sh.start_date < :end
+                group by t.agency_id
+                """)
+                .setParameter("archived", State.ARCHIVED.id())
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList()) {
+            Long agencyId = ((Number) r[0]).longValue();
+            activity.archived.put(agencyId, number(r[1]));
+            activity.archivedSerial.put(agencyId, number(r[2]));
+        }
+
+        for (Object[] r : (List<Object[]>) em.createNativeQuery("""
+                select gathered_instances.agency_id,
+                  count(*),
+                  sum(gathered_instances.has_previous),
+                  sum(gathered_instances.has_archived),
+                  sum(case when gathered_instances.has_archived = 1 then gathered_instances.has_previous else 0 end),
+                  sum(case when gathered_instances.has_archived = 0 then 1 else 0 end),
+                  sum(case when gathered_instances.has_archived = 0 then gathered_instances.has_previous else 0 end)
+                from (
+                  select t.agency_id, i.instance_id,
+                    case when exists (
+                      select 1 from instance previous_instance
+                      where previous_instance.title_id = i.title_id
+                        and previous_instance.instance_date < i.instance_date
+                    ) then 1 else 0 end as has_previous,
+                    case when archived_state.instance_id is null then 0 else 1 end as has_archived
+                  from (
+                    select distinct instance_id
+                    from state_history
+                    where state_id = :gathered
+                      and start_date >= :start
+                      and start_date < :end
+                  ) gathered_state
+                  join instance i on i.instance_id = gathered_state.instance_id
+                  join title t on t.title_id = i.title_id
+                  left join (
+                    select distinct instance_id
+                    from state_history
+                    where state_id = :archived
+                      and start_date >= :start
+                      and start_date < :end
+                  ) archived_state on archived_state.instance_id = i.instance_id
+                ) gathered_instances
+                group by gathered_instances.agency_id
+                """)
+                .setParameter("gathered", State.GATHERED.id())
+                .setParameter("archived", State.ARCHIVED.id())
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList()) {
+            Long agencyId = ((Number) r[0]).longValue();
+            long gathered = number(r[1]);
+            long reGathered = number(r[2]);
+            long gatheredAndArchived = number(r[3]);
+            long reGatheredAndArchived = number(r[4]);
+            long gatheredNotArchived = number(r[5]);
+            long reGatheredNotArchived = number(r[6]);
+            activity.gathered.put(agencyId, gathered);
+            activity.gatheredFirst.put(agencyId, gathered - reGathered);
+            activity.gatheredAndArchived.put(agencyId, gatheredAndArchived);
+            activity.gatheredAndArchivedFirst.put(agencyId, gatheredAndArchived - reGatheredAndArchived);
+            activity.gatheredNotArchived.put(agencyId, gatheredNotArchived);
+            activity.gatheredNotArchivedFirst.put(agencyId, gatheredNotArchived - reGatheredNotArchived);
+        }
+        return activity;
+    }
+
+    private static long number(Object value) {
+        return value == null ? 0 : ((Number) value).longValue();
+    }
+
+    private static class InstanceActivity {
+        private final Map<Long, Long> gathered = new LinkedHashMap<>();
+        private final Map<Long, Long> gatheredFirst = new LinkedHashMap<>();
+        private final Map<Long, Long> archived = new LinkedHashMap<>();
+        private final Map<Long, Long> archivedSerial = new LinkedHashMap<>();
+        private final Map<Long, Long> gatheredAndArchived = new LinkedHashMap<>();
+        private final Map<Long, Long> gatheredAndArchivedFirst = new LinkedHashMap<>();
+        private final Map<Long, Long> gatheredNotArchived = new LinkedHashMap<>();
+        private final Map<Long, Long> gatheredNotArchivedFirst = new LinkedHashMap<>();
+
+        private boolean hasData(Long agencyId) {
+            return gathered.containsKey(agencyId) || archived.containsKey(agencyId);
+        }
     }
 
     private static Row selectionRow(String label, long[] c, boolean total) {

@@ -3,7 +3,6 @@ package pandas.report;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Component;
-import pandas.util.DateFormats;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -67,15 +66,12 @@ public class NewlyArchivedTitlesReport implements ReportDefinition {
     public ReportView generate(ReportParams params) {
         Map<Long, String> agencies = support.agencies(params.agencyId());
 
-        // Default to the last year when no start date is given (this is a "what's new" listing).
-        LocalDate startDate = params.periodStart() != null ? params.periodStart() : LocalDate.now().minusYears(1);
-        LocalDate endDate = params.periodEnd() != null ? params.periodEnd() : LocalDate.now();
-        Instant start = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant start = params.startOrEpoch();
 
         String jpql = "select t.agency.id, t.id, t.name, t.pi, max(i.date) "
-                + "from Instance i join i.title t "
+                + "from Instance i join i.title t left join t.publisher p left join p.type pt "
                 + "where i.isDisplayed = true and i.date >= :start and i.date < :end "
-                + (params.publisherTypeId() != null ? "and t.publisher.type.id = :pubType " : "")
+                + (params.publisherTypeId() != null ? "and pt.id = :pubType " : "")
                 + "group by t.agency.id, t.id, t.name, t.pi order by t.agency.id, t.name";
         TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class)
                 .setParameter("start", start)
@@ -103,8 +99,17 @@ public class NewlyArchivedTitlesReport implements ReportDefinition {
             sections.add(new Section(entry.getValue() + " (" + titles.size() + ")",
                     new Table(List.of("Title", "URI", "Display Date"), rows)));
         }
-        return new ReportView(name(),
-                DateFormats.SHORT_DATE.format(startDate) + " to " + DateFormats.SHORT_DATE.format(endDate), sections);
+        return new ReportView(title(params), params.periodSubheading(), sections);
+    }
+
+    private String title(ReportParams params) {
+        if (params.publisherTypeId() == null) return name();
+        String type = em.createQuery("select pt.name from PublisherType pt where pt.id = :id", String.class)
+                .setParameter("id", params.publisherTypeId())
+                .getResultStream()
+                .findFirst()
+                .orElse("");
+        return "Newly Archived " + type + " Titles";
     }
 
     static Cell piLink(Long pi) {

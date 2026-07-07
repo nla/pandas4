@@ -2,7 +2,7 @@
 <html lang=en xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${report.name()} + ' - PANDAS'">Report - PANDAS</title>
+    <title th:text="${view.title()} + ' - PANDAS'">Report - PANDAS</title>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
@@ -42,7 +42,7 @@
     <nav class=breadcrumb>
         <ol>
             <li style="font-weight: bold"><a th:href="@{/reports}" href="ReportIndex.html">Reports</a></li>
-            <li class="active"><span th:text="${report.name()}">Report</span><span
+            <li class="active"><span th:text="${view.title()}">Report</span><span
                     th:if="${view.subheading()}" style="color: #666"
                     th:text="' (' + ${view.subheading()} + ')'"></span></li>
         </ol>

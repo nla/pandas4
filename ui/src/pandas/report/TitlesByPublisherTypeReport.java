@@ -65,15 +65,19 @@ public class TitlesByPublisherTypeReport implements ReportDefinition {
     public ReportView generate(ReportParams params) {
         Map<Long, String> agencies = support.agencies(params.agencyId());
 
-        // When a period is given, restrict to titles published (TEP displayed) within that range.
         boolean period = params.hasPeriod();
         String jpql = "select t.agency.id, t.id, t.name, t.pi, pt.name, po.name "
                 + "from Title t "
-                + "left join t.publisher p "
-                + "left join p.type pt "
-                + "left join p.organisation po "
-                + "where t.tep is not null "
-                + (period ? "and t.tep.displayDate >= :start and t.tep.displayDate < :end " : "")
+                + "left join t.legacyTepRelation legacyTep "
+                + "left join t.tep tep "
+                + "join t.publisher p "
+                + "join p.type pt "
+                + "join p.organisation po "
+                + "where (legacyTep is not null or tep is not null) "
+                + (period ? """
+                and ((legacyTep is not null and legacyTep.displayDate >= :start and legacyTep.displayDate < :end)
+                  or (tep is not null and tep.displayDate >= :start and tep.displayDate < :end))
+                """ : "")
                 + (params.publisherTypeId() != null ? "and pt.id = :pubType " : "")
                 + "order by t.agency.id, pt.id, t.name";
         TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);

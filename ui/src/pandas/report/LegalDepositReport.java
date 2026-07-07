@@ -56,24 +56,32 @@ public class LegalDepositReport implements ReportDefinition {
     }
 
     @Override
+    public boolean hasPublisherType() {
+        return true;
+    }
+
+    @Override
     public ReportView generate(ReportParams params) {
         Map<Long, String> agencies = support.agencies(params.agencyId());
 
         // agency -> format -> [selected, permReq, permGranted, archived]
         Map<Long, Map<String, long[]>> counts = new LinkedHashMap<>();
 
-        List<Object[]> statusRows = em.createQuery("""
+        String publisherTypeFilter = params.publisherTypeId() == null ? "" : " and pt.id = :pubType ";
+        var statusQuery = em.createQuery("""
                 select t.agency.id, f.name, sh.status, count(distinct t.id)
-                from StatusHistory sh join sh.title t left join t.format f
+                from StatusHistory sh join sh.title t left join t.format f left join t.publisher p left join p.type pt
                 where t.legalDeposit = true
                   and sh.startDate >= :start and sh.startDate < :end
                   and sh.status in :statuses
+                """ + publisherTypeFilter + """
                 group by t.agency.id, f.name, sh.status
                 """, Object[].class)
                 .setParameter("start", params.startOrEpoch())
                 .setParameter("end", params.endOrNow())
-                .setParameter("statuses", List.of(Status.SELECTED, Status.PERMISSION_REQUESTED, Status.PERMISSION_GRANTED))
-                .getResultList();
+                .setParameter("statuses", List.of(Status.SELECTED, Status.PERMISSION_REQUESTED, Status.PERMISSION_GRANTED));
+        if (params.publisherTypeId() != null) statusQuery.setParameter("pubType", params.publisherTypeId());
+        List<Object[]> statusRows = statusQuery.getResultList();
         for (Object[] r : statusRows) {
             int index = switch ((Status) r[2]) {
                 case SELECTED -> SELECTED;
@@ -83,18 +91,20 @@ public class LegalDepositReport implements ReportDefinition {
             bucket(counts, (Long) r[0], (String) r[1])[index] += (Long) r[3];
         }
 
-        List<Object[]> archivedRows = em.createQuery("""
+        var archivedQuery = em.createQuery("""
                 select t.agency.id, f.name, count(distinct t.id)
-                from Instance i join i.title t left join t.format f
+                from Instance i join i.title t left join t.format f left join t.publisher p left join p.type pt
                 where t.legalDeposit = true
                   and i.state = :archived
                   and i.date >= :start and i.date < :end
+                """ + publisherTypeFilter + """
                 group by t.agency.id, f.name
                 """, Object[].class)
                 .setParameter("start", params.startOrEpoch())
                 .setParameter("end", params.endOrNow())
-                .setParameter("archived", State.ARCHIVED)
-                .getResultList();
+                .setParameter("archived", State.ARCHIVED);
+        if (params.publisherTypeId() != null) archivedQuery.setParameter("pubType", params.publisherTypeId());
+        List<Object[]> archivedRows = archivedQuery.getResultList();
         for (Object[] r : archivedRows) {
             bucket(counts, (Long) r[0], (String) r[1])[ARCHIVED] += (Long) r[2];
         }
