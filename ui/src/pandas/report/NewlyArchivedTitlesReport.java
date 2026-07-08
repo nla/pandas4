@@ -3,6 +3,7 @@ package pandas.report;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Component;
+import pandas.util.DateFormats;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -66,7 +67,8 @@ public class NewlyArchivedTitlesReport implements ReportDefinition {
     public ReportView generate(ReportParams params) {
         Map<Long, String> agencies = support.agencies(params.agencyId());
 
-        Instant start = params.startOrEpoch();
+        LocalDate startDate = params.periodStart() != null ? params.periodStart() : LocalDate.now().withDayOfYear(1);
+        Instant start = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
         String jpql = "select t.agency.id, t.id, t.name, t.pi, max(i.date) "
                 + "from Instance i join i.title t left join t.publisher p left join p.type pt "
@@ -99,7 +101,7 @@ public class NewlyArchivedTitlesReport implements ReportDefinition {
             sections.add(new Section(entry.getValue() + " (" + titles.size() + ")",
                     new Table(List.of("Title", "URI", "Display Date"), rows)));
         }
-        return new ReportView(title(params), params.periodSubheading(), sections);
+        return new ReportView(title(params), periodSubheading(params, startDate), sections);
     }
 
     private String title(ReportParams params) {
@@ -110,6 +112,12 @@ public class NewlyArchivedTitlesReport implements ReportDefinition {
                 .findFirst()
                 .orElse("");
         return "Newly Archived " + type + " Titles";
+    }
+
+    private static String periodSubheading(ReportParams params, LocalDate startDate) {
+        String from = DateFormats.SHORT_DATE.format(startDate);
+        String to = params.periodEnd() == null ? "now" : DateFormats.SHORT_DATE.format(params.periodEnd());
+        return from + " to " + to;
     }
 
     static Cell piLink(Long pi) {

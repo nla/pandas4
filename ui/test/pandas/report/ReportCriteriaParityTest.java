@@ -13,9 +13,11 @@ import pandas.gather.GatherMethod;
 import pandas.gather.Instance;
 import pandas.gather.State;
 import pandas.gather.StateHistory;
+import pandas.util.DateFormats;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,30 +43,37 @@ class ReportCriteriaParityTest extends IntegrationTest {
 
     @Test
     @Transactional
-    void newlyArchivedUsesEpochDefaultAndOnlyRequiresPublisherForTypeFilter() {
+    void newlyArchivedUsesCurrentCalendarYearDefaultAndOnlyRequiresPublisherForTypeFilter() {
         Agency agency = agency();
         PublisherType government = publisherType("Government");
         PublisherType commercial = publisherType("Commercial");
         Publisher govPublisher = publisher("Report Criteria Government Publisher", government);
         Publisher commercialPublisher = publisher("Report Criteria Commercial Publisher", commercial);
-        Instant oldDisplayDate = Instant.parse("2020-01-10T00:00:00Z");
+        LocalDate yearStart = LocalDate.now().withDayOfYear(1);
+        Instant currentYearDisplayDate = yearStart.atStartOfDay(ZoneId.systemDefault()).plusSeconds(1).toInstant();
+        Instant previousYearDisplayDate = yearStart.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-        Title included = title(agency, format("Serial"), 2001L, Status.SELECTED, oldDisplayDate);
+        Title included = title(agency, format("Serial"), 2001L, Status.SELECTED, currentYearDisplayDate);
         included.setPublisher(govPublisher);
-        displayedInstance(included, oldDisplayDate);
+        displayedInstance(included, currentYearDisplayDate);
 
-        Title noPublisher = title(agency, format("Serial"), 2002L, Status.SELECTED, oldDisplayDate);
-        displayedInstance(noPublisher, oldDisplayDate);
+        Title noPublisher = title(agency, format("Serial"), 2002L, Status.SELECTED, currentYearDisplayDate);
+        displayedInstance(noPublisher, currentYearDisplayDate);
 
-        Title otherType = title(agency, format("Serial"), 2003L, Status.SELECTED, oldDisplayDate);
+        Title otherType = title(agency, format("Serial"), 2003L, Status.SELECTED, currentYearDisplayDate);
         otherType.setPublisher(commercialPublisher);
-        displayedInstance(otherType, oldDisplayDate);
+        displayedInstance(otherType, currentYearDisplayDate);
+
+        Title previousYear = title(agency, format("Serial"), 2004L, Status.SELECTED, previousYearDisplayDate);
+        previousYear.setPublisher(govPublisher);
+        displayedInstance(previousYear, previousYearDisplayDate);
         em.flush();
         em.clear();
 
         ReportView unfiltered = newlyArchivedTitlesReport.generate(new ReportParams(agency.getId(),
                 null, null, false, null, null));
         assertEquals(1, unfiltered.sections().size());
+        assertTrue(unfiltered.subheading().startsWith(DateFormats.SHORT_DATE.format(yearStart) + " to "));
         assertEquals(List.of("Report Criteria Title 2001", "Report Criteria Title 2002", "Report Criteria Title 2003"),
                 dataRows(unfiltered.sections().get(0).tables().get(0)).stream()
                         .map(row -> row.cells().get(0).csv())
