@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LegalDepositReportTest extends IntegrationTest {
     @Autowired EntityManager em;
     @Autowired LegalDepositReport report;
+    @Autowired ReportConfig reportConfig;
 
     @Test
     @Transactional
@@ -75,10 +76,15 @@ class LegalDepositReportTest extends IntegrationTest {
     }
 
     private Agency agency() {
-        Agency agency = new Agency();
-        agency.getOrganisation().setName("Legal Deposit Report Test " + System.nanoTime());
-        em.persist(agency);
-        em.flush();
+        Agency agency;
+        do {
+            agency = new Agency();
+            Organisation organisation = new Organisation();
+            organisation.setName("Legal Deposit Report Test " + System.nanoTime());
+            agency.setOrganisation(organisation);
+            em.persist(agency);
+            em.flush();
+        } while (reportConfig.isExcluded(agency.getId()));
         return agency;
     }
 
