@@ -44,7 +44,7 @@ class ReportCriteriaParityTest extends IntegrationTest {
     @Test
     @Transactional
     void newlyArchivedUsesCurrentCalendarYearDefaultAndOnlyRequiresPublisherForTypeFilter() {
-        Agency agency = agency();
+        Agency agency = newAgency();
         PublisherType government = publisherType("Government");
         PublisherType commercial = publisherType("Commercial");
         Publisher govPublisher = publisher("Report Criteria Government Publisher", government);
@@ -169,6 +169,14 @@ class ReportCriteriaParityTest extends IntegrationTest {
                         """, Agency.class)
                 .setMaxResults(1)
                 .getSingleResult();
+    }
+
+    private Agency newAgency() {
+        Agency agency = new Agency();
+        agency.getOrganisation().setName("Report Criteria Agency " + System.nanoTime());
+        em.persist(agency);
+        em.flush();
+        return agency;
     }
 
     private Format format(String name) {
