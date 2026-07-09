@@ -1,5 +1,24 @@
 # PANDAS Changelog
 
+## 3.14.0 2026-07-09
+
+### New features
+
+- Added missing reports from PANDAS 3.
+  - Renamed "Statistics" section to "Reports".
+  - Removed the "Reports" worktray; reports are now generated on demand.
+- Added a split button option to "Archive and Cease" titles (functionality similar to delete/regather or cease).
+- Added title transfer information to the "Recent Events" page.
+
+### Bug fixes
+
+- Fixed QA replay URL generation to include timestamps, ensuring complex JavaScript-heavy pages load correctly.
+- Fixed infinite reindexing loop by clearing the Hibernate persistence context after each incremental indexing iteration.
+
+### Dependency upgrades
+
+- **browsertrix-crawler**: 1.11.2 → 1.13.2
+
 ## 4.13.2 2026-03-25
 
 ### Bug fixes
