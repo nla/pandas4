@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pandas.core.Config;
+import pandas.util.DateFormats;
 
 import java.net.URI;
 
@@ -41,8 +42,7 @@ public class InstanceUrls {
         if (instance.isFlatFiles()) {
             return workingAreaBase(instance) + instance.getTepUrl().replaceFirst("/pan/[0-9]+/[0-9-]+/", "/");
         }
-        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/" +
-                instance.getTepUrlAbsolute();
+        return qaReplayBase(instance) + "/" + instance.getTepUrlAbsolute();
     }
 
     public String qa(Instance instance, String relative) {
@@ -56,7 +56,8 @@ public class InstanceUrls {
 
     @NotNull
     public String qaReplayBase(Instance instance) {
-        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString();
+        return config.getQaReplayUrl() + instance.getPi() + "-" + instance.getDateString() + "/" +
+               DateFormats.ARC_DATE.format(instance.getDate());
     }
 
     public String reports(Instance instance) {
