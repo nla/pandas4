@@ -28,6 +28,7 @@ class ReportCriteriaParityTest extends IntegrationTest {
     @Autowired TitlesByPublisherTypeReport titlesByPublisherTypeReport;
     @Autowired ScheduledGathersReport scheduledGathersReport;
     @Autowired StatisticsByStatusReport statisticsByStatusReport;
+    @Autowired ReportConfig reportConfig;
 
     @Test
     void reportFlagsMatchPandas3() {
@@ -172,10 +173,15 @@ class ReportCriteriaParityTest extends IntegrationTest {
     }
 
     private Agency newAgency() {
-        Agency agency = new Agency();
-        agency.getOrganisation().setName("Report Criteria Agency " + System.nanoTime());
-        em.persist(agency);
-        em.flush();
+        Agency agency;
+        do {
+            agency = new Agency();
+            Organisation organisation = new Organisation();
+            organisation.setName("Report Criteria Agency " + System.nanoTime());
+            agency.setOrganisation(organisation);
+            em.persist(agency);
+            em.flush();
+        } while (reportConfig.isExcluded(agency.getId()));
         return agency;
     }
 
