@@ -46,6 +46,7 @@ import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -245,8 +246,8 @@ public class TitleController {
                 .filename("titles.csv").build().toString());
         try (SearchScroll<Title> scroll = titleSearcher.scroll(params);
              CSVPrinter csv = CSVFormat.DEFAULT.withHeader(
-                     "PI", "Name", "Date Registered", "Agency", "Owner", "Format",
-                     "Gather Method", "Gather Schedule", "Next Gather Date", "Title URL", "Seed URL",
+                     "PI", "Name", "Date Registered", "First Archived", "Agency", "Owner", "Format", "Collections",
+                     "Gather Method", "Gather Schedule", "First Gather Date", "Next Gather Date", "Title URL", "Seed URL",
                      "Publisher", "Publisher Type", "Subjects")
                      .print(new OutputStreamWriter(response.getOutputStream(), UTF_8))) {
             for (var chunk = scroll.next(); chunk.hasHits(); chunk = scroll.next()) {
@@ -254,12 +255,15 @@ public class TitleController {
                     csv.print(title.getPi());
                     csv.print(title.getName());
                     csv.print(title.getRegDateLocal());
+                    csv.print(toLocalDate(title.getFirstArchivedDate()));
                     csv.print(title.getAgency().getOrganisation().getAlias());
                     csv.print(title.getOwner() == null ? null : title.getOwner().getUserid());
                     csv.print(title.getFormat() == null ? null : title.getFormat().getName());
+                    csv.print(title.getCollections().stream().map(Collection::getFullName).collect(joining("; ")));
                     csv.print(title.getGather() == null || title.getGather().getMethod() == null ? null : title.getGather().getMethod().getName());
                     csv.print(title.getGather() == null || title.getGather().getSchedule() == null ? null : title.getGather().getSchedule().getName());
-                    csv.print(title.getGather() == null || title.getGather().getNextGatherDate() == null ? null : LocalDateTime.ofInstant(title.getGather().getNextGatherDate(), ZoneId.systemDefault()));
+                    csv.print(title.getGather() == null ? null : toLocalDate(title.getGather().getFirstGatherDate()));
+                    csv.print(title.getGather() == null ? null : toLocalDateTime(title.getGather().getNextGatherDate()));
                     csv.print(title.getTitleUrl());
                     csv.print(title.getSeedUrl());
                     csv.print(title.getPublisher() == null ? null : title.getPublisher().getName());
@@ -269,6 +273,14 @@ public class TitleController {
                 }
             }
         }
+    }
+
+    private static LocalDateTime toLocalDateTime(Instant instant) {
+        return instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    }
+
+    private static LocalDate toLocalDate(Instant instant) {
+        return instant == null ? null : instant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     @GetMapping(value = "/titles.mrc", produces = "application/marc")
