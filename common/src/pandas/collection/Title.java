@@ -911,7 +911,7 @@ public class Title implements TitleRef {
                 .toList();
     }
 
-    @GenericField(projectable = Projectable.YES, searchable = Searchable.NO)
+    @GenericField(projectable = Projectable.YES)
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
             derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "instances"))})
     public Instant getFirstArchivedDate() {
