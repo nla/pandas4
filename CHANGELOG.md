@@ -1,5 +1,29 @@
 # PANDAS Changelog
 
+## 4.15.0 2026-07-15
+
+### New features
+
+- Added "First Archived Date" filter to the title search interface.
+- Added columns to Title search CSV export: "Collections", "First Archived Date", and "First Gather Date"
+
+### Bug fixes
+
+- Fixed "First Gather Date" filter by deriving it dynamically from the earliest instance date.
+
+### Dependency upgrades
+
+* **agrona**: 2.4.0 → 2.4.1
+* **chartjs**: 4.4.3 → 4.5.1
+* **commons-io**: 2.21.0 → 2.22.0
+* **datatables**: 2.3.7 → 2.3.8
+* **guava**: 33.5.0-jre → 33.6.0-jre
+* **heritrix**: 3.14.0 → 3.15.0
+* **jsoup**: 1.22.1 → 1.22.2
+* **jwarc**: 0.35.0 → 0.36.0
+* **kubernetes-client**: 7.6.1 → 7.8.0
+* **postgresql**: 42.7.10 → 42.7.12
+
 ## 3.14.0 2026-07-09
 
 ### New features
