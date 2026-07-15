@@ -36,7 +36,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * An online resource selected for archiving.
  */
 @Entity
-@Indexed
+@Indexed(index = "title-v2") // bump this version when making incompatible changes
 @NamedEntityGraph(name = "Title.subjects", attributeNodes = @NamedAttributeNode("subjects"))
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
