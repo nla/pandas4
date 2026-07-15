@@ -52,10 +52,6 @@ public class TitleGather {
     @Column(name = "CAL_START_DATE")
     private Instant calStartDate;
 
-    @Column(name = "FIRST_GATHER_DATE")
-    @GenericField(sortable = Sortable.YES)
-    private Instant firstGatherDate;
-
     @ManyToOne
     @JoinColumn(name = "GATHER_METHOD_ID")
     @IndexedEmbedded(includePaths = {"id"})
@@ -172,14 +168,6 @@ public class TitleGather {
 
     public void setCalStartDate(Instant calStartDate) {
         this.calStartDate = calStartDate;
-    }
-
-    public Instant getFirstGatherDate() {
-        return this.firstGatherDate;
-    }
-
-    public void setFirstGatherDate(Instant firstGatherDate) {
-        this.firstGatherDate = firstGatherDate;
     }
 
     public GatherMethod getMethod() {

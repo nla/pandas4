@@ -181,7 +181,7 @@ public class Title implements TitleRef {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "title")
     @IndexedEmbedded(includePaths = {"activeProfile.id", "schedule.id", "scope.id", "method.id", "notes",
-            "nextGatherDate", "lastGatherDate", "firstGatherDate"})
+            "nextGatherDate", "lastGatherDate"})
     // XXX: not sure why it can't find the inverse automatically
     @AssociationInverseSide(
             inversePath = @ObjectPath( @PropertyValue( propertyName = "title" ) )
@@ -909,6 +909,19 @@ public class Title implements TitleRef {
                 .filter(instance -> instance.getState().isArchived())
                 .map(Instance::getDate)
                 .toList();
+    }
+
+    /**
+     * The date on which the first gather instance was created, regardless of its eventual state.
+     */
+    @GenericField(sortable = Sortable.YES)
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "instances"))})
+    public Instant getFirstGatherDate() {
+        return instances.stream()
+                .map(Instance::getDate)
+                .min(Comparator.naturalOrder())
+                .orElse(null);
     }
 
     @GenericField(projectable = Projectable.YES)

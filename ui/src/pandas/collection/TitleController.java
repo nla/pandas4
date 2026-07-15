@@ -262,7 +262,7 @@ public class TitleController {
                     csv.print(title.getCollections().stream().map(Collection::getFullName).collect(joining("; ")));
                     csv.print(title.getGather() == null || title.getGather().getMethod() == null ? null : title.getGather().getMethod().getName());
                     csv.print(title.getGather() == null || title.getGather().getSchedule() == null ? null : title.getGather().getSchedule().getName());
-                    csv.print(title.getGather() == null ? null : toLocalDate(title.getGather().getFirstGatherDate()));
+                    csv.print(toLocalDate(title.getFirstGatherDate()));
                     csv.print(title.getGather() == null ? null : toLocalDateTime(title.getGather().getNextGatherDate()));
                     csv.print(title.getTitleUrl());
                     csv.print(title.getSeedUrl());

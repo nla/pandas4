@@ -69,7 +69,7 @@ public class TitleSearcher {
                 new EntityFacet<>("Gather Profile", "profile", "gather.activeProfile.id", profileRepository::findAllById, Profile::getId, Profile::getName),
                 new EntityFacet<>("Gather Schedule", "schedule", "gather.schedule.id", gatherScheduleRepository::findAllById, GatherSchedule::getId, GatherSchedule::getName),
                 new EntityFacet<>("Gather Scope", "scope", "gather.scope.id", scopeRepository::findAllById, Scope::getId, Scope::getName),
-                new DateFacet("First Gather Date", "firstgather", "gather.firstGatherDate"),
+                new DateFacet("First Gather Date", "firstgather", "firstGatherDate"),
                 new DateFacet("Last Gather Date", "lastgather", "gather.lastGatherDate"),
                 new DateFacet("Next Gather Date", "nextgather", "gather.nextGatherDate"),
                 new EntityFacet<>("Owner", "owner", "owner.id", userRepository::findAllById, User::getId, User::getName, List.of("owner.nameGiven", "owner.nameFamily", "owner.userid")),

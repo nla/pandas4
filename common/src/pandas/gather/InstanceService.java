@@ -47,6 +47,7 @@ public class InstanceService {
         Instant now = Instant.now();
 
         Instance instance = new Instance(title, now, gatherMethod);
+        title.getInstances().add(instance);
         instanceRepository.save(instance);
 
         InstanceGather instanceGather = new InstanceGather();
