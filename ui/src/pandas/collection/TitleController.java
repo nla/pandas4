@@ -246,9 +246,9 @@ public class TitleController {
                 .filename("titles.csv").build().toString());
         try (SearchScroll<Title> scroll = titleSearcher.scroll(params);
              CSVPrinter csv = CSVFormat.DEFAULT.withHeader(
-                     "PI", "Name", "Date Registered", "First Archived", "Agency", "Owner", "Format", "Collections",
+                     "PI", "Name", "Date Registered", "First Archived", "Agency", "Owner", "Format",
                      "Gather Method", "Gather Schedule", "First Gather Date", "Next Gather Date", "Title URL", "Seed URL",
-                     "Publisher", "Publisher Type", "Subjects")
+                     "Publisher", "Publisher Type", "Subjects", "Collections")
                      .print(new OutputStreamWriter(response.getOutputStream(), UTF_8))) {
             for (var chunk = scroll.next(); chunk.hasHits(); chunk = scroll.next()) {
                 for (Title title : chunk.hits()) {
@@ -259,7 +259,6 @@ public class TitleController {
                     csv.print(title.getAgency().getOrganisation().getAlias());
                     csv.print(title.getOwner() == null ? null : title.getOwner().getUserid());
                     csv.print(title.getFormat() == null ? null : title.getFormat().getName());
-                    csv.print(title.getCollections().stream().map(Collection::getFullName).collect(joining("; ")));
                     csv.print(title.getGather() == null || title.getGather().getMethod() == null ? null : title.getGather().getMethod().getName());
                     csv.print(title.getGather() == null || title.getGather().getSchedule() == null ? null : title.getGather().getSchedule().getName());
                     csv.print(toLocalDate(title.getFirstGatherDate()));
@@ -269,6 +268,7 @@ public class TitleController {
                     csv.print(title.getPublisher() == null ? null : title.getPublisher().getName());
                     csv.print(title.getPublisher() == null || title.getPublisher().getType() == null ? null : title.getPublisher().getType().getName());
                     csv.print(title.getSubjects().stream().map(Subject::getName).collect(joining("; ")));
+                    csv.print(title.getCollections().stream().map(Collection::getFullName).collect(joining("; ")));
                     csv.println();
                 }
             }
