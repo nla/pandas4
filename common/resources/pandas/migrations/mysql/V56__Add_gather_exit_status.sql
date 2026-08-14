@@ -1,1 +1,1 @@
-ALTER TABLE INS_GATHER ADD COLUMN EXIT_STATUS INT COMMENT 'Exit status code returned by the crawler process';
+alter table ins_gather add column exit_status int comment 'Exit status code returned by the crawler process';

@@ -18,16 +18,25 @@ import java.sql.*;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class DbTool {
+/*
+ * Dump / load pandas tables.  Tables are dumped, one per file, with provided prefix.
+ * Multithreaded load, commit per batch or table.
+ */
+public class DbToolFast {
     private static final Pattern SANE_TABLE_NAME = Pattern.compile("[a-zA-Z0-9_]+");
     private final String jdbcUrl;
     private final String quoteChar;
     private final Connection connection;
 
-    public DbTool(Connection connection) throws SQLException {
+    public DbToolFast(Connection connection) throws SQLException {
         this.connection = connection;
         this.jdbcUrl = connection.getMetaData().getURL();
         if (jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:")) {
@@ -41,8 +50,11 @@ public class DbTool {
         return jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:");
     }
 
-    public static void main(String args[]) throws SQLException, IOException, JsonParserException {
+    public static void main(String args[])
+            throws SQLException, IOException, JsonParserException, ExecutionException, InterruptedException {
+
         String dbUrl = System.getenv("PANDAS_DB_URL");
+
         if (args.length < 2 || dbUrl == null) {
             usage();
         }
@@ -58,10 +70,10 @@ public class DbTool {
             properties.put("defaultRowPrefetch", 500);
         }
         try (Connection connection = DriverManager.getConnection(dbUrl, properties)) {
-            var dbTool = new DbTool(connection);
+            var dbTool = new DbToolFast(connection);
             switch (args[0]) {
                 case "dump":
-                    dump(connection, Paths.get(args[1]));
+                    dump(connection, args[1]);
                     break;
                 case "load":
                     if (!dbUrl.startsWith("jdbc:h2:") &&
@@ -72,11 +84,93 @@ public class DbTool {
                         System.exit(1);
                     }
                     dbTool.migrate();
-                    dbTool.load(Paths.get(args[1]));
+
+                    LoadOptions loadOptions = parseLoadOptions(Arrays.copyOfRange(args, 1, args.length));
+                    DbToolFast.processAll(loadOptions.fileNames, loadOptions.commitEveryBatch, loadOptions.preserveNextGatherDates);
                     break;
                 default:
                     usage();
             }
+        }
+    }
+
+    private record LoadOptions(String[] fileNames, boolean commitEveryBatch, boolean preserveNextGatherDates) {}
+
+    private static LoadOptions parseLoadOptions(String[] args) {
+        boolean commitEveryBatch = false;
+        boolean preserveNextGatherDates = false;
+        List<String> fileNames = new ArrayList<>();
+
+        for (String arg : args) {
+            if ("--commit-every-batch".equals(arg)) {
+                commitEveryBatch = true;
+            } else if ("--preserve-next-gather-dates".equals(arg)) {
+                preserveNextGatherDates = true;
+            } else if (arg.startsWith("--")) {
+                usage();
+            } else {
+                fileNames.add(arg);
+            }
+        }
+
+        if (fileNames.isEmpty()) {
+            usage();
+        }
+
+        return new LoadOptions(fileNames.toArray(String[]::new), commitEveryBatch, preserveNextGatherDates);
+    }
+
+    private static void processAll(String[] fileNames, boolean commitEveryBatch, boolean preserveNextGatherDates)
+            throws ExecutionException, InterruptedException {
+
+        int maxThreads = Integer.parseInt(System.getenv().getOrDefault("PANDAS_LOAD_THREADS", String.valueOf(5)));
+        maxThreads = Math.min(maxThreads, fileNames.length);
+
+        ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (String fileName : fileNames) {
+            futures.add(executor.submit(() -> {
+                try {
+                    Properties properties = new Properties();
+                    properties.put("user", System.getenv("PANDAS_DB_USER"));
+                    properties.put("password", System.getenv("PANDAS_DB_PASSWORD"));
+                    String dbUrl = System.getenv("PANDAS_DB_URL");
+                    if (isMySQL(dbUrl)) {
+                        properties.put("connectionTimeZone", "UTC");
+                        properties.put("preserveInstants", true);
+                        properties.put("forceConnectionTimeZoneToSession", true);
+                    } else {
+                        properties.put("defaultRowPrefetch", 500);
+                    }
+                    try (Connection conn = DriverManager.getConnection(dbUrl, properties)) {
+                        DbToolFast tool = new DbToolFast(conn);
+                        tool.load(Path.of(fileName), commitEveryBatch, preserveNextGatherDates);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Exception loading %s (failed)".formatted(fileName));
+                    throw new RuntimeException(e);
+                }
+            }));
+        }
+
+        List<Throwable> failures = new ArrayList<>();
+        try {
+            for (java.util.concurrent.Future<?> f : futures) {
+                try {
+                    f.get();
+                } catch (ExecutionException e) {
+                    failures.add(e.getCause());
+                }
+            }
+        } finally {
+            executor.shutdown();
+        }
+
+        if (!failures.isEmpty()) {
+            RuntimeException failure = new RuntimeException(failures.size() + " table load(s) failed!");
+            failures.forEach(failure::addSuppressed);
+            throw new ExecutionException(failure);
         }
     }
 
@@ -95,9 +189,11 @@ public class DbTool {
     }
 
     private static void usage() {
-        System.err.println("Usage: DbTool dump <outfile>");
-        System.err.println("   or: DbTool load <infile>");
-        System.err.println("\nSet env vars PANDAS_DB_URL, PANDAS_DB_USER, PANDAS_DB_PASSWORD");
+        System.err.println(
+            "Usage: DbTool dump <outfile_prefix>\n" +
+            "   or: DbTool load [--commit-every-batch] [--preserve-next-gather-dates] <infile>...\n" +
+            "Set env vars PANDAS_DB_URL, PANDAS_DB_USER, PANDAS_DB_PASSWORD (optionally PANDAS_LOAD_THREADS)\n"
+        );
         System.exit(1);
     }
 
@@ -105,16 +201,20 @@ public class DbTool {
         return quoteChar + s + quoteChar;
     }
 
-    private void load(Path infile) throws IOException, JsonParserException, SQLException {
+    private void load(Path infile, boolean commitEveryBatch, boolean preserveNextGatherDates)
+            throws IOException, JsonParserException, SQLException {
+
         boolean lowercase = jdbcUrl.startsWith("jdbc:postgresql:")
                             || jdbcUrl.startsWith("jdbc:mysql:")
                             || jdbcUrl.startsWith("jdbc:mariadb:");
         int batchSize = 5000;
+
         connection.setAutoCommit(false);
         if (jdbcUrl.startsWith("jdbc:postgresql:")) {
             connection.prepareStatement("SET session_replication_role = replica").execute();
         } else if (jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:")) {
             connection.prepareStatement("SET foreign_key_checks = 0").execute();
+            connection.prepareStatement("SET unique_checks = 0").execute();
             // Allow inserting 0 into AUTO_INCREMENT columns
             connection.prepareStatement("SET SESSION sql_mode = CONCAT(@@sql_mode, ',NO_AUTO_VALUE_ON_ZERO')").execute();
         }
@@ -167,6 +267,7 @@ public class DbTool {
                             }
 
                             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+
                                 json.array();
                                 int batchCount = 0;
                                 int row;
@@ -251,6 +352,11 @@ public class DbTool {
                                     if (batchCount >= batchSize) {
                                         int[] result = stmt.executeBatch();
                                         stmt.clearBatch();
+
+                                        if (commitEveryBatch) {
+                                            connection.commit();
+                                        }
+
                                         batchCount = 0;
                                         System.err.println("Inserted " + result.length + " rows into " + table);
                                     }
@@ -262,15 +368,17 @@ public class DbTool {
                                 }
                                 connection.commit();
                             }
+                            if (!preserveNextGatherDates && "title_gather".equals(table)) {
+                                try (PreparedStatement stmt = connection.prepareStatement("update " + quote(table) + " set next_gather_date = null")) {
+                                    stmt.execute();
+                                }
+                                connection.commit();
+                            }
                             break;
                     }
                 }
             }
         }
-        try (PreparedStatement stmt = connection.prepareStatement("update TITLE_GATHER set NEXT_GATHER_DATE = null")) {
-            stmt.execute();
-        }
-        connection.commit();
     }
 
     private static int[] lookupColumnTypes(Connection connection, String table, List<String> columns) throws SQLException {
@@ -282,23 +390,38 @@ public class DbTool {
                 if (i < 0) continue;
                 columnTypes[i] = rs.getInt("DATA_TYPE");
                 ok = true;
+                System.out.println("Table %s.%s data_type: %d".formatted(table, columns.get(i), columnTypes[i]));
             }
         }
         if (!ok) return null;
         return columnTypes;
     }
 
-    private static void dump(Connection connection, Path outfile) throws IOException, SQLException {
-        Set<String> excludedTables = new HashSet<>(Arrays.asList(System.getenv().getOrDefault("IGNORE_TABLES", "THUMBNAIL,STATUS_HISTORY,schema_version").split(",")));
-        JsonAppendableWriter json = JsonWriter.indent("  ").on(Files.newBufferedWriter(outfile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))
-                .array();
+
+    private static void dump(Connection connection, String outfile) throws IOException, SQLException {
+        String catalog = System.getenv().getOrDefault("CATALOG", null);
+        String schema  = System.getenv().getOrDefault("SCHEMA", "PANDAS3");
+
+        Set<String> excludedTables = Stream.concat(
+                Stream.of("schema_version", "PLAN_TABLE"),
+                Arrays.stream(System.getenv().getOrDefault("IGNORE_TABLES", "").split(","))
+                        .filter(s -> !s.isBlank())
+        ).collect(Collectors.toSet());
 
         List<String> tableNames = new ArrayList<>();
         if (System.getenv().containsKey("TABLES")) {
             tableNames.addAll(Arrays.asList(System.getenv("TABLES").split(",")));
         } else {
-            try (ResultSet tables = connection.getMetaData().getTables(null, "PANDAS3", null, new String[]{"TABLE"})) {
+            try (ResultSet tables = connection.getMetaData().getTables(catalog, schema, null, new String[]{"TABLE"})) {
                 while (tables.next()) {
+
+                    String s = "%s\t%s\t%s".formatted(
+                                    tables.getString("TABLE_CAT"),
+                                    tables.getString("TABLE_SCHEM"),
+                                    tables.getString("TABLE_NAME")
+                    );
+                    System.out.println(s);
+
                     tableNames.add(tables.getString("TABLE_NAME"));
                 }
             }
@@ -312,9 +435,17 @@ public class DbTool {
             }
             sanityCheckTableName(tableName);
             System.err.println("Dumping " + tableName);
+
+            JsonAppendableWriter json = JsonWriter.indent("  ")
+                    .on(Files.newBufferedWriter(Paths.get("%s_%s".formatted(outfile, tableName)), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))
+                    .array();
+
             json.object();
             json.value("table", tableName);
-            try (PreparedStatement stmt = connection.prepareStatement("select * from " + tableName)) {
+
+            String qualifiedName = schema.isBlank() ? tableName : schema + "." + tableName;
+            try (PreparedStatement stmt = connection.prepareStatement("select * from " + qualifiedName)) {
+
                 stmt.setFetchSize(10000);
                 ResultSet rs = stmt.executeQuery();
                 ResultSetMetaData metadata = rs.getMetaData();
@@ -325,6 +456,7 @@ public class DbTool {
                 }
                 json.end();
 
+                int c = 0;
                 json.array("rows");
                 while (rs.next()) {
                     json.array();
@@ -352,12 +484,18 @@ public class DbTool {
                         }
                     }
                     json.end();
+
+                    c++;
+                    if (c % 10000 == 0) {
+                        System.out.println("(%s: %d rows written)".formatted(tableName, c));
+                    }
                 }
                 json.end();
             }
             json.end();
+            json.end().done();
         }
-        json.end().done();
+
     }
 
     private static void sanityCheckTableName(String tableName) throws SQLException {

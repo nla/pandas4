@@ -1023,14 +1023,6 @@ create table title_flag
     constraint title_flag_title_fk foreign key (title_id) references title (title_id) on delete cascade
 );
 
-create table title_embedding
-(
-    title_id  bigint       not null auto_increment primary key,
-    embedding longblob         not null,
-    created   datetime(6) not null,
-    constraint title_embedding_title_title_id_fk foreign key (title_id) references title (title_id) on delete cascade
-);
-
 create table title_individual
 (
     individual_id bigint not null comment 'Foreign key to a contact person for this title',
@@ -1120,7 +1112,7 @@ create table type_stats
     primary key (content_type, status, year)
 );
 
-create table spring_session
+create table SPRING_SESSION
 (
     primary_id            char(36) not null,
     session_id            char(36) not null,
@@ -1132,17 +1124,17 @@ create table spring_session
     constraint spring_session_pk primary key (primary_id)
 );
 
-create unique index spring_session_ix1 on spring_session (session_id);
-create index spring_session_ix2 on spring_session (expiry_time);
-create index spring_session_ix3 on spring_session (principal_name);
+create unique index spring_session_ix1 on SPRING_SESSION (session_id);
+create index spring_session_ix2 on SPRING_SESSION (expiry_time);
+create index spring_session_ix3 on SPRING_SESSION (principal_name);
 
-create table spring_session_attributes
+create table SPRING_SESSION_ATTRIBUTES
 (
     session_primary_id char(36)     not null,
     attribute_name     varchar(200) not null,
     attribute_bytes    longblob         not null,
     constraint spring_session_attributes_pk primary key (session_primary_id, attribute_name),
-    constraint spring_session_attributes_fk foreign key (session_primary_id) references spring_session (primary_id) on delete cascade
+    constraint spring_session_attributes_fk foreign key (session_primary_id) references SPRING_SESSION (primary_id) on delete cascade
 );
 
 --
