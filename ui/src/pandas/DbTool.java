@@ -179,7 +179,7 @@ public class DbTool {
                                             case Types.VARBINARY:
                                             case Types.LONGVARBINARY: {
                                                 String value = json.string();
-                                                stmt.setBytes(col, value != null ? Base64.getDecoder().decode(json.string()) : null);
+                                                stmt.setBytes(col, value != null ? Base64.getDecoder().decode(value) : null);
                                                 break;
                                             }
                                             case Types.DATE: {
