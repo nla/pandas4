@@ -27,7 +27,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 import pandas.agency.*;
 import pandas.collection.TitleSearcher.UrlCheckResult;
@@ -129,11 +128,6 @@ public class TitleController {
         model.addAttribute("dateFormat", DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));
         model.addAttribute("timeFormat", DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()));
         return "TitleOwnerHistory";
-    }
-
-    @GetMapping("/titles/{id}/p3")
-    public RedirectView pandas3(@PathVariable("id") long id) {
-        return new RedirectView(config.managementDirectActionUrl("titleView?id=" + id));
     }
 
     @GetMapping("/titles")

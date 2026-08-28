@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PANDAS 3 Retirement - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        body > main.pandas3-eol {
+            padding-left: calc(var(--sidebar-width) + var(--margin-width) + 50px);
+            padding-right: calc(var(--margin-width) + 50px);
+        }
+
+        .pandas3-eol .alert-info {
+            background: transparent;
+            display: flow-root;
+        }
+
+        .pandas3-eol-image {
+            float: right;
+            width: 120px;
+            height: auto;
+            margin: 0 0 16px 16px;
+        }
+
+        @media (max-width: 700px) {
+            body > main.pandas3-eol {
+                padding-left: calc(32px + var(--margin-width) + 50px) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav th:replace="~{_layout.html :: sidebar (activeItem='P3 Retirement')}"></nav>
+<main class="pandas3-eol">
+    <header></header>
+    <h1>PANDAS 3 Retirement</h1>
+
+    <section class="alert-info">
+        <img class="pandas3-eol-image" th:src="@{/assets/P3eol.png}" src="../static/assets/P3eol.png" alt="PANDAS 3 retirement">
+
+        <p>The time has come for PANDAS 3 to retire.</p>
+
+        <p>PANDAS 3 relies on older products and technologies that are becoming increasingly difficult (and expensive)
+            for the NLA to maintain and support. </p>
+
+        <p>Over the past few years we've progressively moved features over to PANDAS 4, which we think is well-placed
+            to support web archiving into the future.</p>
+
+        <p>If you discover a critical functionality gap, or there's a PANDAS 3 feature you no longer have access to
+            and miss, please let us know.</p>
+
+        <p>Thank you for your support of PANDAS 3!</p>
+
+    </section>
+</main>
+</body>
+</html>
