@@ -40,7 +40,7 @@
             <th>Titles</th>
         </tr>
         <tr th:each="agency : ${agencies}">
-            <td><a th:href="${@link.to(agency)}" th:text="${agency.name}">National Library</a></td>
+            <td><a th:href="${link.to(agency)}" th:text="${agency.name}">National Library</a></td>
             <td th:text="${agency.alias}"></td>
             <td th:text="${#numbers.formatInteger(agency.userCount, 0, 'COMMA')}">5</td>
             <td><a class="title-count" th:href="@{/titles(agency=${agency.id},sort='Newest')}" th:text="${#numbers.formatInteger(agency.titleCount, 0, 'COMMA')}">10</a></td>

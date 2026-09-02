@@ -14,10 +14,10 @@
 
     <nav class="breadcrumb">
         <ol>
-            <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
+            <li><a th:href="${link.to(instance.title)}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
             <li>
-                <a th:href="${@link.to(instance)}">
+                <a th:href="${link.to(instance)}">
                     <span th:text="${instance.gatherMethodName}"></span> gather from <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span>
                 </a>
             </li>

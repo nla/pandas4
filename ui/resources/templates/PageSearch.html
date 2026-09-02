@@ -49,9 +49,9 @@
             </td>
             <td th:text="${capture.url}" class="url"></td>
             <td><a th:if="${crawl != null}"
-                   th:href="${crawl.pandasInstanceId() != null ? @link.toInstance(crawl.pandasInstanceId()) : @link.toBambooCrawl(crawl.crawlId())}"
+                   th:href="${crawl.pandasInstanceId() != null ? link.toInstance(crawl.pandasInstanceId()) : link.toBambooCrawl(crawl.crawlId())}"
                    th:text="${crawl.crawlName()}">test crawl</a></td>
-            <td><a th:href="${@link.toBambooWarc(capture.file)}"
+            <td><a th:href="${link.toBambooWarc(capture.file)}"
                    th:text="${capture.file}">test.warc.gz</a></td>
         </tr>
         </tbody>

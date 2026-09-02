@@ -32,18 +32,18 @@
         <tr th:each="title: ${monitoredTitles}">
             <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
             <td>
-                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:text="${title.name}" th:href="${link.to(title)}" style="font-weight: bold">Example title</a>
                 <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
             </td>
-            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
+            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${link.to(title.owner)}">jsmith</a></td>
             <td class="worktray-table--actions">
-                <a title="Accept" th:href="${@link.editStatus(title, 'SELECTED')}">
+                <a title="Accept" th:href="${link.editStatus(title, 'SELECTED')}">
                     <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#check}"/></svg>
                 </a>
-                <a title="Reject" th:href="${@link.editStatus(title, 'REJECTED')}">
+                <a title="Reject" th:href="${link.editStatus(title, 'REJECTED')}">
                     <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#x}"/></svg>
                 </a>
-                <a title="Transfer" th:href="${@link.transfer(title)}">
+                <a title="Transfer" th:href="${link.transfer(title)}">
                     <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#forward}"/></svg>
                 </a>
             </td>

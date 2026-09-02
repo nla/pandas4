@@ -33,12 +33,12 @@
         <tr th:each="title: ${scheduledTitles}">
             <td align="center"><time th:if="${title.gather?.nextGatherDate}" th:text="${dateFormat.format(title.gather.nextGatherDate)}">04/02/2021</time></td>
             <td>
-                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:text="${title.name}" th:href="${link.to(title)}" style="font-weight: bold">Example title</a>
                 <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
             </td>
-            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
+            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${link.to(title.owner)}">jsmith</a></td>
             <td th:text="${title.gather?.schedule?.name}">Weekly</td>
-            <td><a class="btn btn-action" th:href="${@link.edit(title) + '#gather'}">Modify Gather</a></td>
+            <td><a class="btn btn-action" th:href="${link.edit(title) + '#gather'}">Modify Gather</a></td>
         </tr>
         </tbody>
     </table>

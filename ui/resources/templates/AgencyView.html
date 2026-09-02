@@ -12,7 +12,7 @@
 <main>
     <header>
         <nav>
-            <a sec:authorize="hasPermission(#vars.agency, 'edit')" th:href="${@link.edit(agency)}" class="btn"><i class="icon edit"></i> Edit</a>
+            <a sec:authorize="hasPermission(#vars.agency, 'edit')" th:href="${link.edit(agency)}" class="btn"><i class="icon edit"></i> Edit</a>
             <a sec:authorize="hasPermission(#vars.agency, 'create-user')" th:href="@{/users/new(agency=${agency.id})}" class="btn btn-secondary"><i class="icon add"></i> New User</a>
         </nav>
     </header>
@@ -26,14 +26,14 @@
 
     <div style="display: flex; align-items: center">
         <a th:href="${agency.organisation.url}">
-            <img th:src="${@link.logo(agency)}" style="max-height: 100px; margin-right: 12px;">
+            <img th:src="${link.logo(agency)}" style="max-height: 100px; margin-right: 12px;">
         </a>
 
         <table class="details-table">
             <tr><th th:if="${agency.externalEmail != null}">Email:</th><td th:text="${agency.externalEmail}"></td></tr>
             <tr><th>Address:</th><td th:text="${agency.organisation.address}"></td></tr>
             <tr><th>Titles:</th><td><a th:href="@{/titles(agency=${agency.id},sort='Newest',page=1)}" th:text="${#numbers.formatInteger(titleCount, 0, 'COMMA')}"></a></td></tr>
-            <tr th:if="${agency.transferContact != null}"><th>Transfer contact:</th><td><a th:href="${@link.to(agency.transferContact)}" th:text="${agency.transferContact.name}"></a></td></tr>
+            <tr th:if="${agency.transferContact != null}"><th>Transfer contact:</th><td><a th:href="${link.to(agency.transferContact)}" th:text="${agency.transferContact.name}"></a></td></tr>
         </table>
     </div>
 
@@ -53,7 +53,7 @@
         </tr>
         <tr th:each="user : ${users}">
             <td><span th:unless="${user.active}" title="Account disabled" style="color: #999; user-select: none">✗</span></td>
-            <td><a th:href="${@link.to(user)}" th:text="${user.userid}"></a></td>
+            <td><a th:href="${link.to(user)}" th:text="${user.userid}"></a></td>
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.role.title}"></td>
             <td th:text="${user.yearCreated}" style="text-align: right"></td>

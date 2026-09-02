@@ -32,10 +32,10 @@
         <tr th:each="title: ${requestPermissionTitles}">
             <td align="center"><time th:text="${dateFormat.format(title.regDate)}">04/02/2021</time></td>
             <td>
-                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:text="${title.name}" th:href="${link.to(title)}" style="font-weight: bold">Example title</a>
                 <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
             </td>
-            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
+            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${link.to(title.owner)}">jsmith</a></td>
             <td>
                 <a class="btn btn-action" th:href="@{/titles/{titleId}/contact-events/new(type=2,titleId=${title.id})}">
                     Request permission

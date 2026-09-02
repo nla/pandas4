@@ -31,7 +31,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pandas.agency.*;
 import pandas.collection.TitleSearcher.UrlCheckResult;
 import pandas.core.Config;
-import pandas.core.Link;
 import pandas.core.View;
 import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
@@ -81,7 +80,7 @@ public class TitleController {
     private final IssueGroupRepository issueGroupRepository;
     private final PermissionEvaluator permissionEvaluator;
 
-    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, Link link, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueRepository issueRepository, IssueGroupRepository issueGroupRepository,
+    public TitleController(TitleRepository titleRepository, UserRepository userRepository, GatherMethodRepository gatherMethodRepository, GatherScheduleRepository gatherScheduleRepository, TitleService titleService, TitleSearcher titleSearcher, Config config, EntityManager entityManager, FormatRepository formatRepository, GatherService gatherService, ClassificationService classificationService, OwnerHistoryRepository ownerHistoryRepository, UserService userService, PublisherTypeRepository publisherTypeRepository, AgencyRepository agencyRepository, ProfileRepository profileRepository, ScopeRepository scopeRepository, CollectionRepository collectionRepository, IssueRepository issueRepository, IssueGroupRepository issueGroupRepository,
                            PermissionEvaluator permissionEvaluator) {
         this.titleRepository = titleRepository;
         this.userRepository = userRepository;

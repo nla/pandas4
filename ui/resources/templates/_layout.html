@@ -88,12 +88,12 @@
     <ul sec:authorize="hasRole('stduser')" class="hide-when-sidebar-collapsed">
         <li><a th:href="@{/settings}">System Settings</a>
     </ul>
-    <ul class="hide-when-sidebar-collapsed">
+    <ul class="hide-when-sidebar-collapsed" th:with="currentUser=${@userService.getCurrentUser()}">
         <li><a class="disabled">User: <th:block sec:authentication="name">jsmith</th:block></a></li>
         <li sec:authorize="hasAuthority('IS_MASQUERADING')" style="padding-left: 1rem; color: #999">
             Acting as: <span th:text="${@userService.effectiveRole}"></span>
         </li>
-        <li><a th:href="${@link.edit(@userService.getCurrentUser())}">Edit My Details</a></li>
+        <li><a th:href="${link.edit(currentUser)}">Edit My Details</a></li>
         <li><form th:action="@{/logout}" method=post id=logoutForm></form><a href="#" onclick="document.getElementById('logoutForm').submit()">Sign Out</a></li>
         <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=infouser}">Become infouser</a></li>
         <li><a sec:authorize="hasAuthority('PRIV_SUDO')" th:href="@{/sudo?role=stduser}">Become stduser</a></li>

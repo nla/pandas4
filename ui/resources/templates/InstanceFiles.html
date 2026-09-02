@@ -114,9 +114,9 @@
     <section class="results">
         <nav class="breadcrumb">
             <ol>
-                <li><a th:href="${@link.to(instance.title)}" href="TitleView.html"
+                <li><a th:href="${link.to(instance.title)}" href="TitleView.html"
                        th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a></li>
-                <li><a th:href="${@link.to(instance)}"><span th:text="${instance.gatherMethodName}"></span> gather from
+                <li><a th:href="${link.to(instance)}"><span th:text="${instance.gatherMethodName}"></span> gather from
                     <span th:text="${@dateFormats.dayDateTime.format(instance.date)}"></span></a></li>
                 <li class="active">
                     <span th:text="${#numbers.formatInteger(results.getTotalElements(), 0, 'COMMA')}">16</span> files
@@ -154,7 +154,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="result : ${results.toList()}">
-                    <td><a th:href="${@link.files(instance) + '/' + result.id()}"
+                    <td><a th:href="${link.files(instance) + '/' + result.id()}"
                            th:text="${@dateFormats.timeWithSeconds.format(result.date())}">2022-03-29T07:52:44Z</a></td>
                     <td th:text="${result.status()}">200</td>
                     <td style="white-space: nowrap; text-align: right"

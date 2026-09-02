@@ -37,7 +37,7 @@
       <td><a th:text="${target.query}" th:href="@{/social/search(q=${target.query})}">from:username</a> </td>
       <td th:text="${target.postCount}"></td>
       <td><a th:if="${target.title != null}" th:text="${target.title.name}"
-             th:href="${@link.to(target.title)}"></a></td>
+             th:href="${link.to(target.title)}"></a></td>
       <td><time th:if="${target.lastVisitedDate != null}"
                 th:datetime="${target.lastVisitedDate}"
                 th:text="${@dateFormats.dayDateTime.format(target.lastVisitedDate)}"
