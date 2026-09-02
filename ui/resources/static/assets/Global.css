@@ -399,6 +399,12 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
 /*
  * Button Groups: Split Menu
  */
+.button-menu {
+    display: inline-flex;
+    position: relative;
+    vertical-align: middle;
+}
+
 .split-menu {
     position: absolute;
     top: 100%;          /* directly below the buttons */

@@ -156,6 +156,7 @@ public class TitleSearcher {
         private final Pageable pageable;
         private final String q;
         private final String url;
+        private final List<Long> ids;
         private boolean not;
         private boolean disappeared;
         private boolean unableToArchive;
@@ -170,6 +171,7 @@ public class TitleSearcher {
             disappeared = params.containsKey("disappeared");
             unableToArchive = params.containsKey("unableToArchive");
             permissionId = Utils.parseLong(params.getFirst("permission"));
+            ids = params.getOrDefault("id", List.of()).stream().map(Long::parseLong).toList();
 
             StringBuilder qTerms = new StringBuilder();
             StringBuilder urlTerms = new StringBuilder();
@@ -211,6 +213,7 @@ public class TitleSearcher {
             if (disappeared) and.add(f.match().field("disappeared").matching(true));
             if (unableToArchive) and.add(f.match().field("unableToArchive").matching(true));
             if (permissionId != null) and.add(f.match().field("permission.id").matching(permissionId));
+            if (!ids.isEmpty()) and.add(f.id().matchingAny(ids));
             for (Facet facet : facets) {
                 and.add(facet.searchPredicate(f, params));
                 if (facet == exceptFacet) continue;
