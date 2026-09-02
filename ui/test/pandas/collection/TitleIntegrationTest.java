@@ -13,7 +13,11 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class TitleIntegrationTest extends IntegrationTest {
     @Autowired
@@ -22,6 +26,14 @@ class TitleIntegrationTest extends IntegrationTest {
     TitleRepository titleRepository;
     @Autowired
     UserService userService;
+
+    @Test
+    @WithUserDetails("admin")
+    public void testBulkAddFormWithoutCollection() throws Exception {
+        mockMvc.perform(get("/titles/bulkadd"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Bulk add websites")));
+    }
 
     @Test
     @WithUserDetails("admin")

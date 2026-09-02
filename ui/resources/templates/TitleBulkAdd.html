@@ -19,13 +19,13 @@
     </style>
 </head>
 <body>
-<nav th:replace="~{_layout.html :: sidebar (activeItem='Collections')}"></nav>
+<nav th:replace="~{_layout.html :: sidebar (activeItem=${collection == null ? 'Titles' : 'Collections'})}"></nav>
 <main>
     <header>
     </header>
 
     <!--/* FIXME: Factor this out into a fragment */-->
-    <nav class=breadcrumb>
+    <nav class=breadcrumb th:if="${collection != null}">
         <ol>
             <li style="font-weight: bold"><a th:href="@{/collections}"
                                              href="CollectionSearch.html">Collections</a></li>
@@ -37,6 +37,12 @@
                 <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
             </li>
             <li class="active">Add websites</li>
+        </ol>
+    </nav>
+    <nav class=breadcrumb th:if="${collection == null}">
+        <ol>
+            <li style="font-weight: bold"><a th:href="@{/titles}" href="TitleSearch.html">Titles</a></li>
+            <li class="active">Bulk add websites</li>
         </ol>
     </nav>
 
@@ -56,7 +62,7 @@
           style="display: none">
         <fieldset>
             <legend>Options</legend>
-            <input type="hidden" name="collection" th:value="${collection.id}">
+            <input th:if="${collection != null}" type="hidden" name="collection" th:value="${collection.id}">
             <label><input name="gatherNow" type="checkbox"> Gather immediately</label>
         </fieldset>
 
