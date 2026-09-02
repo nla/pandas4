@@ -1,6 +1,6 @@
 package pandas.collection;
 
-import org.hibernate.engine.jdbc.BlobProxy;
+import org.hibernate.engine.jdbc.proxy.BlobProxy;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

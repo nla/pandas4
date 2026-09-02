@@ -25,9 +25,10 @@ public class PandasGatherer {
         @Bean
         public SecurityWebFilterChain securitygWebFilterChain(
                 ServerHttpSecurity http) {
-            return http.authorizeExchange()
-                    .anyExchange().permitAll()
-                    .and().csrf().disable().build();
+            return http
+                    .authorizeExchange(exchange -> exchange.anyExchange().permitAll())
+                    .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                    .build();
         }
     }
 }

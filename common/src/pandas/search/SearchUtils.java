@@ -22,11 +22,11 @@ public class SearchUtils {
         return or.toPredicate();
     }
 
-    public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> b, String field, java.util.Collection<?> values) {
+    public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?, ?> b, String field, java.util.Collection<?> values) {
         mustMatchAny(f, b, field, values, false);
     }
 
-    public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?> b, String field, java.util.Collection<?> values, boolean not) {
+    public static void mustMatchAny(SearchPredicateFactory f, BooleanPredicateOptionsCollector<?, ?> b, String field, java.util.Collection<?> values, boolean not) {
         if (values != null && !values.isEmpty()) {
             if (not) {
                 b.mustNot(matchAny(f, field, values));

@@ -4,12 +4,11 @@ import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import pandas.core.PandasBanner;
 
-@SpringBootApplication(exclude = ElasticsearchRestClientAutoConfiguration.class)
+@SpringBootApplication
 @EnableScheduling
 public class PandasDelivery {
     public static void main(String[] args) {

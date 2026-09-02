@@ -33,7 +33,7 @@ public class Permission {
     /**
      * The contact person who granted or denied this permission
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INDIVIDUAL_ID")
     private ContactPerson contactPerson;
 
@@ -65,7 +65,7 @@ public class Permission {
     /**
      * The publisher who has the authority to grant this permission, if this is a blanket permission.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PUBLISHER_ID")
     private Publisher publisher;
 
@@ -78,14 +78,14 @@ public class Permission {
     /**
      * The title this permission refers to (if it is a title level permission).
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TITLE_ID")
     private Title title;
 
     /**
      * State of this permission. eg Granted, Denied.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PERMISSION_STATE_ID")
     @Deprecated
     private PermissionState state;
@@ -93,7 +93,7 @@ public class Permission {
     /**
      * The type of permission, ie. publisher (blanket) level or title level.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PERMISSION_TYPE_ID")
     @Deprecated
     private PermissionType type;
