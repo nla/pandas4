@@ -155,6 +155,7 @@ public class TitleController {
         LinkedMultiValueMap<String, String> stickyParams = new LinkedMultiValueMap<String, String>(params);
         stickyParams.remove("filter");
         stickyParams.remove("q");
+        stickyParams.remove("id");
         stickyParams.remove("page");
         stickyParams.remove("sort");
         request.getSession().setAttribute("titleFilterStickyParams",
@@ -632,6 +633,7 @@ public class TitleController {
             @RequestParam("publisherName") List<String> publisherNames,
             @RequestParam("publisherType") List<PublisherType> publisherTypes) {
         User currentUser = userService.getCurrentUser();
+        List<Long> titleIds = new ArrayList<>();
         for (int i = 0; i < urls.size(); i++) {
             var form = titleService.newTitleForm(collection == null ? Set.of() : Set.of(collection), null);
             form.setSeedUrls(urls.get(i));
@@ -639,9 +641,14 @@ public class TitleController {
             form.setPublisherName(publisherNames.get(i));
             form.setPublisherType(publisherTypes.get(i));
             if (gatherNow) form.getOneoffDates().add(Instant.now());
-            titleService.save(form, currentUser);
+            titleIds.add(titleService.save(form, currentUser).getId());
         }
-        return collection == null ? "redirect:/titles" : "redirect:/collections/" + collection.getId();
+        if (collection != null) {
+            return "redirect:/collections/" + collection.getId();
+        }
+        UriComponentsBuilder redirect = UriComponentsBuilder.fromPath("/titles");
+        titleIds.forEach(id -> redirect.queryParam("id", id));
+        return "redirect:" + redirect.toUriString();
     }
 
     @PostMapping(value = "/titles", produces = "application/json")

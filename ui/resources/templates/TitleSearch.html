@@ -14,6 +14,7 @@
     <form id="sf" th:action="@{/titles}">
         <!-- hidden default submit button (otherwise the export buttons will be the default!) -->
         <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+        <input th:each="id : ${param.id}" type="hidden" name="id" th:value="${id}">
     </form>
 
     <header>
