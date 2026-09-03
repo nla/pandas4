@@ -97,7 +97,7 @@
                 <td th:text="${collection.gatherSchedule.name}"></td>
             </tr>
         </table>
-        <div th:utext="${@htmlSanitizer.sanitize(collection.description)}">This is a description.</div>
+        <div th:utext="${htmlSanitizer.sanitize(collection.description)}">This is a description.</div>
     </section>
     <p>
 
