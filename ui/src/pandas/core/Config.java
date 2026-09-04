@@ -10,7 +10,6 @@ import java.nio.file.Path;
 @ConfigurationProperties(prefix = "pandas")
 public class Config {
     private String bambooUrl = "https://pandas.nla.gov.au/bamboo";
-    private String managementUrl;
     private String autologin;
     private String workingAreaUrl = "https://pandas.nla.gov.au/view/";
     private String qaReplayUrl = "https://pwb.archive.org.au/";
@@ -34,18 +33,6 @@ public class Config {
 
     public void setBambooUrl(String bambooUrl) {
         this.bambooUrl = bambooUrl;
-    }
-
-    public String getManagementUrl() {
-        return managementUrl;
-    }
-
-    public void setManagementUrl(String managementUrl) {
-        this.managementUrl = managementUrl;
-    }
-
-    public String managementDirectActionUrl(String action) {
-        return managementUrl + "/WebObjects/PandasManagement.woa/wa/" + action;
     }
 
     public String getQaReplayUrl() {
