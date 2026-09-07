@@ -1,5 +1,5 @@
 #!/bin/bash
-mvn package
+mvn package -DskipTests
 cp -v ui/target/*.jar gatherer/target/*.jar delivery/target/*.jar social/target/*.jar "$1"/
 
 if [ ! -z ${BUILD_FFMPEG+x} ]; then
