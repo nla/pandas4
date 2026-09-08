@@ -82,6 +82,7 @@ public class InstanceController {
                           @RequestParam(value = "url", required = false) String url,
                           @RequestParam(value = "worktray", required = false) String worktray, Model model) {
         model.addAttribute("instance", instance);
+        model.addAttribute("instanceUrls", instanceUrls);
         model.addAttribute("qaUrl", instanceUrls.qa(instance, url));
         model.addAttribute("title", instance.getTitle());
         model.addAttribute("dateFormat", DateFormats.DAY_DATE_TIME);

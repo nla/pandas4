@@ -13,9 +13,9 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <hibernate.search.version>7.2.4.Final</hibernate.search.version>
-        <lucene.version>9.11.1</lucene.version>
-        <spring.version>3.5.12</spring.version>
+        <hibernate.search.version>8.4.0.Final</hibernate.search.version>
+        <lucene.version>9.12.3</lucene.version>
+        <spring.version>4.1.1</spring.version>
         <sonar.organization>nla</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
@@ -116,6 +116,12 @@
                 <version>${spring.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- H2 2.4.240 compiles IN check constraints against the creating session (h2database/h2database#4291). -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>2.3.232</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>

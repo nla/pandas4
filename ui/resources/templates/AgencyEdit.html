@@ -29,7 +29,7 @@
             <input id="removeLogo" name="removeLogo" value="false" type=hidden>
             <div>
                 <div style="text-align: center">
-                    <img id=logoPreview th:src="${@link.logo(agency)}" th:if="${agency.logo != null}"><br>
+                    <img id=logoPreview th:src="${link.logo(agency)}" th:if="${agency.logo != null}"><br>
                     <input type=button value=Remove id=removeLogoButton th:style="${agency.logo == null ? 'display: none' : ''}">
                 </div>
                 <div style="align-self: end">

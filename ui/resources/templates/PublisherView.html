@@ -104,7 +104,7 @@
                         <th:block th:text="*{stateName}">Granted</th:block>
                         <time th:if="${permission.statusSetDate != null}" th:text="${@dateFormats.date.format(permission.statusSetDate)}" th:datetime="${permission.statusSetDate}">4/8/2013</time>
                     </h1>
-                    <a th:href="${@link.to(permission)}" class="btn btn-compact btn-secondary">Edit</a>
+                    <a th:href="${link.to(permission)}" class="btn btn-compact btn-secondary">Edit</a>
                 </header>
                 <p th:if="${permission.localReference != null}" th:text="${permission.localReference}">REF/2004/123</p>
                 <p th:text="*{domain}">All websites on example.org and sample.com</p>
@@ -130,7 +130,7 @@
                     </div>
                     <th:block th:if="${publisher}">
                         <a class="contact-person--edit-button btn btn-compact btn-secondary"
-                           th:href="${@link.edit(contactPerson)}"
+                           th:href="${link.edit(contactPerson)}"
                            sec:authorize="hasPermission(#vars.publisher, 'edit')">Edit</a>
                     </th:block>
                 </div>
@@ -170,7 +170,7 @@
             <span th:text="${contactEvent.method != null ? contactEvent.method.name : ''}"></span>
             <span th:text="${contactEvent.type != null ? contactEvent.type.name : ''}"></span>
             <a th:if="${contactEvent.contactPerson != null}" th:text="${contactEvent.contactPerson.name}"
-               th:href="${@link.edit(contactEvent.contactPerson)}"></a>
+               th:href="${link.edit(contactEvent.contactPerson)}"></a>
             <span th:if="${contactEvent.user != null}" th:text="${contactEvent.user.userid}"></span>
             <div th:if="${contactEvent.note != null and !contactEvent.note.isEmpty()}" th:text="${contactEvent.note}" style="margin-top: 0.25em; color: #666;"></div>
             <a sec:authorize="hasPermission(#vars.publisher, 'edit')" th:href="@{|/publishers/${publisher.id}/contact-events/${contactEvent.id}/edit|}"><i class="icon edit"></i></a>

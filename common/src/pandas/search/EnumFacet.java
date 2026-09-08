@@ -5,7 +5,6 @@ import org.hibernate.search.engine.search.predicate.SearchPredicate;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.engine.search.query.dsl.SearchQueryOptionsStep;
-import org.hibernate.search.mapper.orm.search.loading.dsl.SearchLoadingOptionsStep;
 import org.springframework.util.MultiValueMap;
 import pandas.collection.Title;
 
@@ -83,7 +82,7 @@ public class EnumFacet<T extends Enum<T>> extends Facet {
         return new FacetResults(name, param, entries, active, searchFields.length != 0, search);
     }
 
-    public void aggregate(SearchQueryOptionsStep<? extends SearchQueryOptionsStep<?, Title, SearchLoadingOptionsStep, ?, ?>, Title, SearchLoadingOptionsStep, ?, ?> search) {
+    public void aggregate(SearchQueryOptionsStep<?, ?, Title, ?, ?, ?> search) {
         search.aggregation(key, f -> f.terms().field(field, type).maxTermCount(20));
     }
 }

@@ -304,7 +304,7 @@
             </id>
         </attributes>
     </entity>
-    <entity class="pandas.collection.ContactPerson">
+    <entity class="pandas.collection.ContactPerson" access="FIELD">
         <attributes>
             <basic name="function">
                 <column name="`function`"/>

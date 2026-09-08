@@ -31,15 +31,15 @@
         <tr th:each="title: ${permissionRequestedTitles}">
             <td align="center"><time th:if="${title.lastContactDate}" th:text="${dateFormat.format(title.lastContactDate)}">04/02/2021</time></td>
             <td>
-                <a th:text="${title.name}" th:href="${@link.to(title)}" style="font-weight: bold">Example title</a>
+                <a th:text="${title.name}" th:href="${link.to(title)}" style="font-weight: bold">Example title</a>
                 <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url">example.com</a>
             </td>
-            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${@link.to(title.owner)}">jsmith</a></td>
+            <td><a th:if="${title.owner}" th:text="${title.owner.userid}" th:href="${link.to(title.owner)}">jsmith</a></td>
             <td class="worktray-table--actions">
                 <a class="btn btn-action" th:href="@{/titles/{titleId}/contact-events/new(type=3,titleId=${title.id})}">
                     Send reminder
                 </a>
-                <a class="btn btn-action" th:href="${@link.edit(title) + '#permission'}">
+                <a class="btn btn-action" th:href="${link.edit(title) + '#permission'}">
                     Set permission
                 </a>
             </td>

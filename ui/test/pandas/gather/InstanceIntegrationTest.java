@@ -22,6 +22,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -83,6 +84,17 @@ public class InstanceIntegrationTest extends IntegrationTest {
 
         assertEquals(State.DELETING, instanceService.refresh(instance1).getState());
         assertEquals(State.DELETING, instanceService.refresh(instance2).getState());
+    }
+
+    @Test
+    @WithUserDetails("admin")
+    public void testProcessPageRendersInstanceUrls() throws Exception {
+        Title title = createTitle();
+        Instance instance = instanceService.createInstance(GatherMethod.HERITRIX, title);
+        instanceService.updateState(instance.getId(), State.GATHERED);
+
+        mockMvc.perform(get("/instances/{id}/process", instance.getId()))
+                .andExpect(status().isOk());
     }
 
     private Title createTitle() {

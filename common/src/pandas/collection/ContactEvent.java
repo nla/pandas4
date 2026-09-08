@@ -33,7 +33,7 @@ public class ContactEvent {
      * The contact person this communication was with. This person should be associated with a publisher or an indexing
      * agency.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "INDIVIDUAL_ID", nullable = false)
     private ContactPerson contactPerson;
 
@@ -46,26 +46,26 @@ public class ContactEvent {
     /**
      * The publisher which this communication was with.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PUBLISHER_ID", nullable = true)
     private Publisher publisher;
 
     /**
      * The title this communication was in reference to.
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TITLE_ID", nullable = true)
     private Title title;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", nullable = true)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CONTACT_METHOD_ID", referencedColumnName = "CONTACT_METHOD_ID")
     private ContactMethod method;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CONTACT_TYPE_ID", referencedColumnName = "CONTACT_TYPE_ID")
     private ContactType type;
 

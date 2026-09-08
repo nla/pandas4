@@ -109,10 +109,10 @@
         <ol start="${results.pageable.offset + 1}">
             <li th:each="title: ${results}">
                 <div class="title-card" th:fragment="title-card" th:with="omitCollection = ${omitCollection ?: null}">
-                    <a th:href="${@link.to(title)}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
+                    <a th:href="${link.to(title)}"><img th:src="@{|/titles/${title.id}/thumbnail/image|}"></a>
                     <div class="title-card-text" th:fragment="title-card-text">
                         <header>
-                            <strong><a th:href="${@link.to(title)}" th:text="${title.name}" href="TitleView.html">Sydney
+                            <strong><a th:href="${link.to(title)}" th:text="${title.name}" href="TitleView.html">Sydney
                                 2000</a></strong>
                             <nav>
                                 <a class="live-url" th:if="${title.titleUrl != null}" th:href="${title.titleUrl}"
@@ -125,7 +125,7 @@
                                    href="https://webarchive.nla.gov.au/awa/*/www.olympics.com/">CAL</a>
                             </nav>
                             <button th:with="isFlagged=${@userService.currentUser.flaggedTitles.contains(title)}"
-                                    th:formaction="${isFlagged ? @link.unflag(title) : @link.flag(title)}"
+                                    th:formaction="${isFlagged ? link.unflag(title) : link.flag(title)}"
                                     type="submit" class="title-flag" th:classappend="${isFlagged} ? 'active'"></button>
                         </header>
                         <div>
@@ -157,13 +157,13 @@
                                     <span class="schedule" th:text="${title.gather.schedule.name}">Weekly</span>
                                     <span class="method" th:text="${title.gather.method.name}">HTTrack</span> ·
                                 </th:block>
-                                <a th:if="${title.publisher != null}" th:href="${@link.to(title.publisher)}"
+                                <a th:if="${title.publisher != null}" th:href="${link.to(title.publisher)}"
                                       th:text="|${title.publisher.organisation.name}, |">
                                     International Olympic Committee
                                 </a>
                                 <time th:datetime="${title.regDate}" class="regdate" th:text="${title.regDateLocal.getYear()}">2000</time> ·
-                                <span class="owner" th:if="${title.owner != null}"><a th:href="${@link.to(title.owner)}" th:text="${title.owner.userid}">aosborne</a></span>
-                                <a th:if="${title.agency != null}" class="agency" th:href="${@link.to(title.agency)}" th:text="${title?.agency?.organisation?.alias}">NLA</a>
+                                <span class="owner" th:if="${title.owner != null}"><a th:href="${link.to(title.owner)}" th:text="${title.owner.userid}">aosborne</a></span>
+                                <a th:if="${title.agency != null}" class="agency" th:href="${link.to(title.agency)}" th:text="${title?.agency?.organisation?.alias}">NLA</a>
                             </th:block>
                         </footer>
                     </div>

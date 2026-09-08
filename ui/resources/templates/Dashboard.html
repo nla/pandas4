@@ -28,7 +28,7 @@
         <h2>Flagged titles</h2>
         <ul>
             <li th:each="title : ${flaggedTitles}">
-                <a th:href="${@link.to(title)}" th:text="${title.name}"></a>
+                <a th:href="${link.to(title)}" th:text="${title.name}"></a>
             </li>
         </ul>
     </section>
@@ -44,7 +44,7 @@
                 <th:block th:text="${count == 1 ? 'collection' : 'collections'}">collections</th:block>:
                 <ul>
                     <li th:each="collection : ${period.collections}">
-                        <a th:href="${@link.to(collection)}" th:text="${collection.fullName}">A collection</a>
+                        <a th:href="${link.to(collection)}" th:text="${collection.fullName}">A collection</a>
                     </li>
                 </ul>
             </p>
@@ -54,7 +54,7 @@
                 <th:block th:text="${count == 1 ? 'website' : 'websites'}">websites</th:block>:
                 <ul>
                     <li th:each="title : ${period.websites}">
-                        <a th:href="${@link.to(title)}" th:text="${title.name}"></a>
+                        <a th:href="${link.to(title)}" th:text="${title.name}"></a>
                     </li>
                 </ul>
             </p>
@@ -64,7 +64,7 @@
                 <th:block th:text="${count == 1 ? 'website' : 'websites'}">websites</th:block>:
             <ul>
                 <li th:each="instanceEvent : ${period.instancesArchived}">
-                    <a th:href="${@link.toInstance(instanceEvent.instanceId())}" th:text="${instanceEvent.titleName}"></a>
+                    <a th:href="${link.toInstance(instanceEvent.instanceId())}" th:text="${instanceEvent.titleName}"></a>
                 </li>
             </ul>
             </p>
@@ -74,7 +74,7 @@
                 <th:block th:text="${count == 1 ? 'title' : 'titles'}">titles</th:block>:
                 <ul>
                     <li th:each="oh : ${period.transferredToUser}">
-                        <a th:href="${@link.to(oh.title)}" th:text="${oh.title.name}"></a>
+                        <a th:href="${link.to(oh.title)}" th:text="${oh.title.name}"></a>
                         <span th:text="'(from ' + ${oh.transferrer.userid} + ')'">(from userid)</span>
                     </li>
                 </ul>
@@ -85,7 +85,7 @@
                 <th:block th:text="${count == 1 ? 'title' : 'titles'}">titles</th:block>:
                 <ul>
                     <li th:each="oh : ${period.transferredFromUser}">
-                        <a th:href="${@link.to(oh.title)}" th:text="${oh.title.name}"></a>
+                        <a th:href="${link.to(oh.title)}" th:text="${oh.title.name}"></a>
                         <span th:text="'(to ' + ${oh.user.userid} + ')'">(to userid)</span>
                     </li>
                 </ul>

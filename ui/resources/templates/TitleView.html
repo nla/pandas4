@@ -75,14 +75,14 @@
         <h3>
             <th:block th:text="${title.name}">Example Title</th:block>
             <button th:with="isFlagged=${@userService.currentUser.flaggedTitles.contains(title)}"
-                    th:formaction="${isFlagged ? @link.unflag(title) : @link.flag(title)}"
+                    th:formaction="${isFlagged ? link.unflag(title) : link.flag(title)}"
                     type="submit" class="title-flag" th:classappend="${isFlagged} ? 'active'"></button>
         </h3>
         <span th:text="${title.getYearRange()}"></span>, <a th:if="${title.publisher}"
-                                                            th:href="${@link.to(title.publisher)}"
+                                                            th:href="${link.to(title.publisher)}"
                                                             th:text="${title.publisher.name}"></a><br>
         <br>
-        <a class="identifier-link" th:href="${@link.identifier(title)}">nla.arc-<span
+        <a class="identifier-link" th:href="${link.identifier(title)}">nla.arc-<span
                 th:text="${title.pi}"></span></a><br>
         <br>
         <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green" target="_blank"></a><br>
@@ -117,7 +117,7 @@
             Continues:
             <ul class="title-list">
                 <li th:each="entry: ${title.continues}">
-                    <a th:href="${@link.to(entry.ceased)}" th:text="${entry.ceased.name}"></a>
+                    <a th:href="${link.to(entry.ceased)}" th:text="${entry.ceased.name}"></a>
                     <time th:if="entry.date != null" th:datetime="${entry.date}" th:text="${@dateFormats.shortDate(entry.date)}"></time>
                 </li>
             </ul>
@@ -128,7 +128,7 @@
             Continued by:
             <ul class="title-list">
                 <li th:each="entry: ${title.continuedBy}">
-                    <a th:href="${@link.to(entry.continues)}" th:text="${entry.continues.name}">Next title</a>
+                    <a th:href="${link.to(entry.continues)}" th:text="${entry.continues.name}">Next title</a>
                     <time th:if="entry.date != null" th:datetime="${entry.date}" th:text="${@dateFormats.shortDate(entry.date)}"></time>
                 </li>
             </ul>
@@ -191,11 +191,11 @@
         <div>
             <h4>Owner</h4>
             <div th:if="${title.owner != null}">
-                Owner: <a th:href="${@link.to(title.owner)}" th:text="${title?.owner?.fullName}"></a>
-                <a th:href="${@link.to(title) + '/ownerhistory'}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
+                Owner: <a th:href="${link.to(title.owner)}" th:text="${title?.owner?.fullName}"></a>
+                <a th:href="${link.to(title) + '/ownerhistory'}" href="TitleOwnerHistory.html"><i class="icon history"></i></a>
                 <a th:href="@{|/titles/${title.id}/transfer|}"><i class="icon edit"></i></a>
             </div>
-            <div>Agency: <a th:href="${@link.to(title.agency)}" th:text="${title.agency.name}">National Library</a></div>
+            <div>Agency: <a th:href="${link.to(title.agency)}" th:text="${title.agency.name}">National Library</a></div>
             <div>Registered: <span th:text="${dateFormat.format(title.regDate)}"></span></div>
         </div>
 
@@ -207,7 +207,7 @@
                 <a th:if="${contactPerson.email != null}" th:href="@{|mailto:${contactPerson.email}|}" th:text="${contactPerson.email}"></a>
                 <a th:if="${contactPerson.phone != null}" th:href="@{|tel:${contactPerson.phone}|}" th:text="${contactPerson.phone}"></a>
                 <a th:if="${contactPerson.mobilePhone != null}" th:href="@{|tel:${contactPerson.mobilePhone}|}" th:text="${contactPerson.mobilePhone}"></a>
-                <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="${@link.edit(title, contactPerson)}"><i class="icon edit"></i></a>
+                <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="${link.edit(title, contactPerson)}"><i class="icon edit"></i></a>
             </div>
         </div>
 
@@ -223,7 +223,7 @@
                 <span th:text="${contactEvent.method != null ? contactEvent.method.name : ''}"></span>
                 <span th:text="${contactEvent.type != null ? contactEvent.type.name : ''}"></span>
                 <a th:if="${contactEvent.contactPerson != null}" th:text="${contactEvent.contactPerson.name}"
-                   th:href="${@link.edit(title, contactEvent.contactPerson)}"></a>
+                   th:href="${link.edit(title, contactEvent.contactPerson)}"></a>
                 <span th:if="${contactEvent.user != null}" th:text="${contactEvent.user.userid}"></span>
                 <span th:text="${contactEvent.note}"></span>
                 <a sec:authorize="hasPermission(#vars.title, 'edit')" th:href="@{|/titles/${title.id}/contact-events/${contactEvent.id}/edit|}"><i class="icon edit"></i></a>
@@ -241,7 +241,7 @@
             <section th:each="issueGroup: ${issueGroups}">
                 <h5 th:if="${issueGroup.name != '-None-'}" th:text="${issueGroup.name}">Issue Group</h5>
                 <ul>
-                    <li th:each="issue: ${issueGroup.issues}"><a th:href="${@link.delivery(issue)}" target="_blank" th:text="${issue.name}">Volume 1</a></li>
+                    <li th:each="issue: ${issueGroup.issues}"><a th:href="${link.delivery(issue)}" target="_blank" th:text="${issue.name}">Volume 1</a></li>
                 </ul>
             </section>
         </div>
@@ -258,7 +258,7 @@
                 <td class="instance-year" th:text="${year.key}">2021</td>
                 <td class="instance-list">
                     <a th:each="instance : ${year.value}"
-                       th:href="${@link.to(instance)}" th:class="${'instance-' + instance.state.name}">
+                       th:href="${link.to(instance)}" th:class="${'instance-' + instance.state.name}">
                         <!--suppress HtmlRequiredAltAttribute -->
                         <img src="#" th:src="@{|/instances/${instance.id}/thumbnail|}" alt="">
                         <div th:text="${instanceDateFormat.format(instance.date)}"></div>

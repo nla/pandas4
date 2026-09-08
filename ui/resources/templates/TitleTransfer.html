@@ -28,12 +28,12 @@
     <form method=post id=form class=form th:action="@{''}">
         <fieldset>
             <div>
-                <a th:href="${@link.to(title)}"><img th:src="${@link.thumbnail(title)}" width="150" height="100" alt=""></a>
+                <a th:href="${link.to(title)}"><img th:src="${link.thumbnail(title)}" width="150" height="100" alt=""></a>
                 <div>
                     <table class="current-details-table">
-                        <tr><th>Title:</th><td><a th:text="${title.name}" th:href="${@link.to(title)}">Example title</a> <span th:text="${'(nla.arc-' + title.pi + ')'}">(nla.arc-1234)</span></td>
-                        <tr><th>Agency:</th><td><a th:if="${title.agency != null}" th:text="${title.agency.name}" th:href="${@link.to(title.agency)}">Example agency</a></td></tr>
-                        <tr><th>Owner:</th><td><a th:if="${title.owner != null}" th:text="${title.owner.fullName}" th:href="${@link.to(title.owner)}">Example owner</a></td></tr>
+                        <tr><th>Title:</th><td><a th:text="${title.name}" th:href="${link.to(title)}">Example title</a> <span th:text="${'(nla.arc-' + title.pi + ')'}">(nla.arc-1234)</span></td>
+                        <tr><th>Agency:</th><td><a th:if="${title.agency != null}" th:text="${title.agency.name}" th:href="${link.to(title.agency)}">Example agency</a></td></tr>
+                        <tr><th>Owner:</th><td><a th:if="${title.owner != null}" th:text="${title.owner.fullName}" th:href="${link.to(title.owner)}">Example owner</a></td></tr>
                     </table>
                 </div>
             </div>

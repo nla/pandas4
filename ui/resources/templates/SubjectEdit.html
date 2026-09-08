@@ -36,7 +36,7 @@
             <input id="removeIcon" name="removeIcon" value="false" type=hidden>
             <div>
                 <div style="text-align: center">
-                    <img id=iconPreview th:src="${@link.icon(subject)}" th:if="${subject.icon != null}"><br>
+                    <img id=iconPreview th:src="${link.icon(subject)}" th:if="${subject.icon != null}"><br>
                     <input type=button value=Remove id=removeIconButton th:style="${subject.icon == null ? 'display: none' : ''}">
                 </div>
                 <div style="align-self: end">

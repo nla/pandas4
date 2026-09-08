@@ -33,7 +33,7 @@
                 <a th:href="@{/collections/{id}(id=${breadcrumb.id})}" th:text="${breadcrumb.name}">Australian
                     Broadcasting Corporation (ABC)</a>
             </li>
-            <li><a th:href="${@link.to(collection)}" th:text="${collection.name}">Television shows</a>
+            <li><a th:href="${link.to(collection)}" th:text="${collection.name}">Television shows</a>
                 <span th:if="${collection.timeFrame != null}" th:text="'(' + ${collection.timeFrame} + ')'" class="time-frame"/>
             </li>
             <li class="active">Add websites</li>

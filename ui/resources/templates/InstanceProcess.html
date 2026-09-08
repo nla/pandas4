@@ -81,7 +81,7 @@
                 <button th:unless="${nextInstance}" class="btn btn-secondary" disabled>❭</button>
             </nav>
             <nav class="btn-toolbar">
-                <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:href="${@link.edit(instance.title)}"
+                <a sec:authorize="hasPermission(#vars.instance.title, 'edit')" th:href="${link.edit(instance.title)}"
                    class="btn btn-secondary"><i class="icon edit"></i> Edit Title</a>
                 <span class="btn-group" sec:authorize="hasPermission(#vars.instance.title, 'edit')"
                       th:if="${instance.canDelete()}">
@@ -127,63 +127,63 @@
     <nav class="breadcrumb">
         <ol>
             <li>
-                <a th:href="${@link.to(instance.title)}" href="TitleView.html"
+                <a th:href="${link.to(instance.title)}" href="TitleView.html"
                    th:text="${#strings.abbreviate(instance.title.name, 100)}">My cool title</a>
                 <button th:with="isFlagged=${@userService.currentUser.flaggedTitles.contains(instance.title)}"
-                        th:formaction="${isFlagged ? @link.unflag(instance.title) : @link.flag(instance.title)}"
+                        th:formaction="${isFlagged ? link.unflag(instance.title) : link.flag(instance.title)}"
                         type="submit" class="title-flag" th:classappend="${isFlagged} ? 'active'"></button>
             </li>
             <li><span th:text="${instance.gatherMethodName}"></span> gather from
 
                 <span class="prev-instances-container">
-                    <a href="#" th:href="${@link.to(instance.title)}">
+                    <a href="#" th:href="${link.to(instance.title)}">
                         <strong th:text="${@dateFormats.dayDate.format(instance.date)}">Wednesday, 5 May 2021</strong>
                         at <strong th:text="${@dateFormats.time.format(instance.date)}">1:20 am</strong></a>
                     <div class="prev-instances-popup">
                         <strong>Other recent gathers:</strong><br>
-                        <a th:each="instance : ${previousInstances}" th:href="${@link.to(instance)}"
+                        <a th:each="instance : ${previousInstances}" th:href="${link.to(instance)}"
                            th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)}"><img
-                                th:src="${@link.thumbnail(instance, 'REPLAY')}" width="200" height="150"></a>
+                                th:src="${link.thumbnail(instance, 'REPLAY')}" width="200" height="150"></a>
                     </div>
                 </span>
             </li>
         </ol>
         <span class="crawl-stats">
-            <a th:href="${@link.files(instance)}"><span
+            <a th:href="${link.files(instance)}"><span
                     th:text="${#numbers.formatInteger(instance.gather.files, 0, 'COMMA')}"></span> files</a>,
             <span th:text="${instance.gather == null || instance.gather.size == null ? '' : T(org.apache.commons.io.FileUtils).byteCountToDisplaySize(instance.gather.size)}"></span>,
             <span th:text="${instance?.gather?.timeHuman}"></span>
         </span>
         <div class="under-breadcrumbs">
-            <a th:text="${instance.humanId}" th:href="${@link.to(instance)}">nla.arc-186737-20210824-1143</a>
+            <a th:text="${instance.humanId}" th:href="${link.to(instance)}">nla.arc-186737-20210824-1143</a>
             · <th:block th:replace="~{TitleSearch.html :: title-card-footer}"></th:block>
         </div>
     </nav>
 
     <div class="alert-error" th:if="${!instance.state.isGathered()}">
         This instance <th:strong th:text="${instance.state.wording}">has been archived</th:strong>.
-        <a th:if="${instance.state.isArchived()}" th:href="${@link.delivery(instance)}"
+        <a th:if="${instance.state.isArchived()}" th:href="${link.delivery(instance)}"
            target="_blank">View in Trove</a>
     </div>
 
     <div th:if="${instance.state.isGathered()}"
          style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center">
         <nav class="btn-group">
-            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance)}" target=replay-frame
+            <a class="btn btn-secondary btn-compact" th:href="${instanceUrls.qa(instance)}" target=replay-frame
                title="Homepage (H)" data-keybind="h"><i class="icon home"></i></a>
-            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.crawlLog(instance)}" target=replay-frame
+            <a class="btn btn-secondary btn-compact" th:href="${instanceUrls.crawlLog(instance)}" target=replay-frame
                title="Crawl Log (L)" data-keybind="l"><i class="icon log"></i></a>
-            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.reports(instance)}" target=replay-frame
+            <a class="btn btn-secondary btn-compact" th:href="${instanceUrls.reports(instance)}" target=replay-frame
                title="Crawl Reports (R)" th:unless="${instance.isFlatFiles()}" data-keybind="r"><i class="icon fact_check"></i></a>
-            <a class="btn btn-secondary btn-compact" th:href="${@instanceUrls.qa(instance, '/robots.txt')}"
+            <a class="btn btn-secondary btn-compact" th:href="${instanceUrls.qa(instance, '/robots.txt')}"
                target=replay-frame title="Robots.txt (T)" data-keybind="t"
                th:unless="${instance.isFlatFiles()}"><i class="icon robot"></i></a>
         </nav>
         <input id="url-bar" style="flex-grow: 1; margin-left: 8px;" th:value="${instance.gatheredUrl}">
         <nav style="margin-left: 4px">
             <a id="openInNewTabButton" class="btn btn-secondary btn-compact" href="#" target=_blank title="Open in New Tab"
-               th:href="${@instanceUrls.qa(instance)}"
-               th:data-baseurl="${@instanceUrls.qaReplayBase(instance)}"><i class="icon open_in_full"></i></a>
+               th:href="${instanceUrls.qa(instance)}"
+               th:data-baseurl="${instanceUrls.qaReplayBase(instance)}"><i class="icon open_in_full"></i></a>
             <button id="toggleScreenshotSidebar" class="btn btn-secondary btn-compact btn-pressed"><i class="icon image"></i></button>
         </nav>
     </div>
@@ -230,15 +230,15 @@
             <canvas id="sizeChart" width="150px" height="100px"></canvas>
 
             <strong>Live</strong><br>
-            <a th:href="${instance.title.titleUrl}" target="_blank"><img th:src="${@link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
+            <a th:href="${instance.title.titleUrl}" target="_blank"><img th:src="${link.thumbnail(instance, 'LIVE')}" width=150 height=100></a>
             <section th:unless="${previousInstances.isEmpty()}">
                 <strong>Previous</strong>
                 <div th:each="instance : ${previousInstances}" >
-                    <a th:href="${@link.delivery(instance)}" target="_blank"
+                    <a th:href="${link.delivery(instance)}" target="_blank"
                        th:title="${@dateFormats.DAY_DATE_TIME.format(instance.date)} + '&#10;' + ${instance.gather?.stats ?: ''}">
-                        <img th:src="${@link.thumbnail(instance, 'REPLAY')}" width="150" height="100">
+                        <img th:src="${link.thumbnail(instance, 'REPLAY')}" width="150" height="100">
                     </a>
-                    <a th:href="${@link.to(instance)}"><datetime th:text="${@dateFormats.shortDate.format(instance.date)}">1 Jan 2012</datetime></a>
+                    <a th:href="${link.to(instance)}"><datetime th:text="${@dateFormats.shortDate.format(instance.date)}">1 Jan 2012</datetime></a>
                 </div>
                 <img th:remove="all" width="150" height="100">
                 <img th:remove="all" width="150" height="100">

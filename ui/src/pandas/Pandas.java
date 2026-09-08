@@ -4,7 +4,6 @@ import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -17,7 +16,7 @@ import pandas.core.PandasPermissionEvaluator;
 
 import java.net.http.HttpClient;
 
-@SpringBootApplication(exclude = ElasticsearchRestClientAutoConfiguration.class)
+@SpringBootApplication
 @EnableScheduling
 @EnableJpaAuditing(auditorAwareRef = "userService")
 @EnableMethodSecurity

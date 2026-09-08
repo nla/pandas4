@@ -1,11 +1,5 @@
 package pandas.core;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 import pandas.agency.Agency;
 import pandas.agency.AgencySummary;
@@ -23,44 +17,27 @@ import java.time.Instant;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.web.util.UriUtils.encodePathSegment;
 
-@Service
 public class Link {
+    private final LinkProperties properties;
+    private final String contextPath;
+    private final String absoluteContextPath;
 
-    @Value("${pandas.deliveryBaseUrl:https://webarchive.nla.gov.au/awa/}")
-    private String deliveryBaseUrl = "https://webarchive.nla.gov.au/awa/";
-
-    @Value("${pandas.collectionIdentifierBaseUrl:https://nla.gov.au/nla.arc-c}")
-    private String collectionIdentifierBaseUrl = "https://nla.gov.au/nla.arc-c";
-
-    @Value("${pandas.titleIdentifierBaseUrl:https://nla.gov.au/nla.arc-}")
-    private String titleIdentifierBaseUrl = "https://nla.gov.au/nla.arc-";
-
-    @Value("${pandas.webdavBaseUrl:https://pandas.nla.gov.au/dav/}")
-    private String webdavBaseUrl;
-
-    @Value("${pandas.ftpBaseUrl:ftp://pandas-ftp.nla.gov.au/working/}")
-    private String ftpBaseUrl;
-
-    private final String bambooBaseUrl;
-
-    public Link(Config config) {
-        this.bambooBaseUrl = config.getBambooUrl().replaceFirst("/+$", "");
+    Link(LinkProperties properties, String contextPath, String absoluteContextPath) {
+        this.properties = properties;
+        this.contextPath = contextPath.replaceFirst("/+$", "");
+        this.absoluteContextPath = absoluteContextPath.replaceFirst("/+$", "");
     }
 
     private String link(String path) {
-        return servletRequest().getContextPath().replaceFirst("/+$", "") + path;
-    }
-
-    private HttpServletRequest servletRequest() {
-        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        return contextPath + path;
     }
 
     public String checkSessionReply() {
-        return ServletUriComponentsBuilder.fromContextPath(servletRequest()).path("/login/check-session-reply").toUriString();
+        return absoluteContextPath + "/login/check-session-reply";
     }
 
     public String delivery(Instant date, String url) {
-        return deliveryBaseUrl + (date == null ? "*" : DateFormats.ARC_DATE.format(date)) + "/" + url;
+        return properties.deliveryBaseUrl() + (date == null ? "*" : DateFormats.ARC_DATE.format(date)) + "/" + url;
     }
 
     public String delivery(Instance instance) {
@@ -84,19 +61,19 @@ public class Link {
     }
 
     public String identifier(Collection collection) {
-        return collectionIdentifierBaseUrl + collection.getId();
+        return properties.collectionIdentifierBaseUrl() + collection.getId();
     }
 
     public String identifier(Title title) {
-        return titleIdentifierBaseUrl + title.getPi();
+        return properties.titleIdentifierBaseUrl() + title.getPi();
     }
 
     public String webdav(Instance instance) {
-        return webdavBaseUrl + instance.getPi() + "/" + instance.getDateString();
+        return properties.webdavBaseUrl() + instance.getPi() + "/" + instance.getDateString();
     }
 
     public String ftp(Instance instance) {
-        return ftpBaseUrl + instance.getPi() + "/" + instance.getDateString();
+        return properties.ftpBaseUrl() + instance.getPi() + "/" + instance.getDateString();
     }
 
     public String edit(Agency agency) {
@@ -224,11 +201,11 @@ public class Link {
     }
 
     public String toBambooCrawl(long crawlId) {
-        return bambooBaseUrl + "/crawls/" + crawlId;
+        return properties.bambooBaseUrl() + "/crawls/" + crawlId;
     }
 
     public String toBambooWarc(String filename) {
-        return bambooBaseUrl + "/warcs/" + UriUtils.encodePathSegment(filename, UTF_8) + "/details";
+        return properties.bambooBaseUrl() + "/warcs/" + UriUtils.encodePathSegment(filename, UTF_8) + "/details";
     }
 
     public String unflag(TitleRef title) {
