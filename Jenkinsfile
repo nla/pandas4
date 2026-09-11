@@ -9,7 +9,7 @@ def isMaster = env.BRANCH_NAME == 'master'
 def isTag = env.TAG_NAME || env.BRANCH_NAME ==~ /^tags\/.+/
 
 if (isMaster || isTag) {
-    node {
+    node('spade') {
         stage('Build and push OCI images') {
             checkout scm
 
