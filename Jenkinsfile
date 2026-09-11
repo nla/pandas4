@@ -32,7 +32,9 @@ if (isMaster || isTag) {
                     'CONTAINER_REGISTRY=container-registry.prod.nla.gov.au',
                     "IMAGE_VERSION=${version}",
                     'JAVA_HOME=/usr/lib/jvm/java-17',
-                    'PATH+JAVA=/usr/lib/jvm/java-17/bin'
+                    'PATH+JAVA=/usr/lib/jvm/java-17/bin',
+                    'NO_PROXY=localhost,127.0.0.1,.nla.gov.au',
+                    'no_proxy=localhost,127.0.0.1,.nla.gov.au'
                 ]) {
                     sh '''
                         set -eu
