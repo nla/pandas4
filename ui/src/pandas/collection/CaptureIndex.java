@@ -63,6 +63,24 @@ public class CaptureIndex {
         return captures;
     }
 
+    /**
+     * Fetches the latest successful capture without downloading the complete CDX result set.
+     */
+    public Optional<Capture> latestSuccessful(String url) {
+        if (baseUrl == null || baseUrl.isEmpty()) throw new IllegalStateException("CDX_URL not configured");
+
+        String queryUrl = baseUrl + "?url=" + URLEncoder.encode(url, UTF_8) +
+                "&omitSelfRedirects=false&filter=!status:[45]..&sort=reverse&limit=1";
+        try (var reader = new BufferedReader(new InputStreamReader(new URL(queryUrl).openStream(), UTF_8))) {
+            String line = reader.readLine();
+            return line == null ? Optional.empty() : Optional.of(new Capture(line));
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public List<CaptureGroup> queryGrouped(String q) {
         List<CaptureGroup> groups = new ArrayList<>();
         Capture firstInGroup = null;

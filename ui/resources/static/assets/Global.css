@@ -428,6 +428,23 @@ button.btn-danger:hover:enabled, a.btn-danger:hover {
     margin: 2px 0;
 }
 
+.split-menu.compact-menu .btn {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    min-width: 0;
+    padding: 0 10px;
+    border: 0;
+    border-radius: .2rem;
+    background: transparent;
+    color: var(--color-black);
+}
+
+.split-menu.compact-menu .btn:hover {
+    background: var(--color-gray-eee);
+    color: var(--color-black);
+}
+
 .btn-group .split-toggle {
     min-width: 32px;
     padding: 0 8px;

@@ -13,6 +13,8 @@ import pandas.core.Utils;
 import pandas.gather.*;
 import pandas.util.Strings;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
@@ -88,6 +90,56 @@ public class TitleService {
         form.setTitlePermission(new PermissionEditForm());
         form.setActiveProfile(profileRepository.findFirstByIsDefaultIsTrue());
         return form;
+    }
+
+    /**
+     * Creates a nominated title from the minimal staff nomination form while preserving the normal title defaults.
+     */
+    @Transactional
+    @PreAuthorize("hasPermission(null, 'Title', 'edit')")
+    public Title nominate(Set<Collection> collections, String seedUrl, String name, String notes, User user) {
+        if (collections.isEmpty()) {
+            throw new IllegalArgumentException("Choose at least one collection");
+        }
+        if (collections.stream().anyMatch(Collection::isAncestorClosed)) {
+            throw new IllegalArgumentException("A collection is closed to new additions");
+        }
+
+        String normalizedUrl = normalizeNominationUrl(seedUrl);
+        String normalizedName = Strings.clean(name);
+        if (normalizedName == null) {
+            normalizedName = URI.create(normalizedUrl).getHost();
+        }
+
+        TitleEditForm form = newTitleForm(collections, Set.of());
+        form.setSeedUrls(normalizedUrl);
+        form.setName(normalizedName);
+        form.setNotes(notes);
+        form.setStatus(Status.NOMINATED);
+        return save(form, user);
+    }
+
+    public static String normalizeNominationUrl(String seedUrl) {
+        if (seedUrl == null || seedUrl.isBlank()) {
+            throw new IllegalArgumentException("Enter a URL");
+        }
+
+        String normalized = seedUrl.trim();
+        if (!normalized.matches("^[A-Za-z][A-Za-z0-9+.-]*://.*$")) {
+            normalized = "http://" + normalized;
+        }
+
+        try {
+            URI uri = new URI(normalized).normalize();
+            String scheme = uri.getScheme();
+            if (scheme == null || !(scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https")) ||
+                    uri.getHost() == null) {
+                throw new IllegalArgumentException("Enter a valid HTTP or HTTPS URL");
+            }
+            return uri.toString();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Enter a valid HTTP or HTTPS URL", e);
+        }
     }
 
     @Transactional
