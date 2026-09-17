@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="|${collection.fullName} - PANDAS|">Television shows (Collection) - PANDAS</title>
@@ -11,10 +11,24 @@
     <header>
         <nav>
             <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary" data-keybind="e"><i class="icon edit"></i> Edit collection</a>
-            <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html" class="btn btn-secondary"
-               data-keybind="t" th:unless="${collection.ancestorClosed}"><i class="icon title"></i> Add a website</a>
-            <a th:href="@{/titles/bulkadd(collection=${collection.id})}" href="TitleBulkAdd.html" class="btn btn-secondary"
-               data-keybind="t" th:unless="${collection.ancestorClosed}"><i class="icon add_list"></i> Bulk add websites</a>
+            <span class="button-menu" th:unless="${collection.ancestorClosed}" sec:authorize="hasRole('stduser')">
+                <span class="btn-group">
+                    <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html"
+                       class="btn btn-secondary" data-keybind="t"><i class="icon title"></i> Add a website</a>
+                    <button type="button" class="btn btn-secondary split-toggle"
+                            aria-haspopup="true" aria-expanded="false" aria-label="More ways to add websites">▾</button>
+                </span>
+                <span class="split-menu compact-menu">
+                    <a th:href="@{/nominate(collection=${collection.id})}" href="NominationForm.html"
+                       class="btn btn-secondary">Nominate a website</a>
+                    <a th:href="@{/titles/bulkadd(collection=${collection.id})}" href="TitleBulkAdd.html"
+                       class="btn btn-secondary">Bulk add websites</a>
+                </span>
+            </span>
+            <a th:href="@{/nominate(collection=${collection.id})}" href="NominationForm.html"
+               class="btn btn-secondary" data-keybind="t" th:unless="${collection.ancestorClosed}"
+               sec:authorize="!hasRole('stduser') and hasAuthority('PRIV_NOMINATE_TITLES')"><i
+                    class="icon title"></i> Nominate a website</a>
             <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary" data-keybind="c"><i class="icon collection"></i>
                 <th:block th:text="'Create a sub' + ${collection.depthPrefix} + 'collection'"></th:block></a>
         </nav>

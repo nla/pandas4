@@ -488,6 +488,20 @@ public class Title implements TitleRef {
         return owner;
     }
 
+    /**
+     * The user who first owned this title. For nominations this is the
+     * nominator; later ownership transfers do not change the value.
+     */
+    @IndexedEmbedded(includePaths = {"id", "nameGiven", "nameFamily", "userid"})
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "ownerHistories"))})
+    public User getNominator() {
+        return ownerHistories.stream()
+                .min(Comparator.comparing(OwnerHistory::getDate))
+                .map(OwnerHistory::getUser)
+                .orElse(null);
+    }
+
     public Status getStatus() {
         return status;
     }
