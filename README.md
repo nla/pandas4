@@ -1,12 +1,12 @@
 PANDAS 4
 ========
 
-The fourth-generation of the PANDAS web archiving workflow system. While open source
-this is not yet documented or packaged for use outside our (NLA) 
-infrastructure.
+PANDAS 4 is the fourth generation of the National Library of Australia’s web archiving workflow system. It provides curators with tools for website selection, collection building, scheduled crawling, and quality assurance using web crawlers such as Heritrix, Browsertrix, and HTTrack.
 
-PANDAS provides a user interface for curators to perform website selection, collection building,
-scheduled crawling and quality assuarance using various web crawlers (Heritrix, Browsertrix, HTTrack).
+<img width="200" align=top src="https://github.com/user-attachments/assets/a6333809-b4d2-4dca-99b6-e601c45ce314" />
+<img width="200" align=top src="https://github.com/user-attachments/assets/d8a8e15f-6069-4e44-847b-b5e8a17555ad" />
+<img width="200" align=top src="https://github.com/user-attachments/assets/ec573d2d-01f6-464b-998c-0e665a4c48e6" />
+<img width="200" align=top src="https://github.com/user-attachments/assets/30100e91-f6c9-4cc7-9635-c55d0dba87b2" />
 
 ## Features
 
