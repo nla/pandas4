@@ -20,7 +20,7 @@
                 </span>
                 <span class="split-menu compact-menu">
                     <a th:href="@{/nominate(collection=${collection.id})}" href="NominationForm.html"
-                       class="btn btn-secondary">Nominate a website for archiving</a>
+                       class="btn btn-secondary">Nominate a website</a>
                     <a th:href="@{/titles/bulkadd(collection=${collection.id})}" href="TitleBulkAdd.html"
                        class="btn btn-secondary">Bulk add websites</a>
                 </span>
@@ -28,7 +28,7 @@
             <a th:href="@{/nominate(collection=${collection.id})}" href="NominationForm.html"
                class="btn btn-secondary" data-keybind="t" th:unless="${collection.ancestorClosed}"
                sec:authorize="!hasRole('stduser') and hasAuthority('PRIV_NOMINATE_TITLES')"><i
-                    class="icon title"></i> Nominate a website for archiving</a>
+                    class="icon title"></i> Nominate a website</a>
             <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary" data-keybind="c"><i class="icon collection"></i>
                 <th:block th:text="'Create a sub' + ${collection.depthPrefix} + 'collection'"></th:block></a>
         </nav>

@@ -18,6 +18,7 @@ import pandas.agency.UserService;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,9 +48,13 @@ public class NominationController {
     public String form(@RequestParam(required = false, name = "collection") List<Long> collectionIds,
                        @RequestParam(required = false) Long parent,
                        Model model) {
-        List<Collection> collections = requireOpenFixedCollections(collectionIds, parent);
-        addCollectionsToModel(model, collections);
-        model.addAttribute("form", new NominationForm());
+        CollectionScope scope = requireOpenCollectionScope(collectionIds, parent);
+        NominationForm form = new NominationForm();
+        if (!scope.requiresSelection()) {
+            form.setCollectionId(scope.choices().get(0).collection().getId());
+        }
+        addCollectionsToModel(model, scope);
+        model.addAttribute("form", form);
         return "NominationForm";
     }
 
@@ -60,8 +65,23 @@ public class NominationController {
                          @Valid @ModelAttribute("form") NominationForm form,
                          BindingResult bindingResult,
                          Model model) {
-        List<Collection> collections = requireOpenFixedCollections(collectionIds, parent);
-        addCollectionsToModel(model, collections);
+        CollectionScope scope = requireOpenCollectionScope(collectionIds, parent);
+        addCollectionsToModel(model, scope);
+
+        Collection selectedCollection = null;
+        if (form.getCollectionId() == null && !scope.requiresSelection()) {
+            selectedCollection = scope.choices().get(0).collection();
+            form.setCollectionId(selectedCollection.getId());
+        } else if (form.getCollectionId() == null) {
+            bindingResult.rejectValue("collectionId", "required", "Select a collection");
+        } else {
+            selectedCollection = scope.choices().stream()
+                    .map(CollectionChoice::collection)
+                    .filter(collection -> collection.getId().equals(form.getCollectionId()))
+                    .findFirst()
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Selected collection is not available through this nomination link"));
+        }
 
         if (!bindingResult.hasFieldErrors("seedUrl")) {
             try {
@@ -75,7 +95,7 @@ public class NominationController {
             return "NominationForm";
         }
 
-        Title title = titleService.nominate(new LinkedHashSet<>(collections), form.getSeedUrl(), form.getName(), form.getContext(),
+        Title title = titleService.nominate(new LinkedHashSet<>(List.of(selectedCollection)), form.getSeedUrl(), form.getName(), form.getContext(),
                 userService.getCurrentUser());
         return "redirect:/titles/" + title.getId();
     }
@@ -106,7 +126,7 @@ public class NominationController {
     public record NominationUrlCheck(boolean existingTitle, LatestSnapshot latestSnapshot) {}
     public record LatestSnapshot(Instant date, String url) {}
 
-    private List<Collection> requireOpenFixedCollections(List<Long> collectionIds, Long parentId) {
+    private CollectionScope requireOpenCollectionScope(List<Long> collectionIds, Long parentId) {
         if ((collectionIds == null || collectionIds.isEmpty()) && parentId != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Parent collection nomination links are not implemented yet");
@@ -117,20 +137,57 @@ public class NominationController {
         }
 
         Set<Long> uniqueIds = new LinkedHashSet<>(collectionIds);
-        List<Collection> collections = uniqueIds.stream().map(collectionId ->
+        List<Collection> roots = uniqueIds.stream().map(collectionId ->
                 collectionRepository.findById(collectionId)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Collection not found: " + collectionId))).toList();
-        if (collections.stream().anyMatch(Collection::isAncestorClosed)) {
+        if (roots.stream().anyMatch(Collection::isAncestorClosed)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A collection is closed to new additions");
         }
-        return collections;
+
+        List<Collection> availableCollections = new ArrayList<>();
+        Set<Long> visited = new LinkedHashSet<>();
+        for (Collection root : roots) {
+            addOpenDescendants(root, availableCollections, visited);
+        }
+
+        List<CollectionChoice> choices;
+        if (roots.size() == 1 && availableCollections.size() > 1) {
+            String parentPrefix = roots.get(0).getFullName() + "—";
+            choices = availableCollections.subList(1, availableCollections.size()).stream()
+                    .map(collection -> new CollectionChoice(collection,
+                            collection.getFullName().substring(parentPrefix.length())))
+                    .toList();
+        } else {
+            choices = availableCollections.stream()
+                    .map(collection -> new CollectionChoice(collection, collection.getFullName()))
+                    .toList();
+        }
+        return new CollectionScope(roots, choices, roots.size() > 1 || availableCollections.size() > 1);
     }
 
-    private void addCollectionsToModel(Model model, List<Collection> collections) {
+    private void addOpenDescendants(Collection collection, List<Collection> options, Set<Long> visited) {
+        if (collection.isAncestorClosed() || !visited.add(collection.getId())) {
+            return;
+        }
+        options.add(collection);
+        for (Collection child : collectionRepository.findByParentOrderByName(collection)) {
+            addOpenDescendants(child, options, visited);
+        }
+    }
+
+    private void addCollectionsToModel(Model model, CollectionScope scope) {
+        List<Collection> collections = scope.roots();
         model.addAttribute("collections", collections);
+        model.addAttribute("collectionChoices", scope.choices());
+        model.addAttribute("collectionSelectionRequired", scope.requiresSelection());
         model.addAttribute("collectionNames",
                 String.join(", ", collections.stream().map(Collection::getFullName).toList()));
         model.addAttribute("primaryCollection", collections.get(0));
     }
+
+    private record CollectionChoice(Collection collection, String label) {}
+
+    private record CollectionScope(List<Collection> roots, List<CollectionChoice> choices,
+                                   boolean requiresSelection) {}
 }

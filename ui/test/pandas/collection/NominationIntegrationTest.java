@@ -35,6 +35,8 @@ class NominationIntegrationTest extends IntegrationTest {
     @Autowired
     private TitleRepository titleRepository;
     @Autowired
+    private SubjectRepository subjectRepository;
+    @Autowired
     private UserRepository userRepository;
     @MockitoBean
     private TitleSearcher titleSearcher;
@@ -51,6 +53,7 @@ class NominationIntegrationTest extends IntegrationTest {
                 .andExpect(content().string(containsString("Nomination form collection")))
                 .andExpect(content().string(containsString("See your previous nominations")))
                 .andExpect(content().string(containsString("nominator=")))
+                .andExpect(content().string(not(containsString("Choose a collection"))))
                 .andExpect(content().string(not(containsString("Website name"))));
     }
 
@@ -62,6 +65,7 @@ class NominationIntegrationTest extends IntegrationTest {
         mockMvc.perform(post("/nominate")
                         .with(csrf())
                         .param("collection", firstCollection.getId().toString(), secondCollection.getId().toString())
+                        .param("collectionId", secondCollection.getId().toString())
                         .param("seedUrl", "example.net/path")
                         .param("context", "Useful context for the reviewer"))
                 .andExpect(status().is3xxRedirection())
@@ -75,13 +79,105 @@ class NominationIntegrationTest extends IntegrationTest {
         assertEquals(nominator, title.getOwner());
         assertEquals(nominator, title.getNominator());
         assertEquals(nominator.getAgency(), title.getAgency());
-        assertEquals(2, title.getCollections().size());
-        assertEquals(Set.of(firstCollection, secondCollection), title.getCollections());
+        assertEquals(Set.of(secondCollection), title.getCollections());
         assertFalse(title.getOwnerHistories().isEmpty());
         assertEquals(nominator, title.getOwnerHistories().get(0).getUser());
         assertFalse(title.getStatusHistories().isEmpty());
         assertEquals(Status.NOMINATED, title.getStatusHistories().get(0).getStatus());
         assertEquals(nominator, title.getStatusHistories().get(0).getUser());
+    }
+
+    @Test
+    void copiesSelectedCollectionSubjectsToNominatedTitle() throws Exception {
+        Subject subject = new Subject();
+        subject.setName("Nomination subject");
+        subject = subjectRepository.save(subject);
+        Collection root = collection("Subject nomination root", false);
+        Collection selectedCollection = childCollection(root, "Subject nomination target", false);
+        selectedCollection.getSubjects().add(subject);
+        collectionRepository.save(selectedCollection);
+
+        mockMvc.perform(post("/nominate")
+                        .with(csrf())
+                        .param("collection", root.getId().toString())
+                        .param("collectionId", selectedCollection.getId().toString())
+                        .param("seedUrl", "https://subject.example.org"))
+                .andExpect(status().is3xxRedirection());
+
+        Title title = titleRepository.findByTitleUrlIn(List.of("https://subject.example.org")).get(0);
+        assertEquals(Set.of(subject), title.getSubjects());
+    }
+
+    @Test
+    void allowsSelectingARootOrDescendantCollection() throws Exception {
+        Collection firstRoot = collection("First selectable root", false);
+        Collection child = childCollection(firstRoot, "Child destination", false);
+        Collection grandchild = childCollection(child, "Grandchild destination", false);
+        Collection secondRoot = collection("Second selectable root", false);
+
+        mockMvc.perform(get("/nominate")
+                        .param("collection", firstRoot.getId().toString(), secondRoot.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("<label for=collectionId>Collection</label>")))
+                .andExpect(content().string(containsString("<option value=\"\"></option>")))
+                .andExpect(content().string(containsString(option(firstRoot, firstRoot.getFullName()))))
+                .andExpect(content().string(containsString(option(child, child.getFullName()))))
+                .andExpect(content().string(containsString(option(grandchild, grandchild.getFullName()))))
+                .andExpect(content().string(containsString(option(secondRoot, secondRoot.getFullName()))));
+
+        mockMvc.perform(post("/nominate")
+                        .with(csrf())
+                        .param("collection", firstRoot.getId().toString(), secondRoot.getId().toString())
+                        .param("collectionId", grandchild.getId().toString())
+                        .param("seedUrl", "https://descendant.example.org"))
+                .andExpect(status().is3xxRedirection());
+
+        Title title = titleRepository.findByTitleUrlIn(List.of("https://descendant.example.org")).get(0);
+        assertEquals(Set.of(grandchild), title.getCollections());
+    }
+
+    @Test
+    void showsCollectionDropdownForASingleRootWithChildren() throws Exception {
+        Collection root = collection("Parent nomination target", false);
+        Collection child = childCollection(root, "Specific nomination target", false);
+        Collection grandchild = childCollection(child, "Narrow nomination target", false);
+
+        mockMvc.perform(get("/nominate").param("collection", root.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("<label for=collectionId>Subcollection</label>")))
+                .andExpect(content().string(containsString("<option value=\"\"></option>")))
+                .andExpect(content().string(not(containsString(option(root, root.getFullName())))))
+                .andExpect(content().string(containsString(option(child, "Specific nomination target"))))
+                .andExpect(content().string(containsString(option(grandchild,
+                        "Specific nomination target—Narrow nomination target"))));
+    }
+
+    @Test
+    void requiresAndValidatesSelectedCollection() throws Exception {
+        Collection allowedRoot = collection("Allowed nomination root", false);
+        childCollection(allowedRoot, "Allowed nomination child", false);
+        Collection unrelated = collection("Unrelated nomination target", false);
+
+        mockMvc.perform(post("/nominate")
+                        .with(csrf())
+                        .param("collection", allowedRoot.getId().toString())
+                        .param("seedUrl", "https://missing-selection.example.org"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Select a collection")));
+
+        mockMvc.perform(post("/nominate")
+                        .with(csrf())
+                        .param("collection", allowedRoot.getId().toString())
+                        .param("collectionId", allowedRoot.getId().toString())
+                        .param("seedUrl", "https://parent-selection.example.org"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/nominate")
+                        .with(csrf())
+                        .param("collection", allowedRoot.getId().toString())
+                        .param("collectionId", unrelated.getId().toString())
+                        .param("seedUrl", "https://invalid-selection.example.org"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -167,5 +263,17 @@ class NominationIntegrationTest extends IntegrationTest {
         collection.setName(name);
         collection.setClosed(closed);
         return collectionRepository.save(collection);
+    }
+
+    private Collection childCollection(Collection parent, String name, boolean closed) {
+        Collection child = new Collection();
+        child.setName(name);
+        child.setClosed(closed);
+        child.setParent(parent);
+        return collectionRepository.save(child);
+    }
+
+    private String option(Collection collection, String label) {
+        return "<option value=\"" + collection.getId() + "\">" + label + "</option>";
     }
 }

@@ -44,6 +44,7 @@
         }
 
         .nomination-form input,
+        .nomination-form select,
         .nomination-form textarea {
             width: 100%;
             box-sizing: border-box;
@@ -55,6 +56,12 @@
         .nomination-form input {
             height: 40px;
             padding: 8px 10px;
+        }
+
+        .nomination-form select {
+            height: 40px;
+            padding: 6px 10px;
+            background: white;
         }
 
         .nomination-form textarea {
@@ -140,17 +147,19 @@
     <section class=nomination-content>
         <h2>Nominate a website for archiving</h2>
         <p class=nomination-intro>
-            Suggest a website to be archived as part of
-            <th:block th:if="${#lists.size(collections) == 1}">the
+            <th:block th:unless="${collectionSelectionRequired}">Suggest a website to be archived as part of the
                 <strong><a th:href="@{/collections/{id}(id=${collections[0].id})}"
                            th:text="${collections[0].fullName}">Museums</a></strong> collection.</th:block>
-            <th:block th:unless="${#lists.size(collections) == 1}">the
+            <th:block th:if="${collectionSelectionRequired && #lists.size(collections) == 1}">Nominate a website for one of the
+                    <strong><a th:href="@{/collections/{id}(id=${collections[0].id})}"
+                               th:text="${collections[0].fullName}">Museums</a></strong> subcollections.</th:block>
+            <th:block th:if="${collectionSelectionRequired && #lists.size(collections) > 1}">Nominate a website for
                 <th:block th:each="collection, iteration : ${collections}"><strong><a
                         th:href="@{/collections/{id}(id=${collection.id})}"
                         th:text="${collection.fullName}">Museums</a></strong><th:block
                         th:unless="${iteration.last}"
                         th:text="${iteration.index == iteration.size - 2 ? ' and ' : ', '}">, </th:block></th:block>
-                collections.</th:block>
+                or one of their subcollections.</th:block>
             The Collection team will review your nomination.
             <a th:href="@{/titles(nominator=${@userService.currentUser.id})}">See your previous nominations.</a>
         </p>
@@ -174,6 +183,22 @@
                 </small>
                 <small class=duplicate-warning id=duplicateWarning role=status aria-live=polite></small>
             </div>
+
+            <div class="form-group" th:if="${collectionSelectionRequired}">
+                <label for=collectionId
+                       th:text="${#lists.size(collections) == 1 ? 'Subcollection' : 'Collection'}">Collection</label>
+                <select id=collectionId th:field="*{collectionId}" required>
+                    <option value=""></option>
+                    <option th:each="choice : ${collectionChoices}"
+                            th:value="${choice.collection.id}"
+                            th:text="${choice.label}">Regional museums</option>
+                </select>
+                <small class=field-hint>Select the collection that best fits this website.</small>
+                <small class=field-error th:if="${#fields.hasErrors('collectionId')}" th:errors="*{collectionId}">
+                    Select a collection
+                </small>
+            </div>
+            <input th:unless="${collectionSelectionRequired}" type=hidden th:field="*{collectionId}">
 
             <div class="form-group">
                 <label for=context>Anything the Collection team should know? <small>(optional)</small></label>

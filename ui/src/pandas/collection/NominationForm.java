@@ -7,6 +7,7 @@ public class NominationForm {
     private String seedUrl;
     private String name;
     private String context;
+    private Long collectionId;
 
     public String getSeedUrl() {
         return seedUrl;
@@ -30,5 +31,13 @@ public class NominationForm {
 
     public void setContext(String context) {
         this.context = context;
+    }
+
+    public Long getCollectionId() {
+        return collectionId;
+    }
+
+    public void setCollectionId(Long collectionId) {
+        this.collectionId = collectionId;
     }
 }
