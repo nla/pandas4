@@ -29,6 +29,15 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     long countByAgency(Agency agency);
 
+    @Query("""
+        select count(t)
+        from Title t
+        where t.agency = :agency
+          and t.status = pandas.collection.Status.NOMINATED
+          and t.awaitingConfirmation = false
+        """)
+    long countNominatedByAgency(@Param("agency") Agency agency);
+
     List<Title> findFirst100ByLastModifiedDateAfterOrderByLastModifiedDate(Instant start);
 
     @Query("select t from Title t where t.gather.method.name = 'Bulk'")

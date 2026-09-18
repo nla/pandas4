@@ -40,6 +40,17 @@
                   class="instance-count"
                   th:text="${@sidebarService.qaLabel(#ctx.session) + ' ' + qaCount}"></span>
         </a>
+        <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"
+            th:with="nominatedCount=${@sidebarService.nominatedCount()}">
+            <a th:if="${nominatedCount > 0}"
+               th:href="@{/worktrays/{alias}/nominated(alias=${@userService.getCurrentUser().agency.organisation.alias})}"
+               th:classappend="${activeItem == 'Nominated'}? 'active'">
+                <i class="icon assignment_add"></i>
+                Nominated
+                <span style="margin-left: auto"
+                      class="instance-count"
+                      th:text="${nominatedCount}"></span>
+            </a>
         <li><a th:href="@{/titles}" th:classappend="${activeItem == 'Titles'}? 'active'"
                href=TitleSearch.html>
             <i class="icon title"></i>

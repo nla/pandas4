@@ -11,18 +11,25 @@ import java.util.Map;
 @Component
 public class SidebarService {
     private final InstanceRepository instanceRepository;
+    private final TitleRepository titleRepository;
     private final UserService userService;
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
 
     public SidebarService(InstanceRepository instanceRepository,
+                          TitleRepository titleRepository,
                           UserService userService,
                           AgencyRepository agencyRepository,
                           UserRepository userRepository) {
         this.instanceRepository = instanceRepository;
+        this.titleRepository = titleRepository;
         this.userService = userService;
         this.agencyRepository = agencyRepository;
         this.userRepository = userRepository;
+    }
+
+    public long nominatedCount() {
+        return titleRepository.countNominatedByAgency(userService.getCurrentUser().getAgency());
     }
 
     public long qaCount(Map<String, Object> session) {
