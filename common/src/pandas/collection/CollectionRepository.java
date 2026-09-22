@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 public interface CollectionRepository extends CrudRepository<Collection, Long> {
     List<Collection> findByParentIsNullAndSubjectsIsEmpty();
 
+    List<Collection> findByParentOrderByName(Collection parent);
+
     @Query("SELECT c FROM Collection c " +
            "WHERE EXISTS (SELECT 1 FROM c.subjects s WHERE s IN :subjects) " +
            "OR EXISTS (SELECT 1 FROM c.parent.subjects s WHERE s IN :subjects) " +

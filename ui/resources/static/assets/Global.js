@@ -19,7 +19,10 @@ document.addEventListener('keyup', ev => {
 
 // Split-button toggle menus
 document.querySelectorAll('.split-toggle').forEach(function (toggle) {
-    const menu = toggle.nextElementSibling;
+    let menu = toggle.nextElementSibling;
+    if ((!menu || !menu.classList.contains('split-menu')) && toggle.parentElement) {
+        menu = toggle.parentElement.nextElementSibling;
+    }
     if (!menu || !menu.classList.contains('split-menu')) return;
 
     function closeMenu() {

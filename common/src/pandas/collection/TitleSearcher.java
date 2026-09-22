@@ -73,6 +73,7 @@ public class TitleSearcher {
                 new DateFacet("Last Gather Date", "lastgather", "gather.lastGatherDate"),
                 new DateFacet("Next Gather Date", "nextgather", "gather.nextGatherDate"),
                 new EntityFacet<>("Owner", "owner", "owner.id", userRepository::findAllById, User::getId, User::getName, List.of("owner.nameGiven", "owner.nameFamily", "owner.userid")),
+                new EntityFacet<>("Nominator", "nominator", "nominator.id", userRepository::findAllById, User::getId, User::getName, List.of("nominator.nameGiven", "nominator.nameFamily", "nominator.userid")),
                 new EntityFacet<>("Publisher", "publisher", "publisher.id", publisherRepository::findAllById, Publisher::getId, Publisher::getName, List.of("publisher.organisation.name")),
                 new EntityFacet<>("Publisher Type", "publisher.type", "publisher.type.id", publisherTypeRepository::findAllById, PublisherType::getId, PublisherType::getName),
                 new EnumFacet<>(Status.class, "Status", "status", "status", Status::getName),

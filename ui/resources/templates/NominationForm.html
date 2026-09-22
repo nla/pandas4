@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nominate a website for archiving - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        .nomination-content {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        main.nomination-page {
+            padding: 32px;
+        }
+
+        .nomination-content h2 {
+            margin: 0 0 8px;
+        }
+
+        .nomination-intro {
+            margin: 0 0 24px;
+            color: var(--color-middle-grey);
+            line-height: 1.5;
+        }
+
+        .nomination-form {
+            max-width: none;
+            padding: 24px;
+            border: 1px solid var(--color-light-grey);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+            gap: 20px;
+        }
+
+        .nomination-form .form-group {
+            margin: 0;
+        }
+
+        .nomination-form label {
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .nomination-form input,
+        .nomination-form select,
+        .nomination-form textarea {
+            width: 100%;
+            box-sizing: border-box;
+            font: inherit;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+
+        .nomination-form input {
+            height: 40px;
+            padding: 8px 10px;
+        }
+
+        .nomination-form select {
+            height: 40px;
+            padding: 6px 10px;
+            background: white;
+        }
+
+        .nomination-form textarea {
+            min-height: 120px;
+            padding: 10px;
+            resize: vertical;
+        }
+
+        .field-hint,
+        .field-error {
+            display: block;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .field-hint {
+            color: var(--color-middle-grey);
+        }
+
+        .field-error {
+            color: #b00020;
+        }
+
+        .duplicate-warning {
+            display: block;
+            margin-top: 10px;
+            padding: 10px 12px;
+            color: #704800;
+            background: #fff6dd;
+            border-left: 4px solid #d79500;
+            border-radius: 3px;
+            line-height: 1.4;
+        }
+
+        .duplicate-warning:empty {
+            display: none;
+        }
+
+        .nomination-guidance {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            background: var(--color-gray-eee);
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .nomination-guidance summary {
+            font-weight: 600;
+        }
+
+        .nomination-guidance p:last-child {
+            margin-bottom: 0;
+        }
+
+        .nomination-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding-top: 4px;
+        }
+
+        @media (max-width: 700px) {
+            main.nomination-page {
+                padding: 20px;
+            }
+
+            .nomination-content {
+                margin: 0 auto;
+            }
+
+            .nomination-form {
+                padding: 18px;
+            }
+
+            .nomination-actions > * {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class=nomination-page>
+    <section class=nomination-content>
+        <h2>Nominate a website for archiving</h2>
+        <p class=nomination-intro>
+            <th:block th:unless="${collectionSelectionRequired}">Suggest a website to be archived as part of the
+                <strong><a th:href="@{/collections/{id}(id=${collections[0].id})}"
+                           th:text="${collections[0].fullName}">Museums</a></strong> collection.</th:block>
+            <th:block th:if="${collectionSelectionRequired && #lists.size(collections) == 1}">Nominate a website for one of the
+                    <strong><a th:href="@{/collections/{id}(id=${collections[0].id})}"
+                               th:text="${collections[0].fullName}">Museums</a></strong> subcollections.</th:block>
+            <th:block th:if="${collectionSelectionRequired && #lists.size(collections) > 1}">Nominate a website for
+                <th:block th:each="collection, iteration : ${collections}"><strong><a
+                        th:href="@{/collections/{id}(id=${collection.id})}"
+                        th:text="${collection.fullName}">Museums</a></strong><th:block
+                        th:unless="${iteration.last}"
+                        th:text="${iteration.index == iteration.size - 2 ? ' and ' : ', '}">, </th:block></th:block>
+                or one of their subcollections.</th:block>
+            The Collection team will review your nomination.
+            <a th:href="@{/titles(nominator=${@userService.currentUser.id})}">See your previous nominations.</a>
+        </p>
+
+        <details class=nomination-guidance>
+            <summary>What makes a useful nomination?</summary>
+            <p>Choose an Australian website with meaningful content that could be valuable to researchers or future
+                generations.</p>
+            <p>Every nomination will be reviewed, but some websites may not be suitable or possible to archive.</p>
+        </details>
+
+        <form method=post class="form nomination-form" th:action="@{/nominate}"
+              th:object="${form}" id=nominationForm>
+            <input th:each="collection : ${collections}" type=hidden name=collection th:value="${collection.id}">
+            <input type=hidden id=name th:field="*{name}">
+            <div class="form-group">
+                <label for=seedUrl>Website URL</label>
+                <input id=seedUrl th:field="*{seedUrl}" type=text inputmode=url required autofocus>
+                <small class=field-error th:if="${#fields.hasErrors('seedUrl')}" th:errors="*{seedUrl}">
+                    Enter a valid URL
+                </small>
+                <small class=duplicate-warning id=duplicateWarning role=status aria-live=polite></small>
+            </div>
+
+            <div class="form-group" th:if="${collectionSelectionRequired}">
+                <label for=collectionId
+                       th:text="${#lists.size(collections) == 1 ? 'Subcollection' : 'Collection'}">Collection</label>
+                <select id=collectionId th:field="*{collectionId}" required>
+                    <option value=""></option>
+                    <option th:each="choice : ${collectionChoices}"
+                            th:value="${choice.collection.id}"
+                            th:text="${choice.label}">Regional museums</option>
+                </select>
+                <small class=field-hint>Select the collection that best fits this website.</small>
+                <small class=field-error th:if="${#fields.hasErrors('collectionId')}" th:errors="*{collectionId}">
+                    Select a collection
+                </small>
+            </div>
+            <input th:unless="${collectionSelectionRequired}" type=hidden th:field="*{collectionId}">
+
+            <div class="form-group">
+                <label for=context>Anything the Collection team should know? <small>(optional)</small></label>
+                <textarea id=context th:field="*{context}" rows=5></textarea>
+                <small class=field-hint>A short note is enough—for example, who requested it, why it matters to Australia, or how it relates to a collecting project.</small>
+            </div>
+
+            <div class=nomination-actions>
+                <button type=submit class="btn btn-primary" id=submitButton>
+                    <i class="icon save"></i> Nominate
+                </button>
+                <a th:href="@{/collections/{id}(id=${primaryCollection.id})}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </section>
+
+    <script th:inline="javascript">
+        const seedUrl = document.getElementById("seedUrl");
+        const name = document.getElementById("name");
+        const warning = document.getElementById("duplicateWarning");
+        const pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
+        const nominationCheckEndpoint = /*[[@{/nominate/check}]]*/ '../nominate/check';
+
+        function normalizedUrl() {
+            const value = seedUrl.value.trim();
+            if (!value) return "";
+            return /^[a-z][a-z0-9+.-]*:\/\//i.test(value) ? value : "http://" + value;
+        }
+
+        seedUrl.addEventListener("input", function () {
+            warning.textContent = "";
+            name.value = "";
+        });
+
+        seedUrl.addEventListener("change", async function () {
+            const url = normalizedUrl();
+            if (!url) return;
+            seedUrl.value = url;
+            warning.textContent = "";
+
+            const pageinfo = fetch(pageinfoEndpoint + "?url=" + encodeURIComponent(url))
+                    .then(response => response.ok ? response.json() : null)
+                    .then(data => {
+                        if (normalizedUrl() === url && data && !name.value.trim() && data.title) {
+                            name.value = data.title;
+                        }
+                    });
+            const duplicateCheck = fetch(nominationCheckEndpoint + "?url=" + encodeURIComponent(url))
+                    .then(response => response.ok ? response.json() : null)
+                    .then(result => {
+                        if (normalizedUrl() !== url || !result || !result.existingTitle) return;
+
+                        if (result.latestSnapshot) {
+                            const date = new Intl.DateTimeFormat(undefined, {dateStyle: "long"})
+                                    .format(new Date(result.latestSnapshot.date));
+                            warning.append("This website was archived on " + date + ". ");
+                            const link = document.createElement("a");
+                            link.href = result.latestSnapshot.url;
+                            link.target = "_blank";
+                            link.rel = "noopener";
+                            link.textContent = "Check the archived copy";
+                            warning.append(link, " to see whether it meets your needs. You can still nominate it if another capture is needed.");
+                        } else {
+                            warning.textContent = "This website may have been suggested or archived before. You can still nominate it if it should be reviewed again.";
+                        }
+                    });
+            await Promise.allSettled([pageinfo, duplicateCheck]);
+        });
+
+        document.getElementById("nominationForm").addEventListener("submit", function () {
+            seedUrl.value = normalizedUrl();
+            const button = document.getElementById("submitButton");
+            button.disabled = true;
+            button.textContent = "Submitting…";
+        });
+    </script>
+</main>
+</body>
+</html>
