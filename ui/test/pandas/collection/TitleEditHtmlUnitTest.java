@@ -183,6 +183,30 @@ class TitleEditHtmlUnitTest extends IntegrationTest {
     @Test
     @WithUserDetails("admin")
     @Transactional
+    void testStatusChangesFieldsetColour() throws Exception {
+        HtmlPage page = webClient.getPage("http://localhost/titles/new");
+
+        webClient.waitForBackgroundJavaScript(2000);
+
+        HtmlSelect statusSelect = page.getHtmlElementById("status");
+        HtmlElement statusFieldset = page.getHtmlElementById("titleStatusFieldset");
+
+        String initialStatus = statusSelect.getSelectedOptions().get(0).getText().trim().toLowerCase();
+        assertEquals(initialStatus, statusFieldset.getAttribute("data-status"));
+
+        HtmlOption rejectedOption = statusSelect.getOptions().stream()
+                .filter(option -> option.getText().equals("rejected"))
+                .findFirst()
+                .orElseThrow();
+        statusSelect.setSelectedAttribute(rejectedOption, true);
+        webClient.waitForBackgroundJavaScript(500);
+
+        assertEquals("rejected", statusFieldset.getAttribute("data-status"));
+    }
+
+    @Test
+    @WithUserDetails("admin")
+    @Transactional
     void testCeasedWarningDisplay() throws Exception {
         HtmlPage page = webClient.getPage("http://localhost/titles/new");
 

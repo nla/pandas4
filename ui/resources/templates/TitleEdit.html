@@ -20,6 +20,11 @@
             border: 1px solid #ccc;
             padding: 8px;
         }
+
+        #titleStatusFieldset[data-status="rejected"] { background-color: #ffe6e6; }
+        #titleStatusFieldset[data-status="nominated"] { background-color: #ffffe6; }
+        #titleStatusFieldset[data-status="ceased"] { background-color: #f3f3f3; }
+        #titleStatusFieldset[data-status="monitored"] { background-color: #e6f2ff; }
     </style>
 </head>
 <body>
@@ -83,7 +88,7 @@
             </p>
         </div>
 
-        <fieldset>
+        <fieldset id="titleStatusFieldset">
 
             <div>
                 <label style="flex-grow: 1">
@@ -108,6 +113,7 @@
                     <script>
                         function updateReasons() {
                             updateCeasedWarning();
+                            updateStatusFieldsetColour();
 
                             let reasonSelect = document.getElementById("reason");
                             let statusSelect = document.getElementById("status");
@@ -139,6 +145,17 @@
                                 }
                             }
                         }
+
+                        function updateStatusFieldsetColour() {
+                            let statusSelect = document.getElementById("status");
+                            let titleStatusFieldset = document.getElementById("titleStatusFieldset");
+                            let selectedOption = statusSelect.options[statusSelect.selectedIndex];
+                            titleStatusFieldset.dataset.status = selectedOption
+                                ? selectedOption.text.trim().toLowerCase()
+                                : "";
+                        }
+
+                        window.addEventListener("load", updateStatusFieldsetColour);
                     </script>
                 </label>
             </div>
