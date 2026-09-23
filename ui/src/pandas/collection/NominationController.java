@@ -69,8 +69,8 @@ public class NominationController {
         addCollectionsToModel(model, scope);
 
         Collection selectedCollection = null;
-        if (form.getCollectionId() == null && !scope.requiresSelection()) {
-            selectedCollection = scope.choices().get(0).collection();
+        if (form.getCollectionId() == null && scope.roots().size() == 1) {
+            selectedCollection = scope.roots().get(0);
             form.setCollectionId(selectedCollection.getId());
         } else if (form.getCollectionId() == null) {
             bindingResult.rejectValue("collectionId", "required", "Select a collection");

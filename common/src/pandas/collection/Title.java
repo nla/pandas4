@@ -344,11 +344,15 @@ public class Title implements TitleRef {
     }
 
     public Title(User creator, Instant regDate) {
+        this(creator, regDate, "Created new title");
+    }
+
+    public Title(User creator, Instant regDate, String ownerHistoryNote) {
         this.regDate = regDate;
         if (creator != null) {
             this.owner = creator;
             this.agency = creator.getAgency();
-            this.ownerHistories.add(new OwnerHistory(this, agency, creator, "Created new title", null, regDate));
+            this.ownerHistories.add(new OwnerHistory(this, agency, creator, ownerHistoryNote, null, regDate));
         }
     }
 

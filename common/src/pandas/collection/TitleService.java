@@ -17,11 +17,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
 public class TitleService {
     private static final Logger log = LoggerFactory.getLogger(TitleService.class);
+    private static final DateTimeFormatter NOMINATION_NOTE_DATE =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault());
 
     private final TitleRepository titleRepository;
     private final TitleGatherRepository titleGatherRepository;
@@ -114,9 +117,13 @@ public class TitleService {
         TitleEditForm form = newTitleForm(collections, Set.of());
         form.setSeedUrls(normalizedUrl);
         form.setName(normalizedName);
-        form.setNotes(notes);
+        Instant now = Instant.now();
+        String cleanedNotes = Strings.clean(notes);
+        if (cleanedNotes != null && !cleanedNotes.isBlank()) {
+            form.setNotes(user.getUserid() + " " + NOMINATION_NOTE_DATE.format(now) + ": " + cleanedNotes);
+        }
         form.setStatus(Status.NOMINATED);
-        return save(form, user);
+        return save(form, user, "Nominated new title", now);
     }
 
     public static String normalizeNominationUrl(String seedUrl) {
@@ -145,10 +152,13 @@ public class TitleService {
     @Transactional
     @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
     public Title save(TitleEditForm form, User user) {
-        Instant now = Instant.now();
+        return save(form, user, "Created new title", Instant.now());
+    }
+
+    private Title save(TitleEditForm form, User user, String ownerHistoryNote, Instant now) {
         Title title;
         if (form.getId() == null) {
-            title = new Title(user, now);
+            title = new Title(user, now, ownerHistoryNote);
         } else {
             title = titleRepository.findById(form.getId()).orElseThrow();
         }

@@ -11,6 +11,8 @@ import pandas.agency.User;
 import pandas.agency.UserRepository;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -79,7 +81,9 @@ class NominationIntegrationTest extends IntegrationTest {
         Title title = titleRepository.findByTitleUrlIn(List.of("http://example.net/path")).get(0);
         User nominator = userRepository.findByUserid("admin").orElseThrow();
         assertEquals("example.net", title.getName());
-        assertEquals("Useful context for the reviewer", title.getNotes());
+        String nominationDate = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .withZone(ZoneId.systemDefault()).format(title.getRegDate());
+        assertEquals("admin " + nominationDate + ": Useful context for the reviewer", title.getNotes());
         assertEquals(Status.NOMINATED, title.getStatus());
         assertEquals(nominator, title.getOwner());
         assertEquals(nominator, title.getNominator());
@@ -87,6 +91,7 @@ class NominationIntegrationTest extends IntegrationTest {
         assertEquals(Set.of(secondCollection), title.getCollections());
         assertFalse(title.getOwnerHistories().isEmpty());
         assertEquals(nominator, title.getOwnerHistories().get(0).getUser());
+        assertEquals("Nominated new title", title.getOwnerHistories().get(0).getNote());
         assertFalse(title.getStatusHistories().isEmpty());
         assertEquals(Status.NOMINATED, title.getStatusHistories().get(0).getStatus());
         assertEquals(nominator, title.getStatusHistories().get(0).getUser());
@@ -191,23 +196,34 @@ class NominationIntegrationTest extends IntegrationTest {
 
         mockMvc.perform(get("/nominate").param("collection", root.getId().toString()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("<label for=collectionId>Subcollection</label>")))
+                .andExpect(content().string(containsString("Collecting priority <small>(optional)</small>")))
                 .andExpect(content().string(containsString("<option value=\"\"></option>")))
                 .andExpect(content().string(not(containsString(option(root, root.getFullName())))))
                 .andExpect(content().string(containsString(option(child, "Specific nomination target"))))
                 .andExpect(content().string(containsString(option(grandchild,
                         "Specific nomination target—Narrow nomination target"))));
+
+        mockMvc.perform(post("/nominate")
+                        .with(csrf())
+                        .param("collection", root.getId().toString())
+                        .param("collectionId", "")
+                        .param("seedUrl", "https://top-level.example.org"))
+                .andExpect(status().is3xxRedirection());
+
+        Title title = titleRepository.findByTitleUrlIn(List.of("https://top-level.example.org")).get(0);
+        assertEquals(Set.of(root), title.getCollections());
     }
 
     @Test
     void requiresAndValidatesSelectedCollection() throws Exception {
         Collection allowedRoot = collection("Allowed nomination root", false);
         childCollection(allowedRoot, "Allowed nomination child", false);
+        Collection secondAllowedRoot = collection("Second allowed nomination root", false);
         Collection unrelated = collection("Unrelated nomination target", false);
 
         mockMvc.perform(post("/nominate")
                         .with(csrf())
-                        .param("collection", allowedRoot.getId().toString())
+                        .param("collection", allowedRoot.getId().toString(), secondAllowedRoot.getId().toString())
                         .param("seedUrl", "https://missing-selection.example.org"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Select a collection")));

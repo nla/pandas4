@@ -185,15 +185,16 @@
             </div>
 
             <div class="form-group" th:if="${collectionSelectionRequired}">
-                <label for=collectionId
-                       th:text="${#lists.size(collections) == 1 ? 'Subcollection' : 'Collection'}">Collection</label>
-                <select id=collectionId th:field="*{collectionId}" required>
+                <label for=collectionId th:if="${#lists.size(collections) == 1}">
+                    Collecting priority <small>(optional)</small>
+                </label>
+                <label for=collectionId th:unless="${#lists.size(collections) == 1}">Collection</label>
+                <select id=collectionId th:field="*{collectionId}">
                     <option value=""></option>
                     <option th:each="choice : ${collectionChoices}"
                             th:value="${choice.collection.id}"
                             th:text="${choice.label}">Regional museums</option>
                 </select>
-                <small class=field-hint>Select the collection that best fits this website.</small>
                 <small class=field-error th:if="${#fields.hasErrors('collectionId')}" th:errors="*{collectionId}">
                     Select a collection
                 </small>
@@ -201,7 +202,7 @@
             <input th:unless="${collectionSelectionRequired}" type=hidden th:field="*{collectionId}">
 
             <div class="form-group">
-                <label for=context>Anything the Collection team should know? <small>(optional)</small></label>
+                <label for=context>Note <small>(optional)</small></label>
                 <textarea id=context th:field="*{context}" rows=5></textarea>
                 <small class=field-hint>A short note is enough—for example, who requested it, why it matters to Australia, or how it relates to a collecting project.</small>
             </div>
