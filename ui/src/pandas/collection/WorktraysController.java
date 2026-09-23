@@ -133,13 +133,13 @@ public class WorktraysController {
         return "worktrays/All";
     }
 
-    @GetMapping("/worktrays/{alias}/nominated")
+    @GetMapping(value = {"/worktrays/nominated", "/worktrays/{alias}/nominated"})
     public String nominated(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
         // nominated worktray always displays all titles from their agency regardless of owner
         if (agencyId == null && ownerId != null) {
             agencyId = userRepository.findById(ownerId).orElseThrow().getAgency().getId();
         }
-        var nominatedTitles = titleRepository.worktrayNominated(agencyId, null, pageable);
+        var nominatedTitles = titleRepository.worktrayNominated(agencyId, pageable);
         var titleCollections = new LinkedHashMap<Long, List<Collection>>();
         nominatedTitles.forEach(title -> titleCollections.put(title.getId(), new ArrayList<>()));
         if (!titleCollections.isEmpty()) {

@@ -29,15 +29,6 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     long countByAgency(Agency agency);
 
-    @Query("""
-        select count(t)
-        from Title t
-        where t.agency = :agency
-          and t.status = pandas.collection.Status.NOMINATED
-          and t.awaitingConfirmation = false
-        """)
-    long countNominatedByAgency(@Param("agency") Agency agency);
-
     List<Title> findFirst100ByLastModifiedDateAfterOrderByLastModifiedDate(Instant start);
 
     @Query("select t from Title t where t.gather.method.name = 'Bulk'")
@@ -110,14 +101,15 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
           t.titleUrl as titleUrl,
           t.notes as notes,
           t.regDate as regDate,
-          t.owner as owner,
-          nom.user as nominator
+          own as owner,
+          nominator as nominator
         from Title t
+        left join t.owner own
         left join OwnerHistory nom
           on nom.title = t
          and nom.id = (select min(h.id) from OwnerHistory h where h.title = t)
+        left join nom.user nominator
         where (:agencyId is null or t.agency.id = :agencyId)
-          and (:ownerId is null or t.owner.id = :ownerId)
           and t.status = pandas.collection.Status.NOMINATED
           and t.awaitingConfirmation = false
         order by t.regDate desc
@@ -126,11 +118,19 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
         select count(t)
         from Title t
         where (:agencyId is null or t.agency.id = :agencyId)
-          and (:ownerId is null or t.owner.id = :ownerId)
           and t.status = pandas.collection.Status.NOMINATED
           and t.awaitingConfirmation = false
         """)
-    Page<TitleWorktrayRow> worktrayNominated(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+    Page<TitleWorktrayRow> worktrayNominated(@Param("agencyId") Long agencyId, Pageable pageable);
+
+    @Query("""
+        select count(t)
+        from Title t
+        where (:agencyId is null or t.agency.id = :agencyId)
+          and t.status = pandas.collection.Status.NOMINATED
+          and t.awaitingConfirmation = false
+        """)
+    long countWorktrayNominated(@Param("agencyId") Long agencyId);
 
     @Query("""
         select t.id as titleId, c as collection

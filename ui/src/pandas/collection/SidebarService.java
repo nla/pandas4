@@ -1,7 +1,9 @@
 package pandas.collection;
 
 import org.springframework.stereotype.Component;
+import pandas.agency.Agency;
 import pandas.agency.AgencyRepository;
+import pandas.agency.User;
 import pandas.agency.UserRepository;
 import pandas.agency.UserService;
 import pandas.gather.InstanceRepository;
@@ -28,9 +30,23 @@ public class SidebarService {
         this.userRepository = userRepository;
     }
 
-    public long nominatedCount() {
-        return titleRepository.countNominatedByAgency(userService.getCurrentUser().getAgency());
+    public long nominated(Map<String, Object> session) {
+        Agency agency = nominatedAgency(session);
+        return titleRepository.countWorktrayNominated(agency.getId());
     }
+
+    private Agency nominatedAgency(Map<String, Object> session) {
+        String lastAlias = (String) session.get(WorktraysController.LAST_ALIAS);
+        if (lastAlias == null || lastAlias.isBlank()) {
+            return userService.getCurrentUser().getAgency();
+        }
+        return agencyRepository.findByAlias(lastAlias)
+                .orElseGet(() -> userRepository.findByUserid(lastAlias)
+                        .map(User::getAgency)
+                        .orElseGet(() -> userService.getCurrentUser().getAgency()));
+    }
+
+    public record NominatedItem(String alias, long count) {}
 
     public long qaCount(Map<String, Object> session) {
         String lastAlias = (String) session.get(WorktraysController.LAST_ALIAS);

@@ -41,9 +41,9 @@
                   th:text="${@sidebarService.qaLabel(#ctx.session) + ' ' + qaCount}"></span>
         </a>
         <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')"
-            th:with="nominatedCount=${@sidebarService.nominatedCount()}">
+            th:with="nominatedCount=${@sidebarService.nominated(#ctx.session)}">
             <a th:if="${nominatedCount > 0}"
-               th:href="@{/worktrays/{alias}/nominated(alias=${@userService.getCurrentUser().agency.organisation.alias})}"
+               th:href="@{/worktrays/nominated}"
                th:classappend="${activeItem == 'Nominated'}? 'active'">
                 <i class="icon assignment_add"></i>
                 Nominated

@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.IntegrationTest;
+import pandas.agency.Agency;
+import pandas.agency.AgencyRepository;
 import pandas.agency.User;
 import pandas.agency.UserRepository;
+import pandas.core.Organisation;
 
 import java.time.Instant;
 
@@ -19,6 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class DashboardIntegrationTest extends IntegrationTest {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AgencyRepository agencyRepository;
     @Autowired
     private TitleRepository titleRepository;
 
@@ -65,5 +70,35 @@ class DashboardIntegrationTest extends IntegrationTest {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("href=\"/worktrays/" + agencyAlias + "/nominated\""))));
+    }
+
+    @Test
+    @Transactional
+    @WithUserDetails("admin")
+    void nominatedSidebarUsesLastWorktrayAgency() throws Exception {
+        Agency agency = new Agency();
+        Organisation organisation = new Organisation();
+        organisation.setName("Other Agency");
+        organisation.setAlias("OTHER");
+        agency.setOrganisation(organisation);
+        agencyRepository.save(agency);
+
+        User nominator = new User(agency);
+        nominator.setUserid("other-nominator");
+        userRepository.save(nominator);
+
+        for (int i = 1; i <= 2; i++) {
+            Instant now = Instant.now();
+            Title title = new Title(nominator, now);
+            title.setName("Other agency nomination " + i);
+            title.changeStatus(Status.NOMINATED, null, nominator, now);
+            titleRepository.save(title);
+        }
+
+        mockMvc.perform(get("/worktrays/OTHER/nominated"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("href=\"/worktrays/OTHER/nominated\"")))
+                .andExpect(content().string(containsString("class=\"instance-count\">2</span>")))
+                .andExpect(content().string(containsString("Nominated Titles (<span>2</span>)")));
     }
 }
