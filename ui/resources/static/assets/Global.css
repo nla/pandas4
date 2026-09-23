@@ -728,6 +728,7 @@ table.history-table {
 }
 
 .worktray-table--actions {
+    vertical-align: middle;
     white-space: nowrap;
 }
 
@@ -742,6 +743,70 @@ table.history-table {
     color: var(--color-dark-grey);
     border-radius: 4px;
     text-decoration: none;
+}
+
+.nominated-worktray {
+    width: 100%;
+}
+
+.nominated-worktray .worktray-table--actions {
+    width: 1%;
+    text-align: right;
+}
+
+.nomination-accept .lucide-icon {
+    color: darkgreen;
+}
+
+.nomination-reject .lucide-icon {
+    color: darkred;
+}
+
+.nominated-worktray tbody tr:hover {
+    background-color: transparent;
+}
+
+.nomination-collections {
+    margin-top: 2px;
+    font-size: 85%;
+}
+
+.nomination-title {
+    font-weight: bold;
+}
+
+.nomination-url {
+    display: block;
+    width: fit-content;
+    margin-top: 2px;
+}
+
+.nomination-context {
+    display: -webkit-box;
+    max-width: 65ch;
+    margin: 6px 0;
+    padding: 5px 8px;
+    overflow: hidden;
+    border-left: 3px solid var(--color-gray-bbb);
+    border-radius: 0 3px 3px 0;
+    background: var(--color-gray-eee);
+    color: #555;
+    font-size: 85%;
+    white-space: pre-line;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.nomination-metadata {
+    margin-top: 4px;
+    color: var(--color-middle-grey);
+    font-size: 80%;
+}
+
+.nomination-metadata a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-style: dotted;
 }
 
     /**

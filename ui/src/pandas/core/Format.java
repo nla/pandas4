@@ -4,6 +4,10 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Helpers for formatting numbers and URLs for display.
@@ -16,6 +20,22 @@ public class Format {
 
     public String bytes(long x) {
         return FileUtils.byteCountToDisplaySize(x);
+    }
+
+    public String relativeAge(Instant instant) {
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDate date = instant.atZone(zone).toLocalDate();
+        LocalDate today = LocalDate.now(zone);
+        long days = Math.max(0, ChronoUnit.DAYS.between(date, today));
+        if (days == 0) return "today";
+        if (days == 1) return "yesterday";
+        if (days < 30) return days + " days ago";
+
+        long months = Math.max(1, ChronoUnit.MONTHS.between(date, today));
+        if (months < 12) return months == 1 ? "1 month ago" : months + " months ago";
+
+        long years = Math.max(1, ChronoUnit.YEARS.between(date, today));
+        return years == 1 ? "1 year ago" : years + " years ago";
     }
 
     public String statusClass(Integer status) {

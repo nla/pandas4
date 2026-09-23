@@ -92,9 +92,15 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
     interface TitleWorktrayRow extends TitleRef {
         String getName();
         String getTitleUrl();
+        String getNotes();
         Instant getRegDate();
         User getOwner();
         User getNominator();
+    }
+
+    interface TitleCollectionRow {
+        Long getTitleId();
+        Collection getCollection();
     }
 
     @Query(value = """
@@ -102,6 +108,7 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
           t.id as id,
           t.name as name,
           t.titleUrl as titleUrl,
+          t.notes as notes,
           t.regDate as regDate,
           t.owner as owner,
           nom.user as nominator
@@ -124,6 +131,15 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
           and t.awaitingConfirmation = false
         """)
     Page<TitleWorktrayRow> worktrayNominated(@Param("agencyId") Long agencyId, @Param("ownerId") Long ownerId, Pageable pageable);
+
+    @Query("""
+        select t.id as titleId, c as collection
+        from Title t
+        join t.collections c
+        where t.id in :titleIds
+        order by c.name
+        """)
+    List<TitleCollectionRow> worktrayCollections(@Param("titleIds") java.util.Collection<Long> titleIds);
 
     @Query("select t from Title t\n" +
             "where (:agencyId is null or t.agency.id = :agencyId)\n" +

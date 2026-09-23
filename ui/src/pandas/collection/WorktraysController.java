@@ -139,7 +139,15 @@ public class WorktraysController {
         if (agencyId == null && ownerId != null) {
             agencyId = userRepository.findById(ownerId).orElseThrow().getAgency().getId();
         }
-        model.addAttribute("nominatedTitles", titleRepository.worktrayNominated(agencyId, null, pageable));
+        var nominatedTitles = titleRepository.worktrayNominated(agencyId, null, pageable);
+        var titleCollections = new LinkedHashMap<Long, List<Collection>>();
+        nominatedTitles.forEach(title -> titleCollections.put(title.getId(), new ArrayList<>()));
+        if (!titleCollections.isEmpty()) {
+            titleRepository.worktrayCollections(titleCollections.keySet()).forEach(row ->
+                    titleCollections.get(row.getTitleId()).add(row.getCollection()));
+        }
+        model.addAttribute("nominatedTitles", nominatedTitles);
+        model.addAttribute("nominatedTitleCollections", titleCollections);
         return "worktrays/Nominated";
     }
 
