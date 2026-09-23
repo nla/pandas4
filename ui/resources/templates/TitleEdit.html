@@ -32,13 +32,13 @@
 <main>
     <form id="titleEditForm" method=post class=form th:object="${form}" th:action="@{/titles}">
         <header>
-            <div th:if="${form.id != null}">
+            <div th:if="${form.id != null && !actionsAtBottom}">
                 <button type="submit" class="btn btn-primary" disabled><i class="icon save"></i>Save</button>
                 <button onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i
                         class="icon cancel"></i>Cancel
                 </button>
             </div>
-            <button th:if="${form.id != null}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
+            <button th:if="${form.id != null && !actionsAtBottom}" type="submit" th:formaction="@{|/titles/${form.id}/delete|}"
                     th:disabled="${!title.deletable}" th:title="${title.reasonNotDeletable}"
                     class="btn btn-danger float-right"><i class="icon delete"></i>Delete
             </button>
@@ -554,9 +554,9 @@
             <textarea th:field="*{notes}" rows=5></textarea>
         </label>
 
-        <div th:if="${form.id == null}">
+        <div th:if="${form.id == null || actionsAtBottom}">
             <button type="submit" class="btn btn-primary" disabled><i class="icon save"></i>Save</button>
-            <button type="submit" class="btn btn-secondary" name="action" value="saveAndAddAnother" disabled>Save and add another</button>
+            <button th:if="${form.id == null}" type="submit" class="btn btn-secondary" name="action" value="saveAndAddAnother" disabled>Save and add another</button>
             <button style="float: right" onclick="history.back(); return false" data-keybind=Escape class="btn btn-secondary"><i class="icon cancel"></i>Cancel</button>
         </div>
 

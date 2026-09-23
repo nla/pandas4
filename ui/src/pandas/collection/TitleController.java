@@ -415,6 +415,12 @@ public class TitleController {
 
         if (setStatus != null && title.getStatus().isTransitionAllowed(setStatus)) {
             form.setStatus(setStatus);
+
+            // when selecting a nominated title, move the action buttons to the bottom of the page
+            // this forces the user to scroll down, fill in fields and see the note
+            if (title.getStatus() == Status.NOMINATED) {
+                model.addAttribute("actionsAtBottom", true);
+            }
         }
 
         String backlink = Requests.backlink();
@@ -440,6 +446,10 @@ public class TitleController {
     private String editForm(Model model, TitleEditForm form, @Nullable Title title) {
         if (!model.containsAttribute("created")) {
             model.addAttribute("created", null);
+        }
+
+        if (!model.containsAttribute("actionsAtBottom")) {
+            model.addAttribute("actionsAtBottom", false);
         }
 
         model.addAttribute("form", form);
