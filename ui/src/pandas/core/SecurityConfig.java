@@ -25,11 +25,14 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pandas.agency.AgencyRepository;
 import pandas.agency.User;
@@ -87,6 +90,11 @@ public class SecurityConfig {
             http.oauth2Login(oauth2 -> oauth2
                     .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService()))
                     .loginPage("/login"));
+            http.exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(
+                    new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/shire"),
+                    new OrRequestMatcher(
+                            PathPatternRequestMatcher.pathPattern("/nominate"),
+                            PathPatternRequestMatcher.pathPattern("/nominate/**"))));
             http.logout(logout -> logout.logoutUrl("/logout"));
         } else {
             DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(pandasUserDetailsService);

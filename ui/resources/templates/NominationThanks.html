@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang=en xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thank you for your nomination - PANDAS</title>
+    <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
+    <style>
+        main.nomination-page {
+            padding: 32px;
+        }
+
+        .nomination-content {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .nomination-confirmation {
+            margin-bottom: 28px;
+            padding: 24px;
+            border: 1px solid var(--color-light-grey);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+        }
+
+        .nomination-confirmation h2 {
+            margin-top: 0;
+        }
+
+        .nomination-confirmation p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .recent-nominations {
+            margin: 0 0 16px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .recent-nomination {
+            margin-bottom: 10px;
+            padding: 14px 16px;
+            border: 1px solid var(--color-light-grey);
+            border-radius: 5px;
+        }
+
+        .recent-nomination--submitted {
+            border-left: 4px solid var(--color-link);
+            background: #eef4ff;
+        }
+
+        .recent-nomination-heading {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .recent-nomination-title {
+            font-weight: 600;
+        }
+
+        .recent-nomination-url {
+            display: block;
+            width: fit-content;
+            margin-top: 3px;
+        }
+
+        .recent-nomination-meta {
+            margin-top: 6px;
+            color: var(--color-middle-grey);
+            font-size: 85%;
+        }
+
+        .just-nominated {
+            margin-left: auto;
+            text-align: right;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 700px) {
+            main.nomination-page {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class=nomination-page>
+    <section class=nomination-content>
+        <div class=nomination-confirmation>
+            <h2>Thank you for your nomination</h2>
+            <p>Your nomination has been saved and will be reviewed by the Collection team.</p>
+            <a class="btn btn-primary" th:href="${nominateAgainUrl}">Nominate another website</a>
+        </div>
+
+        <section aria-labelledby=recentNominationsHeading>
+            <h3 id=recentNominationsHeading>Your recent nominations</h3>
+            <ol class=recent-nominations>
+                <li
+                    th:each="nomination : ${recentNominations}"
+                    th:class="${nomination.id == submittedTitleId ? 'recent-nomination recent-nomination--submitted' : 'recent-nomination'}">
+                    <div class=recent-nomination-heading>
+                        <a class=recent-nomination-title
+                           th:href="@{/titles/{id}(id=${nomination.id})}"
+                           th:text="${nomination.name}">Example website</a>
+                        <span class=just-nominated th:if="${nomination.id == submittedTitleId}">Just Nominated</span>
+                    </div>
+                    <a class="live-url recent-nomination-url"
+                       th:href="${nomination.titleUrl}"
+                       th:text="${@format.site(nomination.titleUrl)}">example.org</a>
+                    <div class=recent-nomination-meta>
+                        <span th:text="${#strings.capitalize(nomination.status.name)}">Nominated</span>
+                        · <time th:datetime="${nomination.regDate}"
+                                th:text="${dateFormat.format(nomination.regDate)}">23 September 2026</time>
+                    </div>
+                </li>
+            </ol>
+            <a th:href="@{/titles(nominator=${currentUser.id})}">View all my nominations</a>
+        </section>
+    </section>
+</main>
+</body>
+</html>

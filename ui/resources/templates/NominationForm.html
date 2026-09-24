@@ -123,6 +123,10 @@
             padding-top: 4px;
         }
 
+        .nomination-actions [hidden] {
+            display: none;
+        }
+
         @media (max-width: 700px) {
             main.nomination-page {
                 padding: 20px;
@@ -211,7 +215,8 @@
                 <button type=submit class="btn btn-primary" id=submitButton>
                     <i class="icon save"></i> Nominate
                 </button>
-                <a th:href="@{/collections/{id}(id=${primaryCollection.id})}" class="btn btn-secondary">Cancel</a>
+                <button type=button class="btn btn-secondary" id=cancelButton
+                        onclick="history.back()" hidden>Cancel</button>
             </div>
         </form>
     </section>
@@ -220,8 +225,13 @@
         const seedUrl = document.getElementById("seedUrl");
         const name = document.getElementById("name");
         const warning = document.getElementById("duplicateWarning");
+        const cancelButton = document.getElementById("cancelButton");
         const pageinfoEndpoint = /*[[@{/pageinfo}]]*/ '../pageinfo';
         const nominationCheckEndpoint = /*[[@{/nominate/check}]]*/ '../nominate/check';
+
+        if (history.length > 1) {
+            cancelButton.hidden = false;
+        }
 
         function normalizedUrl() {
             const value = seedUrl.value.trim();

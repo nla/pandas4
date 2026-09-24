@@ -218,6 +218,16 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
 
     List<Title> findByTitleUrlIn(List<String> urls);
 
+    @Query("""
+            select t from Title t
+            join t.statusHistories sh
+            where sh.id = (select min(firstStatus.id) from StatusHistory firstStatus where firstStatus.title = t)
+              and sh.user = :nominator
+              and sh.status = pandas.collection.Status.NOMINATED
+            order by t.regDate desc
+            """)
+    List<Title> findRecentNominations(@Param("nominator") User nominator, Pageable pageable);
+
     // A title can be created directly in a permission_* status so we look for either nominated/selected event
     // explicitly, or the initial status having been a permission_* one.
     @Query("""

@@ -60,6 +60,8 @@ class NominationIntegrationTest extends IntegrationTest {
                 .andExpect(content().string(containsString("Nomination form collection")))
                 .andExpect(content().string(containsString("See your previous nominations")))
                 .andExpect(content().string(containsString("nominator=")))
+                .andExpect(content().string(containsString("onclick=\"history.back()\"")))
+                .andExpect(content().string(containsString("if (history.length > 1)")))
                 .andExpect(content().string(not(containsString("Choose a collection"))))
                 .andExpect(content().string(not(containsString("Website name"))));
     }
@@ -76,7 +78,7 @@ class NominationIntegrationTest extends IntegrationTest {
                         .param("seedUrl", "example.net/path")
                         .param("context", "Useful context for the reviewer"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/titles/*"));
+                .andExpect(redirectedUrlPattern("/nominate/thanks?title=*&collection=*&collection=*"));
 
         Title title = titleRepository.findByTitleUrlIn(List.of("http://example.net/path")).get(0);
         User nominator = userRepository.findByUserid("admin").orElseThrow();
@@ -95,6 +97,21 @@ class NominationIntegrationTest extends IntegrationTest {
         assertFalse(title.getStatusHistories().isEmpty());
         assertEquals(Status.NOMINATED, title.getStatusHistories().get(0).getStatus());
         assertEquals(nominator, title.getStatusHistories().get(0).getUser());
+
+        mockMvc.perform(get("/nominate/thanks")
+                        .param("title", title.getId().toString())
+                        .param("collection", firstCollection.getId().toString(), secondCollection.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Thank you for your nomination")))
+                .andExpect(content().string(containsString("Your nomination has been saved and will be reviewed by the Collection team.")))
+                .andExpect(content().string(containsString("Nominate another website")))
+                .andExpect(content().string(containsString("example.net")))
+                .andExpect(content().string(containsString("class=\"recent-nomination recent-nomination--submitted\"")))
+                .andExpect(content().string(containsString("Just Nominated")))
+                .andExpect(content().string(containsString("/nominate?collection=" + firstCollection.getId()
+                        + "&amp;collection=" + secondCollection.getId())))
+                .andExpect(content().string(containsString("/titles?nominator=" + nominator.getId())))
+                .andExpect(content().string(not(containsString("<nav"))));
     }
 
     @Test

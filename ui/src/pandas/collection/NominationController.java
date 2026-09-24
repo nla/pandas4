@@ -1,6 +1,7 @@
 package pandas.collection;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -12,12 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pandas.agency.UserService;
 
 import java.net.URI;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,15 +32,18 @@ public class NominationController {
     private static final Logger log = LoggerFactory.getLogger(NominationController.class);
 
     private final CollectionRepository collectionRepository;
+    private final TitleRepository titleRepository;
     private final TitleService titleService;
     private final UserService userService;
     private final TitleSearcher titleSearcher;
     private final CaptureIndex captureIndex;
 
-    public NominationController(CollectionRepository collectionRepository, TitleService titleService,
+    public NominationController(CollectionRepository collectionRepository, TitleRepository titleRepository,
+                                TitleService titleService,
                                 UserService userService,
                                 TitleSearcher titleSearcher, CaptureIndex captureIndex) {
         this.collectionRepository = collectionRepository;
+        this.titleRepository = titleRepository;
         this.titleService = titleService;
         this.userService = userService;
         this.titleSearcher = titleSearcher;
@@ -97,7 +104,29 @@ public class NominationController {
 
         Title title = titleService.nominate(new LinkedHashSet<>(List.of(selectedCollection)), form.getSeedUrl(), form.getName(), form.getContext(),
                 userService.getCurrentUser());
-        return "redirect:/titles/" + title.getId();
+        UriComponentsBuilder redirect = UriComponentsBuilder.fromPath("/nominate/thanks")
+                .queryParam("title", title.getId());
+        collectionIds.forEach(collectionId -> redirect.queryParam("collection", collectionId));
+        return "redirect:" + redirect.build().encode().toUriString();
+    }
+
+    @GetMapping("/nominate/thanks")
+    @PreAuthorize("hasPermission(null, 'Title', 'edit')")
+    public String thanks(@RequestParam(name = "collection") List<Long> collectionIds,
+                         @RequestParam(name = "title") Long submittedTitleId,
+                         Model model) {
+        var currentUser = userService.getCurrentUser();
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("submittedTitleId", submittedTitleId);
+        model.addAttribute("recentNominations",
+                titleRepository.findRecentNominations(currentUser, PageRequest.of(0, 5)));
+        model.addAttribute("dateFormat",
+                DateTimeFormatter.ofPattern("d MMMM yyyy").withZone(ZoneId.systemDefault()));
+
+        UriComponentsBuilder nominateAgain = UriComponentsBuilder.fromPath("/nominate");
+        collectionIds.forEach(collectionId -> nominateAgain.queryParam("collection", collectionId));
+        model.addAttribute("nominateAgainUrl", nominateAgain.build().encode().toUriString());
+        return "NominationThanks";
     }
 
     @GetMapping("/nominate/check")
@@ -183,7 +212,6 @@ public class NominationController {
         model.addAttribute("collectionSelectionRequired", scope.requiresSelection());
         model.addAttribute("collectionNames",
                 String.join(", ", collections.stream().map(Collection::getFullName).toList()));
-        model.addAttribute("primaryCollection", collections.get(0));
     }
 
     private record CollectionChoice(Collection collection, String label) {}
