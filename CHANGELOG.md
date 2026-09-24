@@ -1,5 +1,39 @@
 # PANDAS Changelog
 
+## 4.15.2 2026-09-24
+
+### New features
+
+- Added a streamlined, collection-scoped website nomination form for informational users.
+  - Supports choosing an eligible subcollection when a nomination link covers multiple collecting priorities.
+  - Normalizes and validates URLs, looks up page titles, and warns when a website may already be nominated or archived.
+  - Records nomination context and the nominator, then shows a confirmation page with recent nominations.
+- Added an agency-wide Nominated worktray and sidebar count, with collection and nomination context plus accept, reject, and transfer actions.
+- Added nomination links to collection pages for staff and informational users.
+- Nomination links now start the staff login flow directly instead of displaying the Partner/Staff login choice.
+- Improved the title editor for nominated titles with status-specific styling and action placement.
+
+### Bug fixes
+
+- Fixed the Nominated worktray for legacy titles that do not have a recorded nominator.
+- Fixed nomination counts and worktray results to use the selected agency consistently.
+- Fixed Thymeleaf access restrictions affecting link generation and HTML sanitization after the Spring Boot upgrade.
+
+### Build and deployment
+
+- Added parallel Jenkins stages for Maven/Nexus publishing and OCI image builds.
+- Added tagged UI and gatherer image publishing to the production container registry, including tag/version validation and retry handling.
+- Configured the Jenkins image build to bypass the proxy for internal NLA services.
+- Deployment packaging now runs tests.
+
+### Dependency upgrades
+
+* **spring-boot**: 3.5.12 → 4.1.1
+* **hibernate-search**: 7.2.4.Final → 8.4.0.Final
+* **lucene**: 9.11.1 → 9.12.3
+* **spring-retry**: added 2.0.12
+* **H2**: pinned to 2.3.232 to avoid a check-constraint regression in 2.4.240
+
 ## 4.15.0 2026-07-15
 
 ### New features
