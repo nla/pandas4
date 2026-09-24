@@ -53,10 +53,9 @@ class DashboardIntegrationTest extends IntegrationTest {
         title.changeStatus(Status.NOMINATED, null, admin, Instant.now());
         titleRepository.save(title);
 
-        String agencyAlias = admin.getAgency().getOrganisation().getAlias();
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("href=\"/worktrays/" + agencyAlias + "/nominated\"")))
+                .andExpect(content().string(containsString("href=\"/worktrays/nominated\"")))
                 .andExpect(content().string(containsString("class=\"instance-count\">1</span>")));
     }
 
@@ -64,12 +63,9 @@ class DashboardIntegrationTest extends IntegrationTest {
     @Transactional
     @WithUserDetails("admin")
     void hidesNominatedSidebarLinkWhenAgencyHasNoNominations() throws Exception {
-        User admin = userRepository.findByUserid("admin").orElseThrow();
-        String agencyAlias = admin.getAgency().getOrganisation().getAlias();
-
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(not(containsString("href=\"/worktrays/" + agencyAlias + "/nominated\""))));
+                .andExpect(content().string(not(containsString("href=\"/worktrays/nominated\""))));
     }
 
     @Test
@@ -97,7 +93,7 @@ class DashboardIntegrationTest extends IntegrationTest {
 
         mockMvc.perform(get("/worktrays/OTHER/nominated"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("href=\"/worktrays/OTHER/nominated\"")))
+                .andExpect(content().string(containsString("href=\"/worktrays/nominated\"")))
                 .andExpect(content().string(containsString("class=\"instance-count\">2</span>")))
                 .andExpect(content().string(containsString("Nominated Titles (<span>2</span>)")));
     }
