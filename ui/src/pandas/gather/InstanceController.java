@@ -5,6 +5,8 @@ import jakarta.persistence.PersistenceContext;
 import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.massindexing.MassIndexer;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
@@ -138,8 +140,24 @@ public class InstanceController {
     @ResponseBody
     @PreAuthorize("hasAuthority('PRIV_SYSADMIN')")
     public String reindex() throws InterruptedException {
-        Search.session(entityManager).massIndexer(Instance.class).startAndWait();
+        reindexInstances(Search.session(entityManager));
         return "ok";
+    }
+
+    static void reindexInstances(SearchSession searchSession) throws InterruptedException {
+        // Restore the QA work tray first to minimise disruption during an index rebuild.
+        MassIndexer gatheredIndexer = searchSession.massIndexer(Instance.class);
+        gatheredIndexer.type(Instance.class)
+                .reindexOnly("state = :state")
+                .param("state", State.GATHERED);
+        gatheredIndexer.startAndWait();
+
+        MassIndexer remainingIndexer = searchSession.massIndexer(Instance.class)
+                .purgeAllOnStart(false);
+        remainingIndexer.type(Instance.class)
+                .reindexOnly("state <> :state")
+                .param("state", State.GATHERED);
+        remainingIndexer.startAndWait();
     }
 
     @PostMapping("/instances/bulkchange")
