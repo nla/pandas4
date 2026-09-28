@@ -66,19 +66,8 @@ public class MarcExportController {
         Instant startTime = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
         Instant endTime = endDate.atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant();
         List<TitleSummary> titleSummaries = exportTitleRepository.listSummaries(Date.from(startTime), Date.from(endTime), includeMono, includeIntegrating, includeSerial, includeCataloguingNotRequired, includeCollectionMembers);
-
-        // We filter out the other agencies here because if we add an agency constraint to the SQL
-        // Oracle's query planner is switches to scanning TITLE rather than scanning STATUS_HISTORY which is
-        // much slower for and I can't figure out how to hint it not to.
-        List<TitleSummary> filtered = new ArrayList<>();
-        for (TitleSummary row : titleSummaries) {
-            if (row.getAgencyId() == 1) {
-                filtered.add(row);
-            }
-        }
-
         Map<String,Object> m = new HashMap<>();
-        m.put("data", filtered);
+        m.put("data", titleSummaries);
         return m;
      }
 

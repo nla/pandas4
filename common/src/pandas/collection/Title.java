@@ -122,7 +122,6 @@ public class Title implements TitleRef {
 
     // this exists for backwards compatiblity with PANDAS 3 which had a foreign key
     // in both tables for some reason
-    // while cascading this works in H2 it won't work with Oracle
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEP_ID")
     private Tep legacyTepRelation;

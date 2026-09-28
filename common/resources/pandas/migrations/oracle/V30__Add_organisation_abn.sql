@@ -1,1 +1,0 @@
-ALTER TABLE ORGANISATION add ABN varchar(11);

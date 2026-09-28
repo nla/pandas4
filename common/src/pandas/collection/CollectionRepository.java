@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.agency.Agency;
 import pandas.agency.User;
-import pandas.core.WithRecursiveQueryRewriter;
 import pandas.util.TimeFrame;
 
 import java.time.Instant;
@@ -65,8 +64,7 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
 
     List<Collection> findByCreatedByAndCreatedDateIsAfterOrderByCreatedDateDesc(User creator, Instant dateLimit);
 
-    // Oracle gives an error for "select c ... group by c" type queries and we can't join a subquery
-    // so as a workaround return the ids and then resolve them.
+    // Resolve the ids separately to preserve the ordering by most recent status change.
     @Query("select c.id from StatusHistory sh " +
             "join sh.title t " +
             "join t.collections c " +
@@ -124,7 +122,7 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
         select ROOT_COL_ID as id, SUM(TITLE_COUNT) as titleCount
         from cte1
         group by ROOT_COL_ID
-""", nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+""", nativeQuery = true)
     List<TitleCount> countTitlesForCollectionsInSubject0(@Param("subjectId") long subjectId);
 
     /**
@@ -149,7 +147,7 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
                           from descendents2 d)
                 select ROOT_COL_ID as id, sum(TITLE_COUNT) as titleCount
                 from descendent_counts2
-                group by ROOT_COL_ID""", nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+                group by ROOT_COL_ID""", nativeQuery = true)
     List<TitleCount> countTitlesForChildCollections0(@Param("collectionId") long collectionId);
 
     /**
@@ -174,7 +172,7 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
                   from descendents3 d)
         select ROOT_COL_ID as id, sum(TITLE_COUNT) as titleCount
         from descendent_counts3
-        group by ROOT_COL_ID""", nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+        group by ROOT_COL_ID""", nativeQuery = true)
     List<TitleCount> countTitlesForCollections0(@Param("collectionIds") List<Long> collectionIds);
 
     /**
@@ -231,6 +229,6 @@ public interface CollectionRepository extends CrudRepository<Collection, Long> {
                 join instance i on i.INSTANCE_ID = i2.INSTANCE_ID
                 join ins_gather ig on i.INSTANCE_ID = ig.INSTANCE_ID
                 left join title t on t.TITLE_ID = i.TITLE_ID""",
-            nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+            nativeQuery = true)
     CollectionStats calculateCollectionStats(long collectionId);
 }

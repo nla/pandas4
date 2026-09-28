@@ -31,9 +31,7 @@ public class FlywayConfig {
     }
 
     public static @Nullable String determineDatabaseType(String jdbcUrl) {
-        if (jdbcUrl.startsWith("jdbc:oracle:")) {
-            return  "oracle";
-        } else if (jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:")) {
+        if (jdbcUrl.startsWith("jdbc:mysql:") || jdbcUrl.startsWith("jdbc:mariadb:")) {
             return  "mysql";
         } else {
             return null;

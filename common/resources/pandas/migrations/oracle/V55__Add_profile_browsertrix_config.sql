@@ -1,1 +1,0 @@
-alter table PROFILE add BROWSERTRIX_CONFIG NCLOB;
