@@ -6,7 +6,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pandas.core.Organisation;
-import pandas.core.WithRecursiveQueryRewriter;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +54,7 @@ public interface PublisherRepository extends CrudRepository<Publisher, Long>, Pa
             JOIN publisher_type pt ON pt.PUBLISHER_TYPE_ID = p.PUBLISHER_TYPE_ID
             GROUP BY t.PUBLISHER_ID, o.NAME, pt.PUBLISHER_TYPE
             ORDER BY titleCount DESC
-            """, nativeQuery = true, queryRewriter = WithRecursiveQueryRewriter.class)
+            """, nativeQuery = true)
     List<PublisherTitleCount> findArchivedPublisherTitleCountsByCollectionRecursive(@Param("collectionId") long collectionId);
 
     interface PublisherTitleCount {

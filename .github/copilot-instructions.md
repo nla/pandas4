@@ -9,7 +9,7 @@ This is PANDAS (Preservation and Digital Archive of National Significance) versi
 - **Framework**: Spring Boot 3.5.6
 - **ORM**: Hibernate with Hibernate Search 7.2.4
 - **Search**: Lucene 9.11.1
-- **Databases**: PostgreSQL, Oracle, MariaDB (H2 for tests only)
+- **Databases**: MySQL, MariaDB, PostgreSQL (H2 for tests)
 - **Authentication**: OpenID Connect (Keycloak)
 - **Web Crawlers**: Heritrix, Browsertrix, HTTrack
 - **Web Archive Tools**: pywb, Bamboo
@@ -52,7 +52,7 @@ mvn test
 ## Database Considerations
 
 - Use Hibernate annotations for entity mappings
-- Support for sequences is required (MySQL not currently supported)
+- MySQL and MariaDB use identity columns through `pandas/orm-mysql.xml`; other databases use sequence mappings
 - Queries must support recursive CTEs for hierarchical data
 - H2 is used for automated tests but has CTE limitations
 

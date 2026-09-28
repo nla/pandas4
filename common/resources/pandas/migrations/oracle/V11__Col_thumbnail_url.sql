@@ -1,1 +1,0 @@
-alter table COL add THUMBNAIL_URL CLOB;

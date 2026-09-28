@@ -1,1 +1,0 @@
-alter table SUBJECT add ICON_URL CLOB;

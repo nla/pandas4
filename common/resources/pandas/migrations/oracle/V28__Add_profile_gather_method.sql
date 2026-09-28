@@ -1,2 +1,0 @@
-alter table PROFILE add GATHER_METHOD_ID NUMBER
-    constraint PROFILE_GATHER_METHOD_FK references GATHER_METHOD;

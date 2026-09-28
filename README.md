@@ -39,11 +39,9 @@ On RHEL/CentOS 7 install with:
 
 ### Database Support
 
-PANDAS is known to work with Oracle, Postgresql and MariaDB. It may work with other databases that are supported by
-Hibernate and support sequences and recursive CTEs.
-
-MySQL is assumed to currently not work due to the use of sequences. H2 is used for automated tests but is not
-recommended for production due to bugs in its CTE support.
+PANDAS supports MySQL and MariaDB, with PostgreSQL support retained. MySQL and MariaDB use identity columns for
+generated IDs and require recursive CTEs. H2 is used for automated tests but is not recommended for production due to
+bugs in its CTE support.
 
 Building and Running
 --------------------

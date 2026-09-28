@@ -1,1 +1,0 @@
-alter table PROFILE add heritrix_config NCLOB;
