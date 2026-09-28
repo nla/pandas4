@@ -149,6 +149,7 @@
                         function updateStatusFieldsetColour() {
                             let statusSelect = document.getElementById("status");
                             let titleStatusFieldset = document.getElementById("titleStatusFieldset");
+                            if (!statusSelect) return; // not shown to infousers
                             let selectedOption = statusSelect.options[statusSelect.selectedIndex];
                             titleStatusFieldset.dataset.status = selectedOption
                                 ? selectedOption.text.trim().toLowerCase()
@@ -355,6 +356,10 @@
                 function updateCeasedWarning() {
                     // show a gather warning if the status is ceased
                     let statusSelect = document.getElementById("status");
+                    if (!statusSelect) { // not shown to infousers
+                        document.getElementById("ceasedWarning").style.display = 'none';
+                        return;
+                    }
                     if (!statusSelect.selectedOptions || statusSelect.selectedOptions.length === 0) {
                         return; // No option selected yet
                     }
@@ -369,7 +374,7 @@
                 }
 
                 window.addEventListener("load", updateCeasedWarning);
-                document.getElementById("status").addEventListener("change", updateCeasedWarning);
+                document.getElementById("status")?.addEventListener("change", updateCeasedWarning);
 
                 // re-enable disabled elements before submitting so their data is actually sent
                 titleEditForm.addEventListener("submit", event => {
