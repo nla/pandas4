@@ -787,6 +787,16 @@ public class Title implements TitleRef {
         return ownerHistories;
     }
 
+    /**
+     * Returns the most recent owner history entry if it was a transfer (rather than creation or nomination),
+     * otherwise null.
+     */
+    public OwnerHistory getLatestTransfer() {
+        if (ownerHistories.isEmpty()) return null;
+        OwnerHistory latest = ownerHistories.get(ownerHistories.size() - 1);
+        return latest.getTransferrer() != null ? latest : null;
+    }
+
     public List<ContactEvent> getContactEvents() {
         return contactEvents;
     }
@@ -994,13 +1004,16 @@ public class Title implements TitleRef {
      * @param note optional note about the transfer
      * @param transferrer the user performing the transfer
      * @param transferDate the date of the transfer
+     * @return the new owner history entry, or null if the agency and owner were unchanged
      */
-    public void transferOwnership(Agency newAgency, User newOwner, String note, User transferrer, Instant transferDate) {
-        if (Objects.equals(newAgency, agency) && Objects.equals(newOwner, owner)) return;
+    public OwnerHistory transferOwnership(Agency newAgency, User newOwner, String note, User transferrer, Instant transferDate) {
+        if (Objects.equals(newAgency, agency) && Objects.equals(newOwner, owner)) return null;
 
         this.agency = newAgency;
         this.owner = newOwner;
-        ownerHistories.add(new OwnerHistory(this, newAgency, newOwner, note, transferrer, transferDate));
+        var ownerHistory = new OwnerHistory(this, newAgency, newOwner, note, transferrer, transferDate);
+        ownerHistories.add(ownerHistory);
+        return ownerHistory;
     }
 
     public void changeStatus(Status newStatus, Reason reason, User user, Instant changeDate) {

@@ -15,6 +15,7 @@ import pandas.core.PandasBanner;
 import pandas.core.PandasPermissionEvaluator;
 
 import java.net.http.HttpClient;
+import java.util.ArrayList;
 
 @SpringBootApplication
 @EnableScheduling
@@ -24,11 +25,16 @@ import java.net.http.HttpClient;
 public class Pandas {
     public static void main(String[] args) {
         var application = new SpringApplication(Pandas.class);
-        if (System.getenv("OIDC_URL") != null || System.getProperty("OIDC_URL") != null) {
-            application.setAdditionalProfiles("openid");
-        }
+        var profiles = new ArrayList<String>();
+        if (isSet("OIDC_URL")) profiles.add("openid");
+        if (isSet("SMTP_HOST")) profiles.add("mail");
+        application.setAdditionalProfiles(profiles.toArray(String[]::new));
         application.setBanner(new PandasBanner());
         application.run(args);
+    }
+
+    private static boolean isSet(String name) {
+        return System.getenv(name) != null || System.getProperty(name) != null;
     }
 
     @Bean(name = "htmlSanitizer")

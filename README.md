@@ -79,6 +79,11 @@ Set the following environment variables:
 #OIDC_CLIENT_ID=
 #OIDC_CLIENT_SECRET=
 
+## Email notifications (optional)
+#SMTP_HOST=
+#SMTP_PORT=25
+#MAIL_FROM=pandas@example.org
+
 ## Browsertrix backend
 #BROWSERTRIX_WORKERS=4
 #BROWSERTRIX_PAGE_LIMIT=1000

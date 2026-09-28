@@ -196,6 +196,13 @@
                 <a th:href="@{|/titles/${title.id}/transfer|}"><i class="icon edit"></i></a>
             </div>
             <div>Agency: <a th:href="${link.to(title.agency)}" th:text="${title.agency.name}">National Library</a></div>
+            <th:block th:with="transfer = ${title.latestTransfer}"><th:block th:if="${transfer != null}">
+                <div>Transferred by <a th:href="${link.to(transfer.transferrer)}" th:text="${transfer.transferrer.fullName}">Jane Smith</a>
+                    on <time th:datetime="${transfer.date}" th:text="${@dateFormats.shortDate(transfer.date)}">1 Jan 2025</time></div>
+                <div th:if="${!#strings.isEmpty(#strings.trim(transfer.note))}" class="transfer-note"
+                     style="white-space: pre-wrap; margin-left: 1em; opacity: 0.75"
+                     th:text="${transfer.note}">Transfer note</div>
+            </th:block></th:block>
             <div>Registered: <span th:text="${dateFormat.format(title.regDate)}"></span></div>
         </div>
 
