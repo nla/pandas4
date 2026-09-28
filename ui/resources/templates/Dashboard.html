@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>PANDAS</title>
@@ -12,7 +12,7 @@
     <header>
         <nav>
             <a th:href="@{/titles/new}" href="TitleEdit.html" class="btn btn-primary" data-keybind="t"><i class="icon title"></i> Add a website</a>
-            <a th:href="@{/collections/new}" href="TitleEdit.html" class="btn btn-secondary" data-keybind="t"><i class="icon collection"></i> Create a collection</a>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_COLLECTIONS')" th:href="@{/collections/new}" href="TitleEdit.html" class="btn btn-secondary" data-keybind="t"><i class="icon collection"></i> Create a collection</a>
         </nav>
         <form th:action="@{/titles}">
             <input type=search name="q" placeholder="Search websites" data-keybind="f">
