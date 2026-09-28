@@ -9,9 +9,4 @@ public class SettingsController {
     public String systemSettings() {
         return "SystemSettings";
     }
-
-    @GetMapping("/pandas3-eol")
-    public String pandas3EndOfLife() {
-        return "Pandas3Eol";
-    }
 }
