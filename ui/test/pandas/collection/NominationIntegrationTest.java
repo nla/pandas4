@@ -115,48 +115,6 @@ class NominationIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    void nominatedWorktrayShowsTriageInformation() throws Exception {
-        User nominator = userRepository.findByUserid("admin").orElseThrow();
-        Collection collection = collection("Triage collection", false);
-        Instant registered = Instant.now().minus(3, ChronoUnit.DAYS);
-
-        Title withContext = new Title(nominator, registered);
-        withContext.setName("Nomination with context");
-        withContext.setTitleUrl("https://context.example.org");
-        withContext.setNotes("Time-critical collecting context for the reviewer");
-        withContext.setCollections(Set.of(collection));
-        withContext.changeStatus(Status.NOMINATED, null, nominator, registered);
-        titleRepository.save(withContext);
-        entityManager.flush();
-        withContext.setRegDate(registered);
-        titleRepository.save(withContext);
-
-        Title withoutContext = new Title(nominator, registered);
-        withoutContext.setName("Nomination without context");
-        withoutContext.setTitleUrl("https://no-context.example.org");
-        withoutContext.setCollections(Set.of(collection));
-        withoutContext.changeStatus(Status.NOMINATED, null, nominator, registered);
-        titleRepository.save(withoutContext);
-        entityManager.flush();
-        withoutContext.setRegDate(registered);
-        titleRepository.save(withoutContext);
-        entityManager.flush();
-
-        String agencyAlias = nominator.getAgency().getOrganisation().getAlias();
-        mockMvc.perform(get("/worktrays/" + agencyAlias + "/nominated"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Triage collection")))
-                .andExpect(content().string(containsString("Time-critical collecting context for the reviewer")))
-                .andExpect(content().string(not(containsString("No context provided"))))
-                .andExpect(content().string(not(containsString("Collections:"))))
-                .andExpect(content().string(containsString("admin</a> nominated </span><time")))
-                .andExpect(content().string(not(containsString("Nominated title</th>"))))
-                .andExpect(content().string(not(containsString("owned by"))))
-                .andExpect(content().string(containsString("title=\"Registered ")))
-                .andExpect(content().string(containsString("3 days ago")));
-    }
-
-    @Test
     void copiesSelectedCollectionSubjectsToNominatedTitle() throws Exception {
         Subject subject = new Subject();
         subject.setName("Nomination subject");

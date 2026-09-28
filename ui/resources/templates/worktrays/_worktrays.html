@@ -27,11 +27,11 @@
              start=${T(java.lang.Math).max(1, T(java.lang.Math).min(cur - half, last - mid))},
              end=${T(java.lang.Math).min(start + mid - 1, last - 1)}">
         <!-- Prev -->
-        <a class="btn btn-compact" th:if="${page.hasPrevious()}" th:href="@{''(page=${cur - 1})}" rel="prev">〈 Prev</a>
+        <a class="btn btn-compact" th:if="${page.hasPrevious()}" th:href="${link.page(cur - 1)}" rel="prev">〈 Prev</a>
         <span class="btn btn-compact disabled" th:unless="${page.hasPrevious()}">〈 Prev</span>
 
         <!-- First page -->
-        <a class="btn btn-secondary" th:if="${cur != 0}" th:href="@{''(page=0)}">1</a>
+        <a class="btn btn-secondary" th:if="${cur != 0}" th:href="${link.page(0)}">1</a>
         <span class="btn btn-secondary disabled" th:if="${cur == 0}" th:text="1" aria-current="page"></span>
 
         <!-- Leading ellipsis -->
@@ -39,7 +39,7 @@
 
         <!-- Window around current -->
         <span th:each="n : ${#numbers.sequence(start, end)}">
-          <a class="btn btn-secondary" th:if="${n != cur}" th:text="${n + 1}" th:href="@{''(page=${n})}"></a>
+          <a class="btn btn-secondary" th:if="${n != cur}" th:text="${n + 1}" th:href="${link.page(n)}"></a>
           <span class="btn btn-secondary disabled" th:if="${n == cur}" th:text="${n + 1}" aria-current="page"></span>
         </span>
 
@@ -47,11 +47,11 @@
         <span class="dots" th:if="${end < last - 1}">…</span>
 
         <!-- Last page -->
-        <a class="btn btn-secondary" th:if="${cur != last}" th:text="${total}" th:href="@{''(page=${last})}"></a>
+        <a class="btn btn-secondary" th:if="${cur != last}" th:text="${total}" th:href="${link.page(last)}"></a>
         <span class="btn btn-secondary disabled" th:if="${cur == last}" th:text="${total}" aria-current="page"></span>
 
         <!-- Next -->
-        <a class="btn" th:if="${page.hasNext()}" th:href="@{''(page=${cur + 1})}">Next 〉</a>
+        <a class="btn" th:if="${page.hasNext()}" th:href="${link.page(cur + 1)}">Next 〉</a>
         <span class="btn disabled" th:unless="${page.hasNext()}">Next 〉</span>
     </nav>
 </div>

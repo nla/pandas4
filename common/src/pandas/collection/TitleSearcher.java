@@ -29,6 +29,7 @@ import pandas.search.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,23 @@ public class TitleSearcher {
     
     public SearchResults<Title> search(MultiValueMap<String, String> params, Pageable pageable) {
         return new Query(params, pageable).execute();
+    }
+
+    /**
+     * Searches the titles in a worktray: those with the given status, belonging to the given agency (if not null) and
+     * not awaiting confirmation of a transfer. Only the facets whose params are listed in facetParams are returned.
+     */
+    public SearchResults<Title> searchWorktray(Status status, Long agencyId, List<String> facetParams,
+                                               MultiValueMap<String, String> params, Pageable pageable) {
+        var query = new Query(params, pageable);
+        query.status = status;
+        query.agencyId = agencyId;
+        query.excludeAwaitingConfirmation = true;
+        query.resultFacets = facetParams.stream()
+                .map(param -> Arrays.stream(facets).filter(facet -> facet.param.equals(param)).findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Unknown facet: " + param)))
+                .toList();
+        return query.execute();
     }
 
     public SearchScroll<Title> scroll(MultiValueMap<String, String> params) {
@@ -162,6 +180,10 @@ public class TitleSearcher {
         private boolean disappeared;
         private boolean unableToArchive;
         private final Long permissionId;
+        private Status status;
+        private Long agencyId;
+        private boolean excludeAwaitingConfirmation;
+        private List<Facet> resultFacets = List.of(facets);
 
         private Query(MultiValueMap<String, String> params, Pageable pageable) {
             this.session = Search.session(entityManager);
@@ -215,6 +237,10 @@ public class TitleSearcher {
             if (unableToArchive) and.add(f.match().field("unableToArchive").matching(true));
             if (permissionId != null) and.add(f.match().field("permission.id").matching(permissionId));
             if (!ids.isEmpty()) and.add(f.id().matchingAny(ids));
+            if (status != null) and.add(f.match().field("status").matching(status));
+            if (agencyId != null) and.add(f.match().field("agency.id").matching(agencyId));
+            // negated so that documents indexed before this field existed still match
+            if (excludeAwaitingConfirmation) and.add(f.not(f.match().field("awaitingConfirmation").matching(true)));
             for (Facet facet : facets) {
                 and.add(facet.searchPredicate(f, params));
                 if (facet == exceptFacet) continue;
@@ -228,7 +254,7 @@ public class TitleSearcher {
                     .where(f -> predicate(f, null))
                     .sort(this::sort);
             // we can do inactive facets as part of the main search
-            for (Facet facet : facets) {
+            for (Facet facet : resultFacets) {
                 if (params.containsKey(facet.param)) continue;
                 if (facet instanceof EntityFacet<?> entityFacet) {
                     search.aggregation(entityFacet.key, f -> f.terms().field(facet.field, Long.class).maxTermCount(20));
@@ -241,7 +267,7 @@ public class TitleSearcher {
             var result = searchQuery.fetch((int) pageable.getOffset(), pageable.getPageSize());
 
             List<FacetResults> facetResults = new ArrayList<>();
-            for (Facet facet : facets) {
+            for (Facet facet : resultFacets) {
                 if (facet instanceof EntityFacet && params.containsKey(facet.param)) {
                     // we need to do separate searches for each active entity facets that applies all other facets
                     var facetResult = session.search(Title.class)
