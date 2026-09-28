@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${'Issues - ' + title.name + ' - PANDAS'}">Issues - Example Title - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 
     <style>
         .drag-handle {
             cursor: move;
             user-select: none;
-            color: #666666;
+            color: var(--color-muted);
             text-align: center;
         }
 

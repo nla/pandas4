@@ -15,7 +15,7 @@
 .filters > details {
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
-    border: 1px solid rgba(0, 0, 0, 0.125);
+    border: 1px solid var(--color-divider);
     border-radius: 0.25rem;
     padding: 0;
 }
@@ -29,7 +29,7 @@
 
 .filters > details > summary > input {
     float: right;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-control-border);
     border-radius: 0.25rem;
     padding: 0 0.4rem;
     width: 150px;
@@ -47,7 +47,7 @@
 }
 
 .filters > details[open] > summary {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border-bottom: 1px solid var(--color-divider);
 }
 
 .filters > details[open] > summary > input {

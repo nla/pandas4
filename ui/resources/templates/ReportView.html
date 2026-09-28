@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${view.title()} + ' - PANDAS'">Report - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
         .report-params { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin: 12px 0 24px; }
         .report-params > label { display: flex; flex-direction: column; font-size: 0.85em; gap: 4px; }
@@ -12,11 +12,11 @@
         /* Date controls grouped together; the presets are clearly shortcuts that fill From/To. */
         .date-group { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px;
             border: 1px solid var(--color-light-grey); border-radius: 6px; padding: 6px 12px 10px; margin: 0; }
-        .date-group > legend { font-size: 0.78em; color: #666; padding: 0 4px; }
+        .date-group > legend { font-size: 0.78em; color: var(--color-muted); padding: 0 4px; }
         .date-group label { display: flex; flex-direction: column; font-size: 0.85em; gap: 4px; }
         .report-presets { display: flex; flex-direction: column; gap: 4px;
             border-left: 1px solid var(--color-light-grey); padding-left: 14px; }
-        .report-presets > .caption { font-size: 0.78em; color: #666; }
+        .report-presets > .caption { font-size: 0.78em; color: var(--color-muted); }
         .report-presets > .selects { display: flex; gap: 6px; }
         .report-presets select { font-size: 0.85em; }
         .report-actions { display: flex; gap: 8px; align-items: flex-end; }
@@ -43,7 +43,7 @@
         <ol>
             <li style="font-weight: bold"><a th:href="@{/reports}" href="ReportIndex.html">Reports</a></li>
             <li class="active"><span th:text="${view.title()}">Report</span><span
-                    th:if="${view.subheading()}" style="color: #666"
+                    th:if="${view.subheading()}" style="color: var(--color-muted)"
                     th:text="' (' + ${view.subheading()} + ')'"></span></li>
         </ol>
     </nav>

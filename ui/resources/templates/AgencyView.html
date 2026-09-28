@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${agency.name + ' - PANDAS'}">National Library - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Agencies')}"></nav>
@@ -52,7 +52,7 @@
             <th>Created</th>
         </tr>
         <tr th:each="user : ${users}">
-            <td><span th:unless="${user.active}" title="Account disabled" style="color: #999; user-select: none">✗</span></td>
+            <td><span th:unless="${user.active}" title="Account disabled" style="color: var(--color-muted); user-select: none">✗</span></td>
             <td><a th:href="${link.to(user)}" th:text="${user.userid}"></a></td>
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.role.title}"></td>

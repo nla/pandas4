@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 
@@ -95,12 +95,12 @@
     </ul>
 
     <!-- Gather option administration -->
-    <ul sec:authorize="hasRole('stduser')" class="hide-when-sidebar-collapsed">
-        <li><a th:href="@{/settings}">System Settings</a>
+    <ul class="hide-when-sidebar-collapsed">
+        <li><a th:href="@{/settings}">Settings</a>
     </ul>
     <ul class="hide-when-sidebar-collapsed" th:with="currentUser=${@userService.getCurrentUser()}">
         <li><a class="disabled">User: <th:block sec:authentication="name">jsmith</th:block></a></li>
-        <li sec:authorize="hasAuthority('IS_MASQUERADING')" style="padding-left: 1rem; color: #999">
+        <li sec:authorize="hasAuthority('IS_MASQUERADING')" style="padding-left: 1rem; color: var(--color-muted)">
             Acting as: <span th:text="${@userService.effectiveRole}"></span>
         </li>
         <li><a th:href="${link.edit(currentUser)}">Edit My Details</a></li>
