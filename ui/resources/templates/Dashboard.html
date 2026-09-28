@@ -71,6 +71,9 @@
                     <li th:each="oh : ${period.transferredToUser}">
                         <a th:href="${link.to(oh.title)}" th:text="${oh.title.name}"></a>
                         <span th:text="'(from ' + ${oh.transferrer.userid} + ')'">(from userid)</span>
+                        <div th:if="${!#strings.isEmpty(#strings.trim(oh.note))}" class="transfer-note"
+                             style="white-space: pre-wrap; margin-left: 1em; opacity: 0.75"
+                             th:text="${oh.note}">Transfer note</div>
                     </li>
                 </ul>
             </p>

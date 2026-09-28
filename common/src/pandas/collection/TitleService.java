@@ -3,6 +3,7 @@ package pandas.collection;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +37,14 @@ public class TitleService {
     private final ScopeRepository scopeRepository;
     private final OptionRepository optionRepository;
     private final ContactPersonRepository contactPersonRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public TitleService(FormatRepository formatRepository,
                         TitleRepository titleRepository, TitleGatherRepository titleGatherRepository,
                         GatherMethodRepository gatherMethodRepository,
                         GatherScheduleRepository gatherScheduleRepository, ProfileRepository profileRepository, PublisherRepository publisherRepository,
-                        ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository) {
+                        ScopeRepository scopeRepository, OptionRepository optionRepository, ContactPersonRepository contactPersonRepository,
+                        ApplicationEventPublisher eventPublisher) {
         this.titleRepository = titleRepository;
         this.titleGatherRepository = titleGatherRepository;
         this.formatRepository = formatRepository;
@@ -52,6 +55,7 @@ public class TitleService {
         this.scopeRepository = scopeRepository;
         this.optionRepository = optionRepository;
         this.contactPersonRepository = contactPersonRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @PreAuthorize("hasAuthority('PRIV_BULK_EDIT_TITLES')")
@@ -412,8 +416,11 @@ public class TitleService {
 
     @Transactional
     public void transferOwnership(Title title, Agency newAgency, User newOwner, String note, User currentUser) {
-        title.transferOwnership(newAgency, newOwner, note, currentUser, Instant.now());
+        OwnerHistory ownerHistory = title.transferOwnership(newAgency, newOwner, note, currentUser, Instant.now());
         titleRepository.save(title);
+        if (ownerHistory != null) {
+            eventPublisher.publishEvent(new TitleTransferredEvent(ownerHistory));
+        }
     }
 
     @NotNull
