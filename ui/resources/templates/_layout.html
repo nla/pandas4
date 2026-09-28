@@ -18,9 +18,6 @@
     <header>
         <a th:href="@{/}">Web Archive</a>
     </header>
-    <ul sec:authorize="hasRole('stduser')">
-        <li><a th:href="@{/pandas3-eol}" th:classappend="${activeItem == 'P3 Retirement'}? 'active'"><i class="icon info"></i>PANDAS 3</a></li>
-    </ul>
     <ul>
         <li sec:authorize="hasAuthority('PRIV_SELECT_TITLES')">
             <a th:href="@{/worktrays}"
