@@ -607,7 +607,7 @@ function applySitePresets(url) {
         if (preset.gatherMethod) {
             /** @type {HTMLSelectElement} */
             let gatherMethodSelect = document.getElementById('gatherMethod');
-            gatherMethodSelect.value = preset.gatherMethod.toString();
+            if (gatherMethodSelect) gatherMethodSelect.value = preset.gatherMethod.toString();
         }
 
         if (preset.subjects && preset.subjects.length !== 0) {
@@ -635,6 +635,7 @@ function checkSurts() {
     const surtsHint = document.getElementById('surtsHint');
     /** @type {HTMLSelectElement} */
     let gatherMethodSelect = document.getElementById('gatherMethod');
+    if (!gatherMethodSelect) return; // not shown to infousers
     let selectedGatherMethod = gatherMethodSelect.selectedOptions;
     if (!seeds || selectedGatherMethod.length === 0 || selectedGatherMethod[0].text !== 'Heritrix') {
         surtsHint.innerHTML = '';
@@ -674,6 +675,7 @@ function setInputHidden(id, hidden) {
 function showOrHideFilters() {
     /** @type {HTMLSelectElement} */
     let gatherMethodSelect = document.getElementById('gatherMethod');
+    if (!gatherMethodSelect) return; // not shown to infousers
     let selectedGatherMethod = gatherMethodSelect.selectedOptions;
     let gatherMethodName = selectedGatherMethod.length === 0 ? '' : selectedGatherMethod[0].text;
     document.getElementById('filters').parentElement.style.display = gatherMethodName === 'HTTrack' ? 'inherit' : 'none';
@@ -708,7 +710,7 @@ seedUrlsTextArea.addEventListener("change", function () {
     checkSurts();
 });
 document.getElementById('seedUrls').addEventListener("change", checkSurts);
-document.getElementById('gatherMethod').addEventListener("change", function () {
+document.getElementById('gatherMethod')?.addEventListener("change", function () {
     showOrHideFilters();
     checkSurts();
 });
