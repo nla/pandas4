@@ -122,8 +122,7 @@ public class TitleService {
         if (cleanedNotes != null && !cleanedNotes.isBlank()) {
             form.setNotes(user.getUserid() + " " + NOMINATION_NOTE_DATE.format(now) + ": " + cleanedNotes);
         }
-        form.setStatus(Status.NOMINATED);
-        return save(form, user, "Nominated new title", now);
+        return saveNomination(form, user, now);
     }
 
     public static String normalizeNominationUrl(String seedUrl) {
@@ -153,6 +152,20 @@ public class TitleService {
     @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
     public Title save(TitleEditForm form, User user) {
         return save(form, user, "Created new title", Instant.now());
+    }
+
+    /**
+     * Saves a title submitted through a nomination workflow.
+     */
+    @Transactional
+    @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
+    public Title saveNomination(TitleEditForm form, User user) {
+        return saveNomination(form, user, Instant.now());
+    }
+
+    private Title saveNomination(TitleEditForm form, User user, Instant now) {
+        form.setStatus(Status.NOMINATED);
+        return save(form, user, "Nominated new title", now);
     }
 
     private Title save(TitleEditForm form, User user, String ownerHistoryNote, Instant now) {
