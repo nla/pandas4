@@ -3,6 +3,7 @@ package pandas.collection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.IntegrationTest;
 import pandas.agency.Agency;
@@ -90,6 +91,9 @@ class DashboardIntegrationTest extends IntegrationTest {
             title.changeStatus(Status.NOMINATED, null, nominator, now);
             titleRepository.save(title);
         }
+        // the worktray is served from the search index, which is only updated on commit
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
 
         mockMvc.perform(get("/worktrays/OTHER/nominated"))
                 .andExpect(status().isOk())

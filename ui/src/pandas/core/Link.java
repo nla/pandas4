@@ -1,5 +1,8 @@
 package pandas.core;
 
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 import pandas.agency.Agency;
 import pandas.agency.AgencySummary;
@@ -210,5 +213,15 @@ public class Link {
 
     public String unflag(TitleRef title) {
         return to(title) + "/unflag";
+    }
+
+    /**
+     * Relative link to the given page of the current request, preserving any other query parameters (e.g. filters).
+     */
+    public String page(int page) {
+        var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        var builder = UriComponentsBuilder.newInstance();
+        request.getParameterMap().forEach((name, values) -> builder.queryParam(name, (Object[]) values));
+        return builder.replaceQueryParam("page", page).build().encode().toUriString();
     }
 }

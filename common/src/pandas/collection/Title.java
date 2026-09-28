@@ -256,6 +256,7 @@ public class Title implements TitleRef {
      */
     @NotNull
     @Column(name = "AWAITING_CONFIRMATION")
+    @GenericField
     private boolean awaitingConfirmation;
 
     /**

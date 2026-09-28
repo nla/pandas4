@@ -2,6 +2,7 @@ package pandas.collection;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -41,6 +42,7 @@ public class WorktraysController {
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
     private final StateRepository stateRepository;
+    private final TitleSearcher titleSearcher;
 
     private static final List<GatherIndicator.IndicatorType> SUMMARY_INDICATORS = List.of(
         GatherIndicator.IndicatorType.GATHER_VIBE,
@@ -51,7 +53,7 @@ public class WorktraysController {
         GatherIndicator.IndicatorType.HTTP_LAST_BAD
     );
 
-    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, InstanceSearcher instanceSearcher, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, StateRepository stateRepository) {
+    public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, InstanceSearcher instanceSearcher, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, StateRepository stateRepository, TitleSearcher titleSearcher) {
         this.titleRepository = titleRepository;
         this.instanceRepository = instanceRepository;
         this.instanceSearcher = instanceSearcher;
@@ -59,6 +61,7 @@ public class WorktraysController {
         this.agencyRepository = agencyRepository;
         this.userRepository = userRepository;
         this.stateRepository = stateRepository;
+        this.titleSearcher = titleSearcher;
     }
 
     @ModelAttribute
@@ -114,7 +117,7 @@ public class WorktraysController {
                       @RequestParam MultiValueMap<String, String> params, Model model, HttpServletRequest request) {
         Pageable pageable = PageRequest.of(0, 5);
         // Selection
-        nominated(agencyId, ownerId, pageable, model);
+        addNominatedTitles(titleRepository.worktrayNominated(nominatedAgencyId(agencyId, ownerId), pageable), model);
         monitored(agencyId, ownerId, pageable, model);
         // Permission
         requestPermission(agencyId, ownerId, pageable, model);
@@ -133,13 +136,35 @@ public class WorktraysController {
         return "worktrays/All";
     }
 
+    private static final List<String> NOMINATED_ORDERINGS = List.of("Newest", "Oldest", "Name (ascending)", "Name (descending)");
+
     @GetMapping(value = {"/worktrays/nominated", "/worktrays/{alias}/nominated"})
-    public String nominated(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId, Pageable pageable, Model model) {
+    public String nominated(@ModelAttribute("agencyId") Long agencyId, @ModelAttribute("ownerId") Long ownerId,
+                            @RequestParam MultiValueMap<String, String> params, Pageable pageable, Model model) {
+        String sort = params.getFirst("sort");
+        if (sort == null || !NOMINATED_ORDERINGS.contains(sort)) {
+            sort = NOMINATED_ORDERINGS.get(0);
+            params = new LinkedMultiValueMap<>(params);
+            params.set("sort", sort);
+        }
+        var results = titleSearcher.searchWorktray(Status.NOMINATED, nominatedAgencyId(agencyId, ownerId),
+                List.of("collection", "nominator"), params, pageable);
+        addNominatedTitles(results, model);
+        model.addAttribute("filters", results.getFacets());
+        model.addAttribute("orderings", NOMINATED_ORDERINGS);
+        model.addAttribute("sort", sort);
+        return "worktrays/Nominated";
+    }
+
+    private Long nominatedAgencyId(Long agencyId, Long ownerId) {
         // nominated worktray always displays all titles from their agency regardless of owner
         if (agencyId == null && ownerId != null) {
             agencyId = userRepository.findById(ownerId).orElseThrow().getAgency().getId();
         }
-        var nominatedTitles = titleRepository.worktrayNominated(agencyId, pageable);
+        return agencyId;
+    }
+
+    private void addNominatedTitles(Page<? extends TitleRef> nominatedTitles, Model model) {
         var titleCollections = new LinkedHashMap<Long, List<Collection>>();
         nominatedTitles.forEach(title -> titleCollections.put(title.getId(), new ArrayList<>()));
         if (!titleCollections.isEmpty()) {
@@ -148,7 +173,6 @@ public class WorktraysController {
         }
         model.addAttribute("nominatedTitles", nominatedTitles);
         model.addAttribute("nominatedTitleCollections", titleCollections);
-        return "worktrays/Nominated";
     }
 
     @GetMapping("/worktrays/{alias}/monitored")

@@ -5,6 +5,7 @@
     <title>Nominated Titles - PANDAS</title>
     <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
+    <link rel="stylesheet" href="../../static/assets/Filters.css" th:href="@{/assets/Filters.css}">
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Nominated')}"></nav>
@@ -12,53 +13,73 @@
     <header th:replace="~{worktrays/_worktrays.html :: header('/worktrays/{alias}/nominated')}">
     </header>
 
-    <nav class="breadcrumb">
-        <ol>
-             <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
-            <li class="active">Nominated Titles (<span th:text="${nominatedTitles.totalElements}"></span>)</li>
-        </ol>
-    </nav>
+    <form id=sf method=get th:action="@{''}">
+        <button type=submit style="visibility: hidden; position: absolute; top: -1000px"></button>
+    </form>
 
-    <table th:fragment="table" class="worktray-table nominated-worktray">
-        <tbody>
-        <tr th:each="title: ${nominatedTitles}">
-            <td class="nomination-summary">
-                <a class="nomination-title" th:text="${title.name}" th:href="${link.to(title)}">Example title</a>
-                <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url nomination-url">example.com</a>
-                <div class="nomination-collections" th:if="${!nominatedTitleCollections[title.id].isEmpty()}">
-                    <ul class="collection-list">
-                        <li th:each="collection: ${nominatedTitleCollections[title.id]}">
-                            <a th:href="${link.to(collection)}" th:text="${collection.fullName}">Example collection</a>
-                        </li>
-                    </ul>
-                </div>
-                <p class="nomination-context"
-                   th:if="${title.notes != null and !#strings.isEmpty(#strings.trim(title.notes))}"
-                   th:text="${title.notes}">Useful context for the reviewer</p>
-                <div class="nomination-metadata">
-                    <span th:if="${title.nominator}"><a th:href="${link.to(title.nominator)}" th:text="${title.nominator.userid}">jsmith</a> nominated </span><span th:unless="${title.nominator}">Nominated </span><time
-                          th:datetime="${title.regDate}"
-                          th:title="${'Registered ' + dateTimeFormat.format(title.regDate)}"
-                          th:text="${@format.relativeAge(title.regDate)}">3 days ago</time><span
-                          th:if="${title.owner != null and (title.nominator == null or title.owner.id != title.nominator.id)}">; owned by <a
-                            th:href="${link.to(title.owner)}" th:text="${title.owner.userid}">jbloggs</a></span>
-                </div>
-            </td>
-            <td class="worktray-table--actions">
-                <a class="nomination-accept" title="Accept" th:href="${link.editStatus(title, 'SELECTED')}">
-                    <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#check}"/></svg>
-                </a>
-                <a class="nomination-reject" title="Reject" th:href="${link.editStatus(title, 'REJECTED')}">
-                    <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#x}"/></svg>
-                </a>
-                <a title="Transfer" th:href="${link.transfer(title)}">
-                    <svg class="lucide-icon" viewBox="0 0 24 24"><use th:href="@{/assets/lucide.svg#forward}"/></svg>
-                </a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="nominated-layout">
+        <aside class="filters" th:replace="~{TitleSearch.html :: filters (hideNotCheckbox='true')}">
+        </aside>
 
-    <div th:replace="~{worktrays/_worktrays :: pagination(${nominatedTitles})}">
+        <section class="nominated-results">
+            <header class="nominated-results-header">
+                <nav class="breadcrumb">
+                    <ol>
+                        <li><a th:href="@{/worktrays/{alias}(alias=${alias})}" style="font-weight: bold">Worktrays</a></li>
+                        <li class="active">Nominated Titles (<span th:text="${nominatedTitles.totalElements}"></span>)</li>
+                    </ol>
+                </nav>
+                <label>
+                    Sort by:
+                    <select form="sf" name="sort" class="auto-submit" data-default="Newest">
+                        <option th:each="ordering : ${orderings}" th:text="${ordering}" th:selected="${ordering.equals(sort)}">Newest</option>
+                    </select>
+                </label>
+            </header>
+
+            <table th:fragment="table" class="worktray-table nominated-worktray">
+                <tbody>
+                <tr th:each="title: ${nominatedTitles}">
+                    <td class="nomination-summary">
+                        <a class="nomination-title" th:text="${title.name}" th:href="${link.to(title)}">Example title</a>
+                        <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url nomination-url">example.com</a>
+                        <div class="nomination-collections" th:if="${!nominatedTitleCollections[title.id].isEmpty()}">
+                            <ul class="collection-list">
+                                <li th:each="collection: ${nominatedTitleCollections[title.id]}">
+                                    <a th:href="${link.to(collection)}" th:text="${collection.fullName}">Example collection</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <p class="nomination-context"
+                           th:if="${title.notes != null and !#strings.isEmpty(#strings.trim(title.notes))}"
+                           th:text="${title.notes}">Useful context for the reviewer</p>
+                        <div class="nomination-metadata">
+                            <span th:if="${title.nominator}"><a th:href="${link.to(title.nominator)}" th:text="${title.nominator.userid}">jsmith</a> nominated </span><span th:unless="${title.nominator}">Nominated </span><time
+                                  th:datetime="${title.regDate}"
+                                  th:title="${'Registered ' + dateTimeFormat.format(title.regDate)}"
+                                  th:text="${@format.relativeAge(title.regDate)}">3 days ago</time><span
+                                  th:if="${title.owner != null and (title.nominator == null or title.owner.id != title.nominator.id)}">; owned by <a
+                                    th:href="${link.to(title.owner)}" th:text="${title.owner.userid}">jbloggs</a></span>
+                        </div>
+                    </td>
+                    <td class="worktray-table--actions">
+                        <a class="nomination-accept" title="Accept" th:href="${link.editStatus(title, 'SELECTED')}">
+                            <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#check}"/></svg>
+                        </a>
+                        <a class="nomination-reject" title="Reject" th:href="${link.editStatus(title, 'REJECTED')}">
+                            <svg class="lucide-icon"><use th:href="@{/assets/lucide.svg#x}"/></svg>
+                        </a>
+                        <a title="Transfer" th:href="${link.transfer(title)}">
+                            <svg class="lucide-icon" viewBox="0 0 24 24"><use th:href="@{/assets/lucide.svg#forward}"/></svg>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div th:replace="~{worktrays/_worktrays :: pagination(${nominatedTitles})}">
+            </div>
+        </section>
     </div>
 </main>
+<script th:src="@{/assets/Search.js}" src="../../static/assets/Search.js"></script>
