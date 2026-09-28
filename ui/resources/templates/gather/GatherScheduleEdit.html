@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Gather Schedules - PANDAS</title>
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar}"></nav>
@@ -38,7 +38,7 @@
             }
 
             .columns > fieldset {
-                border: 1px solid #aaa;
+                border: 1px solid var(--color-control-border);
                 padding-left: 8px;
                 padding-right: 8px;
                 margin: 0px;

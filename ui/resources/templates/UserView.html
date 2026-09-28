@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${user.fullName + ' - PANDAS'}">Somebody - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar}"></nav>
@@ -21,7 +21,7 @@
             <li style="font-weight: bold"><a th:href="@{/agencies}">Agencies</a></li>
             <li><a th:href="${link.to(user.agency)}" th:text="${user.agency.name}">National Library</a></li>
             <li class="active">
-                <span th:unless="${user.active}" title="Account disabled" style="color: #999; user-select: none">✗</span>
+                <span th:unless="${user.active}" title="Account disabled" style="color: var(--color-muted); user-select: none">✗</span>
                 <span th:text="${user.fullName + ' (' + user.userid + ')'}">Somebody (userid)</span>
             </li>
         </ol>
@@ -30,7 +30,7 @@
     <table class="details-table">
         <tr th:if="${user.email != null}"><th>Email:</th><td><a th:href="${'mailto:' + user.email}" th:text="${user.email}"></a></td></tr>
         <tr th:if="${user.phone != null}"><th>Phone:</th><td th:text="${user.phone}"></td></tr>
-        <tr><th>Role:</th><td><span th:text="${user.role.title}"></span><span th:unless="${user.active}" style="color: #999"> (account disabled)</span></td></tr>
+        <tr><th>Role:</th><td><span th:text="${user.role.title}"></span><span th:unless="${user.active}" style="color: var(--color-muted)"> (account disabled)</span></td></tr>
         <tr th:if="${user.auditCreateDate != null}"><th>Created:</th><td th:text="${user.auditCreateDate}"></td></tr>
     </table>
 

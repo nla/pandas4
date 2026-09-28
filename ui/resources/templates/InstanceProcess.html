@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${instance.title.name + ' - ' + @dateFormats.dayDateTime.format(instance.date) + ' - PANDAS'}">QA: Some site - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
         .prev-instances-container {
             position: relative;
@@ -22,13 +22,13 @@
             width: 420px;
             background: var(--color-white);
             color: var(--color-black);
-            border: 1px solid #777;
+            border: 1px solid var(--color-border);
             border-radius: .5rem;
         }
 
         .crawl-stats {
             float: right;
-            color: #666;
+            color: var(--color-muted);
         }
     </style>
 </head>
@@ -221,7 +221,7 @@
 
     <div th:if="${instance.state.isGathered()}" style="flex-grow: 1; display: flex; overflow: hidden">
         <iframe th:src="${qaUrl}" name="replay-frame"
-                style="flex-grow: 1; border: 1px solid #333; box-sizing: border-box; border-radius: .2rem;"
+                style="flex-grow: 1; border: 1px solid var(--color-border); box-sizing: border-box; border-radius: .2rem;"
                 sandbox="allow-forms allow-pointer-lock allow-popups allow-scripts allow-downloads
                 allow-downloads-without-user-activation allow-modals allow-orientation-lock allow-popups
                 allow-popups-to-escape-sandbox allow-presentation allow-same-origin"></iframe>

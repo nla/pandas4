@@ -1,5 +1,6 @@
 .post {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-raised);
     border-radius: 8px;
     padding: 16px 16px;
     max-width: 600px;
@@ -34,7 +35,7 @@
 
 /* Post Author Username */
 .post > header > address > span {
-    color: #555;
+    color: var(--color-text-muted);
 }
 
 /* Post Date and Stats */
@@ -44,7 +45,7 @@
 
 .post-stats {
     display: flex;
-    color: #888;
+    color: var(--color-text-subtle);
     justify-content: flex-end;
     gap: 8px;
     font-size: 0.8em;
@@ -58,12 +59,12 @@
 
 a.post-original-link:hover {
     text-decoration: none;
-    color: #2f5aa5;
+    color: var(--color-link-hover);
 }
 
 /* Post Creation Date Link */
 .post > header a {
-    color: #666;
+    color: var(--color-text-muted);
     text-decoration: none;
 }
 
@@ -77,10 +78,10 @@ a.post-original-link:hover {
 }
 
 .post > footer {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--color-border);
     margin-top: 8px;
     padding-top: 8px;
-    color: #555;
+    color: var(--color-text-muted);
     display: flex;
     gap: 16px;
     cursor: default;

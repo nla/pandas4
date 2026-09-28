@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Instances in QA - PANDAS</title>
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
     <link rel="stylesheet" href="../../static/assets/Filters.css" th:href="@{/assets/Filters.css}">
-    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='QA')}"></nav>
@@ -109,11 +109,11 @@
 
         .gather-stats {
             font-size: 80%;
-            color: #555;
+            color: var(--color-muted);
         }
 
         .gather-stats-warning {
-            color: #f55;
+            color: var(--color-error-text);
         }
 
         .qa-compact-view {

@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Gather Queue - PANDAS</title>
+    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 
     <style>
         .gather-queue-table {
@@ -14,12 +14,12 @@
         }
 
         .gather-queue-table tr {
-            border: 1px solid #ebedef;
+            border: 1px solid var(--color-border);
             border-bottom: none;
         }
 
         .gather-queue-table tr:last-child {
-            border-bottom: 1px solid #ebedef;
+            border-bottom: 1px solid var(--color-border);
         }
 
         .gather-queue-table td {
@@ -27,12 +27,12 @@
         }
 
         .gather-queue-table .start-time {
-            color: #666;
+            color: var(--color-muted);
             cursor: default;
         }
 
         .gather-method {
-            color: #666;
+            color: var(--color-muted);
             text-transform: uppercase;
             font-weight: bold;
             font-size: 80%;
@@ -44,20 +44,20 @@
             font-size: 75%;
             white-space: nowrap;
             border-radius: .5rem;
-            background: #ddd;
+            background: var(--color-surface);
             text-transform: capitalize;
         }
 
         .gather-state-gathering {
-            background: #a3efa3;
+            background: var(--color-success-background);
         }
 
         .gather-state-archiving {
-            background: #afbeff;
+            background: var(--color-info-background);
         }
 
         .gather-state-deleting {
-            background: #fdd;
+            background: var(--color-error-background);
         }
 
         .title-link {
@@ -66,17 +66,17 @@
 
         .title-details, .title-details a {
             font-size: 80%;
-            color: #666;
+            color: var(--color-muted);
         }
 
         .conflict {
-            color: #d37101;
+            color: var(--color-warning-text);
             font-size: 80%;
             font-variant: all-small-caps;
         }
 
         .conflict a {
-            color: #d37101;
+            color: var(--color-warning-text);
         }
     </style>
 </head>
@@ -184,11 +184,11 @@
                     <td sec:authorize="hasAuthority('PRIV_CONTROL_GATHERER')"></td>
                     <td></td>
                     <td colspan="3">
-                        <div style="background: #ffdddd; padding: 4px; margin-bottom: 4px" th:each="exception: ${instance.exceptions}">
+                        <div style="background: var(--color-error-background); padding: 4px; margin-bottom: 4px" th:each="exception: ${instance.exceptions}">
                             <strong th:text="${@dateFormats.shortDateTime.format(exception.date)}"></strong>
-                            <span style="color: #990000" th:text="${exception.summary + '.'}"></span>
+                            <span style="color: var(--color-error-text)" th:text="${exception.summary + '.'}"></span>
                             <span th:text="${exception.detail}"></span>
-                            <span style="color: #990000" th:text="${'[' + exception.originator + ']'}"></span>
+                            <span style="color: var(--color-error-text)" th:text="${'[' + exception.originator + ']'}"></span>
                         </div>
                     </td>
                 </tr>

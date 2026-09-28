@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${title.name + ' - PANDAS'}">Example Title - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
         h1, h2, h3 {
             margin-bottom: 4px;
@@ -24,7 +24,7 @@
         .panel-instance-list .instance-year {
             font-size: 200%;
             font-weight: lighter;
-            color: #666;
+            color: var(--color-muted);
             padding-right: 40px;
             text-align: left;
             vertical-align: top
@@ -49,12 +49,12 @@
         }
 
         .panel-instance-list .instance-list > a .size {
-            color: #666;
+            color: var(--color-muted);
             font-size: 75%;
         }
 
         .panel-instance-list .instance-list > a .state {
-            color: #666;
+            color: var(--color-muted);
             font-size: 75%;
         }
     </style>
@@ -85,7 +85,7 @@
         <a class="identifier-link" th:href="${link.identifier(title)}">nla.arc-<span
                 th:text="${title.pi}"></span></a><br>
         <br>
-        <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" style="color: green" target="_blank"></a><br>
+        <a th:href="${title.titleUrl}" th:text="${title.titleUrl}" target="_blank"></a><br>
         <th:block th:each="url : ${title.secondaryUrls}">
             <a th:text="${url}" th:href="${url}" target="_blank"></a><br>
         </th:block>
@@ -142,8 +142,8 @@
                     · <span class="unable-to-archive">unable to archive</span>
                 </th:block>
             </div>
-            <div th:if="${title.statusReason != null}" th:text="${title.statusReason.name}" style="color: #777"></div>
-            <div th:if="${title.disappeared}" style="color: #f77">No longer online</div>
+            <div th:if="${title.statusReason != null}" th:text="${title.statusReason.name}" style="color: var(--color-muted)"></div>
+            <div th:if="${title.disappeared}" style="color: var(--color-error-text)">No longer online</div>
             <p></p>
 
             <div id="permissionStatus" th:if="${title.permission != null}">

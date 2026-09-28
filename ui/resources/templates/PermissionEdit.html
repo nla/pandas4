@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Permission - PANDAS</title>
+  <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
   <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-  <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <nav th:replace="~{_layout.html :: sidebar}"></nav>
 <main>
@@ -35,7 +35,7 @@
 
   <form method=post class=form th:object="${form}" th:action="@{''}" id=form th:with="formPath = 'form'">
 
-    <fieldset th:fragment="fieldset" th:id="${id}" style="border: 1px solid #ccc">
+    <fieldset th:fragment="fieldset" th:id="${id}" style="border: 1px solid var(--color-border)">
       <div style="gap: 16px">
         <div>
           Permission status

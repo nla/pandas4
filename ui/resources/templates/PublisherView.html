@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="|${publisher.name} (Publisher) - PANDAS|">Somebody (Publisher) - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
     <style>
         .permission-card {
             margin: 1em 0;
             padding: .75em;
-            border: 1px solid #ccc;
+            border: 1px solid var(--color-border);
             border-radius: 4px;
         }
 
@@ -47,7 +47,7 @@
             font-weight: normal;
             display: block;
             margin-top: 4px;
-            color: #333;
+            color: var(--color-muted);
         }
     </style>
 </head>
@@ -165,14 +165,14 @@
         <div th:if="${publisher.contactEvents.isEmpty()}">
             <em>No contact events recorded.</em>
         </div>
-        <div th:each="contactEvent : ${publisher.contactEvents}" style="margin: 0.5em 0; padding: 0.5em; border-left: 3px solid #ccc;">
+        <div th:each="contactEvent : ${publisher.contactEvents}" style="margin: 0.5em 0; padding: 0.5em; border-left: 3px solid var(--color-border);">
             <strong th:if="${contactEvent.date != null}" th:text="${@dateFormats.SHORT_DATE.format(contactEvent.date)}"></strong>
             <span th:text="${contactEvent.method != null ? contactEvent.method.name : ''}"></span>
             <span th:text="${contactEvent.type != null ? contactEvent.type.name : ''}"></span>
             <a th:if="${contactEvent.contactPerson != null}" th:text="${contactEvent.contactPerson.name}"
                th:href="${link.edit(contactEvent.contactPerson)}"></a>
             <span th:if="${contactEvent.user != null}" th:text="${contactEvent.user.userid}"></span>
-            <div th:if="${contactEvent.note != null and !contactEvent.note.isEmpty()}" th:text="${contactEvent.note}" style="margin-top: 0.25em; color: #666;"></div>
+            <div th:if="${contactEvent.note != null and !contactEvent.note.isEmpty()}" th:text="${contactEvent.note}" style="margin-top: 0.25em; color: var(--color-muted);"></div>
             <a sec:authorize="hasPermission(#vars.publisher, 'edit')" th:href="@{|/publishers/${publisher.id}/contact-events/${contactEvent.id}/edit|}"><i class="icon edit"></i></a>
         </div>
     </section>

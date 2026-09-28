@@ -4,17 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <title>System Settings - PANDAS</title>
+    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}"></script>
     <link rel="stylesheet" href="../static/assets/Global.css" th:href="@{/assets/Global.css}">
-    <script src="../static/assets/Global.js" th:src="@{/assets/Global.js}" defer></script>
 </head>
 <body>
 <nav th:replace="~{_layout.html :: sidebar (activeItem='System Settings')}"></nav>
 <main>
     <header>
     </header>
-    <h1>System Settings</h1>
+    <h1>Settings</h1>
     <section>
-        General
+        <h2>Appearance</h2>
+        <label for="theme-choice">Theme</label>
+        <select id="theme-choice">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+        </select>
+    </section>
+    <section sec:authorize="hasRole('stduser')">
+        <h2>System Settings</h2>
+        <h3>General</h3>
         <ul>
             <li sec:authorize="hasRole('stduser')"><a th:href="@{/agencies}">Agencies and Users</a>
             <li sec:authorize="hasRole('stduser')"><a th:href="@{/marcexport}">MARC Export</a>
