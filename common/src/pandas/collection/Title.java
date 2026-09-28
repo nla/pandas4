@@ -996,7 +996,7 @@ public class Title implements TitleRef {
      * @param transferDate the date of the transfer
      */
     public void transferOwnership(Agency newAgency, User newOwner, String note, User transferrer, Instant transferDate) {
-        if (newAgency.equals(agency) && newOwner.equals(owner)) return;
+        if (Objects.equals(newAgency, agency) && Objects.equals(newOwner, owner)) return;
 
         this.agency = newAgency;
         this.owner = newOwner;
@@ -1005,7 +1005,14 @@ public class Title implements TitleRef {
 
     public void changeStatus(Status newStatus, Reason reason, User user, Instant changeDate) {
         if (newStatus.equals(status)) return;
+        Status oldStatus = this.status;
         this.status = newStatus;
+
+        // Whoever accepts a nomination takes ownership of the title
+        if (oldStatus == Status.NOMINATED && newStatus == Status.SELECTED && user != null) {
+            Agency newAgency = user.getAgency() != null ? user.getAgency() : agency;
+            transferOwnership(newAgency, user, "Accepted nomination", user, changeDate);
+        }
 
         // Validate reason is applicable for current status
         if (reason != null && !reason.getStatus().equals(this.status)) {

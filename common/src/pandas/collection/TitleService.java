@@ -348,12 +348,6 @@ public class TitleService {
         for (Title title : titles) {
             if (form.isEditAnbdNumber()) title.setAnbdNumber(form.getAnbdNumber());
 
-            if (form.isEditOwner()) {
-                if (!Objects.equals(title.getOwner(), form.getOwner())) {
-                    title.transferOwnership(title.getAgency(), form.getOwner(), "Bulk change", currentUser, now);
-                }
-            }
-
             if (form.isEditAddNote()) {
                 title.setNotes(title.getNotes() == null ? form.getAddNote() : (title.getNotes() + "\n" + form.getAddNote()));
             }
@@ -386,6 +380,13 @@ public class TitleService {
                     title.getStatus().isTransitionAllowed(form.getStatus())) {
                 title.changeStatus(form.getStatus(), form.getReason(), currentUser, Instant.now());
                 title.syncStatusWithPermissionState(currentUser);
+            }
+
+            // after status change so an explicit owner overrides the accepting user taking ownership
+            if (form.isEditOwner()) {
+                if (!Objects.equals(title.getOwner(), form.getOwner())) {
+                    title.transferOwnership(title.getAgency(), form.getOwner(), "Bulk change", currentUser, now);
+                }
             }
 
             title.addCollections(form.getCollectionsToAdd());
