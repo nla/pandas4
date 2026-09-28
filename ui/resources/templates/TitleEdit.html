@@ -95,7 +95,7 @@
                     <span id="seedUrlsLabelText">Seed URL</span>
                     <span style="display: flex; gap: 2px">
                         <textarea id="seedUrls" th:field="*{seedUrls}" rows="1"></textarea>
-                        <button id="urlPlusButton" type="button" class="btn btn-compact btn-secondary" style="height: 32px">➕</button>
+                        <button id="urlPlusButton" type="button" class="btn btn-compact btn-secondary" style="height: 32px" aria-label="Add another seed URL">+</button>
                     </span>
                 </label>
                 <label sec:authorize="hasRole('stduser')" style="width: 150px">Status
