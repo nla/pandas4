@@ -93,6 +93,15 @@
 
 :root[data-theme='dark'] {
     color-scheme: dark;
+    --ss-primary-color: var(--color-link);
+    --ss-bg-color: var(--color-control-background);
+    --ss-font-color: var(--color-text);
+    --ss-font-placeholder-color: var(--color-text-subtle);
+    --ss-disabled-color: var(--color-surface-subtle);
+    --ss-border-color: var(--color-control-border);
+    --ss-success-color: var(--color-status-success);
+    --ss-error-color: var(--color-status-error);
+    --ss-focus-color: var(--color-link);
     --color-sidebar-background: #1b2230;
     --color-sidebar-hover: #354357;
     --color-surface: #161b24;
@@ -156,6 +165,15 @@
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
         color-scheme: dark;
+        --ss-primary-color: var(--color-link);
+        --ss-bg-color: var(--color-control-background);
+        --ss-font-color: var(--color-text);
+        --ss-font-placeholder-color: var(--color-text-subtle);
+        --ss-disabled-color: var(--color-surface-subtle);
+        --ss-border-color: var(--color-control-border);
+        --ss-success-color: var(--color-status-success);
+        --ss-error-color: var(--color-status-error);
+        --ss-focus-color: var(--color-link);
         --color-sidebar-background: #1b2230;
         --color-sidebar-hover: #354357;
         --color-surface: #161b24;
@@ -214,6 +232,16 @@
         --color-badge-collection-background: #126b79;
         --color-badge-instance-background: #415064;
         --color-badge-instance-text: #e8edf5;
+    }
+}
+
+:root[data-theme='dark'] .ss-search-highlight {
+    color: var(--color-surface);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .ss-search-highlight {
+        color: var(--color-surface);
     }
 }
 
