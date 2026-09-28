@@ -10,7 +10,7 @@
 <main>
     <header>
         <nav>
-            <a th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary" data-keybind="e"><i class="icon edit"></i> Edit collection</a>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_COLLECTIONS')" th:href="@{/collections/{id}/edit(id=${collection.id})}" href="CollectionEdit.html" class="btn btn-primary" data-keybind="e"><i class="icon edit"></i> Edit collection</a>
             <span class="button-menu" th:unless="${collection.ancestorClosed}" sec:authorize="hasRole('stduser')">
                 <span class="btn-group">
                     <a th:href="@{/titles/new(collection=${collection.id})}" href="TitleEdit.html"
@@ -29,7 +29,7 @@
                class="btn btn-secondary" data-keybind="t" th:unless="${collection.ancestorClosed}"
                sec:authorize="!hasRole('stduser') and hasAuthority('PRIV_NOMINATE_TITLES')"><i
                     class="icon title"></i> Nominate a website</a>
-            <a th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary" data-keybind="c"><i class="icon collection"></i>
+            <a sec:authorize="hasAuthority('PRIV_EDIT_COLLECTIONS')" th:href="@{/collections/new(parent=${collection.id})}" href="CollectionEdit.html" class="btn btn-secondary" data-keybind="c"><i class="icon collection"></i>
                 <th:block th:text="'Create a sub' + ${collection.depthPrefix} + 'collection'"></th:block></a>
         </nav>
     </header>

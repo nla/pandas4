@@ -31,6 +31,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pandas.agency.*;
 import pandas.collection.TitleSearcher.UrlCheckResult;
 import pandas.core.Config;
+import pandas.core.Privileges;
 import pandas.core.View;
 import pandas.gather.*;
 import pandas.gatherer.CrawlBeans;
@@ -634,8 +635,10 @@ public class TitleController {
             @RequestParam("url") List<String> urls,
             @RequestParam("name") List<String> names,
             @RequestParam("publisherName") List<String> publisherNames,
-            @RequestParam("publisherType") List<PublisherType> publisherTypes) {
+            @RequestParam("publisherType") List<PublisherType> publisherTypes,
+            Authentication authentication) {
         User currentUser = userService.getCurrentUser();
+        boolean nominationOnly = !authentication.getAuthorities().contains(Privileges.SELECT_TITLES);
         List<Long> titleIds = new ArrayList<>();
         for (int i = 0; i < urls.size(); i++) {
             var form = titleService.newTitleForm(collection == null ? Set.of() : Set.of(collection), null);
@@ -644,7 +647,10 @@ public class TitleController {
             form.setPublisherName(publisherNames.get(i));
             form.setPublisherType(publisherTypes.get(i));
             if (gatherNow) form.getOneoffDates().add(Instant.now());
-            titleIds.add(titleService.save(form, currentUser).getId());
+            Title title = nominationOnly
+                    ? titleService.saveNomination(form, currentUser)
+                    : titleService.save(form, currentUser);
+            titleIds.add(title.getId());
         }
         if (collection != null) {
             return "redirect:/collections/" + collection.getId();

@@ -126,8 +126,7 @@ public class TitleService {
         if (cleanedNotes != null && !cleanedNotes.isBlank()) {
             form.setNotes(user.getUserid() + " " + NOMINATION_NOTE_DATE.format(now) + ": " + cleanedNotes);
         }
-        form.setStatus(Status.NOMINATED);
-        return save(form, user, "Nominated new title", now);
+        return saveNomination(form, user, now);
     }
 
     public static String normalizeNominationUrl(String seedUrl) {
@@ -157,6 +156,20 @@ public class TitleService {
     @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
     public Title save(TitleEditForm form, User user) {
         return save(form, user, "Created new title", Instant.now());
+    }
+
+    /**
+     * Saves a title submitted through a nomination workflow.
+     */
+    @Transactional
+    @PreAuthorize("hasPermission(#form.id, 'Title', 'edit')")
+    public Title saveNomination(TitleEditForm form, User user) {
+        return saveNomination(form, user, Instant.now());
+    }
+
+    private Title saveNomination(TitleEditForm form, User user, Instant now) {
+        form.setStatus(Status.NOMINATED);
+        return save(form, user, "Nominated new title", now);
     }
 
     private Title save(TitleEditForm form, User user, String ownerHistoryNote, Instant now) {
@@ -352,12 +365,6 @@ public class TitleService {
         for (Title title : titles) {
             if (form.isEditAnbdNumber()) title.setAnbdNumber(form.getAnbdNumber());
 
-            if (form.isEditOwner()) {
-                if (!Objects.equals(title.getOwner(), form.getOwner())) {
-                    title.transferOwnership(title.getAgency(), form.getOwner(), "Bulk change", currentUser, now);
-                }
-            }
-
             if (form.isEditAddNote()) {
                 title.setNotes(title.getNotes() == null ? form.getAddNote() : (title.getNotes() + "\n" + form.getAddNote()));
             }
@@ -390,6 +397,13 @@ public class TitleService {
                     title.getStatus().isTransitionAllowed(form.getStatus())) {
                 title.changeStatus(form.getStatus(), form.getReason(), currentUser, Instant.now());
                 title.syncStatusWithPermissionState(currentUser);
+            }
+
+            // after status change so an explicit owner overrides the accepting user taking ownership
+            if (form.isEditOwner()) {
+                if (!Objects.equals(title.getOwner(), form.getOwner())) {
+                    title.transferOwnership(title.getAgency(), form.getOwner(), "Bulk change", currentUser, now);
+                }
             }
 
             title.addCollections(form.getCollectionsToAdd());

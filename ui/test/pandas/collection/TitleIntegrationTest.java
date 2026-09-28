@@ -2,12 +2,15 @@ package pandas.collection;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 import pandas.IntegrationTest;
 import pandas.agency.User;
 import pandas.agency.UserService;
+import pandas.core.PandasUserDetailsService;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -15,8 +18,12 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class TitleIntegrationTest extends IntegrationTest {
@@ -26,6 +33,8 @@ class TitleIntegrationTest extends IntegrationTest {
     TitleRepository titleRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    PublisherTypeRepository publisherTypeRepository;
 
     @Test
     @WithUserDetails("admin")
@@ -33,6 +42,33 @@ class TitleIntegrationTest extends IntegrationTest {
         mockMvc.perform(get("/titles/bulkadd"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Bulk add websites")));
+    }
+
+    @Test
+    @WithUserDetails("admin")
+    @Transactional
+    public void infoUserBulkAddCreatesNominations() throws Exception {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken.authenticated(
+                authentication.getPrincipal(), authentication.getCredentials(),
+                PandasUserDetailsService.authoritiesForRoleType("infouser")));
+        User currentUser = userService.getCurrentUser();
+        PublisherType publisherType = publisherTypeRepository.findAll().iterator().next();
+
+        mockMvc.perform(post("/titles/bulkadd")
+                        .with(csrf())
+                        .param("url", "https://bulk-nomination.example.org/")
+                        .param("name", "Bulk nomination")
+                        .param("publisherName", "Bulk nomination publisher")
+                        .param("publisherType", publisherType.getId().toString()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/titles?id=*"));
+
+        Title title = titleRepository.findByTitleUrlIn(List.of("https://bulk-nomination.example.org/")).get(0);
+        assertEquals(Status.NOMINATED, title.getStatus());
+        assertEquals(currentUser, title.getNominator());
+        assertFalse(title.getOwnerHistories().isEmpty());
+        assertEquals("Nominated new title", title.getOwnerHistories().get(0).getNote());
     }
 
     @Test
