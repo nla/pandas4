@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en xmlns:th="http://www.thymeleaf.org">
+<html lang=en xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Titles - PANDAS</title>
@@ -11,7 +11,7 @@
 <nav th:replace="~{_layout.html :: sidebar (activeItem='Collections')}"></nav>
 <main>
     <header>
-        <nav><a th:href="@{/collections/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New
+        <nav><a sec:authorize="hasAuthority('PRIV_EDIT_COLLECTIONS')" th:href="@{/collections/new}" data-keybind=c class="btn btn-primary"><i class="icon add"></i> New
             Collection</a></nav>
         <input name="q" th:value="${q}" placeholder="Search Collections" form=searchForm>
     </header>
