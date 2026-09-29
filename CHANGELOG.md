@@ -1,5 +1,11 @@
 # PANDAS Changelog
 
+## Unreleased
+
+### Bug fixes
+
+- Fixed live and replay thumbnails failing to generate with Chrome 154+ ("Target position can only be set for new windows").
+
 ## 4.16.0 2026-09-29
 
 ### New features

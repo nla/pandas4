@@ -229,7 +229,8 @@ public class Browser implements Closeable {
     }
 
     public Tab createTab(int width, int height) {
-        JsonObject result = call("Target.createTarget", Map.of("url", "about:blank", "width", width, "height", height));
+        JsonObject result = call("Target.createTarget", Map.of("url", "about:blank",
+                "newWindow", true, "width", width, "height", height));
         return new Tab(this, result.getString("targetId"));
     }
 
