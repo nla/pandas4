@@ -1,5 +1,43 @@
 # PANDAS Changelog
 
+## 4.16.0 2026-09-29
+
+### New features
+
+- Added dark mode and a warm light theme, selectable under Settings → Appearance (defaults to following the system setting).
+- Accepting a nomination now transfers ownership of the title to the user who accepted it, recording "Accepted nomination" in the owner history.
+- Title transfer notes are now shown to the recipient on their dashboard and the title page, and emailed to the new owner.
+  - Email is enabled by setting `SMTP_HOST` (and optionally `SMTP_PORT`) and `MAIL_FROM`.
+- The Nominated worktray can now be filtered by collection (including subcollections) and nominator, and sorted by registration date or name.
+- Reindexing instances now restores the QA worktray first to minimise disruption.
+- External links in the sidebar now show an "open in new" icon.
+- Removed the PANDAS 3 retirement notice.
+
+### Bug fixes
+
+- Fixed infousers being unable to save titles due to a JavaScript error on the title edit page.
+- Fixed infousers being able to select titles via bulk add; they now nominate them instead.
+- Fixed the New Collection and Edit collection buttons being shown to infousers.
+- Fixed HTTP sessions not being stored in the database after the Spring Boot 4 upgrade.
+
+### Build and deployment
+
+- Removed Oracle database support and the Oracle migrations.
+- Jenkins now deploys pandas-ui to devel from master builds.
+
+### Dependency upgrades
+
+* **agrona**: 2.6.0 → 2.6.1
+* **cropperjs**: 2.1.0 → 2.2.0
+* **h2**: 2.3.232 → 2.5.250
+* **jwarc**: 0.36.0 → 0.37.0
+* **marc4j**: 2.9.6 → 2.9.8
+* **owasp-java-html-sanitizer**: 20260101.1 → 20260924.2
+* **spring-retry**: 2.0.12 → 2.0.13
+* **maven-compiler-plugin**: 3.15.0 → 3.16.0
+* **maven-surefire-plugin**, **maven-failsafe-plugin**: 3.5.6 → 3.6.0
+* **versions-maven-plugin**: 2.21.0 → 2.22.0
+
 ## 4.15.2 2026-09-24
 
 ### New features
