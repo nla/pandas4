@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-### Bug fixes
-
-- Fixed live and replay thumbnails failing to generate with Chrome 154+ ("Target position can only be set for new windows").
-
 ## 4.16.0 2026-09-29
 
 ### New features
@@ -25,6 +21,7 @@
 - Fixed infousers being able to select titles via bulk add; they now nominate them instead.
 - Fixed the New Collection and Edit collection buttons being shown to infousers.
 - Fixed HTTP sessions not being stored in the database after the Spring Boot 4 upgrade.
+- Fixed live and replay thumbnails failing to generate with Chrome 154+ ("Target position can only be set for new windows").
 
 ### Build and deployment
 
