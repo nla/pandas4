@@ -91,6 +91,27 @@
     color-scheme: light;
 }
 
+:root[data-theme='light-warm'] {
+    color-scheme: light;
+    --ss-bg-color: var(--color-control-background);
+    --color-sidebar-background: #f5f1eb;
+    --color-sidebar-hover: #e9e2d7;
+    --color-surface: #faf9f5;
+    --color-surface-raised: #fcfbf8;
+    --color-surface-subtle: #f2eee8;
+    --color-surface-striped: #f7f4f0;
+    --color-text: #29251f;
+    --color-text-secondary: #474139;
+    --color-text-muted: #625a50;
+    --color-text-subtle: #6e655b;
+    --color-border: #c5c0b9;
+    --color-divider: #dbd5ca;
+    --color-control-background: #fcfbf8;
+    --color-control-border: #c5c0b9;
+    --color-permission-unknown: var(--color-surface-subtle);
+    --color-badge-title-background: var(--color-surface-subtle);
+}
+
 :root[data-theme='dark'] {
     color-scheme: dark;
     --ss-primary-color: var(--color-link);

@@ -1,6 +1,6 @@
 try {
     const storedTheme = localStorage.getItem('pandas-theme');
-    if (storedTheme === 'light' || storedTheme === 'dark') {
+    if (['light', 'light-warm', 'dark'].includes(storedTheme)) {
         document.documentElement.dataset.theme = storedTheme;
     } else if (storedTheme !== null) {
         console.warn('Ignoring invalid theme preference:', storedTheme);
