@@ -105,9 +105,10 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
           nominator as nominator
         from Title t
         left join t.owner own
-        left join OwnerHistory nom
+        left join StatusHistory nom
           on nom.title = t
-         and nom.id = (select min(h.id) from OwnerHistory h where h.title = t)
+         and nom.id = (select min(h.id) from StatusHistory h where h.title = t)
+         and nom.status = pandas.collection.Status.NOMINATED
         left join nom.user nominator
         where (:agencyId is null or t.agency.id = :agencyId)
           and t.status = pandas.collection.Status.NOMINATED

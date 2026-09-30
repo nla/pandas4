@@ -124,6 +124,24 @@ class NominatedWorktrayIntegrationTest extends IntegrationTest {
                         "href=\"?collection=" + shared.getId() + "&amp;size=1&amp;page=1\"")));
     }
 
+    @Test
+    void titleSearchNominatorFilterExcludesTitlesNotCreatedAsNominations() throws Exception {
+        User alice = user("Alice");
+        Instant now = Instant.now();
+        nominate("Nominator filter nominated", alice, now);
+
+        Title selected = new Title(alice, now);
+        selected.setName("Nominator filter selected");
+        selected.setTitleUrl("https://nominator-filter-selected.example.org/");
+        selected.changeStatus(Status.SELECTED, null, alice, now);
+        titleRepository.save(selected);
+
+        mockMvc.perform(get("/titles").param("nominator", alice.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Nominator filter nominated")))
+                .andExpect(content().string(not(containsString("Nominator filter selected"))));
+    }
+
     private User user(String givenName) {
         User user = new User(agency);
         user.setUserid(givenName.toLowerCase() + "-" + UUID.randomUUID().toString().substring(0, 8));
