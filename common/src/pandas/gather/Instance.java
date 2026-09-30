@@ -350,7 +350,7 @@ public class Instance {
     }
 
     public boolean canEdit() {
-        return getState().isArchivedOrArchiving() || getState().isGathered();
+        return getState().isArchivedOrArchiving() || getState().isGathered() || (isUploadMethod() && getState().isCreation());
     }
 
     public boolean isWorkingAreaAccessible() {
