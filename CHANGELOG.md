@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 4.16.1 2026-09-30
+
+### Bug fixes
+
+- Fixed the Nominator filter in title search matching every title the user created rather than only those they nominated.
+- Fixed being unable to edit upload instances (e.g. to set the entrypoint URL) while they are in the CREATION state.
+- The Nominated worktray now uses the same title card layout as title search.
+- Title cards now show the nominator when it differs from the owner, and show the registration date as a relative age for titles under a year old.
+
 ## 4.16.0 2026-09-29
 
 ### New features
