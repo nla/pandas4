@@ -7,6 +7,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 /**
@@ -14,6 +15,9 @@ import java.time.temporal.ChronoUnit;
  */
 @Service
 public class Format {
+    private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+            .withZone(ZoneId.systemDefault());
+
     public String comma(long number) {
         return String.format("%,d", number);
     }
@@ -36,6 +40,20 @@ public class Format {
 
         long years = Math.max(1, ChronoUnit.YEARS.between(date, today));
         return years == 1 ? "1 year ago" : years + " years ago";
+    }
+
+    /**
+     * Relative age (e.g. "3 days ago") for dates within the last year, otherwise just the year.
+     */
+    public String ageOrYear(Instant instant) {
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDate date = instant.atZone(zone).toLocalDate();
+        if (ChronoUnit.MONTHS.between(date, LocalDate.now(zone)) < 12) return relativeAge(instant);
+        return String.valueOf(date.getYear());
+    }
+
+    public String dateTime(Instant instant) {
+        return DATE_TIME.format(instant);
     }
 
     public String statusClass(Integer status) {

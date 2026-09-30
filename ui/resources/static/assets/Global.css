@@ -1017,6 +1017,19 @@ table.history-table {
 .nominated-worktray .worktray-table--actions {
     width: 1%;
     text-align: right;
+    vertical-align: top;
+    padding-top: 8px;
+}
+
+/* every title here is nominated and belongs to the worktray's agency */
+.nominated-worktray .status-segment,
+.nominated-worktray .agency,
+.nominated-worktray .agency-only {
+    display: none;
+}
+
+.nominated-worktray .status-segment + *::before {
+    content: none;
 }
 
 .nomination-accept .lucide-icon {
@@ -1029,21 +1042,6 @@ table.history-table {
 
 .nominated-worktray tbody tr:hover {
     background-color: transparent;
-}
-
-.nomination-collections {
-    margin-top: 2px;
-    font-size: 85%;
-}
-
-.nomination-title {
-    font-weight: bold;
-}
-
-.nomination-url {
-    display: block;
-    width: fit-content;
-    margin-top: 2px;
 }
 
 .nomination-context {
@@ -1060,18 +1058,6 @@ table.history-table {
     white-space: pre-line;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-}
-
-.nomination-metadata {
-    margin-top: 4px;
-    color: var(--color-text-muted);
-    font-size: 80%;
-}
-
-.nomination-metadata a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-style: dotted;
 }
 
     /**
@@ -1162,6 +1148,11 @@ ul.subject-list li + li:before {
 .title-card-text > footer {
     font-size: 80%;
     color: var(--color-text-muted);
+}
+
+/* separate the visible items of a list of inline elements with dots */
+.dot-list > * + *::before {
+    content: "· ";
 }
 
 .title-card-text > footer .agency {

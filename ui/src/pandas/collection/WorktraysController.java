@@ -164,7 +164,7 @@ public class WorktraysController {
         return agencyId;
     }
 
-    private void addNominatedTitles(Page<? extends TitleRef> nominatedTitles, Model model) {
+    private void addNominatedTitles(Page<Title> nominatedTitles, Model model) {
         var titleCollections = new LinkedHashMap<Long, List<Collection>>();
         nominatedTitles.forEach(title -> titleCollections.put(title.getId(), new ArrayList<>()));
         if (!titleCollections.isEmpty()) {

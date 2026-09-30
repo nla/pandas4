@@ -40,10 +40,18 @@
             <table th:fragment="table" class="worktray-table nominated-worktray">
                 <tbody>
                 <tr th:each="title: ${nominatedTitles}">
-                    <td class="nomination-summary">
-                        <a class="nomination-title" th:text="${title.name}" th:href="${link.to(title)}">Example title</a>
-                        <a th:href="${title.titleUrl}" th:text="${@format.site(title.titleUrl)}" class="live-url nomination-url">example.com</a>
-                        <div class="nomination-collections" th:if="${!nominatedTitleCollections[title.id].isEmpty()}">
+                    <td class="nomination-summary title-card-text">
+                        <header th:replace="~{TitleSearch.html :: title-card-header}">
+                            <strong><a>Example title</a></strong>
+                        </header>
+                        <div>
+                            <ul class="subject-list">
+                                <li th:each="subject: ${title.subjects}">
+                                    <a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}">Sport</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
                             <ul class="collection-list">
                                 <li th:each="collection: ${nominatedTitleCollections[title.id]}">
                                     <a th:href="${link.to(collection)}" th:text="${collection.fullName}">Example collection</a>
@@ -53,14 +61,9 @@
                         <p class="nomination-context"
                            th:if="${title.notes != null and !#strings.isEmpty(#strings.trim(title.notes))}"
                            th:text="${title.notes}">Useful context for the reviewer</p>
-                        <div class="nomination-metadata">
-                            <span th:if="${title.nominator}"><a th:href="${link.to(title.nominator)}" th:text="${title.nominator.userid}">jsmith</a> nominated </span><span th:unless="${title.nominator}">Nominated </span><time
-                                  th:datetime="${title.regDate}"
-                                  th:title="${'Registered ' + dateTimeFormat.format(title.regDate)}"
-                                  th:text="${@format.relativeAge(title.regDate)}">3 days ago</time><span
-                                  th:if="${title.owner != null and (title.nominator == null or title.owner.id != title.nominator.id)}">; owned by <a
-                                    th:href="${link.to(title.owner)}" th:text="${title.owner.userid}">jbloggs</a></span>
-                        </div>
+                        <footer>
+                            <th:block th:replace="~{TitleSearch.html :: title-card-footer}"></th:block>
+                        </footer>
                     </td>
                     <td class="worktray-table--actions">
                         <a class="nomination-accept" title="Accept" th:href="${link.editStatus(title, 'SELECTED')}">
