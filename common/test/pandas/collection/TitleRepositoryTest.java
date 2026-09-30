@@ -52,7 +52,7 @@ class TitleRepositoryTest {
     }
 
     @Test
-    void worktrayResultAndCountIncludeTitlesWithoutOwnerHistory() {
+    void worktrayResultAndCountIncludeTitlesWithoutStatusHistory() {
         Agency agency = new Agency();
         agencyRepository.save(agency);
 
@@ -67,7 +67,7 @@ class TitleRepositoryTest {
         titleRepository.save(title);
         entityManager.flush();
 
-        entityManager.createNativeQuery("delete from owner_history where title_id = :titleId")
+        entityManager.createNativeQuery("delete from status_history where title_id = :titleId")
                 .setParameter("titleId", title.getId())
                 .executeUpdate();
         entityManager.clear();
@@ -76,5 +76,36 @@ class TitleRepositoryTest {
         assertEquals(1, rows.getContent().size());
         assertEquals(1, rows.getTotalElements());
         assertNull(rows.getContent().get(0).getNominator());
+    }
+
+    @Test
+    void nominatorIsOnlySetForTitlesCreatedAsNominations() {
+        Agency agency = new Agency();
+        agencyRepository.save(agency);
+
+        User nominator = new User(agency);
+        nominator.setUserid("nominator-only");
+        User selector = new User(agency);
+        selector.setUserid("selector-only");
+        userRepository.save(nominator);
+        userRepository.save(selector);
+
+        Instant now = Instant.now();
+        var selected = new Title(selector, now);
+        selected.setName("Created as selected");
+        selected.changeStatus(Status.SELECTED, null, selector, now);
+        titleRepository.save(selected);
+
+        var accepted = new Title(nominator, now);
+        accepted.setName("Nominated then accepted");
+        accepted.changeStatus(Status.NOMINATED, null, nominator, now);
+        accepted.changeStatus(Status.SELECTED, null, selector, now.plusSeconds(1));
+        titleRepository.save(accepted);
+        entityManager.flush();
+        entityManager.clear();
+
+        assertNull(titleRepository.findById(selected.getId()).orElseThrow().getNominator());
+        assertEquals(nominator.getId(),
+                titleRepository.findById(accepted.getId()).orElseThrow().getNominator().getId());
     }
 }

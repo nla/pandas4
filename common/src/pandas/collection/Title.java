@@ -495,17 +495,17 @@ public class Title implements TitleRef {
     }
 
     /**
-     * The user who first owned this title. For nominations this is the
-     * nominator; later ownership transfers do not change the value.
+     * The user who nominated this title, or null if the title was not created as a nomination
+     * (i.e. its initial status was not NOMINATED). Later status changes and ownership transfers
+     * do not change the value.
      */
     @IndexedEmbedded(includePaths = {"id", "nameGiven", "nameFamily", "userid"})
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW,
-            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "ownerHistories"))})
+            derivedFrom = {@ObjectPath(@PropertyValue(propertyName = "statusHistories"))})
     public User getNominator() {
-        return ownerHistories.stream()
-                .min(Comparator.comparing(OwnerHistory::getDate))
-                .map(OwnerHistory::getUser)
-                .orElse(null);
+        if (statusHistories.isEmpty()) return null;
+        StatusHistory initial = statusHistories.get(0);
+        return initial.getStatus() == Status.NOMINATED ? initial.getUser() : null;
     }
 
     public Status getStatus() {
