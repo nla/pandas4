@@ -80,49 +80,20 @@ public interface TitleRepository extends CrudRepository<Title,Long> {
             "order by coalesce(t.tep.displayTitle, t.name)")
     Page<TitleBrief> findDisplayableTitlesWithNumberNames(@Param("agency") Agency agency, Pageable page);
 
-    interface TitleWorktrayRow extends TitleRef {
-        String getName();
-        String getTitleUrl();
-        String getNotes();
-        Instant getRegDate();
-        User getOwner();
-        User getNominator();
-    }
-
     interface TitleCollectionRow {
         Long getTitleId();
         Collection getCollection();
     }
 
-    @Query(value = """
-        select
-          t.id as id,
-          t.name as name,
-          t.titleUrl as titleUrl,
-          t.notes as notes,
-          t.regDate as regDate,
-          own as owner,
-          nominator as nominator
+    @Query("""
+        select t
         from Title t
-        left join t.owner own
-        left join StatusHistory nom
-          on nom.title = t
-         and nom.id = (select min(h.id) from StatusHistory h where h.title = t)
-         and nom.status = pandas.collection.Status.NOMINATED
-        left join nom.user nominator
         where (:agencyId is null or t.agency.id = :agencyId)
           and t.status = pandas.collection.Status.NOMINATED
           and t.awaitingConfirmation = false
         order by t.regDate desc
-        """,
-            countQuery = """
-        select count(t)
-        from Title t
-        where (:agencyId is null or t.agency.id = :agencyId)
-          and t.status = pandas.collection.Status.NOMINATED
-          and t.awaitingConfirmation = false
         """)
-    Page<TitleWorktrayRow> worktrayNominated(@Param("agencyId") Long agencyId, Pageable pageable);
+    Page<Title> worktrayNominated(@Param("agencyId") Long agencyId, Pageable pageable);
 
     @Query("""
         select count(t)

@@ -69,9 +69,10 @@ class NominatedWorktrayIntegrationTest extends IntegrationTest {
                 .andExpect(content().string(containsString("Time-critical collecting context for the reviewer")))
                 .andExpect(content().string(not(containsString("No context provided"))))
                 .andExpect(content().string(not(containsString("Collections:"))))
-                .andExpect(content().string(containsString(alice.getUserid() + "</a> nominated </span><time")))
+                .andExpect(content().string(stringContainsInOrder("class=\"owner\"", "/users/" + alice.getUserid())))
                 .andExpect(content().string(not(containsString("Nominated title</th>"))))
-                .andExpect(content().string(not(containsString("owned by"))))
+                .andExpect(content().string(not(containsString("nominated by"))))
+                .andExpect(content().string(containsString("class=\"status-segment\"")))
                 .andExpect(content().string(containsString("title=\"Registered ")))
                 .andExpect(content().string(containsString("3 days ago")));
     }
@@ -140,6 +141,28 @@ class NominatedWorktrayIntegrationTest extends IntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Nominator filter nominated")))
                 .andExpect(content().string(not(containsString("Nominator filter selected"))));
+    }
+
+    @Test
+    void showsNominatorSeparatelyFromOwner() throws Exception {
+        User alice = user("Alice");
+        User bob = user("Bob");
+        Title title = nominate("Transferred nomination " + UUID.randomUUID(), alice,
+                Instant.now().minus(3, ChronoUnit.DAYS));
+        title.transferOwnership(agency, bob, null, bob, Instant.now());
+        titleRepository.save(title);
+
+        var nominatorThenOwner = stringContainsInOrder("nominated by", alice.getUserid(),
+                "class=\"owner\"", bob.getUserid());
+        mockMvc.perform(get("/worktrays/" + alias + "/nominated"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(nominatorThenOwner));
+        mockMvc.perform(get("/worktrays/" + alias))
+                .andExpect(status().isOk())
+                .andExpect(content().string(nominatorThenOwner));
+        mockMvc.perform(get("/titles").param("q", title.getName()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(nominatorThenOwner));
     }
 
     private User user(String givenName) {
