@@ -215,7 +215,7 @@
                             (<span th:text="${instance.gather.summaryText} ?: '-'">(✭5✦1)</span>)
                             <div class="hovertext">
                                 <div th:each="gatherInd: ${@worktraysController.getSummaryIndicatorsForGather(instance.gather)}">
-                                    <span th:text="${@worktraysController.formatGatherIndicator(gatherInd)}">Overall (gather)</span>
+                                    <span th:text="${@worktraysController.formatGatherIndicator(gatherInd, instance.gather)}">Overall (gather)</span>
                                 </div>
                                 <div class="debug">
                                     <hr>

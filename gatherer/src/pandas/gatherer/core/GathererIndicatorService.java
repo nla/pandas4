@@ -60,6 +60,7 @@ public class GathererIndicatorService {
                     () -> new GatherIndicator(GatherIndicator.IndicatorType.HTTP_LAST_BAD, scoreLastStatusBad(fileSearcher)),
                     () -> new GatherIndicator(GatherIndicator.IndicatorType.FILE_SIZE_10M, scoreScaleTo(10_000_000, current.getGather().getSize()))
             );
+            addBotBlockerIndicators(result, fileSearcher);
         }
         catch (IOException e) {
             log.warn("FileSearcher error (continuing)", e);
@@ -213,6 +214,9 @@ public class GathererIndicatorService {
                 case HTTP_LAST_BAD -> {
                     weight = 4; score = (1 - ind.getValue());
                 }
+                case BOT_BLOCKED -> {
+                    weight = 8; score = (1 - ind.getValue());
+                }
                 case LIVE_THUMB_HASH -> {
                     weight = 1; score = (float) (1 -  ind.getValue() == 0 ? 0 : Math.cbrt(ind.getValue()));
                 }
@@ -317,6 +321,24 @@ public class GathererIndicatorService {
                 } else {
                     log.warn("Error calculating indicator (continuing): {}", e.getMessage());
                 }
+            }
+        }
+    }
+
+    private void addBotBlockerIndicators(List<GatherIndicator> indicators, FileSearcher fileSearcher) {
+        try {
+            var botBlockers = fileSearcher.getBotBlockers();
+            indicators.add(new GatherIndicator(GatherIndicator.IndicatorType.BOT_BLOCKED,
+                    botBlockers.isEmpty() ? 0 : 1));
+            botBlockers.stream()
+                    .map(GatherIndicator.IndicatorType::forBotBlocker)
+                    .map(indicator -> new GatherIndicator(indicator, 1))
+                    .forEach(indicators::add);
+        } catch (Exception e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error calculating bot-block indicators (continuing)", e);
+            } else {
+                log.warn("Error calculating bot-block indicators (continuing): {}", e.getMessage());
             }
         }
     }

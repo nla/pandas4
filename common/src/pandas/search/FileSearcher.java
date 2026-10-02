@@ -29,7 +29,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import pandas.gather.BotBlocker;
 import pandas.util.Strings;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -49,6 +51,7 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 
 public class FileSearcher {
+    private static final String BOT_BLOCKER_FACET = "facet_botBlocker";
     private static final List<Filter> FILTERS = List.of(
             new Filter("Status", "status", FileSearcher::labelForStatus),
             new Filter("Type", "type"),
@@ -202,6 +205,10 @@ public class FileSearcher {
                         doc.add(new SortedSetDocValuesFacetField("facet_type", type));
                         doc.add(new TextField("host", host, Field.Store.YES));
                         doc.add(new SortedSetDocValuesFacetField("facet_host", host));
+                        BotBlocker botBlocker = BotBlockDetector.detect(response.http());
+                        if (botBlocker != null) {
+                            doc.add(new SortedSetDocValuesFacetField(BOT_BLOCKER_FACET, botBlocker.name()));
+                        }
                         response.payloadDigest().ifPresent(digest ->
                                 doc.add(new TextField(digest.algorithm(), digest.base32(), Field.Store.YES)));
                         doc.add(new StoredField("position", warcReader.position()));
@@ -261,6 +268,23 @@ public class FileSearcher {
 
             return (topDocs.scoreDocs.length == 0) ? Optional.empty()
                     : Optional.of(new Result(searcher.doc(topDocs.scoreDocs[0].doc)));
+        }
+    }
+
+    public Set<BotBlocker> getBotBlockers() throws IOException {
+        try (var indexReader = DirectoryReader.open(directory)) {
+            var facetsCollector = new FacetsCollector();
+            var searcher = new IndexSearcher(indexReader);
+            FacetsCollector.search(searcher, new MatchAllDocsQuery(), 1, facetsCollector);
+            Facets facets = new SortedSetDocValuesFacetCounts(
+                    new DefaultSortedSetDocValuesReaderState(indexReader), facetsCollector);
+            FacetResult result = facets.getTopChildren(BotBlocker.values().length, BOT_BLOCKER_FACET);
+            if (result == null) return Set.of();
+            return Arrays.stream(result.labelValues)
+                    .map(labelAndValue -> labelAndValue.label)
+                    .map(BotBlocker::fromIndexValue)
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toCollection(() -> EnumSet.noneOf(BotBlocker.class)));
         }
     }
 
