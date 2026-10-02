@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.netpreserve.jwarc.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.LinkedMultiValueMap;
+import pandas.gather.BotBlocker;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -13,6 +14,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -70,6 +72,26 @@ public class FileSearcherTest {
                         200, (long) html.length, "html", "NNO3EJ5GVIRCRR3XWB3RCCFRQSY7YXPT",
                         requestOffset, 0L, null, Paths.get("test.warc.gz")),
                 result);
+    }
+
+    @Test
+    public void indexesBotBlockers() throws IOException {
+        var http = new HttpResponse.Builder(403, "Forbidden")
+                .addHeader("CF-Mitigated", "challenge")
+                .body(MediaType.HTML, "challenge".getBytes(UTF_8))
+                .build();
+        var response = new WarcResponse.Builder("http://example.org/")
+                .date(Instant.parse("2020-08-30T12:34:56Z"))
+                .body(http)
+                .build();
+
+        try (var writer = new WarcWriter(FileChannel.open(warcDir.resolve("blocked.warc.gz"), WRITE, CREATE), GZIP)) {
+            writer.write(response);
+        }
+
+        var index = new FileSearcher(indexDir);
+        index.indexRecursively(warcDir);
+        assertEquals(Set.of(BotBlocker.CLOUDFLARE), index.getBotBlockers());
     }
 
 }

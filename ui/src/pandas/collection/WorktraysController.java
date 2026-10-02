@@ -50,7 +50,8 @@ public class WorktraysController {
         GatherIndicator.IndicatorType.HTTP_2XX,
         GatherIndicator.IndicatorType.HTTP_403,
         GatherIndicator.IndicatorType.HTTP_5XX,
-        GatherIndicator.IndicatorType.HTTP_LAST_BAD
+        GatherIndicator.IndicatorType.HTTP_LAST_BAD,
+        GatherIndicator.IndicatorType.BOT_BLOCKED
     );
 
     public WorktraysController(TitleRepository titleRepository, InstanceRepository instanceRepository, InstanceSearcher instanceSearcher, UserService userService, AgencyRepository agencyRepository, UserRepository userRepository, StateRepository stateRepository, TitleSearcher titleSearcher) {
@@ -253,10 +254,20 @@ public class WorktraysController {
         return "worktrays/Gathered";
     }
 
-    public String formatGatherIndicator(GatherIndicator ind) {
+    public String formatGatherIndicator(GatherIndicator ind, InstanceGather gather) {
 
         if (ind.getIndicator() == GatherIndicator.IndicatorType.HTTP_LAST_BAD) {
             return ind.getValue() < 0.5 ? "(Last HTTP response was good)" : "(Last HTTP response was bad)";
+        }
+
+        if (ind.getIndicator() == GatherIndicator.IndicatorType.BOT_BLOCKED) {
+            if (ind.getValue() < 0.5) return "(No blocker detected)";
+            String botBlockers = gather.getIndicators().stream()
+                    .map(gatherInd -> gatherInd.getIndicator().botBlocker())
+                    .filter(Objects::nonNull)
+                    .map(BotBlocker::displayName)
+                    .collect(Collectors.joining(", "));
+            return botBlockers.isEmpty() ? "Blocked" : "Blocked: " + botBlockers;
         }
 
         var fivePointSuffix = switch (ind.getIndicator()) {

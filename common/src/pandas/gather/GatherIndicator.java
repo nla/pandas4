@@ -81,13 +81,43 @@ public class GatherIndicator {
 
         // Combined indicators
         GATHER_VIBE("Overall (gather)"),
-        ARCHIVE_VIBE("Overall (archived)");
+        ARCHIVE_VIBE("Overall (archived)"),
+
+        // Bot-blocking response detected in the WARC
+        BOT_BLOCKED("Bot blocked"),
+        BOT_BLOCKED_AKAMAI("Blocked by Akamai"),
+        BOT_BLOCKED_ANUBIS("Blocked by Anubis"),
+        BOT_BLOCKED_CLOUDFLARE("Blocked by Cloudflare"),
+        BOT_BLOCKED_DATADOME("Blocked by DataDome"),
+        BOT_BLOCKED_INCAPSULA("Blocked by Incapsula");
 
         public final String label;
 
         IndicatorType(String label) {
             this.label = label;
         }
+
+        public BotBlocker botBlocker() {
+            return switch (this) {
+                case BOT_BLOCKED_AKAMAI -> BotBlocker.AKAMAI;
+                case BOT_BLOCKED_ANUBIS -> BotBlocker.ANUBIS;
+                case BOT_BLOCKED_CLOUDFLARE -> BotBlocker.CLOUDFLARE;
+                case BOT_BLOCKED_DATADOME -> BotBlocker.DATADOME;
+                case BOT_BLOCKED_INCAPSULA -> BotBlocker.INCAPSULA;
+                default -> null;
+            };
+        }
+
+        public static IndicatorType forBotBlocker(BotBlocker blocker) {
+            return switch (blocker) {
+                case AKAMAI -> BOT_BLOCKED_AKAMAI;
+                case ANUBIS -> BOT_BLOCKED_ANUBIS;
+                case CLOUDFLARE -> BOT_BLOCKED_CLOUDFLARE;
+                case DATADOME -> BOT_BLOCKED_DATADOME;
+                case INCAPSULA -> BOT_BLOCKED_INCAPSULA;
+            };
+        }
+
     }
 
     @Converter(autoApply = true)

@@ -42,7 +42,10 @@ public enum GatherFilterIndicator {
     OVERALL_LOW_ARCHIVED  (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Low conf (archived)",  v -> v < 0.6),
     OVERALL_HIGH_ARCHIVED (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "High conf (archived)", v -> v > 0.8),
     OVERALL_V_HIGH_ARCHIVED (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "V high conf (archived)", v -> v > 0.9),
-    PREVIOUSLY_ARCHIVED   (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Previously archived",  v -> true);
+    PREVIOUSLY_ARCHIVED   (GatherIndicator.IndicatorType.ARCHIVE_VIBE, "Previously archived",  v -> true),
+
+    // Append new constants: ordinals are persisted in the search index.
+    BOT_BLOCKED           (GatherIndicator.IndicatorType.BOT_BLOCKED, "Blocked", v -> v > 0.5);
 
     public static Set<GatherFilterIndicator> goodIndicators = Set.of(
             MANY_2XX_RESPONSES,
@@ -51,7 +54,7 @@ public enum GatherFilterIndicator {
     );
 
     public static Set<GatherFilterIndicator> poorIndicators = Set.of(
-            LAST_RESPONSE_BAD, MANY_5XX_403_RESPONSES, FILE_SIZE_SMALL,
+            LAST_RESPONSE_BAD, MANY_5XX_403_RESPONSES, BOT_BLOCKED, FILE_SIZE_SMALL,
             FILE_SIZE_DECREASED, MANY_GOOD_DECREASED, OVERALL_LOW_GATHER, OVERALL_LOW_ARCHIVED
     );
 
