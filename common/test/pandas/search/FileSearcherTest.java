@@ -1,5 +1,7 @@
 package pandas.search;
 
+import org.apache.lucene.document.Document;
+import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetField;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.netpreserve.jwarc.*;
@@ -20,6 +22,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.netpreserve.jwarc.WarcCompression.GZIP;
 
 public class FileSearcherTest {
@@ -92,6 +95,15 @@ public class FileSearcherTest {
         var index = new FileSearcher(indexDir);
         index.indexRecursively(warcDir);
         assertEquals(Set.of(BotBlocker.CLOUDFLARE), index.getBotBlockers());
+    }
+
+    @Test
+    public void botBlockerFacetAllowsMultipleValuesPerDocument() {
+        var document = new Document();
+        document.add(new SortedSetDocValuesFacetField("facet_botBlocker", BotBlocker.CLOUDFLARE.name()));
+        document.add(new SortedSetDocValuesFacetField("facet_botBlocker", BotBlocker.AKAMAI.name()));
+
+        assertDoesNotThrow(() -> FileSearcher.createFacetsConfig().build(document));
     }
 
 }

@@ -62,12 +62,18 @@ public class FileSearcher {
     private final Logger log = LoggerFactory.getLogger(FileSearcher.class);
     private final Directory directory;
     private final Analyzer analyzer = new StandardAnalyzer();
-    private final FacetsConfig facetsConfig = new FacetsConfig();
+    private final FacetsConfig facetsConfig = createFacetsConfig();
     private final File stateFile;
 
     public FileSearcher(Path index) throws IOException {
         this.directory = new MMapDirectory(index);
         stateFile = index.resolve("state.json").toFile();
+    }
+
+    static FacetsConfig createFacetsConfig() {
+        var facetsConfig = new FacetsConfig();
+        facetsConfig.setMultiValued(BOT_BLOCKER_FACET, true);
+        return facetsConfig;
     }
 
     private static boolean isWarcFile(Path path) {
