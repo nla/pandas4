@@ -155,16 +155,16 @@
                 th:unless="${collectionSelectionRequired}"> as part of the
                 <strong><a th:href="@{/collections/{id}(id=${collections[0].id})}"
                            th:text="${collections[0].fullName}">Museums</a></strong> collection.</th:block><th:block
-                th:if="${collectionSelectionRequired && #lists.size(collections) == 1}">, or for one of the
+                th:if="${collectionSelectionRequired && #lists.size(collections) == 1}"> as well as the
                     <strong><a th:href="@{/collections/{id}(id=${collections[0].id})}"
                                th:text="${collections[0].fullName}">Museums</a></strong> subcollections.</th:block><th:block
-                th:if="${collectionSelectionRequired && #lists.size(collections) > 1}">, as part of
+                th:if="${collectionSelectionRequired && #lists.size(collections) > 1}"> as part of the
                 <th:block th:each="collection, iteration : ${collections}"><strong><a
                         th:href="@{/collections/{id}(id=${collection.id})}"
                         th:text="${collection.fullName}">Museums</a></strong><th:block
                         th:unless="${iteration.last}"
                         th:text="${iteration.index == iteration.size - 2 ? ' or ' : ', '}">, </th:block></th:block>
-                or one of their subcollections.</th:block>
+                subcollections.</th:block>
             The Collection team will review your nomination.
             <a th:href="@{/titles(nominator=${@userService.currentUser.id})}">See your previous nominations.</a>
         </p>
@@ -172,11 +172,17 @@
         <details class=nomination-guidance>
             <summary>What makes a useful nomination?</summary>
             <p>Choose an Australian website with meaningful content that could be valuable to researchers or future
-                generations. In general, websites on the .au domain will already have been archived. You can check by
-                doing a search on <a href="https://trove.nla.gov.au/" target=_blank rel=noopener>Trove</a>, changing
-                ‘All Categories’ to ‘Websites’.</p>
-            <p>If the website is already archived, but you want it captured better or more frequently, or if you think
-                it should be added to a subcollection, please submit the form and tell us.</p>
+                generations. In general, websites on the .au domain will already have been archived by the Whole Domain
+                Harvest. You can check by doing a URL search on Trove. Go to
+                <a href="https://trove.nla.gov.au/" target=_blank rel=noopener>Trove</a>, change ‘All Categories’ to
+                ‘Websites’ and add your URL.</p>
+            <p>If the website is already archived, but:</p>
+            <ul>
+                <li>you want a higher quality capture,</li>
+                <li>you want more frequent captures, or</li>
+                <li>you think it should be added to a subcollection,</li>
+            </ul>
+            <p>please submit the form and tell us.</p>
             <p>Every nomination will be reviewed, but some websites may not be suitable or possible to archive. If your
                 nomination is particularly time-sensitive please reach out directly to
                 <a href="mailto:select@nla.gov.au">select@nla.gov.au</a></p>
