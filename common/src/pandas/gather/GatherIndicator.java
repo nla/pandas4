@@ -89,7 +89,13 @@ public class GatherIndicator {
         BOT_BLOCKED_ANUBIS("Blocked by Anubis"),
         BOT_BLOCKED_CLOUDFLARE("Blocked by Cloudflare"),
         BOT_BLOCKED_DATADOME("Blocked by DataDome"),
-        BOT_BLOCKED_INCAPSULA("Blocked by Incapsula");
+        BOT_BLOCKED_INCAPSULA("Blocked by Incapsula"),
+        BOT_BLOCKED_AWS_WAF("Blocked by AWS WAF"),
+        BOT_BLOCKED_AZURE_WAF("Blocked by Azure WAF"),
+        BOT_BLOCKED_KASADA("Blocked by Kasada"),
+        BOT_BLOCKED_LUA_ANTI_DDOS("Blocked by Lua Anti-DDoS"),
+        BOT_BLOCKED_PERIMETERX("Blocked by PerimeterX"),
+        BOT_BLOCKED_VERCEL("Blocked by Vercel");
 
         public final String label;
 
@@ -104,6 +110,12 @@ public class GatherIndicator {
                 case BOT_BLOCKED_CLOUDFLARE -> BotBlocker.CLOUDFLARE;
                 case BOT_BLOCKED_DATADOME -> BotBlocker.DATADOME;
                 case BOT_BLOCKED_INCAPSULA -> BotBlocker.INCAPSULA;
+                case BOT_BLOCKED_AWS_WAF -> BotBlocker.AWS_WAF;
+                case BOT_BLOCKED_AZURE_WAF -> BotBlocker.AZURE_WAF;
+                case BOT_BLOCKED_KASADA -> BotBlocker.KASADA;
+                case BOT_BLOCKED_LUA_ANTI_DDOS -> BotBlocker.LUA_ANTI_DDOS;
+                case BOT_BLOCKED_PERIMETERX -> BotBlocker.PERIMETERX;
+                case BOT_BLOCKED_VERCEL -> BotBlocker.VERCEL;
                 default -> null;
             };
         }
@@ -115,6 +127,12 @@ public class GatherIndicator {
                 case CLOUDFLARE -> BOT_BLOCKED_CLOUDFLARE;
                 case DATADOME -> BOT_BLOCKED_DATADOME;
                 case INCAPSULA -> BOT_BLOCKED_INCAPSULA;
+                case AWS_WAF -> BOT_BLOCKED_AWS_WAF;
+                case AZURE_WAF -> BOT_BLOCKED_AZURE_WAF;
+                case KASADA -> BOT_BLOCKED_KASADA;
+                case LUA_ANTI_DDOS -> BOT_BLOCKED_LUA_ANTI_DDOS;
+                case PERIMETERX -> BOT_BLOCKED_PERIMETERX;
+                case VERCEL -> BOT_BLOCKED_VERCEL;
             };
         }
 

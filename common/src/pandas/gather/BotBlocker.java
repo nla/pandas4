@@ -9,7 +9,13 @@ public enum BotBlocker {
     ANUBIS("Anubis"),
     CLOUDFLARE("Cloudflare"),
     DATADOME("DataDome"),
-    INCAPSULA("Incapsula");
+    INCAPSULA("Incapsula"),
+    AWS_WAF("AWS WAF"),
+    AZURE_WAF("Azure WAF"),
+    KASADA("Kasada"),
+    LUA_ANTI_DDOS("Lua Anti-DDoS"),
+    PERIMETERX("PerimeterX"),
+    VERCEL("Vercel");
 
     private final String displayName;
 
