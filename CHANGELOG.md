@@ -1,6 +1,14 @@
 # PANDAS Changelog
 
-## Unreleased
+## 4.17.0 2026-10-16
+
+### New features
+
+- The Gathered worktray now flags gathers blocked by bot protection (Akamai, Anubis, AWS WAF, Azure WAF, Cloudflare, DataDome, Incapsula, Kasada, Lua Anti-DDoS, PerimeterX and Vercel), with a new "Blocked" filter. Detection is based on Heritrix's bot block detector.
+
+### Changes
+
+- Updated the wording on the nomination form, including guidance on checking Trove for existing archived copies and a contact address for time-sensitive nominations.
 
 ## 4.16.1 2026-09-30
 
