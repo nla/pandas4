@@ -10,7 +10,7 @@
     <artifactId>pandas4-social</artifactId>
 
     <properties>
-        <lucene.version>9.4.2</lucene.version>
+        <lucene.version>10.3.1</lucene.version>
     </properties>
 
     <build>
