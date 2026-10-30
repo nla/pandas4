@@ -1,5 +1,21 @@
 # PANDAS Changelog
 
+## 4.17.2 2026-10-30
+
+### Changes
+
+- The nomination form guidance now explains that predominantly audio-visual sites (such as music or video streaming services) and pages behind a login can't be included in the web archive.
+
+## 4.17.1 2026-10-29
+
+### Bug fixes
+
+- Fixed file search indexes created by older versions of PANDAS failing to open (added lucene-backward-codecs).
+
+### Dependency upgrades
+
+* **Browsertrix image**: 1.13.2 → 1.15.1
+
 ## 4.17.0 2026-10-16
 
 ### New features
